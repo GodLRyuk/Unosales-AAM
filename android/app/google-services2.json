@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "522299331392",
+    "project_id": "unosagsalesuat",
+    "storage_bucket": "unosagsalesuat.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:522299331392:android:bf4836209fc1d87687e0a5",
+        "android_client_info": {
+          "package_name": "com.UnoSales.unosfa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJXN0xNYngn4nUz8CB7EDhGbeFhrDrlc8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
