@@ -347,7 +347,7 @@ class _FsadashboardState extends State<Fsadashboard> {
         setState(() {
           accepted = losData
               .where((item) =>
-                  item['offerStatus'] == 'Accept' &&
+                  item['offerStatus'] == 'Accept' || item['offerStatus'] == 'Accept_Manual' &&
                   item['lastScreen'] == null)
               .length;
 
