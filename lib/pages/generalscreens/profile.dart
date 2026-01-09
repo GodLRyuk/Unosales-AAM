@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:unosfa/pages/generalscreens/entrypage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/generalscreens/profileUpdate.dart';
@@ -17,6 +18,8 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  String appVersion ="";
+  String appCode = "";
   List<String>? userInfo;
   Map<String, dynamic> userData = {};
 
@@ -32,6 +35,21 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     _loadData();
+    loadVersion();
+  }
+
+  Future<void> loadVersion() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final cleanVersion = packageInfo.version.split('-').first;
+    setState(() {
+      appVersion ='Version $cleanVersion';
+      appCode ='Code ${packageInfo.buildNumber}';
+    });      
+    } catch (e) {
+      print("catch error $e");
+    }
+   
   }
 
   Future<void> _loadData() async {
@@ -548,6 +566,14 @@ class _ProfilePageState extends State<ProfilePage> {
                       : () => _handleLogout(context, isCheckout: true),
                 ),
               ),
+
+              SizedBox(height: MediaQuery.sizeOf(context).height *0.2,),
+             
+              Text("$appVersion", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+              SizedBox(height: MediaQuery.sizeOf(context).height *0.01,),
+
+              Text("$appCode", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+
             ],
           ),
         ),

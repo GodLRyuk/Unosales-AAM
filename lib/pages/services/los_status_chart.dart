@@ -33,12 +33,13 @@ class _LosStatusChartState extends State<LosStatusChart>
     'In-Principle Approved': [],
     'Final Approved': [],
     'Declined': [],
+    'Disbursed': []
   };
   List<Map<String, dynamic>> _mergedLeads = [];
-int _currentPage = 1;
-bool _isFetchingMore = false;
-bool _hasMoreData = true;
-final ScrollController _scrollController = ScrollController();
+  int _currentPage = 1;
+  bool _isFetchingMore = false;
+  bool _hasMoreData = true;
+  final ScrollController _scrollController = ScrollController();
 
   Map<int, bool> _tabLoading = {};
 
@@ -76,62 +77,52 @@ final ScrollController _scrollController = ScrollController();
       }
     });
 
-     WidgetsBinding.instance.addPostFrameCallback((_) {
-    _resetAndLoad();
-  });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _resetAndLoad();
+    });
 
-  _tabController.addListener(() {
-    if (_tabController.indexIsChanging) return;
-    _resetAndLoad();
-  });
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) return;
+      _resetAndLoad();
+    });
 
-  _scrollController.addListener(_onScroll);
+    _scrollController.addListener(_onScroll);
 
     // Load LOS data
     //_loadLOSData();
   }
 
   void _resetAndLoad() {
-  final selectedTab = tabTitles[_tabController.index];
-  final status = _tabStatusMap[selectedTab];
+    final selectedTab = tabTitles[_tabController.index];
+    final status = _tabStatusMap[selectedTab];
 
-  setState(() {
-  _currentPage = 1;
-  _hasMoreData = true;
-  _mergedLeads.clear();
+    setState(() {
+      _currentPage = 1;
+      _hasMoreData = true;
+      _mergedLeads.clear();
+    });
 
-});
+    if (widget.searchQuery != null) {
+      print("search value is ${widget.searchQuery}");
+      _searchLOSData(
+        offerStatus: status,
+        page: 1,
+        isLoadMore: false,
+        searchQuery: widget.searchQuery,
+      );
+    } else {
+      print("No search value");
+      _loadLOSData();
+    }
+  }
 
-if(widget.searchQuery != null)
+  void _onScroll() {
+    if (!_scrollController.hasClients || _isFetchingMore || !_hasMoreData)
+      return;
 
-{
-  print("search value is ${widget.searchQuery}");
-  _searchLOSData(
-     offerStatus: status,
-     page: 1,
-     isLoadMore: false,
-     searchQuery: widget.searchQuery,
-  );
-}
+    final threshold = 200.0;
 
-
-else
-{
-  print("No search value");
- _loadLOSData();
-}
-
-
-}
-
-void _onScroll() {
-  if (!_scrollController.hasClients ||
-      _isFetchingMore ||
-      !_hasMoreData) return;
-
-  final threshold = 200.0;
-
-  // if (_scrollController.position.extentAfter < threshold) {
+    // if (_scrollController.position.extentAfter < threshold) {
     _isFetchingMore = true;
 
     Future.delayed(const Duration(seconds: 0), () {
@@ -144,8 +135,8 @@ void _onScroll() {
 
       _loadLOSData();
     });
-  // }
-}
+    // }
+  }
 
   @override
   void dispose() {
@@ -153,15 +144,14 @@ void _onScroll() {
     super.dispose();
   }
 
-  
-final Map<String, String> _tabStatusMap = {
-  'Total Accepted': 'Accept,Accept_Manual',
-  'In-Progress': 'IN-PROGRESS',
-  'In-Principle Approved': 'PRE-QUALIFIED',
-  'Final Approved': 'Pass',
-  'Declined': 'Cancel,Fail,REJECT,Dedupe',
-  'Disbursed': 'Availed,Avail_Manual',
-};
+  final Map<String, String> _tabStatusMap = {
+    'Total Accepted': 'Accept,Accept_Manual',
+    'In-Progress': 'IN-PROGRESS',
+    'In-Principle Approved': 'PRE-QUALIFIED',
+    'Final Approved': 'Pass',
+    'Declined': 'Cancel,Fail,REJECT,Dedupe',
+    'Disbursed': 'Availed,Avail_Manual',
+  };
 
   Future<void> _loadLOSData() async {
     setState(() => _isLoading = true);
@@ -169,7 +159,6 @@ final Map<String, String> _tabStatusMap = {
     List<String>? userInfo = prefs.getStringList('userInfo');
     String userId = userInfo![0];
     String? accessToken = prefs.getString('accessToken');
-
 
     if (userInfo == null || accessToken == null) {
       print("User info or access token not found.");
@@ -208,7 +197,6 @@ final Map<String, String> _tabStatusMap = {
     };
 
     try {
-
       String url = "";
       url = "/application/latest?agentId=$userId&isAllRequired=true";
 
@@ -223,13 +211,12 @@ final Map<String, String> _tabStatusMap = {
       final response = await ApiService.getWithUnoApiHeaders(url, headers);
 
       if (response != null) {
-        if (response.statusCode == 200) { 
+        if (response.statusCode == 200) {
           // 🔹 Decode both responses
           final appJson = json.decode(response.body);
           final List appResults = appJson['result'] ?? [];
           List<Map<String, dynamic>> mergedLeads = [];
           for (var appLead in appResults) {
-
             mergedLeads.add({
               'firstName': appLead['firstName'],
               'middleName': appLead['middleName'],
@@ -248,203 +235,199 @@ final Map<String, String> _tabStatusMap = {
             _isLoading = false;
           });
 
+          if (_mergedLeads.isNotEmpty) {
+            // Get the first match’s offer status
+            final matchedStatus = _mergedLeads.first['offerStatus'];
+            final statusTab = _getTabTitleForStatus(matchedStatus);
 
-           if ( _mergedLeads.isNotEmpty) {
-              // Get the first match’s offer status
-              final matchedStatus =  _mergedLeads.first['offerStatus'];
-              final statusTab = _getTabTitleForStatus(matchedStatus);
-
-              if (statusTab != null && tabTitles.contains(statusTab)) {
-                final index = tabTitles.indexOf(statusTab);
-                _tabController.animateTo(index);
-              }
+            if (statusTab != null && tabTitles.contains(statusTab)) {
+              final index = tabTitles.indexOf(statusTab);
+              _tabController.animateTo(index);
+            }
 
             print("merge leade is $mergedLeads");
 
-              // Show only the filtered results in their categories
-              setState(() {
-                //_mergedLeads = filteredLeads;
-                _categorizeLeads();
-              });
-            } else {
-              print("No matching results for: ${widget.searchQuery}");
-            }
+            // Show only the filtered results in their categories
+            setState(() {
+              //_mergedLeads = filteredLeads;
+              _categorizeLeads();
+            });
+          } else {
+            print("No matching results for: ${widget.searchQuery}");
           }
         }
       }
-    catch (e) {
+    } catch (e) {
       print("HTTP LOS Request Failed: $e");
       setState(() => _isLoading = false);
     }
   }
 
-  // For search api is call *******************************
-
-Future<void> _searchLOSData({
-  String? offerStatus,
-  String? searchQuery,
-  int page = 1,
-  bool isLoadMore = false,
-}) async {
-  // 🔹 Set correct loader flags
-  if (isLoadMore) {
-    setState(() => _isFetchingMore = true);
-  } else {
-    setState(() => _isLoading = true);
-  }
 
 
-  try {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String token ="";
-    List<String>? userInfo = prefs.getStringList('userInfo');
-    String userId = userInfo![0];
-    String? accessToken = prefs.getString('accessToken');
+  Future<void> _searchLOSData({
+    String? offerStatus,
+    String? searchQuery,
+    int page = 1,
+    bool isLoadMore = false,
+  }) async {
+    // 🔹 Set correct loader flags
+    if (isLoadMore) {
+      setState(() => _isFetchingMore = true);
+    } else {
+      setState(() => _isLoading = true);
+    }
+
     try {
-      String tokenUrl = "/api/leads/los-access-token/";
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String token = "";
+      List<String>? userInfo = prefs.getStringList('userInfo');
+      String userId = userInfo![0];
+      String? accessToken = prefs.getString('accessToken');
+      try {
+        String tokenUrl = "/api/leads/los-access-token/";
+        final headers = {
+          'Authorization': 'Bearer $accessToken',
+          'Content-Type': 'application/json',
+          'User-Agent':
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        };
+        final Tokenresponse =
+            await ApiService.getWithHeaders(tokenUrl, headers);
+        if (Tokenresponse != null) {
+          final data = json.decode(Tokenresponse.body);
+          token = data['access_token'];
+        }
+      } catch (e) {
+        print("HTTP Request Failed: $e");
+      }
+
+      print("search query data is... $searchQuery");
+      String url = "";
+
+      url = "/application/details";
+
       final headers = {
-        'Authorization': 'Bearer $accessToken',
-        'Content-Type': 'application/json',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        'Accept': '*/*',
+        'Correlation-Id': 'CORR-123456',
+        'Channel': 'FSA',
+        'Cookie':
+            '__METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95; __METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95',
+        "Authorization": "Bearer $token",
+        'Content-Type': "application/json",
       };
-      final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
-      if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
-        token = data['access_token'];
+
+      // final body = {
+      //   "applicationId": searchQuery,
+      //  "mobileNumber": searchQuery  //"applicationId": "FSA_99333220251218174946",  "mobileNumber": "639811223344"
+      // };
+
+      Map<String, dynamic> body;
+
+      if (RegExp(r'^\d{12}$').hasMatch(searchQuery!)) {
+        print("hello");
+        body = {"mobileNumber": searchQuery};
+      } else {
+        print("world");
+        body = {"applicationId": searchQuery};
+      }
+
+
+      final response = await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
+
+      if (response == null || response.statusCode != 200) {
+        setState(() {
+          _isLoading = false;
+          _isFetchingMore = false;
+        });
+        return;
+      }
+
+      final appJson = json.decode(response.body);
+      final List results = appJson['result'] ?? [];
+      print("result is $results");
+
+      final uniqueStatuses = results
+          .map((item) => item['offerStatus']?.toString() ?? '')
+          .toSet()
+          .toList();
+      //print("uniqueStatuses is $uniqueStatuses");
+
+      _switchToTabForStatus(uniqueStatuses);
+
+      List<Map<String, dynamic>> mergedLeads =
+          results.map<Map<String, dynamic>>(
+        (appLead) {
+          return {
+            'firstName': appLead['firstName'] ?? '',
+            'middleName': appLead['middleName'] ?? '',
+            'lastName': appLead['lastName'] ?? '',
+            'mobilePhone': appLead['mobileNo'] ?? '',
+            'CWTransactionID': appLead['applicationNo'] ?? '',
+            'applicationNo': appLead['applicationNo'] ?? '',
+            'offerStatus': appLead['offerStatus'] ?? '',
+          };
+        },
+      ).toList();
+      // 🔹 Update UI safely
+      setState(() {
+        _mergedLeads = mergedLeads;
+        _categorizeLeads();
+        _isLoading = false;
+      });
+      if (_mergedLeads.isNotEmpty) {
+        // Get the first match’s offer status
+        final matchedStatus = _mergedLeads.first['offerStatus'];
+        final statusTab = _getTabTitleForStatus(matchedStatus);
+
+        if (statusTab != null && tabTitles.contains(statusTab)) {
+          final index = tabTitles.indexOf(statusTab);
+          _tabController.animateTo(index);
+        }
+
+        print("merge leade is $mergedLeads");
+
+        // Show only the filtered results in their categories
+        setState(() {
+          //_mergedLeads = filteredLeads;
+          _categorizeLeads();
+        });
+      } else {
+        print("No matching results for: ${widget.searchQuery}");
       }
     } catch (e) {
-      print("HTTP Request Failed: $e");
-    }
-    
-    print("search query data is... $searchQuery");
-    String url="";
-
-    url = "/application/details";  
-
-    final headers = {
-       'Accept': '*/*',
-      'Correlation-Id': 'CORR-123456',
-      'Channel': 'FSA',
-      'Cookie': '__METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95; __METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95',
-      "Authorization": "Bearer $token",
-      'Content-Type': "application/json",
-    };
-
-    final body = {
-      "applicationId": searchQuery,
-    };
-
-    final response = await ApiService.postJsonWithHeaders(url, body,headers);
-    print("response is ${response!.body}");
-    print("response is ${response.statusCode}"); //_99333220251218174946
-
-    if (response == null || response.statusCode != 200) {
+      debugPrint("LOS API error: $e");
       setState(() {
         _isLoading = false;
         _isFetchingMore = false;
       });
-      return;
-    }
-
-    final appJson = json.decode(response.body);
-    final List results = appJson['result'] ?? [];
-    print("result is $results");
-
-   
-
-   final uniqueStatuses = results
-    .map((item) => item['offerStatus']?.toString() ?? '')
-    .toSet()
-    .toList();
-   print("uniqueStatuses is $uniqueStatuses");
-  
-   _switchToTabForStatus(uniqueStatuses);
-
-
-
-   List<Map<String, dynamic>> mergedLeads = results.map<Map<String, dynamic>>(
-      (appLead) {
-        return {
-          'firstName': appLead['firstName'] ?? '',
-          'middleName': appLead['middleName'] ?? '',
-          'lastName': appLead['lastName'] ?? '',
-          'mobilePhone': appLead['mobileNo'] ?? '',
-          'CWTransactionID': appLead['applicationNo'] ?? '',
-          'applicationNo': appLead['applicationNo'] ?? '',
-          'offerStatus': appLead['offerStatus'] ?? '',
-        };
-      },
-    ).toList();
-
-    // 🔹 Update UI safely
-    setState(() {
-      if (isLoadMore) {
-        _mergedLeads.addAll(mergedLeads);
-      } else {
-        _mergedLeads = mergedLeads;
-      }
-
-      _isLoading = false;
-      _isFetchingMore = false;
-
-      // 🔹 No more pages
-      if (mergedLeads.isEmpty) {
-        _hasMoreData = false;
-      }
-    });
-  } catch (e) {
-    debugPrint("LOS API error: $e");
-    setState(() {
-      _isLoading = false;
-      _isFetchingMore = false;
-    });
-  }
-}
-
-
-void _switchToTabForStatus(List<String> uniqueStatuses) {
-  if (uniqueStatuses.isEmpty) return;
-
-  String firstStatus = uniqueStatuses.first;
-  print("firstStatus is $firstStatus");
-
-  // String firstUpperText = firstStatus.toUpperCase();
-  // String? tabTitle = _getTabTitleForStatus(firstUpperText);
-  // print("tabTitle is $tabTitle");
-
-  String firstUpperText = firstStatus.toUpperCase();
-  String? tabTitle = _getTabTitleForStatus(firstStatus);
-  print("tabTitle is $tabTitle");
-
-  if (tabTitle != null && tabTitles.contains(tabTitle)) {
-    int newIndex = tabTitles.indexOf(tabTitle);
-   // print("new index is $newIndex");
-    //print("tab controller is ${_tabController.index}");
-
-    // Switch tab if it's not already selected
-    if (_tabController.index != newIndex) {
-      _tabController.animateTo(newIndex);
-      //print("switch");
     }
   }
-}
+
+  void _switchToTabForStatus(List<String> uniqueStatuses) {
+    if (uniqueStatuses.isEmpty) return;
+    String firstStatus = uniqueStatuses.first;
+    //print("firstStatus is $firstStatus");
+
+    String firstUpperText = firstStatus.toUpperCase();
+    String? tabTitle = _getTabTitleForStatus(firstUpperText);
+    print("tabTitle is $tabTitle");
+
+    if (tabTitle != null && tabTitles.contains(tabTitle)) {
+      int newIndex = tabTitles.indexOf(tabTitle);
+
+      // Switch tab if it's not already selected
+      if (_tabController.index != newIndex) {
+        _tabController.animateTo(newIndex);
+        
+      }
+    }
+  }
 
 
-//********************************************** */
-
-
-  
-
-
-
-
-
-
-
-  
 
   void _categorizeLeads() {
+    print("lead: ${_mergedLeads}");
     categorizedData['Total Accepted'] = _mergedLeads
         .where((lead) =>
             lead['offerStatus'] == 'Accept' ||
@@ -572,19 +555,20 @@ void _switchToTabForStatus(List<String> uniqueStatuses) {
 
                 print("TabTile is $tabTitles");
 
+                print(categorizedData[tabTitles[_tabController.index]]);
                 final currentTabLeads =
                     categorizedData[tabTitles[_tabController.index]]!;
                 print("current tab leads is $currentTabLeads");
                 if (currentTabLeads.isEmpty) {
                   return Center(child: Text("No Data Found"));
                 }
-                print("current tab leads is $currentTabLeads");
+                print("current tab leads is ${currentTabLeads.length}");
 
                 return ListView.builder(
                   itemCount: currentTabLeads.length,
                   itemBuilder: (context, index) {
                     final lead = currentTabLeads[index];
-                   
+
                     return Container(
                       margin: const EdgeInsets.symmetric(
                           vertical: 10, horizontal: 10),

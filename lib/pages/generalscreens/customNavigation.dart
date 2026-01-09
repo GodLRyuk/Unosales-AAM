@@ -61,12 +61,18 @@ class _NavigationPageState extends State<NavigationPage> {
           if (_role == "FR") Salesdashboard(),
           if (_role == "Supervisor") Fsadashboard(),
           if (_role == "FSA") Fsadashboard(),
-        FormReport(),  // For pdf
-         // Otpconcent(phoneNumber: '638670853699',),
-          DedupeCheck(),
+       // FormReport(),  // For pdf
+          //Otpconcent(phoneNumber: '638670853699',),
+         // DedupeCheck(),
           // LosApplicationPage(leadId: '', campaign:   '', pagemode: '',),
 
           ComingSoon(),
+          //Registration_new(loginWith: "",),
+         // DailySalesReport(pagemode: "",dsrId: "",),
+          ComingSoon(),
+        //  DailyAgentPlaner(pageMode: "",activityId: "",),
+        //   TaskDetails()
+         
           
           
         ],

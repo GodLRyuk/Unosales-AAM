@@ -198,9 +198,9 @@ class ApiService {
     }
   }
 
+//
 
-
-  static Future<http.Response?> postJsonWithHeaders(
+  static Future<http.Response?> postJsonWithUNOApiHeaders(
     String endpoint,
     Map<String, dynamic> body,
     Map<String, String> headers,
@@ -210,7 +210,7 @@ class ApiService {
     final isHttps = baseUri.scheme == 'https';
 
      print("postJsonWithHeaders header $fullUrl"); //********** */
-     print("postJsonWithHeaders header $headers"); //********** */
+     print("postJsonWithHeaders header $headers"); 
     // headers['User-Agent'] =
     //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
     if (isHttps) {
@@ -242,7 +242,7 @@ class ApiService {
 
 
 
-   static Future<http.Response?> postJsonWithUNOApiHeaders(
+   static Future<http.Response?> postJsonWithHeaders(
     String endpoint,
     Map<String, dynamic> body,
     Map<String, String> headers,
@@ -295,9 +295,8 @@ class ApiService {
     headers['User-Agent'] =
         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
 
-     print("getWithHeaders url is $fullUrl"); //************** */
-     print("getWithHeaders url is $headers"); //************** */
-
+     print("getWithHeaders url is $fullUrl");
+     print("getWithHeaders url is $headers"); 
     if (isHttps) {
       final result = await HttpCertificatePinning.check(
         serverURL: baseUri.origin,

@@ -516,54 +516,53 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
                     print("resultstatus is $resultstatus");
                     print("onGoingStatus is $onGoingStatus");
                    
-                    Navigator.push(
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => DedupeCheck(),
+                    //   ),
+                    // );
+
+                  if(resultstatus.isEmpty || onGoingStatus!=false)                   
+                    {
+                      Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => DedupeCheck(),
                       ),
                     );
+                  }
 
-                  // if(resultstatus.isEmpty || onGoingStatus!=false)                   
-                  //   {
-                  //     Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //       builder: (context) => DedupeCheck(),
-                  //     ),
-                  //   );
-                  // }
-
-                  // else if(resultstatus == "In-Progress" && onGoingStatus == false)
-                  //  // else if(resultstatus == "IN-PROGRESS"  && onGoingStatus==true)
-                  //   {
-                  //     showDialog(
-                  //     context: context,
-                  //     barrierDismissible: false,
-                  //     builder: (BuildContext context) {
-                  //       return AlertDialog(
-                  //         title: Text("Application"),
-                  //         content: Text(
-                  //           "You already have an ongoing application in AAM.\n"
-                  //           "Starting a new application is not allowed at this time."
-                  //         ),
-                  //         actions: [
-                  //           TextButton(
-                  //             onPressed: () {
-                  //               Navigator.of(context).pop();
-                  //               Navigator.pushReplacement(
-                  //                 context,
-                  //                 MaterialPageRoute(
-                  //                   builder: (context) => NavigationPage(),
-                  //                 ),
-                  //               );
-                  //             },
-                  //             child: Text("Ok"),
-                  //           ),
-                  //         ],
-                  //       );
-                  //     },
-                  //   );
-                  //   }
+                  else if(resultstatus == "In-Progress" && onGoingStatus == false)
+                    {
+                      showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: Text("Application"),
+                          content: Text(
+                            "You already have an ongoing application in AAM.\n"
+                            "Starting a new application is not allowed at this time."
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => NavigationPage(),
+                                  ),
+                                );
+                              },
+                              child: Text("Ok"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    }
                     
                   } else if (currentTab.contains('company')) {
                     Navigator.push(

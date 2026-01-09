@@ -208,10 +208,17 @@ class _FsadashboardState extends State<Fsadashboard> {
                 checkInUrl,
                 mapeddata,
                 headers,
-              );
+              );  
+              // print(checkInUrl);
+              // print(mapeddata); 
+
+              // print(headers); 
+
+             // print("checkInResponse code is ${checkInResponse!.statusCode}");        
 
               if (checkInResponse != null) {
                 final data = json.decode(checkInResponse.body);
+                print("data is this $data");
                 if (data['data'] != null) {
                   final isCheckedIn = data['data']['is_checked_in'] ?? false;
                   await prefs.setBool('checkInStatus', isCheckedIn);

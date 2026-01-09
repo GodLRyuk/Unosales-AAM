@@ -7,7 +7,7 @@ class AppConfig {
   /// Base URLs
   static const String unoApiurluat = "https://unoapi.uat.ph.unobank.asia";
   static const String unoApiurlprod = "https://unoapi.prod.ph.unobank.asia";
-  static const String unoApiurldev = "http://167.88.160.87";
+  static const String unoApiurldev = "http://158.69.207.4:8080"; 
   // static const String unoApiurldev = "http://192.168.29.239";
 
   static const String baseUrlUat = "$unoApiurluat/unosales";
