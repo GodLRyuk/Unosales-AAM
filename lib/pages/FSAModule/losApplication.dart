@@ -350,7 +350,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       return;
     }
     try {
-      String url = '/api/leads/companies/$query/';
+      String url = '/api/leads/companies/?search=$query';
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
 
@@ -2328,7 +2328,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                             icon: const Icon(Icons.search),
                                             onPressed: () {
                                               // Trigger the search when the search icon is pressed
-                                              _searchCompany(
+                                              _searchCompanyGetDSR(
                                                   _searchController.text);
                                             },
                                           ),
