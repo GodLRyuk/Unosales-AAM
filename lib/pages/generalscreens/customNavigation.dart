@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/FSAModule/fsadashboard.dart';
-import 'package:unosfa/pages/Report/form_report.dart';
 import 'package:unosfa/pages/commingSoon.dart';
 import 'package:unosfa/pages/generalscreens/profile.dart';
 import 'package:unosfa/pages/FRModule/salesdashboard.dart';
-import 'package:unosfa/pages/otpscreens/dedupeCheck.dart';
-import 'package:unosfa/pages/otpscreens/otpConcent.dart';
 
 class NavigationPage extends StatefulWidget {
   final int initialIndex;
@@ -64,7 +61,7 @@ class _NavigationPageState extends State<NavigationPage> {
        // FormReport(),  // For pdf
           //Otpconcent(phoneNumber: '638670853699',),
          // DedupeCheck(),
-          // LosApplicationPage(leadId: '', campaign:   '', pagemode: '',),
+          //LosApplicationPage(leadId: '', campaign:   '', pagemode: '',),
 
           ComingSoon(),
           //Registration_new(loginWith: "",),
