@@ -73,7 +73,17 @@ class OtpconcentState extends State<Otpconcent> {
   void initState() {
     super.initState(); // check what data receive
     print("check what data receive");
-    print(widget.losData.toJson());
+    String jsonString = jsonEncode(widget.losData.toJson());
+
+      for (int i = 0; i < jsonString.length; i += 1000) {
+        print(
+          jsonString.substring(
+            i,
+            (i + 1000 > jsonString.length) ? jsonString.length : i + 1000,
+          ),
+        );
+      }
+
    _start = 120; // 🔥 Add this line to initialize the countdown
     resendTimer = false;
     isOtpExpired = false;
@@ -288,7 +298,7 @@ class OtpconcentState extends State<Otpconcent> {
           "hra": ""
         },
         "_Fin_Details": {
-          "fin_Mthly_Income": double.tryParse(data.empMonthsInCompany!)?.toInt().toString(),
+          "fin_Mthly_Income": double.tryParse(data.finMonthlyIncome!)?.toInt().toString(),
           "fin_Ownr_Car": "",
           "fin_Ann_Income": "",
           "fin_Ownr_Home": "",
