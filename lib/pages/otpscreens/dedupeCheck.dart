@@ -549,7 +549,24 @@ class _DedupeCheckState extends State<DedupeCheck> {
                         print("result for hyperverser is $result");
                         if (statusStr.contains("autoDeclined")) {
                           print("Decline");
+                           showDialog(
+                              context: context,                    
+                              builder: (_) => AlertDialog(
+                              title: Text("Error"),
+                              content: Text("Your KYC result  ${result.status.toString().split('.').last}"),
+                                actions: [
+                                  TextButton(
+                                    child: const Text("OK"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
                         } 
+                        
                         else if (statusStr.contains("autoApproved")) {
                           Navigator.push(
                             context,
