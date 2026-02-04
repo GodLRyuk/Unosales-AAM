@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -552,7 +551,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
                            showDialog(
                               context: context,                    
                               builder: (_) => AlertDialog(
-                              title: Text("Error"),
+                              title: Text("Info"),
                               content: Text("Your KYC result  ${result.status.toString().split('.').last}"),
                                 actions: [
                                   TextButton(
@@ -567,7 +566,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
                             );
                         } 
                         
-                        else if (statusStr.contains("autoApproved")) {
+                        else if ((statusStr.contains("autoApproved")) || (statusStr.contains("needsReview"))) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -582,7 +581,23 @@ class _DedupeCheckState extends State<DedupeCheck> {
                           );
                         } 
                         else {
-                          print("Nothing: $statusStr");
+                            print("Nothing: $statusStr");
+                            showDialog(
+                              context: context,                    
+                              builder: (_) => AlertDialog(
+                              title: Text("Info"),
+                              content: Text("Your KYC result  ${result.status.toString().split('.').last}"),
+                                actions: [
+                                  TextButton(
+                                    child: const Text("OK"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
                         }
                       },
                       child: const Text(
