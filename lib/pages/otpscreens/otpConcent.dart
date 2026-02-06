@@ -159,34 +159,6 @@ class OtpconcentState extends State<Otpconcent> {
     return secureRandom;
   }
  
- 
-  String generateSecureTransactionId() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    final entropyInput = '$timestamp:UnoSecureSeed';
-    final secureRandom = createSecureFortunaRandomFromEntropy(entropyInput);
-
-    // generate 4 random digits
-    final digits = List.generate(6, (_) {
-      final byte = secureRandom.nextUint8();
-      return (byte % 10).toString();
-    }).join();
-
-    final now = DateTime.now();
-    // final formattedDate =
-    //     "${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}";
-
-    final formattedDate =
-      "${now.year}"
-      "${now.month.toString().padLeft(2, '0')}"
-      "${now.day.toString().padLeft(2, '0')}"
-      "${now.hour.toString().padLeft(2, '0')}"
-      "${now.minute.toString().padLeft(2, '0')}"
-      "${now.second.toString().padLeft(2, '0')}";
-
-    return "FSA_$digits$formattedDate"; 
-  }
-
-
 
   String generateSecureOTP() {
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
@@ -207,16 +179,10 @@ class OtpconcentState extends State<Otpconcent> {
     return "$digits"; // appended date
   }
 
+
   void submitLos(LosApplicationModel data) async{ // async is updated here 2.12.2025
     setState(() => _isLoading = true);
 
-    String CWTransactionID = generateSecureTransactionId();
-    //final parsedDate = DateFormat('dd-MM-yyyy').parse(data.birthDate!);
-    // String dob = data.birthDate!;
-    // final parsedDate = DateFormat('dd-MM-yyyy').parse(dob);
-
-    // String formattedBirthDate = DateFormat('yyyy-MM-dd').format(parsedDate);
-    // print("formatted date is $formattedBirthDate");
    String dob = data.birthDate!; // "28-01-1960"
 
   // Split the string
@@ -243,7 +209,7 @@ class OtpconcentState extends State<Otpconcent> {
     print("Formated date $formattedBirthDate"); // 1960-01-28
 
    Map<String, dynamic> requestData = {
-      "CWTransactionID": CWTransactionID,
+      "CWTransactionID": widget.losData.cwTransactionID,
       "clientDetails": {
         "ARN": "1513411334533400",
         "idmArnNo": "",
@@ -428,7 +394,7 @@ class OtpconcentState extends State<Otpconcent> {
         "partnerName": "USA FSA",
         "natureOfPartnership": "USA FSA",
         "partnerUserID": "",
-        "applicationNumber": CWTransactionID,
+        "applicationNumber": widget.losData.applicationNumber,
         "expectedMonthlyTransaction": "",
         "redirectionURL": "",
         "docURL": {
@@ -978,40 +944,6 @@ Future<void> callSosLogoin() async {
 
           waybookImplement(requestData['CWTransactionID']); 
 
-    
-
-          // if (application['offerStatus'] == "IN-PROGRESS") {
-          //   print("position 11");
-          //   checkApplicationStatusLoop(application);
-          // } else {
-          //   print("position 12");
-          //   showDialog(
-          //     context: context,
-          //     builder: (BuildContext context) {
-          //       return AlertDialog(
-          //         title: Text("Application Status"),
-          //         content: Text(
-          //           "Offer Status: ${application['offerStatus']}\nUnderWriting Status: ${application['uwStatus']}",
-          //         ),
-          //         actions: [
-          //           TextButton(
-          //             onPressed: () {
-          //               Navigator.of(context).pop();
-          //               Navigator.pushReplacement(
-          //                 context,
-          //                 MaterialPageRoute(
-          //                   builder: (context) =>
-          //                       LeadListByCampaign(campaign: widget.campaign),
-          //                 ),
-          //               );
-          //             },
-          //             child: Text("OK"),
-          //           ),
-          //         ],
-          //       );
-          //     },
-          //   );
-          // }
         } catch (e) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(

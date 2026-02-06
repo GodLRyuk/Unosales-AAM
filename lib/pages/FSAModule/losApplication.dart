@@ -19,6 +19,7 @@ import 'package:intl/intl.dart';
 import 'package:unosfa/pages/generalscreens/customNavigation.dart';
 import 'package:unosfa/pages/otpscreens/otpConcent.dart';
 import 'package:unosfa/pages/services/api_service.dart';
+import 'package:unosfa/pages/services/transactionId.dart';
 import 'package:unosfa/widgetSupport/widgetstyle.dart';
 import 'package:crypto/crypto.dart';
 
@@ -31,6 +32,7 @@ class LosApplicationPage extends StatefulWidget {
   // New add
   final HyperKycResult? ekycResult;
   final dynamic customerDetails;
+  final String? isandcampaign;
 
   const LosApplicationPage({
     super.key,
@@ -41,7 +43,8 @@ class LosApplicationPage extends StatefulWidget {
 
     // New add
     this.ekycResult, // For hyperverser data
-    this.customerDetails, // For ETB details
+    this.customerDetails,
+    this.isandcampaign, // For ETB details
   });
 
   @override
@@ -110,8 +113,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
   final partnerName = TextEditingController();
   final natureOfPartnership = TextEditingController();
-  final applicationNumber = TextEditingController();
-  final CWTransactionID = TextEditingController();
   final emp_Work_Exp = TextEditingController();
   final emp_position = TextEditingController();
   final ClientIP = TextEditingController();
@@ -124,7 +125,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   final validUntil = TextEditingController();
   final documentId = TextEditingController();
   // done
-
+  
   bool _isChecked = false;
   String IpAddress = "";
   String latitude = "";
@@ -545,7 +546,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           // Partner Details
           partnerName.text = "USA FSA";
           natureOfPartnership.text = "USA FSA";
-
 
           // applicationNumber.text = applicationNum;
           Future.delayed(Duration(seconds: 10), () {
@@ -1899,6 +1899,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       documentType.text=details?['ocr_documentId']?? '';
       validUntil.text=details?['ocr_dateOfExpiry']?? '';
       documentId.text=details?['ocr_documentId']?? '';
+
     });
   }
 
@@ -2738,6 +2739,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                   ),
                 ),
                 SizedBox(height: 50),
+
                 ElevatedButton.icon(
                   onPressed: () {
                     if (_isChecked) {
@@ -2748,6 +2750,20 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                       {
                         return;
                       }
+
+                      
+
+
+                      print("cw1");
+                      print("id ${widget.ekycResult?.transactionId}");
+
+                        String CWTransactionIdNo =
+                            widget.ekycResult?.transactionId?.isNotEmpty == true
+                                ? widget.ekycResult!.transactionId!
+                                : generateSecureTransactionId();
+
+
+                      print("cw4");                 
 
                       LosApplicationModel losData = LosApplicationModel(
                           firstName: firstName.text,
@@ -2798,8 +2814,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                           agentCode: agentCode.text,
                           partnerName: partnerName.text,
                           natureOfPartnership: natureOfPartnership.text,
-                          applicationNumber: applicationNumber.text,
-                          cwTransactionID: CWTransactionID.text,
+                          applicationNumber: CWTransactionIdNo,
+                          cwTransactionID: CWTransactionIdNo,
                           empWorkExperience: emp_Work_Exp.text,
                           empPosition: emp_position.text,
                           clientIp: IpAddress,
@@ -2816,7 +2832,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                           leadDetails: leadDetails,
                           dsrId: widget.dsrId);
 
-                      print("losData from model is coming $losData");
+                      print("losData from model is coming ${CWTransactionIdNo}");
+                      
 
                       Navigator.push(
                         context,
@@ -2934,285 +2951,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
               content: Text(message, style: TextStyle(fontSize: 15),)),
           );
   }
-
-
-//   void validateAndSubmit() {
-//     // Basic required fields (client details)
-//     final nameRegex = RegExp(r"^[a-zA-Z\s]+$");
-//     final specialCharRegex =
-//         RegExp(r'''[!@#\$%\^&\*\(\)_\+\=\{\}\[\]:;"'<>,\.\?/\\|~`-]''');
-
-//     if (firstName.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter First Name.");
-//       return;
-//     } else if (!nameRegex.hasMatch(firstName.text.trim())) {
-//       _showValidationDialog("First Name must not contain special characters.");
-//       return;
-//     }
-//     // Define a regex to detect special characters
-//     String middleName = middlename.text.trim();
-// // Check if middle name is not empty and contains any special characters
-//     if (middleName.isNotEmpty && specialCharRegex.hasMatch(middleName)) {
-//       _showValidationDialog("Middle Name must not contain special characters.");
-//       return;
-//     }
-//     if (lastName.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter Last Name.");
-//       return;
-//     } else if (!nameRegex.hasMatch(lastName.text.trim())) {
-//       _showValidationDialog("Last Name must not contain special characters.");
-//       return;
-//     }
-
-//     if (mobilePhone.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter Mobile Number.");
-//       return;
-//     }
-//     if (mobilePhone.text.length != 10) {
-//       _showValidationDialog("Mobile number must be 10 digits.");
-//       return;
-//     }
-//     if (birthDate.text.trim().isEmpty) {
-//       _showValidationDialog("Please select Birth Date.");
-//       return;
-//     }
-
-//     if (gender.text.trim().isEmpty) {
-//       _showValidationDialog("Please select Gender.");
-//       return;
-//     }
-//     if (email.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter Email Address.");
-//       return;
-//     }
-
-//     if (!_isValidEmail(email.text.trim())) {
-//       _showValidationDialog("Please enter a valid Email Address.");
-//       return;
-//     }
-//     if (!RegExp(r"^[\w\.-]+@[\w\.-]+\.\w+$").hasMatch(email.text.trim())) {
-//       _showValidationDialog("Please enter a valid Email Address.");
-//       return;
-//     }
-//     if (civil_Status.text.trim().isEmpty) {
-//       _showValidationDialog("Please select Civil Status.");
-//       return;
-//     }
-
-//     if (nationality.text.trim().isEmpty) {
-//       _showValidationDialog("Please select Nationality.");
-//       return;
-//     }
-//     if (place_Of_Birth.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter Place of Birth.");
-//       return;
-//     }
-
-//     // Address validation
-//     if (!_isValidStreet(perm_Street.text)) {
-//       _showValidationDialog(
-//           "Permanent Street must be at least 10 characters and 3 words.");
-//       return;
-//     }
-//     if (!_isValidStreet(emp_Street.text)) {
-//       _showValidationDialog(
-//           "Employee Street must be at least 10 characters and 3 words.");
-//       return;
-//     }
-
-//     // Work validation
-//     if (emp_position.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter Position.");
-//       return;
-//     }
-//     if (emp_Mths_In_Cur_Comp.text.isEmpty) {
-//       _showValidationDialog(
-//           "Please enter both Years and Months of Work Experience.");
-//       return;
-//     }
-//     if (emp_Yrs_In_Cur_Comp.text.isEmpty) {
-//       _showValidationDialog(
-//           "Please enter both Years and Months of Work Experience.");
-//       return;
-//     }
-
-//     if (perm_ZipCode.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter Zip Code.");
-//       return;
-//     } else if (!RegExp(r'^\d{4}$').hasMatch(perm_ZipCode.text.trim())) {
-//       _showValidationDialog("Zip Code must be exactly 4 digits.");
-//       return;
-//     }
-// // Region
-//     if (perm_Region.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter/select Region.");
-//       return;
-//     }
-
-// // Province
-//     if (perm_State.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter/select Province.");
-//       return;
-//     }
-
-// // City
-//     if (perm_City.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter/select City.");
-//       return;
-//     }
-
-// // Barangay
-//     if (perm_Barangay.text.trim().isEmpty) {
-//       _showValidationDialog("Please select Barangay.");
-//       return;
-//     }
-
-// // Street - Minimum 10 characters & 3 words
-//     if (!_isValidStreet(perm_Street.text)) {
-//       _showValidationDialog(
-//           "Street must be at least 10 characters and 3 words.");
-//       return;
-//     }
-
-//     // ID Type & specific ID validations
-//     if (_selectedIdType == null) {
-//       _showValidationDialog("Please select an Identification ID Type.");
-//       return;
-//     }
-//     // Employment Status
-//     if (emp_Status.text.trim().isEmpty) {
-//       _showValidationDialog("Please select Employment Status.");
-//       return;
-//     }
-
-// // Work Nature
-//     if (emp_Work_Nature.text.trim().isEmpty) {
-//       _showValidationDialog("Please select Employment Work Nature.");
-//       return;
-//     }
-
-// // Profession (if applicable)
-//     if (EmpStatus == true && profession.text.trim().isEmpty) {
-//       _showValidationDialog("Please select Profession.");
-//       return;
-//     }
-
-// // Employer Name
-// // print("EMPLOYES ${emp_Employer_Name.text.trim()}");
-// //     if (emp_Employer_Name.text.trim().isEmpty) {
-// //       _showValidationDialog("Please enter Employer's Name.");
-// //       return;
-// //     } else if (!_isValidName(emp_Employer_Name.text)) {
-// //       _showValidationDialog(
-// //           "Employer's Name must not contain special characters or numbers.");
-// //       return;
-// //     }
-
-// // Industry Type
-//     if (emp_Indus_Type.text.trim().isEmpty) {
-//       _showValidationDialog("Please select Industry Type.");
-//       return;
-//     }
-
-// // Employee Type
-//     if (emp_Type.text.trim().isEmpty) {
-//       _showValidationDialog("Please select Employee Type.");
-//       return;
-//     }
-
-// // Employee Email
-//     if (emp_email.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter Employee Email.");
-//       return;
-//     } else if (!RegExp(r"^[\w\.-]+@[\w\.-]+\.\w+$")
-//         .hasMatch(emp_email.text.trim())) {
-//       _showValidationDialog("Please enter a valid Employee Email Address.");
-//       return;
-//     }
-//     // Monthly Income
-//     if (fin_Mthly_Income.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter Monthly Income.");
-//       return;
-//     } else if (!_isValidIncome(fin_Mthly_Income.text)) {
-//       _showValidationDialog("Monthly Income must be a valid positive number.");
-//       return;
-//     }
-
-// // Source of Funds
-//     if (fin_Src_Of_Funds.text.trim().isEmpty) {
-//       _showValidationDialog("Please select Source of Funds.");
-//       return;
-//     }
-//     // Employment Zip Code - Required, 4 digits
-//     if (emp_ZipCode.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter Employment Zip Code.");
-//       return;
-//     } else if (!RegExp(r'^\d{4}$').hasMatch(emp_ZipCode.text.trim())) {
-//       _showValidationDialog("Employment Zip Code must be exactly 4 digits.");
-//       return;
-//     }
-
-// // Region
-//     if (emp_Region.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter/select Employment Region.");
-//       return;
-//     }
-
-// // Province
-//     if (emp_State.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter/select Employment Province.");
-//       return;
-//     }
-
-// // City
-//     if (emp_City.text.trim().isEmpty) {
-//       _showValidationDialog("Please enter/select Employment City.");
-//       return;
-//     }
-
-// // Barangay
-//     if (emp_Barangay.text.trim().isEmpty) {
-//       _showValidationDialog("Please select Employment Barangay.");
-//       return;
-//     }
-
-// // Street - Minimum 10 characters & 3 words, no special characters
-//     if (!_isValidStreet(emp_Street.text)) {
-//       _showValidationDialog(
-//           "Employment Street must be at least 10 characters and 3 words with no special characters.");
-//       return;
-//     }
-
-//     if (_selectedIdType == IdType.tin) {
-//       if (identity_TinId.text.trim().isEmpty) {
-//         _showValidationDialog("TIN ID cannot be blank.");
-//         return;
-//       } else if (!_isValidIdtin(identity_TinId.text)) {
-//         _showValidationDialog("TIN ID must be 9 digits.");
-//         return;
-//       }
-//     } else if (_selectedIdType == IdType.sss) {
-//       if (identity_SssID.text.trim().isEmpty) {
-//         _showValidationDialog("SSS ID cannot be blank.");
-//         return;
-//       } else if (!_isValidIdsssid(identity_SssID.text)) {
-//         _showValidationDialog("SSS ID must be 10 digits.");
-//         return;
-//       }
-//     } else if (_selectedIdType == IdType.gsis) {
-//       if (identity_GsisID.text.trim().isEmpty) {
-//         _showValidationDialog("GSIS ID cannot be blank.");
-//         return;
-//       } else if (!_isValidIdGsisId(identity_GsisID.text)) {
-//         _showValidationDialog("GSIS ID must be 11 digits.");
-//         return;
-//       }
-//     }
-
-//     // All validations passed
-//     // FocusScope.of(context).unfocus();
-//     // submitLos();
-//   }
 
 
 
@@ -3685,273 +3423,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     );
   }
 
-  FortunaRandom createSecureFortunaRandomFromEntropy(String entropySource) {
-    final secureRandom = FortunaRandom();
-    final entropy = sha256.convert(utf8.encode(entropySource)).bytes;
-    secureRandom.seed(KeyParameter(Uint8List.fromList(entropy)));
-    return secureRandom;
-  }
+ 
 
-  String generateSecureTransactionId() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    final entropyInput = '$timestamp:UnoSecureSeed';
-    final secureRandom = createSecureFortunaRandomFromEntropy(entropyInput);
+ 
 
-    final digits = List.generate(12, (_) {
-      final byte = secureRandom.nextUint8();
-      return (byte % 10).toString();
-    }).join();
-
-    return digits; // e.g., "482739"
-  }
-  
-
-  void submitLos() {
-    setState(() {
-      _isLoading = true;
-    });
-    String CWTransactionID = generateSecureTransactionId();
-
-    String formattedBirthDate;
-    final parsedDate = DateFormat('dd-MM-yyyy').parse(birthDate.text);
-    formattedBirthDate = DateFormat('yyyy-MM-dd').format(parsedDate);
-    String identityTinId = identity_TinId.text.trim();
-    String identityGsisID = identity_GsisID.text.trim();
-    String identitySssID = identity_SssID.text.trim();
-    String phoneNumber = "63" + mobilePhone.text.trim();
-    String first_Name = "";
-    String permZip = "";
-    String empStatus = "";
-    String montlyIncome = "";
-    String empStreet = "";
-    first_Name = firstName.text.trim();
-    permZip = perm_ZipCode.text.trim();
-    empStatus = emp_State.text;
-    empStreet = emp_Street.text.trim();
-
-    montlyIncome = fin_Mthly_Income.text;
-    Map<String, dynamic> requestData = {
-      "CWTransactionID": CWTransactionID,
-      "clientDetails": {
-        "ARN": "1513411334533400",
-        "idmArnNo": "",
-        "clientType": "",
-        "firstName": first_Name,
-        "lastName": lastName.text.trim(),
-        "middleName": middlename.text.trim(),
-        "mobilePhone": phoneNumber,
-        "birthDate": formattedBirthDate,
-        "gender": gender.text.trim(),
-        "emailAddress": email.text.trim(),
-        "homePhoneNumber": "",
-        "branchKey": "",
-        "branchId": "",
-        "branch": "",
-        "ClientIP": IpAddress.trim(),
-        "Longitude": "",
-        "Latitude": "",
-        "addresses": [
-          {
-            "line1": "",
-            "line2": "",
-            "city": perm_City.text.trim(),
-            "region": perm_Region.text.trim(),
-            "postcode": perm_ZipCode.text.trim(),
-            "country": nationality.text.trim(),
-          }
-        ],
-       // "idDocuments": null,
-        "idDocuments": [
-        {
-            "issuingAuthority": issuingAuthority.text.trim(),
-            "address": address.text.trim(),
-            "documentType": documentType.text.trim(),
-            "validUntil": validUntil.text.trim(),
-            "documentId": documentId.text.trim(),
-        }
-    ],
-        "_Perm_Address": {
-          "perm_State": perm_State.text.trim(),
-          "perm_City": perm_City.text.trim(),
-          "perm_Street": perm_Street.text.trim(),
-          "perm_ZipCode": permZip,
-          "perm_Barangay": perm_Barangay.text.trim(),
-          "perm_Region": perm_Region.text.trim(),
-          "perm_Country":
-              nationality.text.trim().replaceFirst(RegExp(r'^0+'), ''),
-          "perm_countryCode": nationality.text.trim(),
-          "hra": ""
-        },
-        "_Fin_Details": {
-          "fin_Mthly_Income": double.tryParse(montlyIncome)?.toInt().toString(),
-          "fin_Ownr_Car": "",
-          "fin_Ann_Income": "",
-          "fin_Ownr_Home": "",
-          "fin_Src_Of_Funds": fin_Src_Of_Funds.text.trim(),
-          "fin_Src_Of_Funds_Code": fin_Src_Of_Funds_Code.text.trim(),
-          "fin_Salary_Period": "",
-          "fin_Salary_dates": "",
-        },
-        "_Identification_Details": {
-          "identity_TinId": identityTinId,
-          "identity_GsisID": identityGsisID,
-          "identity_SssID": identitySssID,
-        },
-        "Nom_Details": null,
-        "_Emp_Details": {
-          "emp_Work_Nature": emp_Work_Nature.text.trim(),
-          "emp_Mths_In_Cur_Comp": emp_Mths_In_Cur_Comp.text.trim(),
-          "emp_Status": emp_Status.text.trim(),
-          "emp_Employer_Name": emp_Employer_Name.text.trim(),
-          "emp_Indus_Type": emp_Indus_Type.text.trim(),
-          "emp_Type": emp_Type.text.trim(),
-          "emp_Yrs_In_Cur_Comp": emp_Yrs_In_Cur_Comp.text.trim(),
-          "Office_phone_no": "",
-          "emp_Type_Code":
-              emp_Type_Code.text.trim().replaceFirst(RegExp(r'^0+'), ''),
-          "emp_Status_Code":
-              emp_Status_Code.text.trim().replaceFirst(RegExp(r'^0+'), ''),
-          "emp_Work_Nature_Code":
-              emp_Work_Nature_Code.text.trim().replaceFirst(RegExp(r'^0+'), ''),
-          "emp_Indus_Type_Code":
-              emp_Indus_Type_Code.text.trim().replaceFirst(RegExp(r'^0+'), ''),
-          "emp_email": emp_email.text.trim(),
-          "companyCategorySegment": "",
-          "profession": profession.text.trim()
-        },
-        "_Emp_Address": {
-          "emp_Street": empStreet,
-          "emp_State": empStatus,
-          "emp_City": emp_City.text.trim(),
-          "emp_Country": nationality.text.replaceFirst(RegExp(r'^0+'), ''),
-          "emp_ZipCode": emp_ZipCode.text.trim(),
-          "emp_Barangay": emp_Barangay.text.trim(),
-          "emp_Region": emp_Region.text.trim(),
-          "emp_countryCode": nationality.text.trim()
-        },
-        "_Personal_Details": {
-          "fatca_Cert_US_Non_US": "",
-          "fatca_W9_IdNumber": "",
-          "no_Of_Dependents": "",
-          "fatca_W9_IdType": "",
-          "civil_Status": civil_Status.text.trim(),
-          "yrs_In_Residence": "",
-          "nationality": nationality.text.trim(),
-          "marketing_Consent": "",
-          "mailing_Adrs": "",
-          "place_Of_Birth": place_Of_Birth.text.trim(),
-          "my_Job": "",
-          "suffix": "",
-          "nom_Counter": "",
-          "cust_IdType": "",
-          "card_Issuance_Status": "",
-          "my_Job_Code": "",
-          "vcard_issueDt": "",
-          "data_Pvcy_Agrmt": "",
-          "is_Term_Cond_Accepted": "",
-          "is_Rcds_Edited": "",
-          "designation": "",
-        },
-        "_Spouse_Details": {
-          "spouse_Name": "",
-          "spouse_Nationality": "",
-          "spouse_DOB": "",
-          "spouse_Place_Of_Birth": "",
-          "spouse_Employment": "",
-        },
-        "dosri_Check": {
-          "dosriCheck": "",
-          "dosriName": "",
-          "dosriRelationship": "",
-        },
-        "rpt_Check": {
-          "rptCheck": "",
-          "rptName": "",
-          "rptRelationship": "",
-        },
-        "_Biz_Address": {
-          "biz_Country": "",
-          "biz_ZipCode": "",
-          "biz_City": "",
-          "biz_Street": "",
-          "biz_State": "",
-          "biz_Barangay": "",
-          "biz_Region": "",
-          "biz_countryCode": ""
-        },
-        "_Biz_Details": {
-          "biz_IndusType": "",
-          "biz_Nature": "",
-          "biz_Name": "",
-          "biz_Yrs_Operating": "",
-          "biz_Mths_Operating": "",
-          "Office_phone_no": "",
-          "biz_email": ""
-        },
-        "_AML_Status": {
-          "aml_Name_Screening_Flag": "",
-          "aml_Scoring_Flag": "",
-          "aml_Name_Request_ID": "",
-          "aml_Name_Case_ID": "",
-          "aml_Scoring_Request_ID": "",
-          "aml_Scoring_Case_ID": ""
-        },
-      },
-      "sourcing": {
-        "customer": {
-          "referralPromoCodeFlag": "",
-          "referralCode": "",
-          "promotionalCode": "",
-          "sourceCompany": "UnoSales",
-          "agentCode": agentCode.text.trim(),
-        },
-        "account": {
-          "referralPromoCodeFlag": "",
-          "referralCode": "",
-          "promotionalCode": "",
-          "sourceCompany": "UnoSales",
-          "agentCode": agentCode.text.trim(),
-        }
-      },
-      "partner": {
-        "partnerName": "USA FSA",
-        "natureOfPartnership": "USA FSA",
-        "partnerUserID": "",
-        "applicationNumber": CWTransactionID,
-        "expectedMonthlyTransaction": "",
-        "redirectionURL": "",
-        "docURL": {
-          "selfieURL": "",
-          "idProofURL": "",
-        },
-        "partnerScore": {
-          "partnerTelcoScore": 0,
-          "partnerPrefilterScore": 0,
-          "partnerBehaviourScore": 0,
-          "partnerSocialScore": 0,
-          "partnerAdditionalScore1": 0,
-          "partnerAdditionalScore2": 0,
-          "partnerAdditionalScore3": 0,
-        },
-        "partnerScreeningStages": {
-          "eKYC": {
-            "emailVerification": "N",
-            "incomeValidation": "N",
-            "addressValidation": "N",
-            "employmentValidation": "N",
-          }
-        },
-      }
-    };
-
-    // Future.delayed(Duration(seconds: 5), () {
-    //   setState(() {
-    //     _isLoading = false; // Data loaded after 5 seconds
-    //   });
-    // });
-
-    postLoanCheck(requestData);
-  }
 
   String convertMonthsToReadableFormat(String monthsStr) {
     int months = int.tryParse(monthsStr) ?? 0;
@@ -3961,7 +3436,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   }
 
   Future<void> postLoanCheck(Map<String, dynamic> requestData) async {
-    print("position 1244444444");
+    
     setState(() {});
     String tokens = "";
     try {

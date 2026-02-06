@@ -645,7 +645,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
                 print("I am ETB user in start fresh");
 
                 var Etbdetails = responseBody["customerDetails"];
-                print(const JsonEncoder.withIndent('  ').convert(Etbdetails));
+               // print(const JsonEncoder.withIndent('  ').convert(Etbdetails));
                 print("details is $Etbdetails");
                 //print(responseBody["customerDetails"]);
                   Navigator.push(

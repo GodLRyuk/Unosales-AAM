@@ -6,6 +6,7 @@ import 'package:hyperkyc_flutter/hyperkyc_result.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/services/api_service.dart';
+import 'package:unosfa/pages/services/transactionId.dart';
 
 class EkycService {
   static final String _chars =
@@ -22,8 +23,8 @@ class EkycService {
     String token = "";
     String finalToken = "";
 
-    //final transactionId = "unoSales_${_randomString(10)}";
-    final transactionId = "unoSales_${DateFormat('yyyyMMddHHmmss').format(DateTime.now())}";
+
+  final transactionId =  generateSecureTransactionId();
     
     print("Transaction Id for eKyc is $transactionId");
 
