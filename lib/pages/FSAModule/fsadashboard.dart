@@ -303,65 +303,84 @@ class _FsadashboardState extends State<Fsadashboard> {
   }
 
   Future<void> _loadLOSData() async {
-    String token = "";
+   // String token = "";
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userInfo = prefs.getStringList('userInfo');
     String userId = userInfo![0];
     String? accessToken = prefs.getString('accessToken');
-    try {
-      String tokenUrl = "/api/leads/los-access-token/";
-      final headers = {
-        'Authorization': 'Bearer $accessToken',
-        'Content-Type': 'application/json',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      };
-      final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
-      if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
-        token = data['access_token'];
-      }
-    } catch (e) {
-      print("HTTP Request Failed: $e");
-    }
+    
+    //******************************************** */
+    // try {
+    //   String tokenUrl = "/api/leads/los-access-token/";
+    //   final headers = {
+    //     'Authorization': 'Bearer $accessToken',
+    //     'Content-Type': 'application/json',
+    //     'User-Agent':
+    //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+    //   };
+    //   final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
+    //   if (Tokenresponse != null) {
+    //     final data = json.decode(Tokenresponse.body);
+    //     token = data['access_token'];
+    //   }
+    // } catch (e) {
+    //   print("HTTP Request Failed: $e");
+    // }
+
+    // ***************************************
    
-    final url = "/application/latest?agentId=$userId&isAllRequired=true";     
+    final url = "/api/leads/los-status/";     
     final headers = {
        'Accept': '*/*',
-      'Correlation-Id': 'CORR-123456',
-      'Channel': 'FSA',
-      'Cookie': '__METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95',
-      "Authorization": "Bearer $token",
-      // 'User-Agent':
-      //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      // 'Correlation-Id': 'CORR-123456',
+      // 'Channel': 'FSA',
+      // 'Cookie': '__METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95',
+      "Authorization": "Bearer $accessToken",
+      'User-Agent':
+           'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
     };
-    final response = await ApiService.getWithUnoApiHeaders(url,headers);
+    final response = await ApiService.getWithHeaders(url,headers);
+   
     
     
     if (response != null) {
-        print("response is ${response.statusCode}");
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        List<dynamic> losData = data['result'] ?? [];
-        //print("los data is $losData");
-        setState(() {
-          accepted = losData
-              .where((item) =>
-                  item['offerStatus'] == 'Accept' || item['offerStatus'] == 'Accept_Manual' &&
-                  item['lastScreen'] == null)
-              .length;
+        List<dynamic> losData = data['results'] ?? [];
+        
+        setState(() {         
+         
+           accepted = losData.where((item) {
+              final offerStatus =
+                  item['offerStatus']?.toString().trim().toUpperCase();
+              return offerStatus == 'ACCEPT' || item['offerStatus'] == 'ACCEPT_MANUAL' &&
+                  (item['lastScreen'] == null || item['lastScreen'] == "");
+            }).length;
 
-          inProgress = losData
-              .where((item) =>
-                  item['offerStatus'] == 'In-Progress' &&
-                  item['lastScreen'] == null)
-              .length;
+            // print("accept status is $accepted");
 
-          print("in progress status is $inProgress");
-          inPrincipalApproved = losData
-              .where((item) =>
-                  item['offerStatus'] == 'Pre-Qualified' &&
-                      item['lastScreen'] == null ||
+
+          inProgress = losData.where((item) {
+              final offerStatus =
+                  item['offerStatus']?.toString().trim().toUpperCase();
+              
+
+              return offerStatus == 'IN-PROGRESS' &&
+                  (item['lastScreen'] == null || item['lastScreen'] == "");
+            }).length;
+
+         
+
+          //print("in progress status is $inProgress");
+
+          inPrincipalApproved = losData.where((item) {
+              final offerStatus =
+                  item['offerStatus']?.toString().trim().toUpperCase();
+              
+
+              return offerStatus == 'PRE-QUALIFIED' &&
+                (
+                  item['lastScreen'] == null ||
                   item['lastScreen'] == '' ||
                   item['lastScreen'] == 'CUSTVERIFICATION' ||
                   item['lastScreen'] == 'SELECTPRODUCT' ||
@@ -369,33 +388,62 @@ class _FsadashboardState extends State<Fsadashboard> {
                   item['lastScreen'] == 'CUSTOMERDETAILS' ||
                   item['lastScreen'] == 'OCCUPATIONDETAILS' ||
                   item['lastScreen'] == 'FATCA' ||
-                  item['lastScreen'] == 'RELATEDPARTY')
-              .length;
-          finalApproved =
-              losData.where((item) => item['offerStatus'] == 'Pass').length;
-          declined = losData
-              .where((item) =>
-                  item['offerStatus'] == 'Cancel' &&
-                      item['lastScreen'] == null ||
-                  item['lastScreen'] == '' ||
-                  item['offerStatus'] == 'Fail' && item['lastScreen'] == null ||
-                  item['lastScreen'] == '' ||
-                  item['offerStatus'] == 'Fail' &&
-                      item['lastScreen'] == 'CONFIRMATION' ||
-                  item['offerStatus'] == 'REJECT' &&
-                      item['lastScreen'] == 'CONFIRMATION' ||
-                  item['offerStatus'] == 'Dedupe')
-              .length;
-          disbursed = losData
-              .where((item) =>
-                  item['offerStatus'] == 'Availed' &&
-                      item['lastScreen'] == 'CONFIRMATION' ||
-                  item['offerStatus'] == 'Avail_Manual' &&
-                      item['lastScreen'] == 'CONFIRMATION' ||
-                  item['offerStatus'] == 'Accept_Manual' &&
-                      item['lastScreen'] == 'CONFIRMATION')
-              .length;
+                  item['lastScreen'] == 'RELATEDPARTY'
+                );
+            }).length;
+
+           // print("status of pre qualified $inPrincipalApproved");
+
+
+          finalApproved = losData.where((item) {
+              final offerStatus =
+                  item['offerStatus']?.toString().trim().toUpperCase();
+
+              return offerStatus == 'PASS';
+            }).length;
+
+           // print("status of pass is $finalApproved");
+
+
+
+         declined = losData.where((item) {
+                final offerStatus =
+                    item['offerStatus']?.toString().trim().toUpperCase();
+
+                return
+                    (offerStatus == 'CANCEL' &&
+                        (item['lastScreen'] == null || item['lastScreen'] == "")) ||
+
+                    (offerStatus == 'FAIL' &&
+                        (item['lastScreen'] == null || item['lastScreen'] == "")) ||
+
+                    (offerStatus == 'FAIL' &&
+                        item['lastScreen'] == 'CONFIRMATION') ||
+
+                    (offerStatus == 'REJECT' &&
+                        item['lastScreen'] == 'CONFIRMATION') ||
+
+                    (offerStatus == 'DEDUPE');
+              }).length;
+
+             // print("status of declined is $declined");
+
+
+              disbursed = losData.where((item) {
+                final offerStatus =
+                    item['offerStatus']?.toString().trim().toUpperCase();
+
+                return 
+                    (offerStatus == 'AVAILED' && item['lastScreen'] == 'CONFIRMATION') ||                   
+                    (offerStatus == 'AVAIL_MANUAL' && item['lastScreen'] == 'CONFIRMATION') ||
+                    (offerStatus == 'ACCEPT_MANUAL' && item['lastScreen'] == 'CONFIRMATION') ;
+              }).length;
+
+
+              //print("status of disbursed is $disbursed");           
+         
         });
+
       }
     }
   }

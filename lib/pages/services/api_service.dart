@@ -69,8 +69,8 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-      print("uploadMultipart url1 is $fullUrl"); //***********/
-      print("uploadMultipart hearder1 is $headers"); //************** */
+      // print("uploadMultipart url1 is $fullUrl"); //***********/
+      // print("uploadMultipart hearder1 is $headers"); //************** */
 
       if (result != CertificateState.CERTIFICATE_VALID) {
         print("✅ SSL pinning succeeded");
@@ -83,8 +83,8 @@ class ApiService {
             });
         request.fields.addAll(fields);
 
-      print("uploadMultipart url2 is $fullUrl"); //***********/
-      print("uploadMultipart hearder2 is $headers"); //**************** */
+      // print("uploadMultipart url2 is $fullUrl"); //***********/
+      // print("uploadMultipart hearder2 is $headers"); //**************** */
 
         if (file != null) {
           request.files
@@ -113,8 +113,8 @@ class ApiService {
         request.files
             .add(await http.MultipartFile.fromPath(fileField, file.path));
       }
-      print("uploadMultipart url3 is $fullUrl"); //***********/
-      print("uploadMultipart hearder3 is $headers"); //************** */
+      // print("uploadMultipart url3 is $fullUrl"); //***********/
+      // print("uploadMultipart hearder3 is $headers"); //************** */
 
       final streamedResponse = await request.send();
       return await http.Response.fromStream(streamedResponse);
@@ -134,8 +134,8 @@ class ApiService {
     final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
     final isHttps = baseUri.scheme == 'https';
 
-    print("putuploadMultipart url1 is $fullUrl"); //********************* */
-    print("putuploadMultipart hearder1 is $headers"); //********************** */
+    // print("putuploadMultipart url1 is $fullUrl"); //********************* */
+    // print("putuploadMultipart hearder1 is $headers"); //********************** */
 
     if (isHttps) {
       final result = await HttpCertificatePinning.check(
@@ -158,8 +158,8 @@ class ApiService {
             });
         request.fields.addAll(fields);
         
-        print("putuploadMultipart url2 is $fullUrl"); //********************* */
-        print("putuploadMultipart hearder2 is $headers"); //********************** */
+        // print("putuploadMultipart url2 is $fullUrl"); //********************* */
+        // print("putuploadMultipart hearder2 is $headers"); //********************** */
 
         if (file != null) {
           request.files
@@ -185,8 +185,8 @@ class ApiService {
           });
       request.fields.addAll(fields);
 
-      print("putuploadMultipart url3 is $fullUrl"); //********************* */
-      print("putuploadMultipart hearder3 is $headers"); //********************** */
+      // print("putuploadMultipart url3 is $fullUrl"); //********************* */
+      // print("putuploadMultipart hearder3 is $headers"); //********************** */
    
       if (file != null) {
         request.files
@@ -209,8 +209,8 @@ class ApiService {
     final fullUrl = Uri.parse('${AppConfig.unoBaseApiUrl}$endpoint');
     final isHttps = baseUri.scheme == 'https';
 
-     print("postJsonWithHeaders header $fullUrl"); //********** */
-     print("postJsonWithHeaders header $headers"); 
+    //  print("postJsonWithHeaders header $fullUrl"); //********** */
+    //  print("postJsonWithHeaders header $headers"); 
     // headers['User-Agent'] =
     //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
     if (isHttps) {
@@ -252,8 +252,8 @@ class ApiService {
     final isHttps = baseUri.scheme == 'https';
     // print(fullUrl);
     // print(jsonEncode(body) );
-     print("postJsonWithHeaders header $fullUrl"); //********** */
-     print("postJsonWithHeaders header $headers"); //********** */
+    //  print("postJsonWithHeaders header $fullUrl"); //********** */
+    //  print("postJsonWithHeaders header $headers"); //********** */
     // headers['User-Agent'] =
     //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
     if (isHttps) {
@@ -329,8 +329,8 @@ class ApiService {
     headers['User-Agent'] =
         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
 
-     print("getWithUnoApiHeaders url is $fullUrl"); //************** */
-     print("getWithUnoApiHeaders url is $headers"); //************** */
+      // print("getWithUnoApiHeaders url is $fullUrl"); //************** */
+      // print("getWithUnoApiHeaders header is $headers"); //************** */
 
     if (isHttps) {
       final result = await HttpCertificatePinning.check(
@@ -359,7 +359,7 @@ class ApiService {
     final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
     final isHttps = baseUri.scheme == 'https';
 
-    print("getWithsingleHeaders url is $fullUrl"); //********* */
+    // print("getWithsingleHeaders url is $fullUrl"); //********* */
 
     if (isHttps) {
       final result = await HttpCertificatePinning.check(
@@ -400,8 +400,8 @@ class ApiService {
         allowedSHAFingerprints: [certificate],
       );
       if (result != CertificateState.CERTIFICATE_VALID) {
-        print("patchWithHeaders url is $fullUrl"); //********************* */
-        print("patchWithHeaders header is $headers"); //***************** */
+        // print("patchWithHeaders url is $fullUrl"); //********************* */
+        // print("patchWithHeaders header is $headers"); //***************** */
         return await http.patch(
           fullUrl,
           headers: headers,
@@ -436,8 +436,8 @@ class ApiService {
     headers['User-Agent'] =
         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
 
-     print("postWithHeadersUnoApi url $fullUrl"); //*********** */
-     print("postWithHeadersUnoApi header $headers"); //************* */
+    //  print("postWithHeadersUnoApi url $fullUrl"); //*********** */
+    //  print("postWithHeadersUnoApi header $headers"); //************* */
     // print(jsonEncode(body) );
     if (isHttps) {
       final result = await HttpCertificatePinning.check(
@@ -473,8 +473,8 @@ static Future<http.Response?> getWithHeadersOnlyUnoApi(
     final isHttps = baseUri.scheme == 'https';
     headers['User-Agent'] =
         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
-     print("getWithHeadersOnlyUnoApi url $fullUrl"); //********** */
-     print("getWithHeadersOnlyUnoApi header $headers");//********* */
+    //  print("getWithHeadersOnlyUnoApi url $fullUrl"); //********** */
+    //  print("getWithHeadersOnlyUnoApi header $headers");//********* */
     // print(jsonEncode(body) );
     if (isHttps) {
       final result = await HttpCertificatePinning.check(
