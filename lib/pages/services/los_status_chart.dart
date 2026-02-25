@@ -17,6 +17,7 @@ class _LosStatusChartState extends State<LosStatusChart>
     with SingleTickerProviderStateMixin {
   bool _isLoading = true;
   final List<String> tabTitles = [
+    'Submitted In AAM',
     'Total Accepted',
     'In-Progress',
     'In-Principle Approved',
@@ -26,8 +27,9 @@ class _LosStatusChartState extends State<LosStatusChart>
   ];
   late TabController _tabController;
   List<dynamic> losData = [];
-
+  final _searchFilter = TextEditingController(); 
   Map<String, List<dynamic>> categorizedData = {
+    'Submitted In AAM': [],
     'Total Accepted': [],
     'In-Progress': [],
     'In-Principle Approved': [],
@@ -145,6 +147,7 @@ class _LosStatusChartState extends State<LosStatusChart>
   }
 
   final Map<String, String> _tabStatusMap = {
+    'Submitted In AAM': 'Submitted In AAM',
     'Total Accepted': 'Accept,Accept_Manual',
     'In-Progress': 'IN-PROGRESS',
     'In-Principle Approved': 'PRE-QUALIFIED',
@@ -196,71 +199,74 @@ class _LosStatusChartState extends State<LosStatusChart>
       "source": ""
     };
 
-    try {
-      String url = "";
-      url = "/application/latest?agentId=$userId&isAllRequired=true";
+   try {
+  String url = "/api/leads/los-details/";
 
-      final headers = {
-        'Accept': '*/*',
-        'Correlation-Id': 'CORR-123456',
-        'Channel': 'FSA',
-        'Cookie': '__METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95',
-        "Authorization": "Bearer $token",
-      };
+  final headers = {
+    'Authorization': 'Bearer $accessToken',
+    'User-Agent':
+        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+  };
 
-      final response = await ApiService.getWithUnoApiHeaders(url, headers);
+  final response = await ApiService.getWithHeaders(url, headers);
 
-      if (response != null) {
-        if (response.statusCode == 200) {
-          // 🔹 Decode both responses
-          final appJson = json.decode(response.body);
-          final List appResults = appJson['result'] ?? [];
-          List<Map<String, dynamic>> mergedLeads = [];
-          for (var appLead in appResults) {
-            mergedLeads.add({
-              'firstName': appLead['firstName'],
-              'middleName': appLead['middleName'],
-              'lastName': appLead['lastName'],
-              'mobilePhone': appLead['mobileNo'],
-              'CWTransactionID': appLead['applicationNo'],
-              'applicationNo': appLead['applicationNo'],
-              'offerStatus': appLead['offerStatus'] ?? '',
-            });
-          }
+  List<Map<String, dynamic>> mergedLeads = [];
 
-          // 🔹 Save merged data
-          setState(() {
-            _mergedLeads = mergedLeads;
-            _categorizeLeads();
-            _isLoading = false;
-          });
+  if (response != null && response.statusCode == 200) {
+    final appJson = json.decode(response.body);
+    final List results = appJson['results'];
 
-          if (_mergedLeads.isNotEmpty) {
-            // Get the first match’s offer status
-            final matchedStatus = _mergedLeads.first['offerStatus'];
-            final statusTab = _getTabTitleForStatus(matchedStatus);
+    for (var item in results) {
+      final clientDetails = item['clientDetails'];
+      final cwId = item['CWTransactionID']?.toString() ?? '';
 
-            if (statusTab != null && tabTitles.contains(statusTab)) {
-              final index = tabTitles.indexOf(statusTab);
-              _tabController.animateTo(index);
-            }
+      String offerStatus = '';
+      String uwStatus = '';
 
-            print("merge leade is $mergedLeads");
+      if (cwId.isNotEmpty) {
+        // 🔹 Call status API with CWTransactionID
+        String statusUrl =
+            "/api/leads/los-status/?search=$cwId";
 
-            // Show only the filtered results in their categories
-            setState(() {
-              //_mergedLeads = filteredLeads;
-              _categorizeLeads();
-            });
-          } else {
-            print("No matching results for: ${widget.searchQuery}");
+        final statusResponse =
+            await ApiService.getWithHeaders(statusUrl, headers);
+
+        if (statusResponse != null &&
+            statusResponse.statusCode == 200) {
+          final statusJson = json.decode(statusResponse.body);
+          final List statusResults = statusJson['results'];
+
+          if (statusResults.isNotEmpty) {
+            offerStatus =
+                statusResults[0]['offerStatus']?.toString() ?? '';
+            uwStatus =
+                statusResults[0]['uwStatus']?.toString() ?? '';
           }
         }
       }
-    } catch (e) {
-      print("HTTP LOS Request Failed: $e");
-      setState(() => _isLoading = false);
+
+      // 🔹 Merge everything
+      mergedLeads.add({
+        'firstName': clientDetails['firstName']?.toString() ?? '',
+        'middleName': clientDetails['middleName']?.toString() ?? '',
+        'lastName': clientDetails['lastName']?.toString() ?? '',
+        'mobilePhone': clientDetails['mobilePhone']?.toString() ?? '',
+        'CWTransactionID': cwId,
+        'applicationNo': cwId,
+        'offerStatus': offerStatus,
+        'uwStatus': uwStatus,
+      });
     }
+    setState(() {
+      _mergedLeads = mergedLeads;
+      _categorizeLeads();
+      _isLoading = false;
+    });
+  }
+} catch (e) {
+  print("HTTP LOS Request Failed: $e");
+  setState(() => _isLoading = false);
+}
   }
 
 
@@ -427,63 +433,81 @@ class _LosStatusChartState extends State<LosStatusChart>
 
 
   void _categorizeLeads() {
-    print("lead: ${_mergedLeads}");
-    categorizedData['Total Accepted'] = _mergedLeads
-        .where((lead) =>
-            lead['offerStatus'] == 'Accept' ||
-            lead['offerStatus'] == 'Accept_Manual')
-        .toList();
+  categorizedData['Total Accepted'] = _mergedLeads
+      .where((lead) {
+        final status = (lead['offerStatus'] ?? '').toString().toUpperCase();
+        return status == 'ACCEPT' || status == 'ACCEPT_MANUAL';
+      })
+      .toList();
 
-    categorizedData['In-Progress'] = _mergedLeads
-        .where((lead) => lead['offerStatus'] == 'In-Progress')
-        .toList();
+  categorizedData['In-Progress'] = _mergedLeads
+      .where((lead) =>
+          (lead['offerStatus'] ?? '').toString().toUpperCase() ==
+          'IN-PROGRESS')
+      .toList();
 
-    categorizedData['In-Principle Approved'] = _mergedLeads
-        .where((lead) => lead['offerStatus'] == 'PRE-QUALIFIED')
-        .toList();
+  categorizedData['In-Principle Approved'] = _mergedLeads
+      .where((lead) =>
+          (lead['offerStatus'] ?? '').toString().toUpperCase() ==
+          'PRE-QUALIFIED')
+      .toList();
 
-    categorizedData['Final Approved'] =
-        _mergedLeads.where((lead) => lead['offerStatus'] == 'Pass').toList();
+  categorizedData['Final Approved'] = _mergedLeads
+      .where((lead) =>
+          (lead['offerStatus'] ?? '').toString().toUpperCase() ==
+          'PASS')
+      .toList();
 
-    categorizedData['Declined'] = _mergedLeads
-        .where((lead) =>
-            lead['offerStatus'] == 'Cancel' ||
-            lead['offerStatus'] == 'Fail' ||
-            lead['offerStatus'] == 'REJECT' ||
-            lead['offerStatus'] == 'Dedupe')
-        .toList();
+  categorizedData['Declined'] = _mergedLeads
+      .where((lead) {
+        final status = (lead['offerStatus'] ?? '').toString().toUpperCase();
+        return status == 'CANCEL' ||
+            status == 'FAIL' ||
+            status == 'REJECT' ||
+            status == 'DEDUPE';
+      })
+      .toList();
 
-    categorizedData['Disbursed'] = _mergedLeads
-        .where((lead) =>
-            lead['offerStatus'] == 'Availed' ||
-            lead['offerStatus'] == 'Avail_Manual')
-        .toList();
-  }
+  categorizedData['Disbursed'] = _mergedLeads
+      .where((lead) {
+        final status = (lead['offerStatus'] ?? '').toString().toUpperCase();
+        return status == 'AVAILED' ||
+            status == 'AVAIL_MANUAL';
+      })
+      .toList();
+}
 
   String? _getTabTitleForStatus(String? status) {
-    if (status == null) return null;
-    switch (status) {
-      case 'Accept':
-      case 'Accept_Manual':
-        return 'Total Accepted';
-      case 'IN-PROGRESS':
-        return 'In-Progress';
-      case 'PRE-QUALIFIED':
-        return 'In-Principle Approved';
-      case 'Pass':
-        return 'Final Approved';
-      case 'Cancel':
-      case 'Fail':
-      case 'REJECT':
-      case 'Dedupe':
-        return 'Declined';
-      case 'Availed':
-      case 'Avail_Manual':
-        return 'Disbursed';
-      default:
-        return null;
-    }
+  if (status == null) return null;
+
+  switch (status.toUpperCase()) {
+    case 'ACCEPT':
+    case 'ACCEPT_MANUAL':
+      return 'Total Accepted';
+
+    case 'IN-PROGRESS':
+      return 'In-Progress';
+
+    case 'PRE-QUALIFIED':
+      return 'In-Principle Approved';
+
+    case 'PASS':
+      return 'Final Approved';
+
+    case 'CANCEL':
+    case 'FAIL':
+    case 'REJECT':
+    case 'DEDUPE':
+      return 'Declined';
+
+    case 'AVAILED':
+    case 'AVAIL_MANUAL':
+      return 'Disbursed';
+
+    default:
+      return null;
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -527,6 +551,28 @@ class _LosStatusChartState extends State<LosStatusChart>
       ),
       body: Column(
         children: [
+          Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: TextField(
+                    controller: _searchFilter,
+                    decoration: InputDecoration(
+                      labelText: 'Search By Name,Phone Number,TranscationID ',
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Color(0xFFac00d0)),
+                      ),
+                      suffixIcon: Container(
+                        color: Color(0xFFac00d0),
+                        child: IconButton(
+                          onPressed: ()=>{},
+                          icon: Icon(Icons.search, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TabBar(
