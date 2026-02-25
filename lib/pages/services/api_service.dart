@@ -295,8 +295,8 @@ class ApiService {
     headers['User-Agent'] =
         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
 
-     print("getWithHeaders url is $fullUrl");
-     print("getWithHeaders url is $headers"); 
+    //  print("getWithHeaders url is $fullUrl");
+    //  print("getWithHeaders url is $headers"); 
     if (isHttps) {
       final result = await HttpCertificatePinning.check(
         serverURL: baseUri.origin,

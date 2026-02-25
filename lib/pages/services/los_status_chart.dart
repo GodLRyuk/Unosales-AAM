@@ -17,7 +17,7 @@ class _LosStatusChartState extends State<LosStatusChart>
     with SingleTickerProviderStateMixin {
   bool _isLoading = true;
   final List<String> tabTitles = [
-    'Submitted In AAM',
+    'Underwriting Status',
     'Total Accepted',
     'In-Progress',
     'In-Principle Approved',
@@ -27,9 +27,10 @@ class _LosStatusChartState extends State<LosStatusChart>
   ];
   late TabController _tabController;
   List<dynamic> losData = [];
-  final _searchFilter = TextEditingController(); 
+  final _searchFilter = TextEditingController();
+
   Map<String, List<dynamic>> categorizedData = {
-    'Submitted In AAM': [],
+    'Underwriting Status': [],
     'Total Accepted': [],
     'In-Progress': [],
     'In-Principle Approved': [],
@@ -105,7 +106,7 @@ class _LosStatusChartState extends State<LosStatusChart>
     });
 
     if (widget.searchQuery != null) {
-      print("search value is ${widget.searchQuery}");
+      //print("search value is ${widget.searchQuery}");
       _searchLOSData(
         offerStatus: status,
         page: 1,
@@ -147,7 +148,7 @@ class _LosStatusChartState extends State<LosStatusChart>
   }
 
   final Map<String, String> _tabStatusMap = {
-    'Submitted In AAM': 'Submitted In AAM',
+    'Underwriting Status': 'SW_PW',
     'Total Accepted': 'Accept,Accept_Manual',
     'In-Progress': 'IN-PROGRESS',
     'In-Principle Approved': 'PRE-QUALIFIED',
@@ -156,6 +157,9 @@ class _LosStatusChartState extends State<LosStatusChart>
     'Disbursed': 'Availed,Avail_Manual',
   };
 
+
+ // Work 25.2.2026
+  
   Future<void> _loadLOSData() async {
     setState(() => _isLoading = true);
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -215,11 +219,11 @@ class _LosStatusChartState extends State<LosStatusChart>
   if (response != null && response.statusCode == 200) {
     final appJson = json.decode(response.body);
     final List results = appJson['results'];
-
+   
     for (var item in results) {
       final clientDetails = item['clientDetails'];
       final cwId = item['CWTransactionID']?.toString() ?? '';
-
+      
       String offerStatus = '';
       String uwStatus = '';
 
@@ -255,8 +259,12 @@ class _LosStatusChartState extends State<LosStatusChart>
         'applicationNo': cwId,
         'offerStatus': offerStatus,
         'uwStatus': uwStatus,
+        'workflow_status':clientDetails['workflow_status']
+
       });
     }
+
+
     setState(() {
       _mergedLeads = mergedLeads;
       _categorizeLeads();
@@ -267,7 +275,7 @@ class _LosStatusChartState extends State<LosStatusChart>
   print("HTTP LOS Request Failed: $e");
   setState(() => _isLoading = false);
 }
-  }
+}
 
 
 
@@ -308,7 +316,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         print("HTTP Request Failed: $e");
       }
 
-      print("search query data is... $searchQuery");
+      //print("search query data is... $searchQuery");
       String url = "";
 
       url = "/application/details";
@@ -323,18 +331,15 @@ class _LosStatusChartState extends State<LosStatusChart>
         'Content-Type': "application/json",
       };
 
-      // final body = {
-      //   "applicationId": searchQuery,
-      //  "mobileNumber": searchQuery  //"applicationId": "FSA_99333220251218174946",  "mobileNumber": "639811223344"
-      // };
-
+  //"applicationId": "FSA_99333220251218174946",  "mobileNumber": "639811223344"
+     
       Map<String, dynamic> body;
 
       if (RegExp(r'^\d{12}$').hasMatch(searchQuery!)) {
-        print("hello");
+       
         body = {"mobileNumber": searchQuery};
       } else {
-        print("world");
+        
         body = {"applicationId": searchQuery};
       }
 
@@ -351,7 +356,7 @@ class _LosStatusChartState extends State<LosStatusChart>
 
       final appJson = json.decode(response.body);
       final List results = appJson['result'] ?? [];
-      print("result is $results");
+      //print("result is $results");
 
       final uniqueStatuses = results
           .map((item) => item['offerStatus']?.toString() ?? '')
@@ -391,7 +396,7 @@ class _LosStatusChartState extends State<LosStatusChart>
           _tabController.animateTo(index);
         }
 
-        print("merge leade is $mergedLeads");
+        //print("merge leade is $mergedLeads");
 
         // Show only the filtered results in their categories
         setState(() {
@@ -417,7 +422,7 @@ class _LosStatusChartState extends State<LosStatusChart>
 
     String firstUpperText = firstStatus.toUpperCase();
     String? tabTitle = _getTabTitleForStatus(firstUpperText);
-    print("tabTitle is $tabTitle");
+    //print("tabTitle is $tabTitle");
 
     if (tabTitle != null && tabTitles.contains(tabTitle)) {
       int newIndex = tabTitles.indexOf(tabTitle);
@@ -475,6 +480,21 @@ class _LosStatusChartState extends State<LosStatusChart>
             status == 'AVAIL_MANUAL';
       })
       .toList();
+
+
+
+   categorizedData['Underwriting Status'] = _mergedLeads
+      .where((lead) {
+        final status = (lead['workflow_status'] ?? '').toString().toUpperCase();
+        print("status is ${lead['workflow_status']}");
+        return status == 'SW_PW';
+        
+      })
+      .toList();
+
+   
+
+
 }
 
   String? _getTabTitleForStatus(String? status) {
@@ -501,8 +521,15 @@ class _LosStatusChartState extends State<LosStatusChart>
       return 'Declined';
 
     case 'AVAILED':
-    case 'AVAIL_MANUAL':
+    case 'AVAIL_MANUAL':    
       return 'Disbursed';
+
+    case 'SW_PW':
+     return 'Underwriting Status';
+
+    
+
+    
 
     default:
       return null;
@@ -599,21 +626,22 @@ class _LosStatusChartState extends State<LosStatusChart>
                       child: CircularProgressIndicator(color: Colors.purple));
                 }
 
-                print("TabTile is $tabTitles");
+                //print("TabTile is $tabTitles");
 
-                print(categorizedData[tabTitles[_tabController.index]]);
+                //print(categorizedData[tabTitles[_tabController.index]]);
                 final currentTabLeads =
                     categorizedData[tabTitles[_tabController.index]]!;
-                print("current tab leads is $currentTabLeads");
+                //print("current tab leads is $currentTabLeads");
                 if (currentTabLeads.isEmpty) {
                   return Center(child: Text("No Data Found"));
                 }
-                print("current tab leads is ${currentTabLeads.length}");
+                //print("current tab leads is ${currentTabLeads.length}");
 
                 return ListView.builder(
                   itemCount: currentTabLeads.length,
                   itemBuilder: (context, index) {
                     final lead = currentTabLeads[index];
+                    final selectedTab = tabTitles[_tabController.index];
 
                     return Container(
                       margin: const EdgeInsets.symmetric(
@@ -639,12 +667,33 @@ class _LosStatusChartState extends State<LosStatusChart>
                               .trim(),
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        subtitle: Text(
+
+                        
+
+                        
+
+                  subtitle: selectedTab == 'Underwriting Status'
+                      ? Text(
+                          "Mobile: ${lead['mobilePhone']}\n"
+                          "CWTransactionID: ${lead['CWTransactionID']}\n"
+                          "ApplicationNo: ${lead['applicationNo']}\n"
+                          "WorkFlow Status: ${lead['workflow_status']}",
+                        )
+
+                      : Text(
                           "Mobile: ${lead['mobilePhone']}\n"
                           "CWTransactionID: ${lead['CWTransactionID']}\n"
                           "ApplicationNo: ${lead['applicationNo']}\n"
                           "OfferStatus: ${lead['offerStatus']}",
                         ),
+
+
+                        // subtitle: Text(
+                        //   "Mobile: ${lead['mobilePhone']}\n"
+                        //   "CWTransactionID: ${lead['CWTransactionID']}\n"
+                        //   "ApplicationNo: ${lead['applicationNo']}\n"
+                        //   "OfferStatus: ${lead['offerStatus']}",
+                        // ),
                       ),
                     );
                   },
