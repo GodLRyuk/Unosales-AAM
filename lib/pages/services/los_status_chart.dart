@@ -45,11 +45,11 @@ class _LosStatusChartState extends State<LosStatusChart>
   final ScrollController _scrollController = ScrollController();
 
   Map<int, bool> _tabLoading = {};
-
+ String tabSearch = "";
   @override
   void initState() {
     super.initState();
-
+    tabSearch=widget.initialTabTitle.toString().toUpperCase();
     // Initialize TabController
     _tabController = TabController(length: tabTitles.length, vsync: this);
 
@@ -67,9 +67,12 @@ class _LosStatusChartState extends State<LosStatusChart>
 
     // Listen to tab changes to show loader
     _tabController.addListener(() {
+      final currentTitle = tabTitles[_tabController.index];
+      tabSearch=currentTitle.toUpperCase();
       if (_tabController.indexIsChanging) {
         setState(() {
           _tabLoading[_tabController.index] = true;
+          _loadLOSData();
         });
 
         Future.delayed(Duration(milliseconds: 200), () {
@@ -204,7 +207,8 @@ class _LosStatusChartState extends State<LosStatusChart>
     };
 
    try {
-  String url = "/api/leads/los-details/";
+   
+  String url = "/api/leads/los-details/?los_status__uwStatus=$tabSearch";
 
   final headers = {
     'Authorization': 'Bearer $accessToken',
@@ -217,60 +221,35 @@ class _LosStatusChartState extends State<LosStatusChart>
   List<Map<String, dynamic>> mergedLeads = [];
 
   if (response != null && response.statusCode == 200) {
-    final appJson = json.decode(response.body);
-    final List results = appJson['results'];
-   
-    for (var item in results) {
-      final clientDetails = item['clientDetails'];
-      final cwId = item['CWTransactionID']?.toString() ?? '';
-      
-      String offerStatus = '';
-      String uwStatus = '';
+  final appJson = json.decode(response.body);
+  final List results = appJson['results'];
 
-      if (cwId.isNotEmpty) {
-        // 🔹 Call status API with CWTransactionID
-        String statusUrl =
-            "/api/leads/los-status/?search=$cwId";
+  for (var item in results) {
+    final clientDetails = item['clientDetails'];
+    final losStatus = item['los_status'];
 
-        final statusResponse =
-            await ApiService.getWithHeaders(statusUrl, headers);
+    String offerStatus = losStatus?['offerStatus']?.toString() ?? '';
+    String uwStatus = losStatus?['uwStatus']?.toString() ?? '';
 
-        if (statusResponse != null &&
-            statusResponse.statusCode == 200) {
-          final statusJson = json.decode(statusResponse.body);
-          final List statusResults = statusJson['results'];
-
-          if (statusResults.isNotEmpty) {
-            offerStatus =
-                statusResults[0]['offerStatus']?.toString() ?? '';
-            uwStatus =
-                statusResults[0]['uwStatus']?.toString() ?? '';
-          }
-        }
-      }
-
-      // 🔹 Merge everything
-      mergedLeads.add({
-        'firstName': clientDetails['firstName']?.toString() ?? '',
-        'middleName': clientDetails['middleName']?.toString() ?? '',
-        'lastName': clientDetails['lastName']?.toString() ?? '',
-        'mobilePhone': clientDetails['mobilePhone']?.toString() ?? '',
-        'CWTransactionID': cwId,
-        'applicationNo': cwId,
-        'offerStatus': offerStatus,
-        'uwStatus': uwStatus,
-        'workflow_status':clientDetails['workflow_status']
-
-      });
-    }
-
-
-    setState(() {
-      _mergedLeads = mergedLeads;
-      _categorizeLeads();
-      _isLoading = false;
+    mergedLeads.add({
+      'firstName': clientDetails?['firstName']?.toString() ?? '',
+      'middleName': clientDetails?['middleName']?.toString() ?? '',
+      'lastName': clientDetails?['lastName']?.toString() ?? '',
+      'mobilePhone': clientDetails?['mobilePhone']?.toString() ?? '',
+      'CWTransactionID': item['CWTransactionID']?.toString() ?? '',
+      'applicationNo': losStatus?['applicationNo']?.toString() ?? '',
+      'offerStatus': offerStatus,
+      'uwStatus': uwStatus,
+      'workflow_status': item['workflow_status']?.toString() ?? '',
     });
   }
+
+  setState(() {
+    _mergedLeads = mergedLeads;
+    _categorizeLeads();
+    _isLoading = false;
+  });
+}
 } catch (e) {
   print("HTTP LOS Request Failed: $e");
   setState(() => _isLoading = false);
