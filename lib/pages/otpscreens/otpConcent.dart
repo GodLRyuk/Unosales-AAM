@@ -49,7 +49,7 @@ class Otpconcent extends StatefulWidget {
 }
 
 class OtpconcentState extends State<Otpconcent> {
-  String IpAddress="";
+  String IpAddress = "";
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _otpController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -71,20 +71,20 @@ class OtpconcentState extends State<Otpconcent> {
 
   @override
   void initState() {
-    super.initState(); // check what data receive
-    print("check what data receive");
+    super.initState(); 
+    //print("check what data receive");
     String jsonString = jsonEncode(widget.losData.toJson());
 
-      for (int i = 0; i < jsonString.length; i += 1000) {
-        print(
-          jsonString.substring(
-            i,
-            (i + 1000 > jsonString.length) ? jsonString.length : i + 1000,
-          ),
-        );
-      }
+    // for (int i = 0; i < jsonString.length; i += 1000) {
+    //   print(
+    //     jsonString.substring(
+    //       i,
+    //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000,
+    //     ),
+    //   );
+    // }
 
-   _start = 120; // 🔥 Add this line to initialize the countdown
+    _start = 120; // 🔥 Add this line to initialize the countdown
     resendTimer = false;
     isOtpExpired = false;
     _sendOtp();
@@ -92,6 +92,7 @@ class OtpconcentState extends State<Otpconcent> {
     getPublicIP();
     callSosLogoin();
   }
+
   Future<void> getPublicIP() async {
     final response =
         await http.get(Uri.parse('https://api64.ipify.org?format=json'));
@@ -106,16 +107,15 @@ class OtpconcentState extends State<Otpconcent> {
   }
 
   String formatedCode(String? code) {
-  if (code == null || code.isEmpty) return "";
- // Remove all leading zeros first
-  String cleaned = code.replaceFirst(RegExp(r'^0+'), '');
-  if (cleaned.isEmpty) cleaned = "0";
-  if (cleaned.length == 1) {
-    return "0$cleaned";
+    if (code == null || code.isEmpty) return "";
+    // Remove all leading zeros first
+    String cleaned = code.replaceFirst(RegExp(r'^0+'), '');
+    if (cleaned.isEmpty) cleaned = "0";
+    if (cleaned.length == 1) {
+      return "0$cleaned";
+    }
+    return cleaned;
   }
-  return cleaned;
- }
-
 
   void _startTimer() {
     _timer?.cancel();
@@ -151,14 +151,12 @@ class OtpconcentState extends State<Otpconcent> {
     _startTimer(); // Start the timer again
   }
 
-
   FortunaRandom createSecureFortunaRandomFromEntropy(String entropySource) {
     final secureRandom = FortunaRandom();
     final entropy = sha256.convert(utf8.encode(entropySource)).bytes;
     secureRandom.seed(KeyParameter(Uint8List.fromList(entropy)));
     return secureRandom;
   }
- 
 
   String generateSecureOTP() {
     final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
@@ -179,13 +177,13 @@ class OtpconcentState extends State<Otpconcent> {
     return "$digits"; // appended date
   }
 
-
-  void submitLos(LosApplicationModel data) async{ // async is updated here 2.12.2025
+  void submitLos(LosApplicationModel data) async {
+    // async is updated here 2.12.2025
     setState(() => _isLoading = true);
 
-   String dob = data.birthDate!; // "28-01-1960"
+    String dob = data.birthDate!; // "28-01-1960"
 
-  // Split the string
+    // Split the string
     List<String> parts = dob.split('-');
 
     String day = '';
@@ -208,7 +206,7 @@ class OtpconcentState extends State<Otpconcent> {
 
     print("Formated date $formattedBirthDate"); // 1960-01-28
 
-   Map<String, dynamic> requestData = {
+    Map<String, dynamic> requestData = {
       "CWTransactionID": widget.losData.cwTransactionID,
       "clientDetails": {
         "ARN": "1513411334533400",
@@ -216,8 +214,10 @@ class OtpconcentState extends State<Otpconcent> {
         "clientType": "",
         "firstName": data.firstName,
         "lastName": data.lastName,
-        "middleName": (data.middleName == null || data.middleName!.isEmpty)? null : data.middleName,
-        "mobilePhone": "63"+data.mobilePhone.toString(),
+        "middleName": (data.middleName == null || data.middleName!.isEmpty)
+            ? null
+            : data.middleName,
+        "mobilePhone": "63" + data.mobilePhone.toString(),
         "birthDate": formattedBirthDate,
         "gender": data.gender,
         "emailAddress": data.email,
@@ -238,19 +238,18 @@ class OtpconcentState extends State<Otpconcent> {
             "country": data.permCountryCode,
           }
         ],
-
-       "idDocuments": [
-        {
+        "idDocuments": [
+          {
             "issuingAuthority": "",
             "address": data.address,
             "documentType": data.documentType,
             "validUntil": data.validUntil,
             "documentId": data.documentId,
-            "firstName":data.firstName,
-            "middleName":data.middleName,
-            "lastName":data.lastName,
-        }
-    ],
+            "firstName": data.firstName,
+            "middleName": data.middleName,
+            "lastName": data.lastName,
+          }
+        ],
         "_Perm_Address": {
           "perm_State": data.permState,
           "perm_City": data.permCity,
@@ -258,13 +257,13 @@ class OtpconcentState extends State<Otpconcent> {
           "perm_ZipCode": data.permZipCode,
           "perm_Barangay": data.permBarangay,
           "perm_Region": data.permRegion,
-          "perm_Country":
-              data.nationality!.replaceFirst(RegExp(r'^0+'), ''),
+          "perm_Country": data.nationality!.replaceFirst(RegExp(r'^0+'), ''),
           "perm_countryCode": data.nationality,
           "hra": ""
         },
         "_Fin_Details": {
-          "fin_Mthly_Income": double.tryParse(data.finMonthlyIncome!)?.toInt().toString(),
+          "fin_Mthly_Income":
+              double.tryParse(data.finMonthlyIncome!)?.toInt().toString(),
           "fin_Ownr_Car": "",
           "fin_Ann_Income": "",
           "fin_Ownr_Home": "",
@@ -282,16 +281,21 @@ class OtpconcentState extends State<Otpconcent> {
         "_Emp_Details": {
           "emp_Work_Nature": data.empWorkNature,
           "emp_Mths_In_Cur_Comp": data.empMonthsInCompany,
-          "emp_Status": formatedCode(data.empStatusCode),       //data.empStatus,
+          "emp_Status": formatedCode(data.empStatusCode), //data.empStatus,
           "emp_Employer_Name": data.empEmployerName,
-          "emp_Indus_Type": formatedCode(data.empIndustryTypeCode), //data.empIndustryType
+          "emp_Indus_Type":
+              formatedCode(data.empIndustryTypeCode), //data.empIndustryType
           "emp_Type": formatedCode(data.empTypeCode), //data.empType
           "emp_Yrs_In_Cur_Comp": data.empYearsInCompany,
           "Office_phone_no": "",
-          "emp_Type_Code": formatedCode(data.empTypeCode),    //data.empTypeCode!.replaceFirst(RegExp(r'^0+'), ''),
-          "emp_Status_Code": formatedCode(data.empStatusCode), // data.empStatusCode!.replaceFirst(RegExp(r'^0+'), ''),
-          "emp_Work_Nature_Code": formatedCode(data.empWorkNatureCode),  //data.empWorkNatureCode!.replaceFirst(RegExp(r'^0+'), ''),
-          "emp_Indus_Type_Code":formatedCode(data.empIndustryTypeCode), //data.empIndustryTypeCode!.replaceFirst(RegExp(r'^0+'), ''),
+          "emp_Type_Code": formatedCode(data
+              .empTypeCode), //data.empTypeCode!.replaceFirst(RegExp(r'^0+'), ''),
+          "emp_Status_Code": formatedCode(data
+              .empStatusCode), // data.empStatusCode!.replaceFirst(RegExp(r'^0+'), ''),
+          "emp_Work_Nature_Code": formatedCode(data
+              .empWorkNatureCode), //data.empWorkNatureCode!.replaceFirst(RegExp(r'^0+'), ''),
+          "emp_Indus_Type_Code": formatedCode(data
+              .empIndustryTypeCode), //data.empIndustryTypeCode!.replaceFirst(RegExp(r'^0+'), ''),
           "emp_email": data.empEmail,
           "companyCategorySegment": "",
           "profession": data.profession
@@ -426,7 +430,7 @@ class OtpconcentState extends State<Otpconcent> {
       dsrIdValue = data.dsrId.toString();
     });
     postLoanCheck(requestData);
- 
+
     // String jsonString = jsonEncode(requestData);
     // for (int i = 0; i < jsonString.length; i += 1000) {
     //   print(jsonString.substring(
@@ -434,10 +438,9 @@ class OtpconcentState extends State<Otpconcent> {
     // }
   }
 
- 
- // start created by 2/12/2025  *********
+  // start created by 2/12/2025  *********
 
-String publicKeyP1 = """
+  String publicKeyP1 = """
 -----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAibVtzmmpQ8OpmWzF3M3Z
 KPDURcq55io/K5K0OJaoHrkVfEaDTy+irLoqvwaQc80jFJtbQRjYSIezK8gYnRM6
@@ -449,241 +452,295 @@ AQIDAQAB
 -----END PUBLIC KEY-----
 """;
 
-Future<Map<String, dynamic>> buildPayload() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-    userInfo = prefs.getStringList('userInfo');
-  //String agentCode = "testFSA";
-  print("agent code is $userInfo[0]");
-
-  if (userInfo![0] == null || userInfo![0].isEmpty) {
-    throw Exception("Agent code not found in SharedPreferences");
-  }
-
-  // Parse RSA Public Key
-  final parser = RSAKeyParser();
-  final RSAPublicKey rsaPublicKey = parser.parse(publicKeyP1) as RSAPublicKey;
-
-  final encrypter = Encrypter(
-    RSA(publicKey: rsaPublicKey),
-  );
-
-  // 1️⃣ JSON object to encrypt
-  final jsonObject = 
- 
-
-  {
-    "userId": userInfo![0],
-    "appId": "Sales_App",
-  };
-
-  // 2️⃣ Convert to JSON string
-  final jsonString = json.encode(jsonObject);
-
-  print("JSON Before Encryption: $jsonString");
-
-  // 3️⃣ Encrypt JSON once
-  final encrypted = encrypter.encrypt(jsonString).base64;
-
-  print("Encrypted JSON: $encrypted");
-
-  // 4️⃣ Final payload
-  return {
-    "data": encrypted,
-    "keyId": "v1",
-  };
-}
-
-Future<void> callSosLogoin() async {
-  try {
-    final payload = await buildPayload();
-    print("Payload value is ${jsonEncode(payload)}");
-
-    // 10.12.2025
+  Future<Map<String, dynamic>> buildPayload() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('accessToken');
-    print("167.88.160.87 token is $token");
+    userInfo = prefs.getStringList('userInfo');
+    //String agentCode = "testFSA";
+    print("agent code is $userInfo[0]");
 
-     try {
-      String tokenUrl = "/api/leads/los-access-token/";
-      final headers = {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      };
-      final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
-      if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
-        token = data['access_token'];
-        print("token get from los is this $token");
-      }
-    } catch (e) {
-      print("HTTP Request Failed: $e");
+    if (userInfo![0] == null || userInfo![0].isEmpty) {
+      throw Exception("Agent code not found in SharedPreferences");
     }
 
-    // Done
-    final url = Uri.parse("${AppConfig.otpUrl}/auth/sso-login");   //https://unoapi.uat.ph.unobank.asia/auth/sso-login
-    final headers = {
-      "Authorization": 'Bearer $token',
+    // Parse RSA Public Key
+    final parser = RSAKeyParser();
+    final RSAPublicKey rsaPublicKey = parser.parse(publicKeyP1) as RSAPublicKey;
 
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-      "User-Agent":
-          "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
-
-    };
-
-    final response = await http.post(
-      url,
-      headers: headers,
-      body: jsonEncode(payload),
+    final encrypter = Encrypter(
+      RSA(publicKey: rsaPublicKey),
     );
 
-    print("API response is ${response.body}");
+    // 1️⃣ JSON object to encrypt
+    final jsonObject = {
+      "userId": userInfo![0],
+      "appId": "Sales_App",
+    };
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final sostoken = data["token"];
+    // 2️⃣ Convert to JSON string
+    final jsonString = json.encode(jsonObject);
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString("ssoToken", sostoken);
+    print("JSON Before Encryption: $jsonString");
 
-      print("Token saved successfully $sostoken");
-      //return sostoken;
-    } else {
-      print("Error happened → Status: ${response.statusCode}");
-     // return null;
-    }
-  } catch (e) {
-    print("Error is this: $e");
-    //return null;
+    // 3️⃣ Encrypt JSON once
+    final encrypted = encrypter.encrypt(jsonString).base64;
+
+    print("Encrypted JSON: $encrypted");
+
+    // 4️⃣ Final payload
+    return {
+      "data": encrypted,
+      "keyId": "v1",
+    };
   }
-}
+
+  Future<void> callSosLogoin() async {
+    try {
+      final payload = await buildPayload();
+      print("Payload value is ${jsonEncode(payload)}");
+
+      // 10.12.2025
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('accessToken');
+      print("167.88.160.87 token is $token");
+
+      try {
+        String tokenUrl = "/api/leads/los-access-token/";
+        final headers = {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'User-Agent':
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        };
+        final Tokenresponse =
+            await ApiService.getWithHeaders(tokenUrl, headers);
+        if (Tokenresponse != null) {
+          final data = json.decode(Tokenresponse.body);
+          token = data['access_token'];
+          
+        }
+      } catch (e) {
+        print("HTTP Request Failed: $e");
+      }
+
+      // Done
+      final url = Uri.parse(
+          "${AppConfig.otpUrl}/auth/sso-login"); //https://unoapi.uat.ph.unobank.asia/auth/sso-login
+      final headers = {
+        "Authorization": 'Bearer $token',
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "User-Agent":
+            "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+      };
+
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: jsonEncode(payload),
+      );
+
+     
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final sostoken = data["token"];
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString("ssoToken", sostoken);
+
+        
+        //return sostoken;
+      } else {
+        print("Error happened → Status: ${response.statusCode}");
+        // return null;
+      }
+    } catch (e) {
+      print("Error is this: $e");
+      //return null;
+    }
+  }
 // Done created by 2/12/2025 *****************
 
+  Future<void> waybookImplement(String cwId, String losId) async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('accessToken');
+      String? ssotoken = prefs.getString('ssoToken');
 
-  Future<void> waybookImplement(String cwId) async {
-  try {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('accessToken');
-    String? ssotoken = prefs.getString('ssoToken');
+      print("Token: $token");
+      print("SSO Token: $ssotoken");
 
-    print("Token: $token");
-    print("SSO Token: $ssotoken");
+      if (ssotoken == null) {
+        print("ERROR: SSO token is missing. Run callSosLogoin() first.");
+        return;
+      }
 
-    if (ssotoken == null) {
-      print("ERROR: SSO token is missing. Run callSosLogoin() first.");
-      return;
-    }
+      final encodedToken = Uri.encodeComponent(ssotoken);
+      print("encode token is $encodedToken");
 
-    final encodedToken = Uri.encodeComponent(ssotoken);
-    print("encode token is $encodedToken");
+      int retryCount = 0;
+      const int maxRetries = 3;
+
+      while (retryCount < maxRetries) {
+        print("API Attempt: $retryCount");
+
+        final response = await http.get(
+          Uri.parse(
+            '${AppConfig.dynamicBaseUrl}/api/leads/los-details/?los_status__applicationNo=$cwId',
+          ),
+          headers: {'Authorization': 'Bearer $token'},
+        );
+
+        final data = json.decode(response.body);
+        print("data is $data");
+        final result2 = data['results'][0]['los_status'];
+
+        final offerStatus = result2['offerStatus'];
+        final applicationStatus = result2['applicationStatus'];
+
+        print("offerStatus = $offerStatus");
+        print("applicationStatus = $applicationStatus");
+
+        // ---------------------------------------------------
+        // 1) PASSED → STOP LOOP + REDIRECT
+        // ---------------------------------------------------
+        if (offerStatus == "IN-PROGRESS" && applicationStatus == "Passed") {
+          print("APPROVED → Redirecting to AAM");
+
+          String applicationId = cwId;     
+          final redirectUrl =
+              "${AppConfig.aamredictUrl}/fsa-aam-auth?token=$encodedToken&sales_app=$applicationId";
+
+          final uri = Uri.parse(redirectUrl);
+          if (await canLaunchUrl(uri)) {
+            // 1️⃣ Navigate to Dashboard first
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => NavigationPage()),
+              (route) => false,
+            );
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+          final losUrl = "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/";
+          final headers = {
+                  'Authorization': 'Bearer $token',
+                  'User-Agent':
+                      'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+                };
+            final body = {
+              "workflow_status": "AAM Invoked"
+            };
+
+            final responsefromLOS = await ApiService.patchWithHeaders(
+              losUrl,
+              headers,
+              body
+            );
+            //  if (responsefromLOS != null && responsefromLOS.statusCode == 200)
+            //  {
+            //   print("response code ${responsefromLOS.statusCode}");
+            //  }
+
+            //  else
+            //  {
+            //   print("response code ${responsefromLOS!.statusCode}");
+            //  }
 
 
+          } else {
+            print("Could not launch $redirectUrl");
+          }
+          return;
+        }
 
-    int retryCount = 0;
-    const int maxRetries = 3;
+        // ---------------------------------------------------      
+        // 2) EMPTY OR NULL → WAIT 30 SEC & RETRY
+        // ---------------------------------------------------
+        if (offerStatus == "IN-PROGRESS" &&
+            (applicationStatus == null || applicationStatus == "")) {
+          retryCount++;
 
-  
-    while (retryCount < maxRetries) {
-            print("API Attempt: $retryCount");
+          print("ApplicationStatus empty → Retry $retryCount of $maxRetries");
+          await Future.delayed(Duration(seconds: 30));
 
-            final response = await http.get(
-              Uri.parse(
-                '${AppConfig.dynamicBaseUrl}/api/leads/los-details/?los_status__applicationNo=$cwId',
-              ),
-              headers: {'Authorization': 'Bearer $token'},
+          if (retryCount >= maxRetries) {
+            
+          final losUrl = "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId";
+          final headers = {
+                  'Authorization': 'Bearer $token',
+                  'User-Agent':
+                      'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+                };
+            final body = {
+              "workflow_status": "SW_PW"
+            };
+
+            final responsefromLOS = await ApiService.patchWithHeaders(
+              losUrl,
+              headers,
+              body
             );
 
-            final data = json.decode(response.body);
-            final result2 = data['results'][0]['los_status'];
+            //  if (responsefromLOS != null && responsefromLOS.statusCode == 200)
+            //  {
+            //   print("response code ${responsefromLOS.statusCode}");
+            //  }
 
-            final offerStatus = result2['offerStatus'];
-            final applicationStatus = result2['applicationStatus'];
+            //  else
+            //  {
+            //   print("response code ${responsefromLOS!.statusCode}");
+            //  }
+            //print("Max retries reached → Going to Dashboard");
 
-            print("offerStatus = $offerStatus");
-            print("applicationStatus = $applicationStatus");
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => NavigationPage()),
+              (route) => false,
+            );
+            return;
+          }
 
-            // ---------------------------------------------------
-            // 1) PASSED → STOP LOOP + REDIRECT
-            // ---------------------------------------------------
-            if (offerStatus == "IN-PROGRESS" && applicationStatus == "Passed") {
-              print("APPROVED → Redirecting to AAM");
+          continue; // go to next loop iteration
+        }
 
-              String applicationId = cwId;
-              final redirectUrl =
-            
-                  "${AppConfig.aamredictUrl}/fsa-aam-auth?token=$encodedToken&sales_app=$applicationId";
+        // ---------------------------------------------------
+        // 3) FAILED → STOP LOOP + GO DASHBOARD
+        // ---------------------------------------------------
+        if (offerStatus == "IN-PROGRESS" && applicationStatus == "Failed") {
+           final losUrl = "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/";
+              final headers = {
+                            'Authorization': 'Bearer $token',
+                            'User-Agent':
+                                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+                          };
+              final body = {
+                        "workflow_status": "Prelim UW Failed"
+                      };
 
-              final uri = Uri.parse(redirectUrl);
-            if (await canLaunchUrl(uri)) {
+             final responsefromLOS = await ApiService.patchWithHeaders(
+                        losUrl,
+                        headers,
+                        body
+            );
 
-                  // 1️⃣ Navigate to Dashboard first
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => NavigationPage()),
-                    (route) => false,
-                  );
 
-                  // 2️⃣ Then launch AAM URL in browser
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+          print("REJECTED");
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => NavigationPage()),
+            (route) => false,
+          );
+          return;
+        }
 
-                } else {
-                  print("Could not launch $redirectUrl");
-                }
-              return;
-            }
-
-            // ---------------------------------------------------
-            // 2) EMPTY OR NULL → WAIT 30 SEC & RETRY
-            // ---------------------------------------------------
-            if (offerStatus == "IN-PROGRESS" &&
-                (applicationStatus == null || applicationStatus == "")) {
-
-              retryCount++;
-
-              print("ApplicationStatus empty → Retry $retryCount of $maxRetries");
-              await Future.delayed(Duration(seconds: 30));
-
-              if (retryCount >= maxRetries) {
-                print("Max retries reached → Going to Dashboard");
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => NavigationPage()),
-                  (route) => false,
-                );
-                return;
-              }
-
-              continue; // go to next loop iteration
-            }
-
-            // ---------------------------------------------------
-            // 3) FAILED → STOP LOOP + GO DASHBOARD
-            // ---------------------------------------------------
-            if (offerStatus == "IN-PROGRESS" && applicationStatus == "Failed") {
-              print("REJECTED");
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => NavigationPage()),
-                (route) => false,
-              );
-              return;
-            }
-
-            break;
-         }
-
-      } catch (e) {
-         print("ERROR calling API: $e");
+        break;
       }
-   }
-
-
-
+    } catch (e) {
+      print("ERROR calling API: $e");
+    }
+  }
 
 // Done  by 8.12.2025
-
 
   Future<void> postLoanCheck(Map<String, dynamic> requestData) async {
     print("position 1");
@@ -710,9 +767,9 @@ Future<void> callSosLogoin() async {
     }
 
     print("position 3");
-    final url = Uri.parse("${AppConfig.otpUrl}/pre-uw/save-payload"); 
-   // https://unoapi.uat.ph.unobank.asia/pre-uw/save-payload' 
-      
+    final url = Uri.parse("${AppConfig.otpUrl}/pre-uw/save-payload");
+    // https://unoapi.uat.ph.unobank.asia/pre-uw/save-payload'
+
     final headers = {
       "Idempotency-Key": "th37per9-185d-4e22-83fb-18gf96g0g861",
       "Content-Type": "application/json",
@@ -723,43 +780,30 @@ Future<void> callSosLogoin() async {
       "Correlation-Id": "1234",
       //"Channel": "SalesApp",
       "Channel": "FSA",
-     "Cookie": "AWSALB=BBxk3EbWLtIG1Kav8Uzq4M35AQ6O/x7hZqOtLs0CoXlu4BrBbrhRhfBqa6tAbbpnx/2orMd0kt7fwL8nCPxthrnqBBozntvZC/Sf6p1jkVPiG3X9ttn0KLI4rtnY; AWSALBCORS=BBxk3EbWLtIG1Kav8Uzq4M35AQ6O/x7hZqOtLs0CoXlu4BrBbrhRhfBqa6tAbbpnx/2orMd0kt7fwL8nCPxthrnqBBozntvZC/Sf6p1jkVPiG3X9ttn0KLI4rtnY; METADATA=3c6749d5-60ea-4486-aede-fd4538d2fe39"
-
-      
+      "Cookie":
+          "AWSALB=BBxk3EbWLtIG1Kav8Uzq4M35AQ6O/x7hZqOtLs0CoXlu4BrBbrhRhfBqa6tAbbpnx/2orMd0kt7fwL8nCPxthrnqBBozntvZC/Sf6p1jkVPiG3X9ttn0KLI4rtnY; AWSALBCORS=BBxk3EbWLtIG1Kav8Uzq4M35AQ6O/x7hZqOtLs0CoXlu4BrBbrhRhfBqa6tAbbpnx/2orMd0kt7fwL8nCPxthrnqBBozntvZC/Sf6p1jkVPiG3X9ttn0KLI4rtnY; METADATA=3c6749d5-60ea-4486-aede-fd4538d2fe39"
     };
-    print("token for otp Cencent page is $tokens");
-    // Api which work properly
-
-    // final url = Uri.parse("${AppConfig.otpUrl}/partner/loans/check");
-    // final headers = {
-    //   "Idempotency-Key": "th37per9-185d-4e22-83fb-18gf96g0g861",
-    //   "Content-Type": "application/json",
-    //   "Accept": "application/json",
-    //   "Authorization": "Bearer $tokens",
-    //   'User-Agent':
-    //       'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',     
-      
-    // };
-   print("url is $url");
-   print("Header is $headers");
-    String jsonString = jsonEncode(requestData);
-    for (int i = 0; i < jsonString.length; i += 1000) {
-      print(jsonString.substring(
-          i, (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-    }
+    
+    // print("url is $url");
+    // print("Header is $headers");
+    // String jsonString = jsonEncode(requestData);
+    // for (int i = 0; i < jsonString.length; i += 1000) {
+    //   print(jsonString.substring(
+    //       i, (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
+    // }
     print("position 4");
     try {
-      print("position 5");
-      print(url);
-      print(headers);
-      print(json.encode(requestData));
+      // print("position 5");
+      // print(url);
+      // print(headers);
+      // print(json.encode(requestData));
       final response = await http.post(
         url,
         headers: headers,
         body: json.encode(requestData),
       );
       print("los respose ${response.statusCode}");
-        print("Response body ${response.body}");
+      print("Response body ${response.body}");
       if (response.statusCode == 200) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? token = prefs.getString('accessToken');
@@ -816,8 +860,6 @@ Future<void> callSosLogoin() async {
             },
           );
 
-
-
           // int retryCount = 0;
           // Map<String, dynamic>? data;
           // List<dynamic>? result;
@@ -873,7 +915,8 @@ Future<void> callSosLogoin() async {
           };
           print("position 10");
 
-          final finalRequestData;
+          var finalRequestData;
+
           if (widget.pagemode == 'edit') {
             finalRequestData = Map<String, dynamic>.from(requestData)
               ..["lead_type"] = "campaign_lead"
@@ -888,13 +931,18 @@ Future<void> callSosLogoin() async {
               ..["dsr"] = dsrIdValue;
           }
 
+          finalRequestData = Map<String, dynamic>.from(requestData)
+          ..["workflow_status"] = "submit";
+
           final backendresponseLOS = await http.post(
             LosbackendStatusUrl,
             headers: headers3,
             body: json.encode(finalRequestData),
           );
-          // print(LosbackendStatusUrl);
-          // print(headers3);
+
+
+          //  print("LosbackendStatusUrl is $LosbackendStatusUrl");
+          //  print("headers3 is $headers3");
           // String jsonString = jsonEncode(finalRequestData);
           // for (int i = 0; i < jsonString.length; i += 1000) {
           //   print(jsonString.substring(i,
@@ -902,11 +950,12 @@ Future<void> callSosLogoin() async {
           // }
 
           print("backend response status is ${backendresponseLOS.statusCode}");
+          String losId="";
 
           if (backendresponseLOS.statusCode == 201) {
-            
             final data = json.decode(backendresponseLOS.body);
-            print("print data is $data");
+            losId = data['id'];
+           
             final LosBackendResponseUrl = Uri.parse(
                 '${AppConfig.dynamicBaseUrl}/api/leads/los-details/${data['id']}/');
             final headers4 = {
@@ -916,8 +965,8 @@ Future<void> callSosLogoin() async {
               'User-Agent':
                   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
             };
-            print("header is $headers4");
-            print("url is $LosBackendResponseUrl");
+            // print("header is $headers4");
+            // print("url is $LosBackendResponseUrl");
 
             Map<String, dynamic> mappedResponseLOsData = {
               "los_status": {
@@ -938,12 +987,14 @@ Future<void> callSosLogoin() async {
               body: json.encode(mappedResponseLOsData),
             );
           }
-          
+
           print("responseLOS is ${responseLOS.statusCode}");
           print("responseLOS is ${responseLOS.body}");
 
-          waybookImplement(requestData['CWTransactionID']); 
+          // Updation for web hock
+           
 
+          waybookImplement(requestData['CWTransactionID'],losId);
         } catch (e) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
@@ -1224,6 +1275,8 @@ Future<void> callSosLogoin() async {
     });
     // Step 1: Get access token
     String clientId = await otpClientId();
+    print("cliend id $clientId");
+
     String clientSecret = await otpClientSecret();
 
     final body = {
@@ -1239,6 +1292,14 @@ Future<void> callSosLogoin() async {
       },
       body: body,
     );
+
+    print("response body ${response.body}");
+    print("response header ${response.headers}");
+    
+
+
+    
+
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final accessToken = data['access_token'];
@@ -1399,8 +1460,7 @@ Future<void> callSosLogoin() async {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => NavigationPage()),
+                  MaterialPageRoute(builder: (context) => NavigationPage()),
                 );
               },
             ),
@@ -1594,13 +1654,9 @@ Future<void> callSosLogoin() async {
                                 ),
                               ),
                             ),
-
                           ],
-                          
                         ),
                       ),
-                      
-                     
                     ],
                   ),
                 ),
@@ -1727,9 +1783,11 @@ Future<void> callSosLogoin() async {
             fillColor: Colors.grey,
             counterText: "",
             label: Container(
-              padding: EdgeInsets.only(left: 20),
-              child: Text(widget.phoneNumber, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),)),
-            
+                padding: EdgeInsets.only(left: 20),
+                child: Text(
+                  widget.phoneNumber,
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+                )),
             hintStyle: TextStyle(color: Colors.grey),
             contentPadding: EdgeInsets.symmetric(vertical: 10),
             disabledBorder: OutlineInputBorder(

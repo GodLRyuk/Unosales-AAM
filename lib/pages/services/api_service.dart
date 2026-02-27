@@ -400,8 +400,8 @@ class ApiService {
         allowedSHAFingerprints: [certificate],
       );
       if (result != CertificateState.CERTIFICATE_VALID) {
-        // print("patchWithHeaders url is $fullUrl"); //********************* */
-        // print("patchWithHeaders header is $headers"); //***************** */
+         print("patchWithHeaders url is $fullUrl"); //********************* */
+         print("patchWithHeaders header is $headers"); //***************** */
         return await http.patch(
           fullUrl,
           headers: headers,
@@ -412,9 +412,9 @@ class ApiService {
         return null;
       }
     } else {
-      // print(fullUrl);
-      // print("HEADERS $headers");
-      // print(jsonEncode(body));
+      print(fullUrl);
+      print("HEADERS $headers");
+      print(jsonEncode(body));
       print("🌐 Non-HTTPS endpoint, skipping pinning7sss");
       return await http.patch(
         fullUrl,
@@ -531,4 +531,159 @@ static Future<http.Response?> getWithHeadersOnlyUnoApi(
       return await http.post(fullUrl, body: body);
     }
   }
+
+
+
+
+ 
+static Future<http.Response?> patchWithHeadersUploadMultiPart(
+  String endpoint,
+  Map<String, String> headers,
+  Map<String, dynamic> body, {
+  File? imageFile,
+  String imageField = 'upload_selfie',
+}) async {
+  final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
+  final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
+  final isHttps = baseUri.scheme == 'https';
+
+  // print("🌐 URL: $fullUrl");
+  // print("📌 Headers: $headers");
+  // print("📦 Body: $body");
+
+  // ---------- SSL PINNING ----------
+  if (isHttps) {
+    final result = await HttpCertificatePinning.check(
+      serverURL: baseUri.origin,
+      headerHttp: {},
+      timeout: 50,
+      sha: SHA.SHA256,
+      allowedSHAFingerprints: [certificate],
+    );
+
+    if (result != CertificateState.CERTIFICATE_VALID) {
+       print("✅ SSL pinning success");
+      
+      // DO NOT silently return null — allow request or throw
+      // throw Exception("SSL pinning failed");
+    } else {
+      
+      print("❌ SSL pinning failed: $result");
+    }
+  } else {
+    print("🌐 Non-HTTPS endpoint, skipping pinning");
+  }
+
+  // ---------- MULTIPART PATCH ----------
+  if (imageFile != null) {
+    final request = http.MultipartRequest('PATCH', fullUrl);
+
+    // Safe headers
+    headers.forEach((key, value) {
+      request.headers[key] = value;
+    });
+
+    // Add fields
+    body.forEach((key, value) {
+      if (value != null) {
+        request.fields[key] = value.toString();
+      }
+    });
+
+    // Add image
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        imageField,
+        imageFile.path,
+      ),
+    );
+
+    final streamedResponse = await request.send();
+    return await http.Response.fromStream(streamedResponse);
+  }
+
+  // ---------- NORMAL PATCH (NO IMAGE) ----------
+  return await http.patch(
+    fullUrl,
+    headers: {
+      ...headers,
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode(body),
+  );
+}
+
+
+
+static Future<http.Response?> postWithHeadersUploadMultiPart(
+  String endpoint,
+  Map<String, String> headers,
+  Map<String, dynamic> body, {
+  File? imageFile,
+  String imageField = 'upload_selfie',
+}) async {
+  final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
+  final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
+  final isHttps = baseUri.scheme == 'https';
+
+  // ---------- SSL PINNING ----------
+  if (isHttps) {
+    final result = await HttpCertificatePinning.check(
+      serverURL: baseUri.origin,
+      headerHttp: {},
+      timeout: 50,
+      sha: SHA.SHA256,
+      allowedSHAFingerprints: [certificate],
+    );
+
+    if (result != CertificateState.CERTIFICATE_VALID) {
+      print("✅ SSL pinning success");
+    } else {
+      print("❌ SSL pinning failed: $result");
+      return null; // stop request if failed
+    }
+  } else {
+    print("🌐 Non-HTTPS endpoint, skipping pinning");
+  }
+
+  // ---------- MULTIPART POST ----------
+  if (imageFile != null) {
+    final request = http.MultipartRequest('POST', fullUrl);
+
+    // Add headers
+    headers.forEach((key, value) {
+      request.headers[key] = value;
+    });
+
+    // Add fields
+    body.forEach((key, value) {
+      if (value != null) {
+        request.fields[key] = value.toString();
+      }
+    });
+
+    // Add image file
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        imageField,
+        imageFile.path,
+      ),
+    );
+
+    final streamedResponse = await request.send();
+    return await http.Response.fromStream(streamedResponse);
+  }
+
+  // ---------- NORMAL POST (NO IMAGE) ----------
+  return await http.post(
+    fullUrl,
+    headers: {
+      ...headers,
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode(body),
+  );
+}
+
+
 }

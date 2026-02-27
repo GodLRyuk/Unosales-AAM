@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_datetime_picker_bdaya/flutter_datetime_picker_bdaya.dart
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/FSAModule/losApplication.dart';
 import 'package:unosfa/pages/Form/FormList/daily_sales_report_list.dart';
@@ -97,6 +99,39 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
   bool visibility = false;
   String featchCallBackStatus = "";
   String formSubmition = "";
+
+  bool fieldsDisabled = false;
+  String? _networkImageUrl;
+   String? _networkImageUrl1;
+
+  // ******************** Function for Image ********************
+    Uint8List? _imageBytes;
+
+    Future<void> loadImage(String fullUrl) async {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('accessToken');
+
+      final response = await http.get(
+        Uri.parse(fullUrl),
+        headers: {
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _imageBytes = response.bodyBytes;
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+
+  //************************************************* */
+
   @override
   void initState() {
     if (widget.pagemode == 'edit') {
@@ -141,7 +176,9 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       if (response.statusCode == 200) {
         setState(() {
           leadDetails = json.decode(response.body);
-          // String jsonString = jsonEncode(leadDetails);
+          //print("lead details is");
+          String jsonString = jsonEncode(leadDetails);
+
           // for (int i = 0; i < jsonString.length; i += 1000) {
           //   print(jsonString.substring(i,
           //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
@@ -203,6 +240,8 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
             // print("null check start3");
 
+            
+
             identity_TinId.text = leadDetails['tin_id'] ?? "";
             identity_GsisID.text = leadDetails['gsis_id'] ?? "";
             identity_SssID.text = leadDetails['sss_id'] ?? "";
@@ -231,6 +270,27 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
               visibility = true;
             });
           }
+
+          // For image
+
+          _networkImageUrl1 = leadDetails['upload_selfie'];
+
+              if (_networkImageUrl1 != null && _networkImageUrl1!.isNotEmpty) {
+
+                if (AppConfig.isDev != true) {
+                  _networkImageUrl = _networkImageUrl1!.replaceFirst(
+                    "http://salesapp.${AppConfig.flavour}.ph.unobank.asia",
+                    "https://unoapi.${AppConfig.flavour}.ph.unobank.asia",
+                  );
+                } else {
+                  _networkImageUrl = _networkImageUrl1;
+                }
+
+                loadImage(_networkImageUrl!);
+              }
+
+         
+
           industryType.text = leadDetails['industry_type'] ?? "";
           industryCode.text = leadDetails['industry_code'] ?? "";
 
@@ -710,8 +770,12 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       String url = '/api/leads/companies/?search=$query';
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
+      // print("api is $url");
+      // print("header $headers");
+
       if (response != null) {
         if (response.statusCode == 200) {
+          //print("response is ${response.body}");
           final Map<String, dynamic> data = json.decode(response.body);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
@@ -1315,6 +1379,16 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                     label: "   Activity Type",
                   ),
                   const SizedBox(height: 15), 
+                  
+                  _buildImageCaptureField(
+                    context,                
+                    "Upload Selfie",               
+                    true,
+                  _captureImageField1,
+                    (file) => setState(() => _captureImageField1 = file),
+                  ),
+                  SizedBox(height: 15),
+    
                   Text(
                     "Select Status",
                     style: WidgetSupport.Questionblack(),
@@ -1373,6 +1447,108 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
             ),
     );
   }
+
+
+
+  // ===========================================================================
+  File? _captureImageField1;
+  Widget _buildImageCaptureField(
+  BuildContext context,
+  String hintText,
+  bool isRequired,
+  File? captureImage,
+  Function(File) onImageSelected, {
+  CameraDevice cameraDevice = CameraDevice.front,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+         RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: hintText,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  if (isRequired)
+                    const TextSpan(
+                      text: " *",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red, 
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+          IconButton(
+            icon: Icon(Icons.camera_alt, color: Colors.purple),
+            onPressed: fieldsDisabled
+                ? null // disables the button
+                : () async {
+                    final picker = ImagePicker();
+                    final XFile? pickedFile = await picker.pickImage(
+                      source: ImageSource.camera,
+                      preferredCameraDevice: cameraDevice,
+                      // imageQuality: 85,
+                      imageQuality: 60,
+                    );
+                    if (pickedFile != null) {
+                      onImageSelected(File(pickedFile.path));
+                      setState(() {
+                        _networkImageUrl = null; // clear old network image
+                      });
+                    }
+                  },
+          ),
+
+        ],
+      ),
+      SizedBox(height: 10),
+      if (captureImage != null)
+        ClipOval(
+          child: Image.file(
+            captureImage,
+            height: 110,
+            width: 110,
+            fit: BoxFit.cover,
+          ),
+        )
+      else if (_imageBytes != null)
+        ClipOval(
+        child: _isLoading
+            ? const SizedBox(
+                height: 110,
+                width: 110,
+                child: Center(child: CircularProgressIndicator()),
+              )
+            : _imageBytes != null
+                ? Image.memory(
+                    _imageBytes!,
+                    height: 110,
+                    width: 110,
+                    fit: BoxFit.cover,
+                  )
+                : const SizedBox(
+                    height: 110,
+                    width: 110,
+                    child: Icon(Icons.error, size: 60, color: Colors.red),
+                  ),),
+    ],
+  );
+}
+
+// ============================================================
+
+
   bool _isValidIdtin(String text) {
     final trimmed = text.trim();
     final length = trimmed.length;
@@ -1404,9 +1580,9 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
 
   Future<void> leadSubmit() async {
-    setState(() {
-    isLoading = true;
-  });
+      setState(() {
+      isLoading = true;
+    });
 
   List<String> errors = [];
 
@@ -1465,6 +1641,9 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
   if (monthlySalary.text.isEmpty) errors.add("Monthly Salary cannot be empty.");
   if (loanAmount.text.isEmpty) errors.add("Desired Loan Amount cannot be empty.");
   if (industryType.text.isEmpty) errors.add("Industry Type cannot be empty.");
+
+  // Image Validation
+  if (_captureImageField1 == null && _networkImageUrl == null) errors.add("Selfie cannot be empty.");
 
   // 🔹 Status validation
   if (_selectedStatusCode == null) errors.add("Status must be selected.");
@@ -1693,14 +1872,19 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
           'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
     };
     String jsonString = jsonEncode(mappedData);
-          for (int i = 0; i < jsonString.length; i += 1000) {
-            print(jsonString.substring(i,
-                (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-          }
+
+          // for (int i = 0; i < jsonString.length; i += 1000) {
+          //   print(jsonString.substring(i,
+          //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
+          // }
+
+
     if (widget.pagemode != "edit") {
-      final response =
-          await ApiService.postJsonWithHeaders(url, mappedData, headers);
-          print(response?.body);
+      // final response =
+      //     await ApiService.postJsonWithHeaders(url, mappedData, headers);
+
+      final response = await ApiService.postWithHeadersUploadMultiPart(url,headers, mappedData,imageFile: _captureImageField1);
+      //print("response body no edit is ${response?.body}");
       try {
         String dsrId = "";
         if (response != null && (response.statusCode == 201)) {
@@ -1779,9 +1963,14 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
           SnackBar(content: Text("An error occurred: ${response?.body}")),
         );
       }
-    } else {
-      final response =
-          await ApiService.patchWithHeaders(url, headers, mappedData);
+    } 
+    
+    else {
+      // final response =
+      //     await ApiService.patchWithHeaders(url, headers, mappedData);
+
+      final response = await ApiService.patchWithHeadersUploadMultiPart(url,headers, mappedData,imageFile: _captureImageField1);
+      //print("response body edit is ${response?.body}");
       try {
         String dsrId = "";
         if (response != null && (response.statusCode == 200)) {
@@ -2054,21 +2243,19 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
     return DropdownButtonFormField<String>(
       value: PermbarangayList.contains(_selectedBarangay)
           ? _selectedBarangay
-          : null,          
+          : null,
       items: PermbarangayList.map((String region) {
         return DropdownMenuItem<String>(
           value: region,
           child: Text(region),
         );
       }).toList(),
-      
       onChanged: (String? newValue) {
         setState(() {
           _selectedBarangay = newValue!;
           controller.text = newValue;
         });
       },
-      
       icon: const SizedBox.shrink(),
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.only(left: 5),
@@ -2097,8 +2284,6 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         return null;
       },
     );
-  
-
   }
 
   Widget _buildRadioField<T>({
@@ -2438,9 +2623,11 @@ Widget _buildTextField2(
             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final response = await ApiService.getWithHeaders(url, headers);
+     
       if (response != null) {
 
         if (response.statusCode == 200) {
+          
           var decodedResponse = json.decode(response.body);
 
           // ✅ If API returns a Map with sub_disposition_codes

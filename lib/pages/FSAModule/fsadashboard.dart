@@ -21,7 +21,7 @@ import 'package:unosfa/pages/services/api_service.dart';
 import 'package:unosfa/pages/services/checkin.dart';
 import 'package:unosfa/pages/services/in_app_storage.dart';
 import 'package:unosfa/pages/services/in_app_tutorial_target.dart';
-import 'package:unosfa/pages/services/los_status_chart.dart';
+import 'package:unosfa/pages/FSAModule/los_status_chart.dart';
 import 'package:unosfa/widgetSupport/widgetstyle.dart';
 import 'package:flutter/services.dart';
 
@@ -791,7 +791,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                                   builder: (context) =>
                                                       LosStatusChart(
                                                           initialTabTitle:
-                                                              'Total Accepted'),
+                                                              'TOTAL ACCEPTED'),
                                                 ));
                                           },
                                           child: Column(
@@ -908,7 +908,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                                     builder: (context) =>
                                                         LosStatusChart(
                                                             initialTabTitle:
-                                                                'In-Progress')));
+                                                                'IN-PROGRESS')));
                                           },
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment
@@ -1030,7 +1030,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                                     builder: (context) =>
                                                         LosStatusChart(
                                                             initialTabTitle:
-                                                                'In-Principle Approved')));
+                                                                'IN-PRINCIPLE APPROVED')));
                                           },
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment
@@ -1143,7 +1143,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                                     builder: (context) =>
                                                         LosStatusChart(
                                                             initialTabTitle:
-                                                                'Final Approved')));
+                                                                'FINAL APPROVED')));
                                           },
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment
@@ -1242,7 +1242,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                                     builder: (context) =>
                                                         LosStatusChart(
                                                             initialTabTitle:
-                                                                'Declined')));
+                                                                'DECLINED')));
                                           },
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment
@@ -1358,7 +1358,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                                     builder: (context) =>
                                                         LosStatusChart(
                                                             initialTabTitle:
-                                                                'Disbursed')));
+                                                                'DISBURSED')));
                                           },
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment
