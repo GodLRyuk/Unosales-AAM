@@ -1909,11 +1909,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
     if (etbDetails is List && etbDetails.isNotEmpty) {
       final customer = etbDetails[0];
-      print("Customer details is $customer");
-      final address = customer['addresses']?[0];
-      print("Address is $address");
-
+      final address = customer['addresses']?[0]; 
       final empAddress = customer['_Emp_Address'];
+      final iddocuments = customer['idDocuments']?[0];
+      final empMonthlyIncome = customer['_Fin_Details'];
+      final empDetails = customer['_Emp_Details'];
 
       setState(() {
         firstName.text = customer['firstName']?.trim() ?? '';
@@ -1932,6 +1932,13 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         // address
         perm_ZipCode.text = address?['postcode'] ?? "";
         perm_Street.text = address?['line1'] ?? "";
+
+        // document
+        documentType.text = iddocuments?['documentType'] ?? "";
+        documentId.text = iddocuments?['documentId'] ?? "";
+
+        //Employee monthly income
+        fin_Mthly_Income.text = empMonthlyIncome?['fin_Mthly_Income'] ?? "";
       });
 
       // zip function customer
@@ -1944,9 +1951,27 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       {
         await  onEmpZipCodeEntered(address['emp_ZipCode']);
       }
+
+      // employee work nature   
+
+      if (empDetails != null && empDetails['emp_Work_Nature_Code'] != null) {
+          String code = empDetails['emp_Work_Nature_Code'].toString();
+
+          final selectedItem = empWorkNatureList.firstWhere(
+            (item) => item['key'] == code,
+            orElse: () => {},
+          );
+
+          setState(() {
+            emp_Work_Nature_Code.text = code;
+            emp_Work_Nature.text = selectedItem['value'] ?? '';
+            
+            
+          });
+      }
+
     }
   }
-
   // *************** done  **********************
 
   @override
@@ -2745,6 +2770,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                     if (_isChecked) {
                       // validateAndSubmit();
                       bool valid = validateAndSubmit();
+                      print("valid $valid");
 
                       if(!valid)
                       {
@@ -4348,6 +4374,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     required String label,
     bool isRequired = true,
   }) {
+
     return DropdownButtonFormField<String>(
       isExpanded: true,
       focusNode: genderFocusNode,
