@@ -47,7 +47,7 @@ class EkycService {
         "Authorization": "Bearer $token",
         "Accept": "application/json",
         "Content-Type": "application/json",
-        "channel": "fsa",
+        "channel": "AAM_FSA",
         "Correlation-ID": "Correlation-Id-3b2d2c13-4e48-4c6d-8b5d-dbdba6c3c0a8",
       },
     );

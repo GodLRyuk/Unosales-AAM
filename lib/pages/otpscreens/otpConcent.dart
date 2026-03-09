@@ -198,14 +198,9 @@ class OtpconcentState extends State<Otpconcent> {
       month = parts[1];
       year = parts[2];
     }
-    print("DAY $day");
-    print("Month $month");
-    print("YEar $year");
+
     // Reformat to yyyy-MM-dd
     String formattedBirthDate = "$year-$month-$day";
-
-    print("Formated date $formattedBirthDate"); // 1960-01-28
-
     Map<String, dynamic> requestData = {
       "CWTransactionID": widget.losData.cwTransactionID,
       "clientDetails": {
@@ -456,7 +451,7 @@ AQIDAQAB
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userInfo = prefs.getStringList('userInfo');
     //String agentCode = "testFSA";
-    print("agent code is $userInfo[0]");
+
 
     if (userInfo![0] == null || userInfo![0].isEmpty) {
       throw Exception("Agent code not found in SharedPreferences");
@@ -478,13 +473,8 @@ AQIDAQAB
 
     // 2️⃣ Convert to JSON string
     final jsonString = json.encode(jsonObject);
-
-    print("JSON Before Encryption: $jsonString");
-
     // 3️⃣ Encrypt JSON once
     final encrypted = encrypter.encrypt(jsonString).base64;
-
-    print("Encrypted JSON: $encrypted");
 
     // 4️⃣ Final payload
     return {
@@ -496,12 +486,12 @@ AQIDAQAB
   Future<void> callSosLogoin() async {
     try {
       final payload = await buildPayload();
-      print("Payload value is ${jsonEncode(payload)}");
+      
 
       // 10.12.2025
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
-      print("167.88.160.87 token is $token");
+     
 
       try {
         String tokenUrl = "/api/leads/los-access-token/";
@@ -524,7 +514,7 @@ AQIDAQAB
 
       // Done
       final url = Uri.parse(
-          "${AppConfig.otpUrl}/auth/sso-login"); //https://unoapi.uat.ph.unobank.asia/auth/sso-login
+          "${AppConfig.otpUrl}/auth/sso-login"); 
       final headers = {
         "Authorization": 'Bearer $token',
         "Content-Type": "application/json",
@@ -538,8 +528,6 @@ AQIDAQAB
         headers: headers,
         body: jsonEncode(payload),
       );
-
-     
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -567,34 +555,24 @@ AQIDAQAB
       String? token = prefs.getString('accessToken');
       String? ssotoken = prefs.getString('ssoToken');
 
-      print("Token: $token");
-      print("SSO Token: $ssotoken");
-
       if (ssotoken == null) {
-        print("ERROR: SSO token is missing. Run callSosLogoin() first.");
         return;
       }
 
       final encodedToken = Uri.encodeComponent(ssotoken);
-      print("encode token is $encodedToken");
+      
 
       int retryCount = 0;
       const int maxRetries = 3;
 
       while (retryCount < maxRetries) {
         print("API Attempt: $retryCount");
+        String aamUrl = "/api/leads/los-details/?los_status__applicationNo=$cwId";
+        final aamheader = {'Authorization': 'Bearer $token'};
 
-        final response = await http.get(
-          Uri.parse(
-            '${AppConfig.dynamicBaseUrl}/api/leads/los-details/?los_status__applicationNo=$cwId',
-          ),
-          headers: {'Authorization': 'Bearer $token'},
-        );
-
-        final data = json.decode(response.body);
-        print("data is $data");
+        final response = await ApiService.getWithHeaders(aamUrl,aamheader);
+        final data = json.decode(response!.body);
         final result2 = data['results'][0]['los_status'];
-
         final offerStatus = result2['offerStatus'];
         final applicationStatus = result2['applicationStatus'];
 
@@ -605,7 +583,6 @@ AQIDAQAB
         // 1) PASSED → STOP LOOP + REDIRECT
         // ---------------------------------------------------
         if (offerStatus == "IN-PROGRESS" && applicationStatus == "Passed") {
-          print("APPROVED → Redirecting to AAM");
 
           String applicationId = cwId;     
           final redirectUrl =
@@ -621,11 +598,12 @@ AQIDAQAB
             );
             await launchUrl(uri, mode: LaunchMode.externalApplication);
 
-          final losUrl = "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/";
+          final losUrl = "/api/leads/los-details/$losId/";
           final headers = {
                   'Authorization': 'Bearer $token',
                   'User-Agent':
                       'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+                  'Content-Type': 'application/json' ,
                 };
             final body = {
               "workflow_status": "AAM Invoked"
@@ -636,17 +614,7 @@ AQIDAQAB
               headers,
               body
             );
-            //  if (responsefromLOS != null && responsefromLOS.statusCode == 200)
-            //  {
-            //   print("response code ${responsefromLOS.statusCode}");
-            //  }
-
-            //  else
-            //  {
-            //   print("response code ${responsefromLOS!.statusCode}");
-            //  }
-
-
+            
           } else {
             print("Could not launch $redirectUrl");
           }
@@ -661,15 +629,17 @@ AQIDAQAB
           retryCount++;
 
           print("ApplicationStatus empty → Retry $retryCount of $maxRetries");
+           
           await Future.delayed(Duration(seconds: 30));
 
           if (retryCount >= maxRetries) {
             
-          final losUrl = "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId";
+          final losUrl = "/api/leads/los-details/$losId/";
           final headers = {
                   'Authorization': 'Bearer $token',
                   'User-Agent':
                       'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+                  'Content-Type': 'application/json' ,
                 };
             final body = {
               "workflow_status": "SW_PW"
@@ -680,17 +650,6 @@ AQIDAQAB
               headers,
               body
             );
-
-            //  if (responsefromLOS != null && responsefromLOS.statusCode == 200)
-            //  {
-            //   print("response code ${responsefromLOS.statusCode}");
-            //  }
-
-            //  else
-            //  {
-            //   print("response code ${responsefromLOS!.statusCode}");
-            //  }
-            //print("Max retries reached → Going to Dashboard");
 
             Navigator.pushAndRemoveUntil(
               context,
@@ -707,11 +666,13 @@ AQIDAQAB
         // 3) FAILED → STOP LOOP + GO DASHBOARD
         // ---------------------------------------------------
         if (offerStatus == "IN-PROGRESS" && applicationStatus == "Failed") {
-           final losUrl = "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/";
+           final losUrl = "/api/leads/los-details/$losId/";
               final headers = {
                             'Authorization': 'Bearer $token',
                             'User-Agent':
                                 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+                            'Content-Type': 'application/json' ,
+
                           };
               final body = {
                         "workflow_status": "Prelim UW Failed"
@@ -723,8 +684,6 @@ AQIDAQAB
                         body
             );
 
-
-          print("REJECTED");
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => NavigationPage()),
@@ -768,7 +727,7 @@ AQIDAQAB
 
     print("position 3");
     final url = Uri.parse("${AppConfig.otpUrl}/pre-uw/save-payload");
-    // https://unoapi.uat.ph.unobank.asia/pre-uw/save-payload'
+    
 
     final headers = {
       "Idempotency-Key": "th37per9-185d-4e22-83fb-18gf96g0g861",
@@ -793,17 +752,12 @@ AQIDAQAB
     // }
     print("position 4");
     try {
-      // print("position 5");
-      // print(url);
-      // print(headers);
-      // print(json.encode(requestData));
       final response = await http.post(
         url,
         headers: headers,
         body: json.encode(requestData),
       );
-      print("los respose ${response.statusCode}");
-      print("Response body ${response.body}");
+
       if (response.statusCode == 200) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? token = prefs.getString('accessToken');
@@ -827,7 +781,8 @@ AQIDAQAB
           headers: headers2,
           body: json.encode(mappedLOsData),
         );
-        print(responseLOS);
+        //print("responseLOS is ${responseLOS.statusCode}");
+
         final LoSResponcedata = json.decode(response.body);
         Map<String, dynamic> mappedData = {
           "mobileNo": "",
@@ -916,23 +871,24 @@ AQIDAQAB
           print("position 10");
 
           var finalRequestData;
+          print("pagemode ${widget.pagemode}");
 
           if (widget.pagemode == 'edit') {
+            print("not fresh leadddd");
             finalRequestData = Map<String, dynamic>.from(requestData)
               ..["lead_type"] = "campaign_lead"
               ..["declaration"] = true
-              ..["dsr"] = null;
-          } else {
+              ..["dsr"] = null
+              ..["workflow_status"] = "submit";
+        } else {
             print("fresh leadddd");
             finalRequestData = Map<String, dynamic>.from(requestData)
               ..["lead_type"] = "fresh_lead"
               ..["declaration"] = true
               // ..["dsr"] = "${widget.dsrId}";
-              ..["dsr"] = dsrIdValue;
+              ..["dsr"] = dsrIdValue
+              ..["workflow_status"] = "submit";
           }
-
-          finalRequestData = Map<String, dynamic>.from(requestData)
-          ..["workflow_status"] = "submit";
 
           final backendresponseLOS = await http.post(
             LosbackendStatusUrl,
@@ -949,15 +905,14 @@ AQIDAQAB
           //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
           // }
 
-          print("backend response status is ${backendresponseLOS.statusCode}");
+          
           String losId="";
 
           if (backendresponseLOS.statusCode == 201) {
             final data = json.decode(backendresponseLOS.body);
-            losId = data['id'];
-           
-            final LosBackendResponseUrl = Uri.parse(
-                '${AppConfig.dynamicBaseUrl}/api/leads/los-details/${data['id']}/');
+            losId = data['id'].toString();
+
+            String ul="/api/leads/los-details/${data['id']}/";
             final headers4 = {
               "Content-Type": "application/json",
               "Accept": "application/json",
@@ -980,17 +935,10 @@ AQIDAQAB
                 "lastScreen": ''
               }
             };
-            print(json.encode(mappedResponseLOsData));
-            final responseLOS = await http.patch(
-              LosBackendResponseUrl,
-              headers: headers4,
-              body: json.encode(mappedResponseLOsData),
-            );
+             //final responseLOS  = ApiService.patchWithHeaders(ul, headers4, mappedResponseLOsData);
+
+             final responseLOS  = await ApiService.patchWithHeaders(ul, headers4, mappedResponseLOsData);             
           }
-
-          print("responseLOS is ${responseLOS.statusCode}");
-          print("responseLOS is ${responseLOS.body}");
-
           // Updation for web hock
            
 
@@ -1001,7 +949,8 @@ AQIDAQAB
             SnackBar(content: Text('Something went wrong: $e')),
           );
         }
-      } else {
+      } 
+      else {
         print("position 14");
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? authToken = prefs.getString('accessToken');

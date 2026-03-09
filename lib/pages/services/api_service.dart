@@ -400,8 +400,8 @@ class ApiService {
         allowedSHAFingerprints: [certificate],
       );
       if (result != CertificateState.CERTIFICATE_VALID) {
-         print("patchWithHeaders url is $fullUrl"); //********************* */
-         print("patchWithHeaders header is $headers"); //***************** */
+        //  print("patchWithHeaders url is $fullUrl"); //********************* */
+        //  print("patchWithHeaders header is $headers"); //***************** */
         return await http.patch(
           fullUrl,
           headers: headers,
@@ -436,8 +436,8 @@ class ApiService {
     headers['User-Agent'] =
         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
 
-    //  print("postWithHeadersUnoApi url $fullUrl"); //*********** */
-    //  print("postWithHeadersUnoApi header $headers"); //************* */
+     print("postWithHeadersUnoApi url $fullUrl"); //*********** */
+     print("postWithHeadersUnoApi header $headers"); //************* */
     // print(jsonEncode(body) );
     if (isHttps) {
       final result = await HttpCertificatePinning.check(

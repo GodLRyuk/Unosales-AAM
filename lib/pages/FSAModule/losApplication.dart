@@ -2859,7 +2859,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                           dsrId: widget.dsrId);
 
                       print("losData from model is coming ${CWTransactionIdNo}");
-                      
+                       print("pagemode ${widget.pagemode}");
 
                       Navigator.push(
                         context,
@@ -2869,7 +2869,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 losData: losData,
                                 campaign: "",
                                 leadId: widget.leadId,
-                                pagemode: "edit")),
+                                pagemode: widget.pagemode)),
                       );
                     } else {
                       return null;

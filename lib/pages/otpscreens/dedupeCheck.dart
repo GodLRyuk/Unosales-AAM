@@ -447,7 +447,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
         "dateOfBirth": formattedDate,
         "mobileNumber": "63" + mobilePhone.text
       };
-
+     print("data is ${mapeddata}");
       
       final headers = {
         'Authorization': 'Bearer $token',
@@ -475,6 +475,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
         final response =
             await ApiService.postWithHeadersUnoApi(url, mapeddata, headers);
         if (response != null) {
+          print("response is ${response.body}");
           final responseBody = json.decode(response.body);
           final message = responseBody["message"] ?? "";
           if (message == "No Client Found") {

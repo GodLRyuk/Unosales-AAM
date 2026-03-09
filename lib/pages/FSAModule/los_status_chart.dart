@@ -217,12 +217,14 @@ class _LosStatusChartState extends State<LosStatusChart>
     if (response != null && response.statusCode == 200) {
       final appJson = json.decode(response.body);
       final List results = appJson['results'];
-
+     
       for (var item in results) {
         final clientDetails = item['clientDetails'];
+       
         final losStatus = item['los_status'];
 
         mergedLeads.add({
+          'id': item['id']?.toString() ?? '',
           'firstName': clientDetails?['firstName']?.toString() ?? '',
           'middleName': clientDetails?['middleName']?.toString() ?? '',
           'lastName': clientDetails?['lastName']?.toString() ?? '',
@@ -232,6 +234,7 @@ class _LosStatusChartState extends State<LosStatusChart>
           'offerStatus': losStatus?['offerStatus']?.toString() ?? '',
           'uwStatus': losStatus?['uwStatus']?.toString() ?? '',
           'workflow_status': item['workflow_status']?.toString() ?? '',
+          
         });
       }
     }
@@ -656,17 +659,20 @@ class _LosStatusChartState extends State<LosStatusChart>
                                   SizedBox(height: 5),
 
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    //mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        "OfferStatus: ${lead['offerStatus']}",
-                                        
+                                      Expanded(
+                                        child: Text(
+                                          "OfferStatus: ${lead['offerStatus']}",
+                                          overflow: TextOverflow.ellipsis,
+                                          
+                                        ),
                                       ),
 
                                       GestureDetector(
                                         
                                         onTap: () {
-                                         String cwTransactionID = lead['CWTransactionID'].toString();
+                                        String cwTransactionID = lead['CWTransactionID'].toString();
                                          waybookImplement(cwTransactionID, lead['id'] );
                                         },
                                         child: Text(
@@ -847,42 +853,21 @@ Future<void> callSosLogoin() async {
     }
 
     final encodedToken = Uri.encodeComponent(ssotoken);
-   // print("encode token is $encodedToken");
   
-          final url = Uri.parse('${AppConfig.unoBaseApiUrl}/api/app/offer');
+          //final url = Uri.parse('${AppConfig.unoBaseApiUrl}/api/app/offer');
+           final offerUrl = "/api/app/offer";
 
-                final headers = {
-                  'Authorization': 'Bearer $losToken',
-                  'Content-Type': 'application/json',
-                };
+           final headers = {
+             'Authorization': 'Bearer $losToken',
+             'Content-Type': 'application/json',
+            };
 
-                final body = {
-                  "applicationId": cwId,
-                  
-                };
-                print("cw id is $cwId");
-
-                final response = await http.post(
-                  url,
-                  headers: headers,
-                  body: jsonEncode(body),
-                );
-
-                print("url is $url");
-                print("header is $headers");
-
-                print("response code is ${response.statusCode}");
-                print("response body ${response.body}");
-
-
-           final data = json.decode(response.body);
-           print("data is $data");
-            //final result2 = data['results'][0]['los_status'];
+            final body = {
+              "applicationId": cwId,
+            };
+            final response = await ApiService.postJsonWithUNOApiHeaders(offerUrl, body, headers);
+           final data = json.decode(response!.body);
            String offerStatus = data[0]['offerStatus'];
-
-            //final offerStatus = data['offerStatus'];
-            //final applicationStatus = result2['applicationStatus'];
-
             print("offerStatus = $offerStatus");
  
             // 1) PASSED → STOP LOOP + REDIRECT
@@ -910,11 +895,12 @@ Future<void> callSosLogoin() async {
                   await launchUrl(uri, mode: LaunchMode.externalApplication);
 
 
-                  final losUrl = "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/";
+                  final losUrl = "/api/leads/los-details/$losId/";
                     final headers = {
                             'Authorization': 'Bearer $token',
                             'User-Agent':
                                 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+                          'Content-Type': 'application/json' ,
                           };
                       final body = {
                         "workflow_status": "AAM Invoked"
@@ -925,6 +911,7 @@ Future<void> callSosLogoin() async {
                         headers,
                         body
                       );
+                      print("response code ${responsefromLOS!.statusCode}");
 
                 } else {
                   print("Could not launch $redirectUrl");
@@ -936,11 +923,12 @@ Future<void> callSosLogoin() async {
 
            
              else {
-              final losUrl = "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/";
+              final losUrl = "/api/leads/los-details/$losId/";
               final headers = {
                             'Authorization': 'Bearer $token',
                             'User-Agent':
                                 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+                           'Content-Type': 'application/json' ,
                           };
               final body = {
                         "workflow_status": "Prelim UW Failed"
@@ -951,14 +939,15 @@ Future<void> callSosLogoin() async {
                         headers,
                         body
                   );
+                  print("code is ${responsefromLOS!.statusCode}");
                   
               showDialog(
                 context: context,
                 barrierDismissible: false, 
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: Text("Application Status $offerStatus"),
-                    content: Text("Your application has been REJECTED."),
+                    title: Text("Application Status "),
+                    content: Text("Your application has been $offerStatus"),
                     actions: [
                       TextButton(
                         onPressed: () {
