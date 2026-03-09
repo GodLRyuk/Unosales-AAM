@@ -874,14 +874,14 @@ AQIDAQAB
           print("pagemode ${widget.pagemode}");
 
           if (widget.pagemode == 'edit') {
-            print("not fresh leadddd");
+           
             finalRequestData = Map<String, dynamic>.from(requestData)
               ..["lead_type"] = "campaign_lead"
               ..["declaration"] = true
               ..["dsr"] = null
               ..["workflow_status"] = "submit";
         } else {
-            print("fresh leadddd");
+           
             finalRequestData = Map<String, dynamic>.from(requestData)
               ..["lead_type"] = "fresh_lead"
               ..["declaration"] = true
