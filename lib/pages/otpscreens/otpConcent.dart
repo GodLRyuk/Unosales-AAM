@@ -579,9 +579,9 @@ AQIDAQAB
         print("offerStatus = $offerStatus");
         print("applicationStatus = $applicationStatus");
 
-        // ---------------------------------------------------
+       
         // 1) PASSED → STOP LOOP + REDIRECT
-        // ---------------------------------------------------
+        
         if (offerStatus == "IN-PROGRESS" && applicationStatus == "Passed") {
 
           String applicationId = cwId;     
@@ -598,22 +598,7 @@ AQIDAQAB
             );
             await launchUrl(uri, mode: LaunchMode.externalApplication);
 
-          final losUrl = "/api/leads/los-details/$losId/";
-          final headers = {
-                  'Authorization': 'Bearer $token',
-                  'User-Agent':
-                      'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-                  'Content-Type': 'application/json' ,
-                };
-            final body = {
-              "workflow_status": "AAM Invoked"
-            };
-
-            final responsefromLOS = await ApiService.patchWithHeaders(
-              losUrl,
-              headers,
-              body
-            );
+            updateWorkflowStatus(losId, "AAM Invoked");
             
           } else {
             print("Could not launch $redirectUrl");
@@ -621,35 +606,18 @@ AQIDAQAB
           return;
         }
 
-        // ---------------------------------------------------      
+            
         // 2) EMPTY OR NULL → WAIT 30 SEC & RETRY
-        // ---------------------------------------------------
+        
         if (offerStatus == "IN-PROGRESS" &&
             (applicationStatus == null || applicationStatus == "")) {
           retryCount++;
-
-          print("ApplicationStatus empty → Retry $retryCount of $maxRetries");
-           
+          
           await Future.delayed(Duration(seconds: 30));
 
-          if (retryCount >= maxRetries) {
+          if (retryCount >= maxRetries) {  
             
-          final losUrl = "/api/leads/los-details/$losId/";
-          final headers = {
-                  'Authorization': 'Bearer $token',
-                  'User-Agent':
-                      'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-                  'Content-Type': 'application/json' ,
-                };
-            final body = {
-              "workflow_status": "SW_PW"
-            };
-
-            final responsefromLOS = await ApiService.patchWithHeaders(
-              losUrl,
-              headers,
-              body
-            );
+            updateWorkflowStatus(losId, "SW_PW");
 
             Navigator.pushAndRemoveUntil(
               context,
@@ -659,30 +627,15 @@ AQIDAQAB
             return;
           }
 
-          continue; // go to next loop iteration
+          continue; 
         }
 
-        // ---------------------------------------------------
+        
         // 3) FAILED → STOP LOOP + GO DASHBOARD
-        // ---------------------------------------------------
+       
         if (offerStatus == "IN-PROGRESS" && applicationStatus == "Failed") {
-           final losUrl = "/api/leads/los-details/$losId/";
-              final headers = {
-                            'Authorization': 'Bearer $token',
-                            'User-Agent':
-                                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-                            'Content-Type': 'application/json' ,
-
-                          };
-              final body = {
-                        "workflow_status": "Prelim UW Failed"
-                      };
-
-             final responsefromLOS = await ApiService.patchWithHeaders(
-                        losUrl,
-                        headers,
-                        body
-            );
+          
+          updateWorkflowStatus(losId, "Prelim UW Failed");
 
           Navigator.pushAndRemoveUntil(
             context,
@@ -699,14 +652,49 @@ AQIDAQAB
     }
   }
 
+
+ // Function for update workflow status
+
+ Future<void> updateWorkflowStatus(String losId, String status) async {
+      try {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? token = prefs.getString('accessToken');
+
+        final losUrl = "/api/leads/los-details/$losId/";
+
+        final headers = {
+          'Authorization': 'Bearer $token',
+          'User-Agent':
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          'Content-Type': 'application/json',
+        };
+
+        final body = {
+          "workflow_status": status
+        };
+
+        final response = await ApiService.patchWithHeaders(
+          losUrl,
+          headers,
+          body,
+        );
+
+        print("Workflow status updated: $status");
+
+      } catch (e) {
+        print("Error updating workflow status: $e");
+      }
+ }
+
+
 // Done  by 8.12.2025
 
   Future<void> postLoanCheck(Map<String, dynamic> requestData) async {
-    print("position 1");
+
     setState(() {});
     String tokens = "";
     try {
-      print("position 2");
+      
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
       final Tokenresponse = await http.get(
@@ -725,7 +713,7 @@ AQIDAQAB
       print("HTTP Request Failed: $e");
     }
 
-    print("position 3");
+   
     final url = Uri.parse("${AppConfig.otpUrl}/pre-uw/save-payload");
     
 
@@ -737,7 +725,6 @@ AQIDAQAB
       'User-Agent':
           'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       "Correlation-Id": "1234",
-      //"Channel": "SalesApp",
       "Channel": "FSA",
       "Cookie":
           "AWSALB=BBxk3EbWLtIG1Kav8Uzq4M35AQ6O/x7hZqOtLs0CoXlu4BrBbrhRhfBqa6tAbbpnx/2orMd0kt7fwL8nCPxthrnqBBozntvZC/Sf6p1jkVPiG3X9ttn0KLI4rtnY; AWSALBCORS=BBxk3EbWLtIG1Kav8Uzq4M35AQ6O/x7hZqOtLs0CoXlu4BrBbrhRhfBqa6tAbbpnx/2orMd0kt7fwL8nCPxthrnqBBozntvZC/Sf6p1jkVPiG3X9ttn0KLI4rtnY; METADATA=3c6749d5-60ea-4486-aede-fd4538d2fe39"
@@ -750,7 +737,7 @@ AQIDAQAB
     //   print(jsonString.substring(
     //       i, (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
     // }
-    print("position 4");
+    
     try {
       final response = await http.post(
         url,
@@ -771,7 +758,7 @@ AQIDAQAB
           'User-Agent':
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
-        print("position 6");
+        
         Map<String, String> mappedLOsData = {
           "cwtransection_id": "${requestData['CWTransactionID']}",
           "los_status": "submitted",
@@ -792,7 +779,7 @@ AQIDAQAB
           "source": ""
         };
 
-        print("position 7");
+        
         final fetchStatusUrl =
             Uri.parse("${AppConfig.otpUrl}/api/app/fetch/application/status");
         final fetchStatusHeaders = {
@@ -804,7 +791,7 @@ AQIDAQAB
         };
 
         try {
-          print("position 8");
+          
           showDialog(
             context: context,
             barrierDismissible: false,
@@ -815,49 +802,8 @@ AQIDAQAB
             },
           );
 
-          // int retryCount = 0;
-          // Map<String, dynamic>? data;
-          // List<dynamic>? result;
-
-          // while (retryCount < 3) {
-          //   final Statusresponse = await http.post(
-          //     fetchStatusUrl,
-          //     headers: fetchStatusHeaders,
-          //     body: json.encode(mappedData),
-          //   );
-
-          //   await Future.delayed(const Duration(seconds: 2)); // 2-second delay
-
-          //   if (Statusresponse.statusCode == 200) {
-          //     data = json.decode(Statusresponse.body);
-          //     result = data?['result'];
-          //     if (result != null && result.isNotEmpty) {
-          //       break; // Success, exit retry loop
-          //     }
-          //   }
-          //   retryCount++;
-          // }
-          // For wayBook
+         
           Navigator.of(context).pop(); // close loader
-
-          // print("Result status is show like that $result");
-
-          // if (result == null || result.isEmpty) {
-          //   showDialog(
-          //     context: context,
-          //     builder: (BuildContext context) {
-          //       return const AlertDialog(
-          //         title: Text("No Application Data"),
-          //         content: Text(
-          //             "The application status response returned null after retries."),
-          //       );
-          //     },
-          //   );
-          //   return;
-          // }
-
-          // var application = result[0]; // Safe to access now?
-          print("position 9");
 
           final LosbackendStatusUrl =
               Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-details/');
@@ -868,11 +814,9 @@ AQIDAQAB
             'User-Agent':
                 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
           };
-          print("position 10");
+         
 
-          var finalRequestData;
-          print("pagemode ${widget.pagemode}");
-
+          var finalRequestData;        
           if (widget.pagemode == 'edit') {
            
             finalRequestData = Map<String, dynamic>.from(requestData)
@@ -920,8 +864,7 @@ AQIDAQAB
               'User-Agent':
                   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
             };
-            // print("header is $headers4");
-            // print("url is $LosBackendResponseUrl");
+            
 
             Map<String, dynamic> mappedResponseLOsData = {
               "los_status": {
@@ -935,13 +878,10 @@ AQIDAQAB
                 "lastScreen": ''
               }
             };
-             //final responseLOS  = ApiService.patchWithHeaders(ul, headers4, mappedResponseLOsData);
-
+             
              final responseLOS  = await ApiService.patchWithHeaders(ul, headers4, mappedResponseLOsData);             
           }
-          // Updation for web hock
-           
-
+          
           waybookImplement(requestData['CWTransactionID'],losId);
         } catch (e) {
           Navigator.of(context).pop();
@@ -951,7 +891,7 @@ AQIDAQAB
         }
       } 
       else {
-        print("position 14");
+        
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? authToken = prefs.getString('accessToken');
         Map<String, dynamic> logmappedData = {
@@ -975,7 +915,7 @@ AQIDAQAB
           body: json.encode(logmappedData),
         );
         if (LogResponse.statusCode == 201) {
-          print("Log Created");
+          
         }
         final data = json.decode(response.body);
         String message = data['message'] ?? "Validation Error";
