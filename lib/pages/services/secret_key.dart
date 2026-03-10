@@ -112,3 +112,18 @@ Future<String> googleApiKey() async {
 
   return googleMapApiKey;
 }
+
+
+Future<String> getPublicKey() async{
+  final remoteConfig = FirebaseRemoteConfig.instance;
+  await remoteConfig.fetchAndActivate();
+  String publicKey = remoteConfig.getString('public_key');
+
+  if(publicKey.isEmpty)
+  {
+    throw Exception("Public key not found in Remote Config");
+  }
+  return publicKey;
+
+}
+
