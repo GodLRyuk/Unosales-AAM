@@ -459,6 +459,7 @@ class OtpconcentState extends State<Otpconcent> {
 
     // Parse RSA Public Key
     String publicKeyP1 = await getPublicKey();
+   
     final parser = RSAKeyParser();
     final RSAPublicKey rsaPublicKey = parser.parse(publicKeyP1) as RSAPublicKey;
 
@@ -488,8 +489,6 @@ class OtpconcentState extends State<Otpconcent> {
     try {
       final payload = await buildPayload();
       
-
-      // 10.12.2025
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
      
@@ -530,6 +529,8 @@ class OtpconcentState extends State<Otpconcent> {
         body: jsonEncode(payload),
       );
 
+      
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final sostoken = data["token"];
@@ -540,7 +541,7 @@ class OtpconcentState extends State<Otpconcent> {
         
         //return sostoken;
       } else {
-        print("Error happened → Status: ${response.statusCode}");
+        print("Error happened here → Status: ${response.statusCode}");
         // return null;
       }
     } catch (e) {
