@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
+import 'package:unosfa/pages/FSAModule/RqaApplication.dart';
 import 'package:unosfa/pages/FSAModule/fsacreatcompantlead.dart';
 import 'package:unosfa/pages/FSAModule/fsasingleleaddetail.dart';
 import 'package:unosfa/pages/FSAModule/losApplication.dart';
@@ -528,7 +529,7 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
                       Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => DedupeCheck(),
+                        builder: (context) => RQAApplication(),
                       ),
                     );
                   }

@@ -18,8 +18,19 @@ import 'package:unosfa/pages/services/ekyc.dart';
 import '../../widgetSupport/widgetstyle.dart';
 
 class DedupeCheck extends StatefulWidget {
+  final String firstName;
+  final String? middleName;
+  final String lastName;
+  final String dob;
+  final String mobilePhone;
+
   const DedupeCheck({
     super.key,
+    required this.firstName,
+    this.middleName,
+    required this.lastName,
+    required this.dob,
+    required this.mobilePhone,
   });
   @override
   State<DedupeCheck> createState() => _DedupeCheckState();
@@ -39,33 +50,12 @@ class _DedupeCheckState extends State<DedupeCheck> {
   void initState() {
     super.initState();
     // _checkLoginStatus();
+    firstName.text = widget.firstName;
+    middlename.text = widget.middleName ?? "";
+    lastName.text = widget.lastName;
+    dob.text = widget.dob;
+    mobilePhone.text = widget.mobilePhone;
   }
-
-  // Future<void> _checkLoginStatus() async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-
-  //   if (isLoggedIn) {
-  //     if (widget.loginWith == "FSA") {
-  //       Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(builder: (context) => const Fsadashboard()),
-  //       );
-  //     } else if (widget.loginWith == "FR") {
-  //       Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(builder: (context) => const Salesdashboard()),
-  //       );
-  //     } else {
-  //       Navigator.pushReplacement(
-  //         context,
-  //         MaterialPageRoute(builder: (context) => const EntryPage()),
-  //       );
-  //     }
-  //   }
-  // }
-
-  //  Use apin
 
   @override
   Widget build(BuildContext context) {
@@ -170,19 +160,14 @@ class _DedupeCheckState extends State<DedupeCheck> {
                               _buildMobileTextField(
                                 controller: mobilePhone,
                                 isPhoneNumber: true,
+                                readOnly: true
                               ),
                               SizedBox(
                                 height:
                                     MediaQuery.of(context).size.height * 0.02,
                               ),
 
-                              // For email address and dob
-
-                              // _buildEmailField(email, "Email Address"),
-                              //   SizedBox(
-                              //     height: MediaQuery.of(context).size.height * 0.02,
-                              //   ),
-
+                              
                               _buildDobField(dob, "Date of Birth"),
                               SizedBox(
                                 height:
@@ -255,6 +240,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
+      readOnly: true,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: WidgetSupport.inputLabel(),
@@ -267,12 +253,6 @@ class _DedupeCheckState extends State<DedupeCheck> {
           ),
         ),
       ),
-      // validator: (value) {
-      //   if (value == null || value.isEmpty) {
-      //     return '$hintText is required';
-      //   }
-      //   return null;
-      // },
       validator: (value) {
         if (hintText == "Middle Name") {
           return null;
@@ -285,33 +265,42 @@ class _DedupeCheckState extends State<DedupeCheck> {
     );
   }
 
-  // For email and dob
-
-//   Widget _buildEmailField(TextEditingController controller, String hintText) {
-//   return TextFormField(
-//     controller: controller,
-//     keyboardType: TextInputType.emailAddress,
-//     decoration: InputDecoration(
-//       hintText: hintText,
-//       hintStyle: WidgetSupport.inputLabel(),
-//       suffixIcon: const Icon(
-//         FontAwesomeIcons.envelope,
-//         color: Colors.purple,
-//         size: 18,
-//       ),
-//     ),
-//     validator: (value) {
-//       if (value == null || value.isEmpty) {
-//         return 'Email Address is required';
-//       }
-//       final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-//       if (!emailRegex.hasMatch(value)) {
-//         return 'Enter a valid email address';
-//       }
-//       return null;
-//     },
-//   );
-// }
+  // Widget _buildDobField(TextEditingController controller, String labelText) {
+  //   return TextFormField(
+  //     controller: controller,
+  //     readOnly: true,
+  //     decoration: InputDecoration(
+  //       hintText: labelText,
+  //       hintStyle: WidgetSupport.inputLabel(),
+  //       suffixIcon: const Icon(
+  //         FontAwesomeIcons.calendar, // ✅ calendar icon here
+  //         color: Colors.purple,
+  //         size: 18,
+  //       ),
+  //     ),
+  //     onTap: () async {
+  //       FocusScope.of(context).requestFocus(FocusNode());
+  //       DateTime? pickedDate = await showDatePicker(
+  //         context: context,
+  //         initialDate: DateTime(2000),
+  //         firstDate: DateTime(1500),
+  //         lastDate: DateTime.now(),
+  //       );
+  //       if (pickedDate != null) {
+  //         setState(() {
+  //           controller.text =
+  //               "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+  //         });
+  //       }
+  //     },
+  //     validator: (value) {
+  //       if (value == null || value.isEmpty) {
+  //         return 'Date of Birth is required';
+  //       }
+  //       return null;
+  //     },
+  //   );
+  // }
 
   Widget _buildDobField(TextEditingController controller, String labelText) {
     return TextFormField(
@@ -321,29 +310,14 @@ class _DedupeCheckState extends State<DedupeCheck> {
         hintText: labelText,
         hintStyle: WidgetSupport.inputLabel(),
         suffixIcon: const Icon(
-          FontAwesomeIcons.calendar, // ✅ calendar icon here
+          FontAwesomeIcons.calendar,
           color: Colors.purple,
           size: 18,
         ),
       ),
-      onTap: () async {
-        FocusScope.of(context).requestFocus(FocusNode());
-        DateTime? pickedDate = await showDatePicker(
-          context: context,
-          initialDate: DateTime(2000),
-          firstDate: DateTime(1500),
-          lastDate: DateTime.now(),
-        );
-        if (pickedDate != null) {
-          setState(() {
-            controller.text =
-                "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
-          });
-        }
-      },
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'Date of Birth is required';
+          return "Date of Birth is required";
         }
         return null;
       },
@@ -447,16 +421,16 @@ class _DedupeCheckState extends State<DedupeCheck> {
         "dateOfBirth": formattedDate,
         "mobileNumber": "63" + mobilePhone.text
       };
-     print("data is ${mapeddata}");
-      
+      print("data is ${mapeddata}");
+
       final headers = {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
         'Correlation-Id': '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-        'Cookie': 'AWSALB=SsezDH7Q4QiKN438NtO/HC1sdemLNqTbSxUTsxitbCuhbKjGbD5T00rWZBWky9HiAmeoFHAM/W6bNouDd1TtsYS9PUuJgXh+s/kbdFg0GOKuq4VzW3lqZgkP5Wcg; AWSALBCORS=SsezDH7Q4QiKN438NtO/HC1sdemLNqTbSxUTsxitbCuhbKjGbD5T00rWZBWky9HiAmeoFHAM/W6bNouDd1TtsYS9PUuJgXh+s/kbdFg0GOKuq4VzW3lqZgkP5Wcg',
+        'Cookie':
+            'AWSALB=SsezDH7Q4QiKN438NtO/HC1sdemLNqTbSxUTsxitbCuhbKjGbD5T00rWZBWky9HiAmeoFHAM/W6bNouDd1TtsYS9PUuJgXh+s/kbdFg0GOKuq4VzW3lqZgkP5Wcg; AWSALBCORS=SsezDH7Q4QiKN438NtO/HC1sdemLNqTbSxUTsxitbCuhbKjGbD5T00rWZBWky9HiAmeoFHAM/W6bNouDd1TtsYS9PUuJgXh+s/kbdFg0GOKuq4VzW3lqZgkP5Wcg',
         'channel': 'fsa',
       };
-      
 
       // final headers = {
       //   'Authorization': 'Bearer $token',
@@ -480,15 +454,14 @@ class _DedupeCheckState extends State<DedupeCheck> {
           final message = responseBody["message"] ?? "";
           if (message == "No Client Found") {
             await userDetailsMatch(token, "63${mobilePhone.text}");
-          } 
-          else {
-
+          } else {
             // NTB
-            // if (responseBody["customerDetails"] == null && responseBody["decision"].toUpperCase() == "START_FRESH") 
-            if ((responseBody["customerDetails"] == null || responseBody["customerDetails"].isEmpty) && responseBody["decision"].toUpperCase() == "START_FRESH")
-              {
-                print("I am NTB user");
-                showDialog(
+            // if (responseBody["customerDetails"] == null && responseBody["decision"].toUpperCase() == "START_FRESH")
+            if ((responseBody["customerDetails"] == null ||
+                    responseBody["customerDetails"].isEmpty) &&
+                responseBody["decision"].toUpperCase() == "START_FRESH") {
+              print("I am NTB user");
+              showDialog(
                 context: context,
                 barrierDismissible:
                     false, // User cannot close without choosing an option
@@ -532,7 +505,6 @@ class _DedupeCheckState extends State<DedupeCheck> {
                         ),
                       ),
                     ),
-
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
@@ -543,31 +515,30 @@ class _DedupeCheckState extends State<DedupeCheck> {
                             horizontal: 20, vertical: 10),
                       ),
                       onPressed: () async {
-                         if (!mounted) return;
+                        if (!mounted) return;
                         HyperKycResult result = await EkycService.startKyc();
                         final statusStr = result.status.toString();
                         print("result for hyperverser is $result");
                         if (statusStr.contains("autoDeclined")) {
                           print("Decline");
-                           showDialog(
-                              context: context,                    
-                              builder: (_) => AlertDialog(
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
                               title: Text("Info"),
-                              content: Text("Your KYC result  ${result.status.toString().split('.').last}"),
-                                actions: [
-                                  TextButton(
-                                    child: const Text("OK"),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
-                        } 
-                        
-                        else if ((statusStr.contains("autoApproved")) || (statusStr.contains("needsReview"))) {
+                              content: Text(
+                                  "Your KYC result  ${result.status.toString().split('.').last}"),
+                              actions: [
+                                TextButton(
+                                  child: const Text("OK"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        } else if ((statusStr.contains("autoApproved")) ||
+                            (statusStr.contains("needsReview"))) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -580,25 +551,24 @@ class _DedupeCheckState extends State<DedupeCheck> {
                               ),
                             ),
                           );
-                        } 
-                        else {
-                            print("Nothing: $statusStr");
-                            showDialog(
-                              context: context,                    
-                              builder: (_) => AlertDialog(
+                        } else {
+                          print("Nothing: $statusStr");
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
                               title: Text("Info"),
-                              content: Text("Your KYC result  ${result.status.toString().split('.').last}"),
-                                actions: [
-                                  TextButton(
-                                    child: const Text("OK"),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
+                              content: Text(
+                                  "Your KYC result  ${result.status.toString().split('.').last}"),
+                              actions: [
+                                TextButton(
+                                  child: const Text("OK"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
                         }
                       },
                       child: const Text(
@@ -610,65 +580,53 @@ class _DedupeCheckState extends State<DedupeCheck> {
                         ),
                       ),
                     ),
-
                   ],
                 ),
               );
-            } 
+            }
 
-            
-           // ETB Block
-            else
-            {
+            // ETB Block
+            else {
               print("I am ETB user");
-              
 
-               if(responseBody["decision"] == "Reject")
-              {
+              if (responseBody["decision"] == "Reject") {
+                print("REJECT BLOCK HIT");
 
-                 print("REJECT BLOCK HIT");
+                String reason = responseBody["reason"] ?? "No reason provided";
 
-                    String reason = responseBody["reason"] ?? "No reason provided";
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        backgroundColor: const Color(0xFFa604ad),
-                        content: Text(reason, style: TextStyle(fontSize: 15)),
-                      ),
-                    );
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    backgroundColor: const Color(0xFFa604ad),
+                    content: Text(reason, style: TextStyle(fontSize: 15)),
+                  ),
+                );
 
                 Navigator.pop(context);
-
-              }
-
-              else if(responseBody["decision"].toUpperCase() == "START_FRESH" || responseBody["decision"] == "Resume")
-              {
+              } else if (responseBody["decision"].toUpperCase() ==
+                      "START_FRESH" ||
+                  responseBody["decision"] == "Resume") {
                 print("I am ETB user in start fresh");
 
                 var Etbdetails = responseBody["customerDetails"];
-               // print(const JsonEncoder.withIndent('  ').convert(Etbdetails));
+                // print(const JsonEncoder.withIndent('  ').convert(Etbdetails));
                 print("details is $Etbdetails");
                 //print(responseBody["customerDetails"]);
-                  Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LosApplicationPage(
-                                leadId: "",
-                                campaign: "",
-                                pagemode: "fromETBStartFresh",
-                                dsrId: "",
-                                customerDetails: Etbdetails,
-                                
-                              ),
-                            ),
-                          );
-
-
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LosApplicationPage(
+                      leadId: "",
+                      campaign: "",
+                      pagemode: "fromETBStartFresh",
+                      dsrId: "",
+                      customerDetails: Etbdetails,
+                    ),
+                  ),
+                );
               }
-              
             }
 
-            //    // REJECT block 
+            //    // REJECT block
             //     else if (responseBody["decision"] == "Reject" &&
             //         (responseBody["customerDetails"] == null ||
             //         (responseBody["customerDetails"] is Map && responseBody["customerDetails"].isEmpty) ||
@@ -697,7 +655,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
             //     }
 
             // //ETB START
-            
+
             //  else if (responseBody["customerDetails"] != null)
 
             // {
@@ -723,7 +681,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
             //                     pagemode: "fromETBStartFresh",
             //                     dsrId: "",
             //                     customerDetails: Etbdetails,
-                                
+
             //                   ),
             //                 ),
             //               );
@@ -731,8 +689,6 @@ class _DedupeCheckState extends State<DedupeCheck> {
             // }
 
             print("I am in else block");
-
-        
           }
         } else {
           _showAlert("No response from server.");

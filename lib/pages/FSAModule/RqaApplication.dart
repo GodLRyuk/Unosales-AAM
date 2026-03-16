@@ -524,13 +524,18 @@ class _RQAApplicationState extends State<RQAApplication> {
         "q2_dob": dob.text,
         "q3_zipcode": zip.text,
         "q4_source_income": emp_Status.text,
-        "q4a_emp_status": emp_Type.text,
+        "q4a_emp_status":
+            emp_Type.text.trim().isEmpty ? null : emp_Type.text.trim(),
         "q5_comp_name": _selectedCompany,
-        "q5a_oth_comp_name": _otherCompanyController.text,
+        "q5a_oth_comp_name": _otherCompanyController.text.trim().isEmpty
+            ? null
+            : _otherCompanyController.text.trim(),
         "q6_nat_business": emp_Work_Nature.text,
         "q7_monthly_income": incomeController.text,
         "q8_exist_cc_loan": creditCardSelectedValue,
-        "q8a_cc_loan_amt": credit_loan_amount.text
+        "q8a_cc_loan_amt": credit_loan_amount.text.trim().isEmpty
+            ? null
+            : credit_loan_amount.text.trim()
       }
     };
     print("submitted data is $formData");
@@ -679,7 +684,7 @@ class _RQAApplicationState extends State<RQAApplication> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:  PreferredSize(
+      appBar: PreferredSize(
         preferredSize: Size.fromHeight(60.0), // Adjusted height for TabBar
         child: Container(
           decoration: const BoxDecoration(
@@ -709,10 +714,9 @@ class _RQAApplicationState extends State<RQAApplication> {
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
-               Navigator.pop(context);
+                Navigator.pop(context);
               },
             ),
-
           ),
         ),
       ),
@@ -790,8 +794,12 @@ class _RQAApplicationState extends State<RQAApplication> {
                       "Zip Code",
                       style: WidgetSupport.Questionblack(),
                     ),
+                    
 
                     _buildZipCodeField(),
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.02,
+                    ),
 
                     Text(
                       "Do you have ID Card ?",
@@ -816,17 +824,30 @@ class _RQAApplicationState extends State<RQAApplication> {
                       height: MediaQuery.of(context).size.height * 0.02,
                     ),
 
-                    Text(
-                      "Employe Type",
-                      style: WidgetSupport.Questionblack(),
-                    ),
-                    _buildEmpTypeDropdown(
-                      controller: emp_Type,
-                      label: "Select Employe Status",
-                    ),
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.02,
-                    ),
+                    if (emp_Status.text == "Employed - Government" ||
+                        emp_Status.text == "Employed - Private") ...[
+                      Text(
+                        "Employee Type",
+                        style: WidgetSupport.Questionblack(),
+                      ),
+                      _buildEmpTypeDropdown(
+                        controller: emp_Type,
+                        label: "Select Employee Status",
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.02,
+                      ),
+                    ],
+
+                    // Text(
+                    //   "Employe Type",
+                    //   style: WidgetSupport.Questionblack(),
+                    // ),
+                    // _buildEmpTypeDropdown(
+                    //   controller: emp_Type,
+                    //   label: "Select Employe Status",
+                    // ),
+
                     Text(
                       "Company Name",
                       style: WidgetSupport.Questionblack(),
@@ -992,14 +1013,21 @@ class _RQAApplicationState extends State<RQAApplication> {
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.02,
                     ),
-                    Text(
-                      "Please provide loan amount or credit card limit",
-                      style: WidgetSupport.Questionblack(),
-                    ),
-                    _buildTextField(
-                        credit_loan_amount,
-                        "Loan Amount/ Credit Limit",
-                        "Please enter Loan Amount/ Credit Limit"),
+
+                    if (creditCardSelectedValue == "Yes") ...[
+                      Text(
+                        "Please provide loan amount or credit card limit",
+                        style: WidgetSupport.Questionblack(),
+                      ),
+                      // _buildTextField(
+                      //   credit_loan_amount,
+                      //   "Loan Amount/ Credit Limit",
+                      //   "Please enter Loan Amount/ Credit Limit",
+                      // ),
+
+                       _buildIncomeTextField(controller: credit_loan_amount,)
+                    ],
+                    
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.01,
                     ),
@@ -1487,6 +1515,14 @@ class _RQAApplicationState extends State<RQAApplication> {
         if (isRequired && (value == null || value.trim().isEmpty)) {
           return "Please enter monthly income";
         }
+
+        if (value != null && value.isNotEmpty) {
+          int income = int.tryParse(value) ?? 0;
+          if (income <= 0) {
+            return "Income must be greater than 0";
+          }
+        }
+
         return null;
       },
       decoration: InputDecoration(

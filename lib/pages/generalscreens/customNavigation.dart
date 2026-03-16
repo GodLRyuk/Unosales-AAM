@@ -4,6 +4,7 @@ import 'package:unosfa/pages/FSAModule/fsadashboard.dart';
 import 'package:unosfa/pages/commingSoon.dart';
 import 'package:unosfa/pages/generalscreens/profile.dart';
 import 'package:unosfa/pages/FRModule/salesdashboard.dart';
+import 'package:unosfa/pages/otpscreens/dedupeCheck.dart';
 
 class NavigationPage extends StatefulWidget {
   final int initialIndex;
@@ -58,18 +59,14 @@ class _NavigationPageState extends State<NavigationPage> {
           if (_role == "FR") Salesdashboard(),
           if (_role == "Supervisor") Fsadashboard(),
           if (_role == "FSA") Fsadashboard(),
-       // FormReport(),  // For pdf
-          //Otpconcent(phoneNumber: '638670853699',),
-         // DedupeCheck(),
-          //LosApplicationPage(leadId: '', campaign:   '', pagemode: '',),
+      
+        //  DedupeCheck(firstName: "", lastName: "", dob: "", mobilePhone: ""),
+        
 
           ComingSoon(),
-          //Registration_new(loginWith: "",),
-         // DailySalesReport(pagemode: "",dsrId: "",),
+          
           ComingSoon(),
-        //  DailyAgentPlaner(pageMode: "",activityId: "",),
-        //   TaskDetails()
-         
+        
           
           
         ],
