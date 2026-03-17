@@ -73,6 +73,7 @@ class _FsadashboardState extends State<Fsadashboard> {
   static const String kAddAppTourKey = "saveTour";
   LatLng _currentLocation = LatLng(00, 00);
   bool _isLoading = true;
+  bool _isLoading1 = true;
   @override
   initState() {
     super.initState();
@@ -98,7 +99,11 @@ class _FsadashboardState extends State<Fsadashboard> {
       _showCheckInOverlay();
     } else {
       setState(() {
-        _isLoading = false; // hide loader after everything done
+        if (!_isLoading1) {
+          _isLoading = false;
+        }
+
+        // hide loader after everything done
       });
     }
   }
@@ -208,17 +213,12 @@ class _FsadashboardState extends State<Fsadashboard> {
                 checkInUrl,
                 mapeddata,
                 headers,
-              );  
-              // print(checkInUrl);
-              // print(mapeddata); 
-
-              // print(headers); 
-
-             // print("checkInResponse code is ${checkInResponse!.statusCode}");        
+              );
+              
 
               if (checkInResponse != null) {
                 final data = json.decode(checkInResponse.body);
-                print("data is this $data");
+
                 if (data['data'] != null) {
                   final isCheckedIn = data['data']['is_checked_in'] ?? false;
                   await prefs.setBool('checkInStatus', isCheckedIn);
@@ -302,153 +302,87 @@ class _FsadashboardState extends State<Fsadashboard> {
     });
   }
 
+  final Map<String, String> _tabStatusMap = {
+    'TOTAL ACCEPTED': 'Accept,Accept_Manual',
+    'IN-PROGRESS': 'IN-PROGRESS',
+    'IN-PRINCIPLE APPROVED': 'PRE-QUALIFIED',
+    'FINAL APPROVED': 'Pass',
+    'DECLINED': 'Cancel,Fail,REJECT,Dedupe',
+    'DISBURSED': 'Availed,Avail_Manual',
+  };
+
+  List DashboardstatusList = [
+    'Accept',
+    'Accept_Manual',
+    'IN-PROGRESS',
+    'PRE-QUALIFIED',
+    'Pass',
+    'Cancel',
+    'Fail',
+    'REJECT',
+    'Dedupe',
+    'Availed',
+    'Avail_Manual'
+  ];
+
   Future<void> _loadLOSData() async {
-   // String token = "";
+    
+    setState(() => _isLoading = true);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userInfo = prefs.getStringList('userInfo');
     String userId = userInfo![0];
     String? accessToken = prefs.getString('accessToken');
-    
-    //******************************************** */
-    // try {
-    //   String tokenUrl = "/api/leads/los-access-token/";
-    //   final headers = {
-    //     'Authorization': 'Bearer $accessToken',
-    //     'Content-Type': 'application/json',
-    //     'User-Agent':
-    //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    //   };
-    //   final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
-    //   if (Tokenresponse != null) {
-    //     final data = json.decode(Tokenresponse.body);
-    //     token = data['access_token'];
-    //   }
-    // } catch (e) {
-    //   print("HTTP Request Failed: $e");
-    // }
 
-    // ***************************************
-   
-    final url = "/api/leads/los-status/";     
     final headers = {
-       'Accept': '*/*',
-      // 'Correlation-Id': 'CORR-123456',
-      // 'Channel': 'FSA',
-      // 'Cookie': '__METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95',
-      "Authorization": "Bearer $accessToken",
+      'Authorization': 'Bearer $accessToken',
       'User-Agent':
-           'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
     };
-    final response = await ApiService.getWithHeaders(url,headers);
-   
-    
-    
-    if (response != null) {
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        List<dynamic> losData = data['results'] ?? [];
-        
-        setState(() {         
-         
-           accepted = losData.where((item) {
-              final offerStatus =
-                  item['offerStatus']?.toString().trim().toUpperCase();
-              return offerStatus == 'ACCEPT' || item['offerStatus'] == 'ACCEPT_MANUAL' &&
-                  (item['lastScreen'] == null || item['lastScreen'] == "");
-            }).length;
 
-            // print("accept status is $accepted");
+    for (var status in DashboardstatusList) {
+      String endPointUrl = "los_status__offerStatus=$status";
 
+      String url = "/api/leads/los-details/?$endPointUrl";
 
-          inProgress = losData.where((item) {
-              final offerStatus =
-                  item['offerStatus']?.toString().trim().toUpperCase();
-              
+      final response = await ApiService.getWithHeaders(url, headers);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          final data = json.decode(response.body);
+          int totalCount = data['count'];
 
-              return offerStatus == 'IN-PROGRESS' &&
-                  (item['lastScreen'] == null || item['lastScreen'] == "");
-            }).length;
+          if (status == 'Accept' || status == 'Accept_Manual') {
+            accepted += totalCount;
+          }
 
-         
+          if (status == 'IN-PROGRESS') {
+            inProgress += totalCount;
+          }
 
-          //print("in progress status is $inProgress");
+          if (status == 'PRE-QUALIFIED') {
+            inPrincipalApproved += totalCount;
+          }
 
-          inPrincipalApproved = losData.where((item) {
-              final offerStatus =
-                  item['offerStatus']?.toString().trim().toUpperCase();
-              
+          if (status == 'Pass') {
+            finalApproved += totalCount;
+          }
 
-              return offerStatus == 'PRE-QUALIFIED' &&
-                (
-                  item['lastScreen'] == null ||
-                  item['lastScreen'] == '' ||
-                  item['lastScreen'] == 'CUSTVERIFICATION' ||
-                  item['lastScreen'] == 'SELECTPRODUCT' ||
-                  item['lastScreen'] == 'TERMSANDCONDITIONS' ||
-                  item['lastScreen'] == 'CUSTOMERDETAILS' ||
-                  item['lastScreen'] == 'OCCUPATIONDETAILS' ||
-                  item['lastScreen'] == 'FATCA' ||
-                  item['lastScreen'] == 'RELATEDPARTY'
-                );
-            }).length;
+          if (status == 'Cancel' ||
+              status == 'Fail' ||
+              status == 'REJECT' ||
+              status == 'Dedupe') {
+            declined += totalCount;
+          }
 
-           // print("status of pre qualified $inPrincipalApproved");
-
-
-          finalApproved = losData.where((item) {
-              final offerStatus =
-                  item['offerStatus']?.toString().trim().toUpperCase();
-
-              return offerStatus == 'PASS';
-            }).length;
-
-           // print("status of pass is $finalApproved");
-
-
-
-         declined = losData.where((item) {
-                final offerStatus =
-                    item['offerStatus']?.toString().trim().toUpperCase();
-
-                return
-                    (offerStatus == 'CANCEL' &&
-                        (item['lastScreen'] == null || item['lastScreen'] == "")) ||
-
-                    (offerStatus == 'FAIL' &&
-                        (item['lastScreen'] == null || item['lastScreen'] == "")) ||
-
-                    (offerStatus == 'FAIL' &&
-                        item['lastScreen'] == 'CONFIRMATION') ||
-
-                    (offerStatus == 'REJECT' &&
-                        item['lastScreen'] == 'CONFIRMATION') ||
-
-                    (offerStatus == 'DEDUPE');
-              }).length;
-
-             // print("status of declined is $declined");
-
-
-              disbursed = losData.where((item) {
-                final offerStatus =
-                    item['offerStatus']?.toString().trim().toUpperCase();
-
-                return 
-                    (offerStatus == 'AVAILED' && item['lastScreen'] == 'CONFIRMATION') ||                   
-                    (offerStatus == 'AVAIL_MANUAL' && item['lastScreen'] == 'CONFIRMATION') ||
-                    (offerStatus == 'ACCEPT_MANUAL' && item['lastScreen'] == 'CONFIRMATION') ;
-              }).length;
-
-
-              //print("status of disbursed is $disbursed");           
-         
-        });
-
+          if (status == 'Availed' || status == 'Avail_Manual') {
+            disbursed += totalCount;
+          }
+        }
       }
     }
-  }
 
-  
+    setState(() => _isLoading = false);
+    
+  }
 
 // Done
 
@@ -579,15 +513,13 @@ class _FsadashboardState extends State<Fsadashboard> {
           ),
           _buildMidContainerWithButton(),
           if (role != "Supervisor") ...[
-          _smallBoxLeadDetailsContainer(),
-          _smallBoxSecondContainer(),
-          _smallBoxThirdContainer(),
+            _smallBoxLeadDetailsContainer(),
+            _smallBoxSecondContainer(),
+            _smallBoxThirdContainer(),
           ],
-         
-       
           if (role != "Supervisor")
             _smallBoxFourthContainer()
-          else         
+          else
             _smallBoxFifthContainer(),
           SizedBox(
             height: MediaQuery.of(context).size.width > 600
@@ -620,7 +552,8 @@ class _FsadashboardState extends State<Fsadashboard> {
                   child: Text(
                     '${capitalize(userInfo?[1] ?? 'No First Name')} ${capitalize(userInfo?[2] ?? 'No Last Name')} (${userInfo?[0] != null ? '${userInfo![0]}' : 'Guest ID'}) (${role})',
                     style: TextStyle(
-                      fontSize: MediaQuery.of(context).size.width > 600 ? 20 : 17,
+                      fontSize:
+                          MediaQuery.of(context).size.width > 600 ? 20 : 17,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -668,7 +601,8 @@ class _FsadashboardState extends State<Fsadashboard> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => LosStatusChart(searchQuery: searchData),
+                                    builder: (context) =>
+                                        LosStatusChart(searchQuery: searchData),
                                   ),
                                 );
                               },
@@ -965,7 +899,6 @@ class _FsadashboardState extends State<Fsadashboard> {
                                             borderRadius: BorderRadius.circular(
                                                 5.0), // Optional: rounded corners
                                           ),
-                                          
                                           child: Center(
                                             child: Text(
                                               '${inProgress}', // Example percentage text
@@ -1449,9 +1382,10 @@ class _FsadashboardState extends State<Fsadashboard> {
                     children: [
                       Padding(
                         padding: EdgeInsets.only(
-                            left: MediaQuery.of(context).size.width > 600
-                                ? 50.0
-                                : 20,),
+                          left: MediaQuery.of(context).size.width > 600
+                              ? 50.0
+                              : 20,
+                        ),
                         child: Text(
                           'LEAD DASHBOARD',
                           style: TextStyle(
@@ -1496,7 +1430,6 @@ class _FsadashboardState extends State<Fsadashboard> {
                       builder: (context) => FsaLeadDashBoard(
                             searchQuery: '',
                           )));
-             
             },
             child: Column(
               children: [
@@ -1700,20 +1633,17 @@ class _FsadashboardState extends State<Fsadashboard> {
           // My Leads Box - triggers Tooltip for Training
           GestureDetector(
             onTap: () async {
-            //   Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //           builder: (context) => FSAMyTodoList(
-            //                 searchQuery: '',
-            //               )));
-            // },
-            Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => TodoPage(
-                          )));
+              //   Navigator.push(
+              //       context,
+              //       MaterialPageRoute(
+              //           builder: (context) => FSAMyTodoList(
+              //                 searchQuery: '',
+              //               )));
+              // },
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => TodoPage()));
             },
-            
+
             // onTap: () {
             //   _ToDotooltipKey.currentState?.ensureTooltipVisible();
             // },
@@ -2018,7 +1948,9 @@ class _FsadashboardState extends State<Fsadashboard> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => DailySalesReportList(searchQuery: '',)));
+                      builder: (context) => DailySalesReportList(
+                            searchQuery: '',
+                          )));
             },
             child: Tooltip(
               key: _SalesReporttooltipKey,
@@ -2090,7 +2022,7 @@ class _FsadashboardState extends State<Fsadashboard> {
   final GlobalKey<TooltipState> _SupervisorIntradayCalltooltipKey =
       GlobalKey<TooltipState>();
   final GlobalKey<TooltipState> _downloadSheetTooltipKey =
-     GlobalKey<TooltipState>();
+      GlobalKey<TooltipState>();
 
   Widget _smallBoxFifthContainer() {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -2180,7 +2112,7 @@ class _FsadashboardState extends State<Fsadashboard> {
             //   _CampaigntooltipKey.currentState?.ensureTooltipVisible();
             // },
             child: Tooltip(
-              key: _SupervisorIntradayCalltooltipKey, 
+              key: _SupervisorIntradayCalltooltipKey,
               message: 'Coming Soon',
               decoration: BoxDecoration(
                 color: Color(
@@ -2240,71 +2172,64 @@ class _FsadashboardState extends State<Fsadashboard> {
             ),
           ),
 
-          
-
-              GestureDetector(
-              onTap: () async {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => FormReport(), 
-                  ),
-                );
-              },
-              child: Tooltip(
-                key: _downloadSheetTooltipKey,
-                message: 'Download Sheet',
-                decoration: BoxDecoration(
-                  color: Color(0xFFa604ad),
-                  borderRadius: BorderRadius.circular(5),
+          GestureDetector(
+            onTap: () async {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FormReport(),
                 ),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      child: Container(
-                        width: screenWidth * 0.30,
-                        height: containerHeight,
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            FaIcon(
-                              FontAwesomeIcons.fileArrowDown, 
-                              size: screenWidth > 600 ? 40 : 20,
-                              color: Colors.purple, 
+              );
+            },
+            child: Tooltip(
+              key: _downloadSheetTooltipKey,
+              message: 'Download Sheet',
+              decoration: BoxDecoration(
+                color: Color(0xFFa604ad),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Column(
+                children: [
+                  SizedBox(
+                    child: Container(
+                      width: screenWidth * 0.30,
+                      height: containerHeight,
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          FaIcon(
+                            FontAwesomeIcons.fileArrowDown,
+                            size: screenWidth > 600 ? 40 : 20,
+                            color: Colors.purple,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              "Download Excel Sheet",
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: screenWidth > 600
+                                  ? WidgetSupport.normalblackTextTab()
+                                  : WidgetSupport.normalblackText(),
                             ),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                "Download Excel Sheet",
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: screenWidth > 600
-                                    ? WidgetSupport.normalblackTextTab()
-                                    : WidgetSupport.normalblackText(),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-
-
-
+          ),
         ],
       ),
     );
   }
-
-
 
   Widget _perfomanceContainer() {
     const buttonHeight = 30.0;

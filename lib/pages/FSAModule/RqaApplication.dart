@@ -1050,7 +1050,10 @@ class _RQAApplicationState extends State<RQAApplication> {
                             child: Text(
                               "SUBMIT",
                               style: TextStyle(color: Colors.white),
-                            )))
+                            ))),
+                      SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.05,
+                    ),
                   ],
                 ),
               ),
