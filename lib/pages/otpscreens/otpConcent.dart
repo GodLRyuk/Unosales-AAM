@@ -639,6 +639,10 @@ class OtpconcentState extends State<Otpconcent> {
           
           updateWorkflowStatus(losId, "Prelim UW Failed");
 
+          // ******************************************
+
+          String offerStatusUrl = "";
+
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => NavigationPage()),
