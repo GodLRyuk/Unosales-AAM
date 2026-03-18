@@ -641,7 +641,14 @@ class OtpconcentState extends State<Otpconcent> {
 
           // ******************************************
 
-          String offerStatusUrl = "";
+          
+      
+
+
+
+       
+
+          //************************************************* */
 
           Navigator.pushAndRemoveUntil(
             context,
@@ -658,7 +665,19 @@ class OtpconcentState extends State<Otpconcent> {
     }
   }
 
+ // Function for update offer Status
 
+ Future<void> updateOfferStatus(String cwId) async{
+  try{
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('accessToken');
+
+  }
+  catch(e)
+  {
+
+  }
+ }
  // Function for update workflow status
 
  Future<void> updateWorkflowStatus(String losId, String status) async {
