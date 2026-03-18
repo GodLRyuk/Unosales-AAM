@@ -302,14 +302,7 @@ class _FsadashboardState extends State<Fsadashboard> {
     });
   }
 
-  final Map<String, String> _tabStatusMap = {
-    'TOTAL ACCEPTED': 'Accept,Accept_Manual',
-    'IN-PROGRESS': 'IN-PROGRESS',
-    'IN-PRINCIPLE APPROVED': 'PRE-QUALIFIED',
-    'FINAL APPROVED': 'Pass',
-    'DECLINED': 'Cancel,Fail,REJECT,Dedupe',
-    'DISBURSED': 'Availed,Avail_Manual',
-  };
+  
 
   List DashboardstatusList = [
     'Accept',
