@@ -102,33 +102,33 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
   bool fieldsDisabled = false;
   String? _networkImageUrl;
-   String? _networkImageUrl1;
+  String? _networkImageUrl1;
 
   // ******************** Function for Image ********************
-    Uint8List? _imageBytes;
+  Uint8List? _imageBytes;
 
-    Future<void> loadImage(String fullUrl) async {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('accessToken');
+  Future<void> loadImage(String fullUrl) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('accessToken');
 
-      final response = await http.get(
-        Uri.parse(fullUrl),
-        headers: {
-          "Authorization": "Bearer $token",
-        },
-      );
+    final response = await http.get(
+      Uri.parse(fullUrl),
+      headers: {
+        "Authorization": "Bearer $token",
+      },
+    );
 
-      if (response.statusCode == 200) {
-        setState(() {
-          _imageBytes = response.bodyBytes;
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    if (response.statusCode == 200) {
+      setState(() {
+        _imageBytes = response.bodyBytes;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
     }
+  }
 
   //************************************************* */
 
@@ -179,10 +179,10 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
           //print("lead details is");
           String jsonString = jsonEncode(leadDetails);
 
-          // for (int i = 0; i < jsonString.length; i += 1000) {
-          //   print(jsonString.substring(i,
-          //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-          // }
+          for (int i = 0; i < jsonString.length; i += 1000) {
+            print(jsonString.substring(i,
+                (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
+          }
           firstName.text = leadDetails['first_name'] ?? "";
           lastName.text = leadDetails['last_name'] ?? "";
           middleName.text = leadDetails['middle_name'] ?? "";
@@ -208,22 +208,24 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
           _selectedStatusSubCode =
               leadDetails['sub_disposition_code'].toString();
 
-              // visibility
-          _loadDependentData(_selectedStatusCode!,formSubmition);
-          if (employerId.isEmpty || employerId.trim().isEmpty || employerId == "null") {
-              setState(() {
-                _showOtherCompanyField = true;
-                _selectedCompany = 'others'; // 👈 mark dropdown as "Others"
-                _searchController.text = 'Others';
-                _otherCompanyController.text = leadDetails['other_employer'];
-              });
-            } else {
-              setState(() {
-                _showOtherCompanyField = false;
-                _selectedCompany = employerId;
-                _searchCompanyGetDSR(employerId);
-              });
-            }
+          // visibility
+          _loadDependentData(_selectedStatusCode!, formSubmition);
+          if (employerId.isEmpty ||
+              employerId.trim().isEmpty ||
+              employerId == "null") {
+            setState(() {
+              _showOtherCompanyField = true;
+              _selectedCompany = 'others'; // 👈 mark dropdown as "Others"
+              _searchController.text = 'Others';
+              _otherCompanyController.text = leadDetails['other_employer'];
+            });
+          } else {
+            setState(() {
+              _showOtherCompanyField = false;
+              _selectedCompany = employerId;
+              _searchCompanyGetDSR(employerId);
+            });
+          }
           setState(() {
             // print(leadDetails['employer']);
             // print(_ComIdOptions);
@@ -239,8 +241,6 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
             //     _ComIdOptions[employerId]!; // optional, if you track selection
 
             // print("null check start3");
-
-            
 
             identity_TinId.text = leadDetails['tin_id'] ?? "";
             identity_GsisID.text = leadDetails['gsis_id'] ?? "";
@@ -260,12 +260,10 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
           if (leadDetails['follow_up_date'] != null &&
               leadDetails['follow_up_date'].toString().isNotEmpty) {
             String followUpStr = leadDetails['follow_up_date'].toString();
-            String formattedDate = followUpStr
-                .replaceFirst('T', ' ') 
-                .split('+')[0]          
-                .split('.')[0];         
+            String formattedDate =
+                followUpStr.replaceFirst('T', ' ').split('+')[0].split('.')[0];
 
-            callback_date.text = formattedDate.substring(0, 16); 
+            callback_date.text = formattedDate.substring(0, 16);
             setState(() {
               visibility = true;
             });
@@ -275,21 +273,18 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
           _networkImageUrl1 = leadDetails['upload_selfie'];
 
-              if (_networkImageUrl1 != null && _networkImageUrl1!.isNotEmpty) {
+          if (_networkImageUrl1 != null && _networkImageUrl1!.isNotEmpty) {
+            if (AppConfig.isDev != true) {
+              _networkImageUrl = _networkImageUrl1!.replaceFirst(
+                "http://salesapp.${AppConfig.flavour}.ph.unobank.asia",
+                "https://unoapi.${AppConfig.flavour}.ph.unobank.asia",
+              );
+            } else {
+              _networkImageUrl = _networkImageUrl1;
+            }
 
-                if (AppConfig.isDev != true) {
-                  _networkImageUrl = _networkImageUrl1!.replaceFirst(
-                    "http://salesapp.${AppConfig.flavour}.ph.unobank.asia",
-                    "https://unoapi.${AppConfig.flavour}.ph.unobank.asia",
-                  );
-                } else {
-                  _networkImageUrl = _networkImageUrl1;
-                }
-
-                loadImage(_networkImageUrl!);
-              }
-
-         
+            loadImage(_networkImageUrl!);
+          }
 
           industryType.text = leadDetails['industry_type'] ?? "";
           industryCode.text = leadDetails['industry_code'] ?? "";
@@ -491,7 +486,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
             setState(() {
               StatusCode = fetchedData;
-              isLoading=false;
+              isLoading = false;
             });
           } else {
             throw Exception('Unexpected response format');
@@ -984,7 +979,9 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => DailySalesReportList(searchQuery: '',)),
+                      builder: (context) => DailySalesReportList(
+                            searchQuery: '',
+                          )),
                 );
               },
             ),
@@ -1314,18 +1311,15 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                             if (_selectedIdType == IdType.tin)
                               _buildTextField2(
                                   identity_TinId, "TIN Id", "identity_TinId",
-                                  maxDigits: 9,
-                                  isRequired: false),
+                                  maxDigits: 9, isRequired: false),
                             if (_selectedIdType == IdType.sss)
                               _buildTextField2(
                                   identity_SssID, "SSS ID", "identity_SssID",
-                                  maxDigits: 10,
-                                  isRequired: false),
+                                  maxDigits: 10, isRequired: false),
                             if (_selectedIdType == IdType.gsis)
                               _buildTextField2(
                                   identity_GsisID, "GSIS ID", "identity_GsisID",
-                                  maxDigits: 11,
-                                  isRequired: false),
+                                  maxDigits: 11, isRequired: false),
                             // SizedBox(height: 20),
                           ],
                         ),
@@ -1378,17 +1372,15 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                     controller: activityType,
                     label: "   Activity Type",
                   ),
-                  const SizedBox(height: 15), 
-                  
+                  const SizedBox(height: 15),
                   _buildImageCaptureField(
-                    context,                
-                    "Upload Selfie",               
+                    context,
+                    "Upload Selfie",
                     true,
-                  _captureImageField1,
+                    _captureImageField1,
                     (file) => setState(() => _captureImageField1 = file),
                   ),
                   SizedBox(height: 15),
-    
                   Text(
                     "Select Status",
                     style: WidgetSupport.Questionblack(),
@@ -1448,24 +1440,22 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
     );
   }
 
-
-
   // ===========================================================================
   File? _captureImageField1;
   Widget _buildImageCaptureField(
-  BuildContext context,
-  String hintText,
-  bool isRequired,
-  File? captureImage,
-  Function(File) onImageSelected, {
-  CameraDevice cameraDevice = CameraDevice.front,
-}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-         RichText(
+    BuildContext context,
+    String hintText,
+    bool isRequired,
+    File? captureImage,
+    Function(File) onImageSelected, {
+    CameraDevice cameraDevice = CameraDevice.front,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            RichText(
               text: TextSpan(
                 children: [
                   TextSpan(
@@ -1482,72 +1472,70 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.red, 
+                        color: Colors.red,
                       ),
                     ),
                 ],
               ),
             ),
-
-          IconButton(
-            icon: Icon(Icons.camera_alt, color: Colors.purple),
-            onPressed: fieldsDisabled
-                ? null // disables the button
-                : () async {
-                    final picker = ImagePicker();
-                    final XFile? pickedFile = await picker.pickImage(
-                      source: ImageSource.camera,
-                      preferredCameraDevice: cameraDevice,
-                      // imageQuality: 85,
-                      imageQuality: 60,
-                    );
-                    if (pickedFile != null) {
-                      onImageSelected(File(pickedFile.path));
-                      setState(() {
-                        _networkImageUrl = null; // clear old network image
-                      });
-                    }
-                  },
-          ),
-
-        ],
-      ),
-      SizedBox(height: 10),
-      if (captureImage != null)
-        ClipOval(
-          child: Image.file(
-            captureImage,
-            height: 110,
-            width: 110,
-            fit: BoxFit.cover,
-          ),
-        )
-      else if (_imageBytes != null)
-        ClipOval(
-        child: _isLoading
-            ? const SizedBox(
-                height: 110,
-                width: 110,
-                child: Center(child: CircularProgressIndicator()),
-              )
-            : _imageBytes != null
-                ? Image.memory(
-                    _imageBytes!,
+            IconButton(
+              icon: Icon(Icons.camera_alt, color: Colors.purple),
+              onPressed: fieldsDisabled
+                  ? null // disables the button
+                  : () async {
+                      final picker = ImagePicker();
+                      final XFile? pickedFile = await picker.pickImage(
+                        source: ImageSource.camera,
+                        preferredCameraDevice: cameraDevice,
+                        // imageQuality: 85,
+                        imageQuality: 60,
+                      );
+                      if (pickedFile != null) {
+                        onImageSelected(File(pickedFile.path));
+                        setState(() {
+                          _networkImageUrl = null; // clear old network image
+                        });
+                      }
+                    },
+            ),
+          ],
+        ),
+        SizedBox(height: 10),
+        if (captureImage != null)
+          ClipOval(
+            child: Image.file(
+              captureImage,
+              height: 110,
+              width: 110,
+              fit: BoxFit.cover,
+            ),
+          )
+        else if (_imageBytes != null)
+          ClipOval(
+            child: _isLoading
+                ? const SizedBox(
                     height: 110,
                     width: 110,
-                    fit: BoxFit.cover,
+                    child: Center(child: CircularProgressIndicator()),
                   )
-                : const SizedBox(
-                    height: 110,
-                    width: 110,
-                    child: Icon(Icons.error, size: 60, color: Colors.red),
-                  ),),
-    ],
-  );
-}
+                : _imageBytes != null
+                    ? Image.memory(
+                        _imageBytes!,
+                        height: 110,
+                        width: 110,
+                        fit: BoxFit.cover,
+                      )
+                    : const SizedBox(
+                        height: 110,
+                        width: 110,
+                        child: Icon(Icons.error, size: 60, color: Colors.red),
+                      ),
+          ),
+      ],
+    );
+  }
 
 // ============================================================
-
 
   bool _isValidIdtin(String text) {
     final trimmed = text.trim();
@@ -1569,116 +1557,119 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
     final isDigitsOnly = RegExp(r'^\d+$').hasMatch(trimmed);
     return isDigitsOnly && length >= 11 && length <= 11;
   }
-  bool _isValidEmail(String email) {
-  final trimmed = email.trim();
-  // Basic email pattern (user@domain.extension)
-  final emailRegex = RegExp(
-    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-  );
-  return emailRegex.hasMatch(trimmed);
-}
 
+  bool _isValidEmail(String email) {
+    final trimmed = email.trim();
+    // Basic email pattern (user@domain.extension)
+    final emailRegex = RegExp(
+      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+    );
+    return emailRegex.hasMatch(trimmed);
+  }
 
   Future<void> leadSubmit() async {
-      setState(() {
+    setState(() {
       isLoading = true;
     });
 
-  List<String> errors = [];
+    List<String> errors = [];
 
-  // 🔹 ID-specific validations
-  if (_selectedIdType == IdType.tin) {
-    if (identity_TinId.text.trim().isEmpty) {
-      errors.add("TIN ID cannot be blank.");
-    } else if (!_isValidIdtin(identity_TinId.text)) {
-      errors.add("TIN ID must be 9 digits.");
+    // 🔹 ID-specific validations
+    if (_selectedIdType == IdType.tin) {
+      if (identity_TinId.text.trim().isEmpty) {
+        errors.add("TIN ID cannot be blank.");
+      } else if (!_isValidIdtin(identity_TinId.text)) {
+        errors.add("TIN ID must be 9 digits.");
+      }
+    } else if (_selectedIdType == IdType.sss) {
+      if (identity_SssID.text.trim().isEmpty) {
+        errors.add("SSS ID cannot be blank.");
+      } else if (!_isValidIdsssid(identity_SssID.text)) {
+        errors.add("SSS ID must be 10 digits.");
+      }
+    } else if (_selectedIdType == IdType.gsis) {
+      if (identity_GsisID.text.trim().isEmpty) {
+        errors.add("GSIS ID cannot be blank.");
+      } else if (!_isValidIdGsisId(identity_GsisID.text)) {
+        errors.add("GSIS ID must be 11 digits.");
+      }
     }
-  } else if (_selectedIdType == IdType.sss) {
-    if (identity_SssID.text.trim().isEmpty) {
-      errors.add("SSS ID cannot be blank.");
-    } else if (!_isValidIdsssid(identity_SssID.text)) {
-      errors.add("SSS ID must be 10 digits.");
+
+    // 🔹 Email validation
+    if (emailId.text.isEmpty) {
+      errors.add("Email cannot be empty.");
+    } else if (!_isValidEmail(emailId.text)) {
+      errors.add("Please enter a valid email address.");
     }
-  } else if (_selectedIdType == IdType.gsis) {
-    if (identity_GsisID.text.trim().isEmpty) {
-      errors.add("GSIS ID cannot be blank.");
-    } else if (!_isValidIdGsisId(identity_GsisID.text)) {
-      errors.add("GSIS ID must be 11 digits.");
+
+    // 🔹 Name validation
+    if (firstName.text.isEmpty) errors.add("First Name cannot be empty.");
+    if (lastName.text.isEmpty) errors.add("Last Name cannot be empty.");
+
+    // 🔹 Phone validation
+    bool _isValidPhoneNumber(String text) {
+      final trimmed = text.trim();
+      final isDigitsOnly = RegExp(r'^[0-9]+$').hasMatch(trimmed);
+      return isDigitsOnly && trimmed.length == 10;
     }
-  }
 
-  // 🔹 Email validation
-  if (emailId.text.isEmpty) {
-    errors.add("Email cannot be empty.");
-  } else if (!_isValidEmail(emailId.text)) {
-    errors.add("Please enter a valid email address.");
-  }
+    if (mobileNumber.text.isEmpty) {
+      errors.add("Mobile Number cannot be empty.");
+    } else if (!_isValidPhoneNumber(mobileNumber.text)) {
+      errors.add("Please enter a valid 10-digit Mobile Number.");
+    }
 
-  // 🔹 Name validation
-  if (firstName.text.isEmpty) errors.add("First Name cannot be empty.");
-  if (lastName.text.isEmpty) errors.add("Last Name cannot be empty.");
+    // 🔹 Address validation
+    if (perm_ZipCode.text.isEmpty) errors.add("Zip Code cannot be empty.");
+    if (perm_Barangay.text.isEmpty) errors.add("Barangay cannot be empty.");
 
-  // 🔹 Phone validation
-  bool _isValidPhoneNumber(String text) {
-    final trimmed = text.trim();
-    final isDigitsOnly = RegExp(r'^[0-9]+$').hasMatch(trimmed);
-    return isDigitsOnly && trimmed.length == 10;
-  }
+    // 🔹 Work validation
+    if (_selectedCompany == null) errors.add("Company Name cannot be empty.");
+    if (selectedDocId == null) errors.add("Income Doc cannot be empty.");
+    if (monthlySalary.text.isEmpty)
+      errors.add("Monthly Salary cannot be empty.");
+    if (loanAmount.text.isEmpty)
+      errors.add("Desired Loan Amount cannot be empty.");
+    if (industryType.text.isEmpty) errors.add("Industry Type cannot be empty.");
 
-  if (mobileNumber.text.isEmpty) {
-    errors.add("Mobile Number cannot be empty.");
-  } else if (!_isValidPhoneNumber(mobileNumber.text)) {
-    errors.add("Please enter a valid 10-digit Mobile Number.");
-  }
+    // Image Validation
+    if (_captureImageField1 == null && _networkImageUrl == null)
+      errors.add("Selfie cannot be empty.");
 
-  // 🔹 Address validation
-  if (perm_ZipCode.text.isEmpty) errors.add("Zip Code cannot be empty.");
-  if (perm_Barangay.text.isEmpty) errors.add("Barangay cannot be empty.");
+    // 🔹 Status validation
+    if (_selectedStatusCode == null) errors.add("Status must be selected.");
+    // print("FFFFFF $formSubmition");
+    // // Eligible-Not yet Submitted
+    // if (formSubmition == "Eligible-Not yet Submitted") errors.add("Sub Status must be selected.");
+    // if (_select == null) errors.add("Status must be selected.");
 
-  // 🔹 Work validation
-  if (_selectedCompany==null) errors.add("Company Name cannot be empty.");
-  if (selectedDocId==null) errors.add("Income Doc cannot be empty.");
-  if (monthlySalary.text.isEmpty) errors.add("Monthly Salary cannot be empty.");
-  if (loanAmount.text.isEmpty) errors.add("Desired Loan Amount cannot be empty.");
-  if (industryType.text.isEmpty) errors.add("Industry Type cannot be empty.");
-
-  // Image Validation
-  if (_captureImageField1 == null && _networkImageUrl == null) errors.add("Selfie cannot be empty.");
-
-  // 🔹 Status validation
-  if (_selectedStatusCode == null) errors.add("Status must be selected.");
-  // print("FFFFFF $formSubmition");
-  // // Eligible-Not yet Submitted
-  // if (formSubmition == "Eligible-Not yet Submitted") errors.add("Sub Status must be selected.");
-  // if (_select == null) errors.add("Status must be selected.");
-
-  // 🔹 If there are errors, show them all together
-  if (errors.isNotEmpty) {
-     setState(() {
-      _isFieldFocused=false;
-      _isLoading=false;
-      isLoading=false;
-    });
-    await showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Validation Errors"),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: errors.map((e) => Text("• $e")).toList(),
+    // 🔹 If there are errors, show them all together
+    if (errors.isNotEmpty) {
+      setState(() {
+        _isFieldFocused = false;
+        _isLoading = false;
+        isLoading = false;
+      });
+      await showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Validation Errors"),
+          content: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: errors.map((e) => Text("• $e")).toList(),
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("OK"),
-          ),
-        ],
-      ),
-    );
-    return;
-  }
+      );
+      return;
+    }
     // ✅ Get trimmed values
     String first_name = firstName.text.trim();
     String middle_name = middleName.text.trim();
@@ -1706,7 +1697,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
     String _other_company_controller = _otherCompanyController.text.trim();
     String follow_up_date = callback_date.text.trim();
     // ✅ Map of field labels → values
-    
+
     final Map<String, String> fieldMap = {
       "First Name": first_name,
       "Last Name": last_name,
@@ -1730,25 +1721,23 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       "Follow Up Date": follow_up_date,
     };
     setState(() {
-      _isFieldFocused=false;
-      _isLoading=false;
+      _isFieldFocused = false;
+      _isLoading = false;
     });
     if (formSubmition == "Interested & Eligible") {
       fieldMap.remove("Sub Disposition Code");
       fieldMap.remove("Follow Up Date");
     }
-    if (formSubmition=="Not Interested") {
+    if (formSubmition == "Not Interested") {
       fieldMap.remove("Follow Up Date");
     }
-    if (formSubmition=="Ineligible") {
+    if (formSubmition == "Ineligible") {
       fieldMap.remove("Follow Up Date");
     }
-    if (employer=='others') 
-    {
+    if (employer == 'others') {
       fieldMap.remove("Employer");
-        employer="";
+      employer = "";
     }
-
 
 // ✅ Find all blank fields
     final blankFields = fieldMap.entries
@@ -1758,10 +1747,10 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
     if (blankFields.isNotEmpty) {
       setState(() {
-      _isFieldFocused=false;
-      _isLoading=false;
-      isLoading=false;
-    });
+        _isFieldFocused = false;
+        _isLoading = false;
+        isLoading = false;
+      });
       // ✅ Show alert listing all missing fields
       await showDialog(
         context: context,
@@ -1817,7 +1806,6 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
     } else {
       formattedBirthDate = "";
     }
-    
 
     // ✅ Proceed with your mappedData
     Map<String, String> mappedData = {
@@ -1873,23 +1861,24 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
     };
     String jsonString = jsonEncode(mappedData);
 
-          // for (int i = 0; i < jsonString.length; i += 1000) {
-          //   print(jsonString.substring(i,
-          //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-          // }
-
+    // for (int i = 0; i < jsonString.length; i += 1000) {
+    //   print(jsonString.substring(i,
+    //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
+    // }
 
     if (widget.pagemode != "edit") {
       // final response =
       //     await ApiService.postJsonWithHeaders(url, mappedData, headers);
 
-      final response = await ApiService.postWithHeadersUploadMultiPart(url,headers, mappedData,imageFile: _captureImageField1);
+      final response = await ApiService.postWithHeadersUploadMultiPart(
+          url, headers, mappedData,
+          imageFile: _captureImageField1);
       //print("response body no edit is ${response?.body}");
       try {
         String dsrId = "";
         if (response != null && (response.statusCode == 201)) {
           final data = json.decode(response.body);
-          
+
           dsrId = data['id'].toString();
           // ✅ Show success dialog
           if (formSubmition == "Interested & Eligible") {
@@ -1938,7 +1927,9 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => DailySalesReportList(searchQuery: '',),
+                            builder: (context) => DailySalesReportList(
+                              searchQuery: '',
+                            ),
                           ),
                         );
                       },
@@ -1963,13 +1954,13 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
           SnackBar(content: Text("An error occurred: ${response?.body}")),
         );
       }
-    } 
-    
-    else {
+    } else {
       // final response =
       //     await ApiService.patchWithHeaders(url, headers, mappedData);
 
-      final response = await ApiService.patchWithHeadersUploadMultiPart(url,headers, mappedData,imageFile: _captureImageField1);
+      final response = await ApiService.patchWithHeadersUploadMultiPart(
+          url, headers, mappedData,
+          imageFile: _captureImageField1);
       //print("response body edit is ${response?.body}");
       try {
         String dsrId = "";
@@ -2023,7 +2014,9 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => DailySalesReportList(searchQuery: '',),
+                            builder: (context) => DailySalesReportList(
+                              searchQuery: '',
+                            ),
                           ),
                         );
                       },
@@ -2199,41 +2192,40 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
   }
 
   Widget _buildZipTextField(
-  TextEditingController controller,
-  String label,
-  String validationMessage,
-  String fieldKey, {
-  bool isRequired = false,
-  bool isZip = false,
-  bool isNumeric = false,
-  Function(String)? onSubmitted,
-  Function(String)? onChanged,
-}) {
-  return TextFormField(
-    controller: controller,
-    decoration: InputDecoration(
-      labelText: label,
-      contentPadding: const EdgeInsets.only(left: 5),
-      prefix: const SizedBox(width: 10),
-    ),
-    keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
-    inputFormatters: [
-      if (isZip) ...[
-        FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(4),
+    TextEditingController controller,
+    String label,
+    String validationMessage,
+    String fieldKey, {
+    bool isRequired = false,
+    bool isZip = false,
+    bool isNumeric = false,
+    Function(String)? onSubmitted,
+    Function(String)? onChanged,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        contentPadding: const EdgeInsets.only(left: 5),
+        prefix: const SizedBox(width: 10),
+      ),
+      keyboardType: isNumeric ? TextInputType.number : TextInputType.text,
+      inputFormatters: [
+        if (isZip) ...[
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(4),
+        ],
       ],
-    ],
-    validator: (value) {
-      if (isRequired && (value == null || value.isEmpty)) {
-        return validationMessage;
-      }
-      return null;
-    },
-    onChanged: onChanged,
-    onFieldSubmitted: onSubmitted,
-  );
-}
-
+      validator: (value) {
+        if (isRequired && (value == null || value.isEmpty)) {
+          return validationMessage;
+        }
+        return null;
+      },
+      onChanged: onChanged,
+      onFieldSubmitted: onSubmitted,
+    );
+  }
 
   Widget _buildPermBarangayDropdown({
     required TextEditingController controller,
@@ -2321,53 +2313,53 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       ],
     );
   }
-Widget _buildTextField2(
-  TextEditingController controller,
-  String hintText,
-  String validationKey, {
-  bool isRequired = true,
-  bool readOnly = false,
-  IconData icon = FontAwesomeIcons.solidCircleUser,
-  int? maxDigits, // Maximum digits allowed (TIN=9, SSS=10, GSIS=11)
-}) {
-  return TextFormField(
-    controller: controller,
-    keyboardType: TextInputType.number,
-    inputFormatters: [
-      FilteringTextInputFormatter.digitsOnly, // Allow only digits
-      if (maxDigits != null) LengthLimitingTextInputFormatter(maxDigits),
-    ],
-    decoration: InputDecoration(
-      filled: true,
-      fillColor: readOnly ? Colors.grey.shade200 : Colors.white,
-      contentPadding: EdgeInsets.only(left: 12),
-      label: isRequired
-          ? RichText(
-              text: TextSpan(
-                text: hintText,
-                style: WidgetSupport.inputLabel(),
-                children: const [
-                  TextSpan(
-                      text: ' *',
-                      style: TextStyle(color: Colors.red, fontSize: 25))
-                ],
-              ),
-            )
-          : Text(hintText, style: WidgetSupport.inputLabel()),
-      suffixIcon: Icon(icon, color: Colors.purple, size: 15),
-    ),
-    validator: (value) {
-      if (isRequired && (value == null || value.trim().isEmpty)) {
-        return "$hintText cannot be empty";
-      }
-      if (maxDigits != null && value!.trim().length != maxDigits) {
-        return "$hintText must be exactly $maxDigits digits";
-      }
-      return null; // valid
-    },
-  );
-}
 
+  Widget _buildTextField2(
+    TextEditingController controller,
+    String hintText,
+    String validationKey, {
+    bool isRequired = true,
+    bool readOnly = false,
+    IconData icon = FontAwesomeIcons.solidCircleUser,
+    int? maxDigits, // Maximum digits allowed (TIN=9, SSS=10, GSIS=11)
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly, // Allow only digits
+        if (maxDigits != null) LengthLimitingTextInputFormatter(maxDigits),
+      ],
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: readOnly ? Colors.grey.shade200 : Colors.white,
+        contentPadding: EdgeInsets.only(left: 12),
+        label: isRequired
+            ? RichText(
+                text: TextSpan(
+                  text: hintText,
+                  style: WidgetSupport.inputLabel(),
+                  children: const [
+                    TextSpan(
+                        text: ' *',
+                        style: TextStyle(color: Colors.red, fontSize: 25))
+                  ],
+                ),
+              )
+            : Text(hintText, style: WidgetSupport.inputLabel()),
+        suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+      ),
+      validator: (value) {
+        if (isRequired && (value == null || value.trim().isEmpty)) {
+          return "$hintText cannot be empty";
+        }
+        if (maxDigits != null && value!.trim().length != maxDigits) {
+          return "$hintText must be exactly $maxDigits digits";
+        }
+        return null; // valid
+      },
+    );
+  }
 
   Widget _buildDocTypeDropdown({
     required String label,
@@ -2390,7 +2382,9 @@ Widget _buildTextField2(
         });
       },
       decoration: InputDecoration(
-        prefix: SizedBox(width: 9,),
+        prefix: SizedBox(
+          width: 9,
+        ),
         contentPadding: EdgeInsets.only(left: 5),
         label: isRequired
             ? RichText(
@@ -2505,7 +2499,9 @@ Widget _buildTextField2(
       },
       decoration: InputDecoration(
         contentPadding: EdgeInsets.only(left: 9),
-        prefix: SizedBox(width: 7,),
+        prefix: SizedBox(
+          width: 7,
+        ),
         label: isRequired
             ? RichText(
                 text: TextSpan(
@@ -2529,7 +2525,7 @@ Widget _buildTextField2(
     );
   }
 
-    Widget _buildStatusDropdownField() {
+  Widget _buildStatusDropdownField() {
     return Stack(
       alignment: Alignment.centerRight,
       children: [
@@ -2542,13 +2538,16 @@ Widget _buildTextField2(
           dropdownDecoratorProps: DropDownDecoratorProps(
             dropdownSearchDecoration: InputDecoration(
               // contentPadding: EdgeInsets.only(left: 17),
-              prefix: SizedBox(width: 10,),
+              prefix: SizedBox(
+                width: 10,
+              ),
               hintText: "Select Status",
               hintStyle: WidgetSupport.inputLabel(),
             ),
           ),
-          selectedItem:
-              _selectedStatusCode != null ? StatusCode[_selectedStatusCode] : null,
+          selectedItem: _selectedStatusCode != null
+              ? StatusCode[_selectedStatusCode]
+              : null,
           onChanged: (String? newValue) {
             if (newValue != null) {
               setState(() {
@@ -2560,21 +2559,17 @@ Widget _buildTextField2(
             }
             setState(() {
               formSubmition = newValue.toString();
-              _loadDependentData(_selectedStatusCode!,formSubmition);
+              _loadDependentData(_selectedStatusCode!, formSubmition);
               visibility = newValue == "Eligible-Not yet Submitted";
-               if (newValue == "Eligible-Not yet Submitted") 
-               {  
-                visibility=true;
-                isLoading=false;
-               }
-               else
-               {
+              if (newValue == "Eligible-Not yet Submitted") {
+                visibility = true;
+                isLoading = false;
+              } else {
                 setState(() {
-                  visibility=false;
-                  isLoading=false;
+                  visibility = false;
+                  isLoading = false;
                 });
-               }
-              
+              }
             });
           },
           validator: (value) {
@@ -2590,29 +2585,30 @@ Widget _buildTextField2(
                   style: WidgetSupport.dropDownText(),
                 ),
                 const SizedBox(width: 2),
-                const Text('*', style: TextStyle(color: Colors.red, fontSize: 25)),
+                const Text('*',
+                    style: TextStyle(color: Colors.red, fontSize: 25)),
               ],
             );
           },
         ),
         // Loader on the right side of dropdown
         if (isLoading)
-        Container(
-          color: Colors.white.withOpacity(0.7), // optional semi-transparent overlay
-          child: const Center(
-            child: SizedBox(
-              width: 25,
-              height: 25,
-              child: CircularProgressIndicator(strokeWidth: 3),
+          Container(
+            color: Colors.white
+                .withOpacity(0.7), // optional semi-transparent overlay
+            child: const Center(
+              child: SizedBox(
+                width: 25,
+                height: 25,
+                child: CircularProgressIndicator(strokeWidth: 3),
+              ),
             ),
           ),
-        ),
       ],
     );
   }
 
-
-  Future<void> _loadDependentData(statusId,formSubmition) async {
+  Future<void> _loadDependentData(statusId, formSubmition) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
     try {
@@ -2623,11 +2619,9 @@ Widget _buildTextField2(
             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final response = await ApiService.getWithHeaders(url, headers);
-     
-      if (response != null) {
 
+      if (response != null) {
         if (response.statusCode == 200) {
-          
           var decodedResponse = json.decode(response.body);
 
           // ✅ If API returns a Map with sub_disposition_codes
@@ -2652,26 +2646,25 @@ Widget _buildTextField2(
                 matchedCallBackStatusCode = description;
               }
             }
-           
+
             setState(() {
-              isLoading=false;
+              isLoading = false;
               _dependentData = fetchedData;
               _selectedStatusSubCode = matchedStatusCode;
               if (matchedCallBackStatusCode != null) {
                 featchCallBackStatus = matchedCallBackStatusCode;
               }
-              if (formSubmition=="Eligible-Not yet Submitted") {
+              if (formSubmition == "Eligible-Not yet Submitted") {
                 if (featchCallBackStatus == "Call Back") {
-                String rawDate = leadDetails['follow_up_date'];
-                DateTime originalDate =
-                    DateTime.parse(rawDate).toUtc().add(Duration(hours: 8));
-                String formattedDate =
-                    DateFormat('yyyy-MM-dd HH:mm').format(originalDate);
-                callback_date.text = formattedDate;
+                  String rawDate = leadDetails['follow_up_date'];
+                  DateTime originalDate =
+                      DateTime.parse(rawDate).toUtc().add(Duration(hours: 8));
+                  String formattedDate =
+                      DateFormat('yyyy-MM-dd HH:mm').format(originalDate);
+                  callback_date.text = formattedDate;
                 }
                 print(callback_date.text);
                 visibility = true;
-
               }
               isLoading = false;
               print(visibility);
@@ -2691,70 +2684,73 @@ Widget _buildTextField2(
   }
 
   Widget _builddispositionDropdownField() {
-  return Stack(
-    alignment: Alignment.centerRight,
-    children: [
-      DropdownSearch<String>(
-        popupProps: PopupProps.menu(
-          showSearchBox: false,
-          fit: FlexFit.loose,
-        ),
-        items: _dependentData.values.toList(),
-        dropdownDecoratorProps: DropDownDecoratorProps(
-          dropdownSearchDecoration: InputDecoration(
-            contentPadding: EdgeInsets.only(left: 10,top: 5),
-            hintText: "Select Sub Status",
-            hintStyle: WidgetSupport.inputLabel(),
+    return Stack(
+      alignment: Alignment.centerRight,
+      children: [
+        DropdownSearch<String>(
+          popupProps: PopupProps.menu(
+            showSearchBox: false,
+            fit: FlexFit.loose,
           ),
-        ),
-        selectedItem: _selectedStatusSubCode != null
-            ? _dependentData[_selectedStatusSubCode]
-            : null,
-        onChanged: (String? newValue) {
-          if (newValue != null) {
-            setState(() {
-              _selectedStatusSubCode = _dependentData.entries
-                  .firstWhere((entry) => entry.value == newValue)
-                  .key;
-              _subdependentData = {};
-              // Additional logic for visibility if needed
-            });
-          }
-        },
-        validator: (value) {
-          if (value == null || value.isEmpty) return '   Select Sub Status';
-          return null;
-        },
-        dropdownBuilder: (BuildContext context, String? selectedItem) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                selectedItem ?? "   Select Sub Status",
-                style: WidgetSupport.dropDownText(),
-              ),
-              const SizedBox(width: 2),
-              if (formSubmition != "Interested & Eligible")
-                const Text('*', style: TextStyle(color: Colors.red, fontSize: 25)),
-            ],
-          );
-        },
-      ),
-      // Loader on the right side
-      if (isLoading)
-        Container(
-          color: Colors.white.withOpacity(0.7), // optional semi-transparent overlay
-          child: const Center(
-            child: SizedBox(
-              width: 25,
-              height: 25,
-              child: CircularProgressIndicator(strokeWidth: 3),
+          items: _dependentData.values.toList(),
+          dropdownDecoratorProps: DropDownDecoratorProps(
+            dropdownSearchDecoration: InputDecoration(
+              contentPadding: EdgeInsets.only(left: 10, top: 5),
+              hintText: "Select Sub Status",
+              hintStyle: WidgetSupport.inputLabel(),
             ),
           ),
+          selectedItem: _selectedStatusSubCode != null
+              ? _dependentData[_selectedStatusSubCode]
+              : null,
+          onChanged: (String? newValue) {
+            if (newValue != null) {
+              setState(() {
+                _selectedStatusSubCode = _dependentData.entries
+                    .firstWhere((entry) => entry.value == newValue)
+                    .key;
+                _subdependentData = {};
+                // Additional logic for visibility if needed
+              });
+            }
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) return '   Select Sub Status';
+            return null;
+          },
+          dropdownBuilder: (BuildContext context, String? selectedItem) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  selectedItem ?? "   Select Sub Status",
+                  style: WidgetSupport.dropDownText(),
+                ),
+                const SizedBox(width: 2),
+                if (formSubmition != "Interested & Eligible")
+                  const Text('*',
+                      style: TextStyle(color: Colors.red, fontSize: 25)),
+              ],
+            );
+          },
         ),
-    ],
-  );
-}
+        // Loader on the right side
+        if (isLoading)
+          Container(
+            color: Colors.white
+                .withOpacity(0.7), // optional semi-transparent overlay
+            child: const Center(
+              child: SizedBox(
+                width: 25,
+                height: 25,
+                child: CircularProgressIndicator(strokeWidth: 3),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _buildDateTimeField({
     required BuildContext context,
     required TextEditingController controller,

@@ -392,14 +392,17 @@ class _CampaignlistState extends State<Campaignlist> {
                                                 children: [
                                                   Row(
                                                     children: [
-                                                      Text(
-                                                        leads[index]['name']!
-                                                            .toUpperCase(),
-                                                        style: WidgetSupport
-                                                            .CampaignName(),
+                                                      Expanded(
+                                                        child: Text(
+                                                          leads[index]['name']!.toUpperCase(),
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow.ellipsis,
+                                                          style: WidgetSupport.CampaignName(),
+                                                        ),
                                                       ),
                                                     ],
                                                   ),
+
                                                   const SizedBox(height: 4),
                                                   Row(
                                                     children: [
