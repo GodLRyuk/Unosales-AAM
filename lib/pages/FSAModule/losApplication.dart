@@ -125,7 +125,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   final validUntil = TextEditingController();
   final documentId = TextEditingController();
   // done
-  
+
   bool _isChecked = false;
   String IpAddress = "";
   String latitude = "";
@@ -337,6 +337,85 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     );
   }
 
+  //************************************************************** */
+
+  // Future<void> _searchCompanyGetDSR(String query) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   if (query.isEmpty) {
+  //     setState(() {
+  //       _filteredCompanies = _ComIdOptions.entries
+  //           .map((e) => {'id': e.key, 'company_name': e.value})
+  //           .toList();
+
+  //       // Append "Others" option
+  //       _filteredCompanies.add({'id': 'others', 'company_name': 'Others'});
+  //     });
+  //     return;
+  //   }
+  //   try {
+  //     String url = '/api/leads/companies/?search=$query';
+  //     final headers = await _getAuthHeader();
+  //     final response = await ApiService.getWithHeaders(url, headers);
+
+  //     if (response != null) {
+  //       if (response.statusCode == 200) {
+  //         // Your API is returning a single company object, not a list
+  //         final Map<String, dynamic> data = json.decode(response.body);
+
+  //         // Directly use the API response instead of _ComIdOptions
+  //         if (data.containsKey('id')) {
+  //           final companyId = data['id'].toString();
+  //           final companyName = data['company_name'].toString();
+
+  //           setState(() {
+  //             _searchController.text = companyName;
+  //             emp_Employer_Name.text = companyName;
+  //             _selectedCompany = companyName;
+
+  //           });
+  //         }
+
+  //         // If your API also returns a 'results' list, you can still handle it
+  //         if (data['results'] != null && data['results'] is List) {
+  //           List<dynamic> companies = data['results'];
+  //           setState(() {
+  //             _filteredCompanies = companies
+  //                 .map((e) => {
+  //                       'id': e['id'].toString(),
+  //                       'company_name': e['company_name'].toString(),
+  //                     })
+  //                 .toList();
+
+  //             // Append "Others" option
+  //             _filteredCompanies
+  //                 .add({'id': 'others', 'company_name': 'Others'});
+  //           });
+  //         }
+  //       } else if (response.statusCode == 401) {
+  //         String? refresh = prefs.getString('refreshToken');
+  //         Map<String, String> mappedData = {
+  //           'refresh': refresh ?? '',
+  //         };
+  //         String refressToken = '/api/users/token-refresh/';
+  //         final response2 = await ApiService.post(refressToken, mappedData);
+  //         if (response2 != null) {
+  //           final data = json.decode(response2.body);
+  //           await prefs.setBool('isLoggedIn', true);
+  //           await prefs.setString('accessToken', data['access']);
+  //           await prefs.setString('refreshToken', data['refresh']);
+  //           _searchCompany(query);
+  //         }
+  //       } else {
+  //         throw Exception('Failed to search companies');
+  //       }
+  //     }
+  //   } catch (e) {
+  //     print('Search Error: $e');
+  //   }
+  // }
+
+  //************************************************************************** */
+
   Future<void> _searchCompanyGetDSR(String query) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (query.isEmpty) {
@@ -360,20 +439,20 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           // Your API is returning a single company object, not a list
           final Map<String, dynamic> data = json.decode(response.body);
 
-          // Directly use the API response instead of _ComIdOptions
-          if (data.containsKey('id')) {
-            final companyId = data['id'].toString();
-            final companyName = data['company_name'].toString();
+          if (data.containsKey('results') && data['results'].isNotEmpty) {
+            final company = data['results'][0];
+
+            final companyId = company['id'].toString();
+            final companyName =
+                utf8.decode(company['company_name'].toString().codeUnits);
 
             setState(() {
               _searchController.text = companyName;
               emp_Employer_Name.text = companyName;
               _selectedCompany = companyName;
-              
             });
           }
 
-          // If your API also returns a 'results' list, you can still handle it
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
             setState(() {
@@ -384,7 +463,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                       })
                   .toList();
 
-              // Append "Others" option
               _filteredCompanies
                   .add({'id': 'others', 'company_name': 'Others'});
             });
@@ -411,6 +489,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       print('Search Error: $e');
     }
   }
+
+  
 
   void _searchCompany(String companyId) {
     // companyId here is the ID from the search result or API
@@ -465,7 +545,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           // for (int i = 0; i < jsonString.length; i += 1000) {
           //   print(jsonString.substring(i,
           //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-                
+
           // }
           //****************************************************** */
           firstName.text = leadDetails['first_name'] ?? "";
@@ -606,12 +686,14 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       if (response.statusCode == 200) {
         setState(() {
           leadDetails = json.decode(response.body);
-          print("lead details is $leadDetails");
-          String jsonString = jsonEncode(leadDetails);
-          for (int i = 0; i < jsonString.length; i += 1000) {
-            print(jsonString.substring(i,
-                (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-          }
+
+          // print("lead details is $leadDetails");
+          // String jsonString = jsonEncode(leadDetails);
+          // for (int i = 0; i < jsonString.length; i += 1000) {
+          //   print(jsonString.substring(i,
+          //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
+          // }
+          
           firstName.text = leadDetails['first_name'] ?? "";
           lastName.text = leadDetails['last_name'] ?? "";
           middlename.text = leadDetails['middle_name'] ?? "";
@@ -1117,8 +1199,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         },
       );
-
-      
 
       if (tokenResponse.statusCode != 200) {
         throw Exception('Failed to fetch LOS access token');
@@ -1896,12 +1976,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         gender.text = "Female";
       }
       birthDate.text = details?['ocr_dateOfBirth']?.trim() ?? '';
-      issuingAuthority.text="";
-      address.text=details?['ocr_address']?? '';
-      documentType.text=details?['ocr_documentId']?? '';
-      validUntil.text=details?['ocr_dateOfExpiry']?? '';
-      documentId.text=details?['ocr_documentId']?? '';
-
+      issuingAuthority.text = "";
+      address.text = details?['ocr_address'] ?? '';
+      documentType.text = details?['ocr_documentId'] ?? '';
+      validUntil.text = details?['ocr_dateOfExpiry'] ?? '';
+      documentId.text = details?['ocr_documentId'] ?? '';
     });
   }
 
@@ -1911,7 +1990,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
     if (etbDetails is List && etbDetails.isNotEmpty) {
       final customer = etbDetails[0];
-      final address = customer['addresses']?[0]; 
+      final address = customer['addresses']?[0];
       final empAddress = customer['_Emp_Address'];
       final iddocuments = customer['idDocuments']?[0];
       final empMonthlyIncome = customer['_Fin_Details'];
@@ -1949,29 +2028,25 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       }
 
       // zip for employee
-      if(empAddress != null && empAddress['emp_ZipCode'] != null)
-      {
-        await  onEmpZipCodeEntered(address['emp_ZipCode']);
+      if (empAddress != null && empAddress['emp_ZipCode'] != null) {
+        await onEmpZipCodeEntered(address['emp_ZipCode']);
       }
 
-      // employee work nature   
+      // employee work nature
 
       if (empDetails != null && empDetails['emp_Work_Nature_Code'] != null) {
-          String code = empDetails['emp_Work_Nature_Code'].toString();
+        String code = empDetails['emp_Work_Nature_Code'].toString();
 
-          final selectedItem = empWorkNatureList.firstWhere(
-            (item) => item['key'] == code,
-            orElse: () => {},
-          );
+        final selectedItem = empWorkNatureList.firstWhere(
+          (item) => item['key'] == code,
+          orElse: () => {},
+        );
 
-          setState(() {
-            emp_Work_Nature_Code.text = code;
-            emp_Work_Nature.text = selectedItem['value'] ?? '';
-            
-            
-          });
+        setState(() {
+          emp_Work_Nature_Code.text = code;
+          emp_Work_Nature.text = selectedItem['value'] ?? '';
+        });
       }
-
     }
   }
   // *************** done  **********************
@@ -2089,7 +2164,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "Please Enter Middle Name",
                                 "middlename",
                                 isRequired: false,
-                                readOnly: (widget.pagemode == "fromDSR" )
+                                readOnly: (widget.pagemode == "fromDSR")
                                     ? true
                                     : false,
                               ),
@@ -2100,7 +2175,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "Please Enter Last Name",
                                 "lastName",
                                 isRequired: true,
-                                readOnly: (widget.pagemode == "fromDSR" )
+                                readOnly: (widget.pagemode == "fromDSR")
                                     ? true
                                     : false,
                               ),
@@ -2108,7 +2183,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                               _buildMobileTextField(
                                 controller: mobilePhone,
                                 isPhoneNumber: true,
-                                readOnly: (widget.pagemode == "fromDSR" )
+                                readOnly: (widget.pagemode == "fromDSR")
                                     ? true
                                     : false,
                               ),
@@ -2239,7 +2314,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "Please Enter House no. & Street",
                                 "perm_Street",
                                 isRequired: true,
-                                readOnly: (widget.pagemode == "fromDSR" )
+                                readOnly: (widget.pagemode == "fromDSR")
                                     ? true
                                     : false,
                               ),
@@ -2766,7 +2841,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                   ),
                 ),
                 SizedBox(height: 50),
-
                 ElevatedButton.icon(
                   onPressed: () {
                     if (_isChecked) {
@@ -2774,24 +2848,19 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                       bool valid = validateAndSubmit();
                       print("valid $valid");
 
-                      if(!valid)
-                      {
+                      if (!valid) {
                         return;
                       }
-
-                      
-
 
                       print("cw1");
                       print("id ${widget.ekycResult?.transactionId}");
 
-                        String CWTransactionIdNo =
-                            widget.ekycResult?.transactionId?.isNotEmpty == true
-                                ? widget.ekycResult!.transactionId!
-                                : generateSecureTransactionId();
+                      String CWTransactionIdNo =
+                          widget.ekycResult?.transactionId?.isNotEmpty == true
+                              ? widget.ekycResult!.transactionId!
+                              : generateSecureTransactionId();
 
-
-                      print("cw4");                 
+                      print("cw4");
 
                       LosApplicationModel losData = LosApplicationModel(
                           firstName: firstName.text,
@@ -2851,17 +2920,18 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                           ipAddress: IpAddress,
                           latitude: latitude,
                           longitude: longitude,
-                          address:address.text.toString(),
-                          documentType:documentType.text.toString(),
-                          validUntil:validUntil.text.toString(),
-                          documentId:documentId.text.toString(),
+                          address: address.text.toString(),
+                          documentType: documentType.text.toString(),
+                          validUntil: validUntil.text.toString(),
+                          documentId: documentId.text.toString(),
                           //selectedIdType: _selectedIdType,
                           empStatusFlag: EmpStatus,
                           leadDetails: leadDetails,
                           dsrId: widget.dsrId);
 
-                      print("losData from model is coming ${CWTransactionIdNo}");
-                       print("pagemode ${widget.pagemode}");
+                      print(
+                          "losData from model is coming ${CWTransactionIdNo}");
+                      print("pagemode ${widget.pagemode}");
 
                       Navigator.push(
                         context,
@@ -2972,15 +3042,16 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
   // Newly Added
 
-   void _showValidationDialog(String message) {
+  void _showValidationDialog(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Color(0xFF9a37ae),
-              content: Text(message, style: TextStyle(fontSize: 15),)),
-          );
+      SnackBar(
+          backgroundColor: Color(0xFF9a37ae),
+          content: Text(
+            message,
+            style: TextStyle(fontSize: 15),
+          )),
+    );
   }
-
-
 
 // newly added code
   bool validateAndSubmit() {
@@ -3111,7 +3182,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 // Barangay
     if (perm_Barangay.text.trim().isEmpty) {
       _showValidationDialog("Please select Barangay.");
-     return false;
+      return false;
     }
 
 // Street - Minimum 10 characters & 3 words
@@ -3135,7 +3206,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 // Work Nature
     if (emp_Work_Nature.text.trim().isEmpty) {
       _showValidationDialog("Please select Employment Work Nature.");
-     return false;
+      return false;
     }
 
 // Profession (if applicable)
@@ -3227,7 +3298,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     if (!_isValidStreet(emp_Street.text)) {
       _showValidationDialog(
           "Employment Street must be at least 10 characters and 3 words with no special characters.");
-     return false;
+      return false;
     }
 
     if (_selectedIdType == IdType.tin) {
@@ -3236,7 +3307,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         return false;
       } else if (!_isValidIdtin(identity_TinId.text)) {
         _showValidationDialog("TIN ID must be 9 digits.");
-       return false;
+        return false;
       }
     } else if (_selectedIdType == IdType.sss) {
       if (identity_SssID.text.trim().isEmpty) {
@@ -3249,7 +3320,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     } else if (_selectedIdType == IdType.gsis) {
       if (identity_GsisID.text.trim().isEmpty) {
         _showValidationDialog("GSIS ID cannot be blank.");
-       return false;
+        return false;
       } else if (!_isValidIdGsisId(identity_GsisID.text)) {
         _showValidationDialog("GSIS ID must be 11 digits.");
         return false;
@@ -3262,7 +3333,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     // FocusScope.of(context).unfocus();
     // submitLos();
   }
-
 
   void checkApplicationStatusLoop(Map<String, dynamic> application) async {
     setState(() {
@@ -3451,11 +3521,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     );
   }
 
- 
-
- 
-
-
   String convertMonthsToReadableFormat(String monthsStr) {
     int months = int.tryParse(monthsStr) ?? 0;
     int years = months ~/ 12;
@@ -3464,7 +3529,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   }
 
   Future<void> postLoanCheck(Map<String, dynamic> requestData) async {
-    
     setState(() {});
     String tokens = "";
     try {
@@ -3509,8 +3573,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         headers: headers,
         body: json.encode(requestData),
       );
-        print("los respose ${response.statusCode}");
-        print("Response body ${response.body}");
+      print("los respose ${response.statusCode}");
+      print("Response body ${response.body}");
       if (response.statusCode == 201) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? token = prefs.getString('accessToken');
@@ -3744,7 +3808,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           headers: headers,
           body: json.encode(logmappedData),
         );
-        
+
         print(LogResponse.statusCode);
         print(LogResponse.body);
         if (LogResponse.statusCode == 201) {
@@ -4086,10 +4150,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           minTime: DateTime(1900),
           maxTime: DateTime.now(),
           onConfirm: (date) {
-            controller.text = DateFormat('dd-MM-yyyy').format(date); 
+            controller.text = DateFormat('dd-MM-yyyy').format(date);
             print("date is ${controller.text}");
           },
-
           currentTime: DateTime.now(),
           locale: LocaleType.en,
         );
@@ -4376,7 +4439,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     required String label,
     bool isRequired = true,
   }) {
-
     return DropdownButtonFormField<String>(
       isExpanded: true,
       focusNode: genderFocusNode,
