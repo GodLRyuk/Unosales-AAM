@@ -71,7 +71,7 @@ class OtpconcentState extends State<Otpconcent> {
 
   @override
   void initState() {
-    super.initState(); 
+    super.initState();
     //print("check what data receive");
     String jsonString = jsonEncode(widget.losData.toJson());
 
@@ -433,8 +433,6 @@ class OtpconcentState extends State<Otpconcent> {
     // }
   }
 
- 
-
 //   String publicKeyP1 = """
 // -----BEGIN PUBLIC KEY-----
 // MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAibVtzmmpQ8OpmWzF3M3Z
@@ -452,14 +450,13 @@ class OtpconcentState extends State<Otpconcent> {
     userInfo = prefs.getStringList('userInfo');
     //String agentCode = "testFSA";
 
-
     if (userInfo![0] == null || userInfo![0].isEmpty) {
       throw Exception("Agent code not found in SharedPreferences");
     }
 
     // Parse RSA Public Key
     String publicKeyP1 = await getPublicKey();
-   
+
     final parser = RSAKeyParser();
     final RSAPublicKey rsaPublicKey = parser.parse(publicKeyP1) as RSAPublicKey;
 
@@ -488,10 +485,9 @@ class OtpconcentState extends State<Otpconcent> {
   Future<void> callSosLogoin() async {
     try {
       final payload = await buildPayload();
-      
+
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
-     
 
       try {
         String tokenUrl = "/api/leads/los-access-token/";
@@ -506,15 +502,13 @@ class OtpconcentState extends State<Otpconcent> {
         if (Tokenresponse != null) {
           final data = json.decode(Tokenresponse.body);
           token = data['access_token'];
-          
         }
       } catch (e) {
         print("HTTP Request Failed: $e");
       }
 
       // Done
-      final url = Uri.parse(
-          "${AppConfig.otpUrl}/auth/sso-login"); 
+      final url = Uri.parse("${AppConfig.otpUrl}/auth/sso-login");
       final headers = {
         "Authorization": 'Bearer $token',
         "Content-Type": "application/json",
@@ -529,8 +523,6 @@ class OtpconcentState extends State<Otpconcent> {
         body: jsonEncode(payload),
       );
 
-      
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final sostoken = data["token"];
@@ -538,7 +530,6 @@ class OtpconcentState extends State<Otpconcent> {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString("ssoToken", sostoken);
 
-        
         //return sostoken;
       } else {
         print("Error happened here → Status: ${response.statusCode}");
@@ -562,17 +553,17 @@ class OtpconcentState extends State<Otpconcent> {
       }
 
       final encodedToken = Uri.encodeComponent(ssotoken);
-      
 
       int retryCount = 0;
       const int maxRetries = 3;
 
       while (retryCount < maxRetries) {
         print("API Attempt: $retryCount");
-        String aamUrl = "/api/leads/los-details/?los_status__applicationNo=$cwId";
+        String aamUrl =
+            "/api/leads/los-details/?los_status__applicationNo=$cwId";
         final aamheader = {'Authorization': 'Bearer $token'};
 
-        final response = await ApiService.getWithHeaders(aamUrl,aamheader);
+        final response = await ApiService.getWithHeaders(aamUrl, aamheader);
         final data = json.decode(response!.body);
         final result2 = data['results'][0]['los_status'];
         final offerStatus = result2['offerStatus'];
@@ -581,12 +572,10 @@ class OtpconcentState extends State<Otpconcent> {
         print("offerStatus = $offerStatus");
         print("applicationStatus = $applicationStatus");
 
-       
         // 1) PASSED → STOP LOOP + REDIRECT
-        
-        if (offerStatus == "IN-PROGRESS" && applicationStatus == "Passed") {
 
-          String applicationId = cwId;     
+        if (offerStatus == "IN-PROGRESS" && applicationStatus == "Passed") {
+          String applicationId = cwId;
           final redirectUrl =
               "${AppConfig.aamredictUrl}/fsa-aam-auth?token=$encodedToken&sales_app=$applicationId";
 
@@ -601,24 +590,21 @@ class OtpconcentState extends State<Otpconcent> {
             await launchUrl(uri, mode: LaunchMode.externalApplication);
 
             updateWorkflowStatus(losId, "AAM Invoked");
-            
           } else {
             print("Could not launch $redirectUrl");
           }
           return;
         }
 
-            
         // 2) EMPTY OR NULL → WAIT 30 SEC & RETRY
-        
+
         if (offerStatus == "IN-PROGRESS" &&
             (applicationStatus == null || applicationStatus == "")) {
           retryCount++;
-          
+
           await Future.delayed(Duration(seconds: 30));
 
-          if (retryCount >= maxRetries) {  
-            
+          if (retryCount >= maxRetries) {
             updateWorkflowStatus(losId, "SW_PW");
 
             Navigator.pushAndRemoveUntil(
@@ -629,26 +615,19 @@ class OtpconcentState extends State<Otpconcent> {
             return;
           }
 
-          continue; 
+          continue;
         }
 
-        
         // 3) FAILED → STOP LOOP + GO DASHBOARD
-       
+
         if (offerStatus == "IN-PROGRESS" && applicationStatus == "Failed") {
-          
           updateWorkflowStatus(losId, "Prelim UW Failed");
 
-          // ******************************************
+          String? offerStatusValue = await updateOfferStatus(cwId);
+          //updateWorkflowStatus(losId, "Prelim UW Failed",);
 
+          print("cw_id $cwId");
           
-      
-
-
-
-       
-
-          //************************************************* */
 
           Navigator.pushAndRemoveUntil(
             context,
@@ -665,61 +644,106 @@ class OtpconcentState extends State<Otpconcent> {
     }
   }
 
- // Function for update offer Status
+  // Function for update offer Status
 
- Future<void> updateOfferStatus(String cwId) async{
-  try{
+ Future<String?> updateOfferStatus(String cwTransactionId) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String token = "";
+  List<String>? userInfo = prefs.getStringList('userInfo');
+  String userId = userInfo![0];
+  String? accessToken = prefs.getString('accessToken');
+
+  try {
+    String tokenUrl = "/api/leads/los-access-token/";
+    final headers = {
+      'Authorization': 'Bearer $accessToken',
+      'Content-Type': 'application/json',
+      'User-Agent':
+          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+    };
+
+    final tokenResponse =
+        await ApiService.getWithHeaders(tokenUrl, headers);
+
+    if (tokenResponse != null) {
+      final data = json.decode(tokenResponse.body);
+      token = data['access_token'];
+    }
+  } catch (e) {
+    print("HTTP Request Failed: $e");
+    return null;
+  }
+
+  String url = "/application/details";
+
+  final headers = {
+    'Accept': '*/*',
+    'Correlation-Id': 'CORR-123456',
+    'Channel': 'FSA',
+    'Cookie':
+        '__METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95; __METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95',
+    "Authorization": "Bearer $token",
+    'Content-Type': "application/json",
+  };
+
+  final body = {
+    "applicationId": cwTransactionId,
+  };
+
+  final response =
+      await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
+
+  if (response != null && response.statusCode == 200) {
+    final appJson = json.decode(response.body);
+    final List results = appJson['result'] ?? [];
+
+    if (results.isNotEmpty) {
+      String offerStatusValue = results[0]['offerStatus'] ?? '';
+      print("Offer Status: $offerStatusValue");
+      return offerStatusValue; 
+    }
+  }
+
+  return null; 
+}
+
+
+  // Function for update workflow status
+
+  Future<void> updateWorkflowStatus(String losId, String status) async {
+    try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
+      final losUrl = "/api/leads/los-details/$losId/";
+
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        'Content-Type': 'application/json',
+      };
+
+      final body = {"workflow_status": status};
+
+      final response = await ApiService.patchWithHeaders(
+        losUrl,
+        headers,
+        body,
+      );
+
+      print("Workflow status updated: $status");
+    } catch (e) {
+      print("Error updating workflow status: $e");
+    }
   }
-  catch(e)
-  {
-
-  }
- }
- // Function for update workflow status
-
- Future<void> updateWorkflowStatus(String losId, String status) async {
-      try {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? token = prefs.getString('accessToken');
-
-        final losUrl = "/api/leads/los-details/$losId/";
-
-        final headers = {
-          'Authorization': 'Bearer $token',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-          'Content-Type': 'application/json',
-        };
-
-        final body = {
-          "workflow_status": status
-        };
-
-        final response = await ApiService.patchWithHeaders(
-          losUrl,
-          headers,
-          body,
-        );
-
-        print("Workflow status updated: $status");
-
-      } catch (e) {
-        print("Error updating workflow status: $e");
-      }
- }
-
 
 // Done  by 8.12.2025
 
   Future<void> postLoanCheck(Map<String, dynamic> requestData) async {
-
     setState(() {});
     String tokens = "";
     try {
-      
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
       final Tokenresponse = await http.get(
@@ -738,9 +762,7 @@ class OtpconcentState extends State<Otpconcent> {
       print("HTTP Request Failed: $e");
     }
 
-   
     final url = Uri.parse("${AppConfig.otpUrl}/pre-uw/save-payload");
-    
 
     final headers = {
       "Idempotency-Key": "th37per9-185d-4e22-83fb-18gf96g0g861",
@@ -754,7 +776,7 @@ class OtpconcentState extends State<Otpconcent> {
       "Cookie":
           "AWSALB=BBxk3EbWLtIG1Kav8Uzq4M35AQ6O/x7hZqOtLs0CoXlu4BrBbrhRhfBqa6tAbbpnx/2orMd0kt7fwL8nCPxthrnqBBozntvZC/Sf6p1jkVPiG3X9ttn0KLI4rtnY; AWSALBCORS=BBxk3EbWLtIG1Kav8Uzq4M35AQ6O/x7hZqOtLs0CoXlu4BrBbrhRhfBqa6tAbbpnx/2orMd0kt7fwL8nCPxthrnqBBozntvZC/Sf6p1jkVPiG3X9ttn0KLI4rtnY; METADATA=3c6749d5-60ea-4486-aede-fd4538d2fe39"
     };
-    
+
     // print("url is $url");
     // print("Header is $headers");
     // String jsonString = jsonEncode(requestData);
@@ -762,7 +784,7 @@ class OtpconcentState extends State<Otpconcent> {
     //   print(jsonString.substring(
     //       i, (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
     // }
-    
+
     try {
       final response = await http.post(
         url,
@@ -783,7 +805,7 @@ class OtpconcentState extends State<Otpconcent> {
           'User-Agent':
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
-        
+
         Map<String, String> mappedLOsData = {
           "cwtransection_id": "${requestData['CWTransactionID']}",
           "los_status": "submitted",
@@ -804,7 +826,6 @@ class OtpconcentState extends State<Otpconcent> {
           "source": ""
         };
 
-        
         final fetchStatusUrl =
             Uri.parse("${AppConfig.otpUrl}/api/app/fetch/application/status");
         final fetchStatusHeaders = {
@@ -816,7 +837,6 @@ class OtpconcentState extends State<Otpconcent> {
         };
 
         try {
-          
           showDialog(
             context: context,
             barrierDismissible: false,
@@ -827,7 +847,6 @@ class OtpconcentState extends State<Otpconcent> {
             },
           );
 
-         
           Navigator.of(context).pop(); // close loader
 
           final LosbackendStatusUrl =
@@ -839,18 +858,15 @@ class OtpconcentState extends State<Otpconcent> {
             'User-Agent':
                 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
           };
-         
 
-          var finalRequestData;        
+          var finalRequestData;
           if (widget.pagemode == 'edit') {
-           
             finalRequestData = Map<String, dynamic>.from(requestData)
               ..["lead_type"] = "campaign_lead"
               ..["declaration"] = true
               ..["dsr"] = null
               ..["workflow_status"] = "submit";
-        } else {
-           
+          } else {
             finalRequestData = Map<String, dynamic>.from(requestData)
               ..["lead_type"] = "fresh_lead"
               ..["declaration"] = true
@@ -865,7 +881,6 @@ class OtpconcentState extends State<Otpconcent> {
             body: json.encode(finalRequestData),
           );
 
-
           //  print("LosbackendStatusUrl is $LosbackendStatusUrl");
           //  print("headers3 is $headers3");
           // String jsonString = jsonEncode(finalRequestData);
@@ -874,14 +889,13 @@ class OtpconcentState extends State<Otpconcent> {
           //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
           // }
 
-          
-          String losId="";
+          String losId = "";
 
           if (backendresponseLOS.statusCode == 201) {
             final data = json.decode(backendresponseLOS.body);
             losId = data['id'].toString();
 
-            String ul="/api/leads/los-details/${data['id']}/";
+            String ul = "/api/leads/los-details/${data['id']}/";
             final headers4 = {
               "Content-Type": "application/json",
               "Accept": "application/json",
@@ -889,7 +903,6 @@ class OtpconcentState extends State<Otpconcent> {
               'User-Agent':
                   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
             };
-            
 
             Map<String, dynamic> mappedResponseLOsData = {
               "los_status": {
@@ -903,20 +916,19 @@ class OtpconcentState extends State<Otpconcent> {
                 "lastScreen": ''
               }
             };
-             
-             final responseLOS  = await ApiService.patchWithHeaders(ul, headers4, mappedResponseLOsData);             
+
+            final responseLOS = await ApiService.patchWithHeaders(
+                ul, headers4, mappedResponseLOsData);
           }
-          
-          waybookImplement(requestData['CWTransactionID'],losId);
+
+          waybookImplement(requestData['CWTransactionID'], losId);
         } catch (e) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Something went wrong: $e')),
           );
         }
-      } 
-      else {
-        
+      } else {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? authToken = prefs.getString('accessToken');
         Map<String, dynamic> logmappedData = {
@@ -939,9 +951,7 @@ class OtpconcentState extends State<Otpconcent> {
           headers: headers,
           body: json.encode(logmappedData),
         );
-        if (LogResponse.statusCode == 201) {
-          
-        }
+        if (LogResponse.statusCode == 201) {}
         final data = json.decode(response.body);
         String message = data['message'] ?? "Validation Error";
         Map<String, dynamic> errors = data['errors'] ?? {};
@@ -1206,8 +1216,6 @@ class OtpconcentState extends State<Otpconcent> {
       },
       body: body,
     );
-
-    
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
