@@ -75,7 +75,7 @@ dependencies:
   path_provider: ^2.1.5
   open_file: ^3.5.10
   dropdown_button2: ^2.3.9
-  hyperkyc_flutter: ^2.1.0
+  hyperkyc_flutter: ^2.1.2
   #share_plus: ^12.0.1
   share_plus: ^10.1.4
   package_info_plus: ^8.3.1
