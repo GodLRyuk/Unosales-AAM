@@ -621,13 +621,10 @@ class OtpconcentState extends State<Otpconcent> {
         // 3) FAILED → STOP LOOP + GO DASHBOARD
 
         if (offerStatus == "IN-PROGRESS" && applicationStatus == "Failed") {
-          updateWorkflowStatus(losId, "Prelim UW Failed");
+          //updateWorkflowStatus(losId, "Prelim UW Failed");
 
           String? offerStatusValue = await updateOfferStatus(cwId);
-          //updateWorkflowStatus(losId, "Prelim UW Failed",);
-
-          print("cw_id $cwId");
-          
+          updateWorkflowStatus(losId, "Prelim UW Failed", offerStatusValue: offerStatusValue);
 
           Navigator.pushAndRemoveUntil(
             context,
@@ -646,71 +643,73 @@ class OtpconcentState extends State<Otpconcent> {
 
   // Function for update offer Status
 
- Future<String?> updateOfferStatus(String cwTransactionId) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String token = "";
-  List<String>? userInfo = prefs.getStringList('userInfo');
-  String userId = userInfo![0];
-  String? accessToken = prefs.getString('accessToken');
+  Future<String?> updateOfferStatus(String cwTransactionId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String token = "";
+    List<String>? userInfo = prefs.getStringList('userInfo');
+    String userId = userInfo![0];
+    String? accessToken = prefs.getString('accessToken');
 
-  try {
-    String tokenUrl = "/api/leads/los-access-token/";
+    try {
+      String tokenUrl = "/api/leads/los-access-token/";
+      final headers = {
+        'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+
+      final tokenResponse = await ApiService.getWithHeaders(tokenUrl, headers);
+
+      if (tokenResponse != null) {
+        final data = json.decode(tokenResponse.body);
+        token = data['access_token'];
+      }
+    } catch (e) {
+      print("HTTP Request Failed: $e");
+      return null;
+    }
+
+    String url = "/application/details";
+
     final headers = {
-      'Authorization': 'Bearer $accessToken',
-      'Content-Type': 'application/json',
-      'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      'Accept': '*/*',
+      'Correlation-Id': 'CORR-123456',
+      'Channel': 'FSA',
+      'Cookie':
+          '__METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95; __METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95',
+      "Authorization": "Bearer $token",
+      'Content-Type': "application/json",
     };
 
-    final tokenResponse =
-        await ApiService.getWithHeaders(tokenUrl, headers);
+    final body = {
+      "applicationId": cwTransactionId,
+    };
 
-    if (tokenResponse != null) {
-      final data = json.decode(tokenResponse.body);
-      token = data['access_token'];
+    final response =
+        await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
+
+    if (response != null && response.statusCode == 200) {
+      final appJson = json.decode(response.body);
+      final List results = appJson['result'] ?? [];
+
+      if (results.isNotEmpty) {
+        String offerStatusValue = results[0]['offerStatus'] ?? '';
+        print("Offer Status: $offerStatusValue");
+        return offerStatusValue;
+      }
     }
-  } catch (e) {
-    print("HTTP Request Failed: $e");
+
     return null;
   }
 
-  String url = "/application/details";
-
-  final headers = {
-    'Accept': '*/*',
-    'Correlation-Id': 'CORR-123456',
-    'Channel': 'FSA',
-    'Cookie':
-        '__METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95; __METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95',
-    "Authorization": "Bearer $token",
-    'Content-Type': "application/json",
-  };
-
-  final body = {
-    "applicationId": cwTransactionId,
-  };
-
-  final response =
-      await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
-
-  if (response != null && response.statusCode == 200) {
-    final appJson = json.decode(response.body);
-    final List results = appJson['result'] ?? [];
-
-    if (results.isNotEmpty) {
-      String offerStatusValue = results[0]['offerStatus'] ?? '';
-      print("Offer Status: $offerStatusValue");
-      return offerStatusValue; 
-    }
-  }
-
-  return null; 
-}
-
-
   // Function for update workflow status
 
-  Future<void> updateWorkflowStatus(String losId, String status) async {
+  Future<void> updateWorkflowStatus(
+    String losId,
+    String status, {
+    String? offerStatusValue,
+  }) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
@@ -724,7 +723,10 @@ class OtpconcentState extends State<Otpconcent> {
         'Content-Type': 'application/json',
       };
 
-      final body = {"workflow_status": status};
+      final body = {
+        "workflow_status": status,
+        if (offerStatusValue != null) "offerStatus": offerStatusValue,
+      };
 
       final response = await ApiService.patchWithHeaders(
         losUrl,
