@@ -369,7 +369,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
               _searchController.text = companyName;
               emp_Employer_Name.text = companyName;
               _selectedCompany = companyName;
-              print("company name $_selectedCompany");
+              
             });
           }
 
