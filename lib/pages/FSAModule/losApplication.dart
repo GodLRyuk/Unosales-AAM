@@ -369,6 +369,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
               _searchController.text = companyName;
               emp_Employer_Name.text = companyName;
               _selectedCompany = companyName;
+              print("company name $_selectedCompany");
             });
           }
 
@@ -605,11 +606,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       if (response.statusCode == 200) {
         setState(() {
           leadDetails = json.decode(response.body);
-          // String jsonString = jsonEncode(leadDetails);
-          // for (int i = 0; i < jsonString.length; i += 1000) {
-          //   print(jsonString.substring(i,
-          //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-          // }
+          print("lead details is $leadDetails");
+          String jsonString = jsonEncode(leadDetails);
+          for (int i = 0; i < jsonString.length; i += 1000) {
+            print(jsonString.substring(i,
+                (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
+          }
           firstName.text = leadDetails['first_name'] ?? "";
           lastName.text = leadDetails['last_name'] ?? "";
           middlename.text = leadDetails['middle_name'] ?? "";

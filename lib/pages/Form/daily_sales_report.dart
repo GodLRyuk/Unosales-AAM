@@ -176,13 +176,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       if (response.statusCode == 200) {
         setState(() {
           leadDetails = json.decode(response.body);
-          //print("lead details is");
-          String jsonString = jsonEncode(leadDetails);
 
-          for (int i = 0; i < jsonString.length; i += 1000) {
-            print(jsonString.substring(i,
-                (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-          }
           firstName.text = leadDetails['first_name'] ?? "";
           lastName.text = leadDetails['last_name'] ?? "";
           middleName.text = leadDetails['middle_name'] ?? "";
@@ -246,6 +240,11 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
             identity_GsisID.text = leadDetails['gsis_id'] ?? "";
             identity_SssID.text = leadDetails['sss_id'] ?? "";
 
+            // Industry Type
+            industryType.text = leadDetails['industry_type'] ?? "";
+            industryCode.text = leadDetails['industry_code'] ?? "";
+            emp_Indus_Type_Code.text = leadDetails['industry_code'] ?? "";
+
             // Auto-select the ID type based on which field is filled
             if (identity_TinId.text.isNotEmpty) {
               _selectedIdType = IdType.tin;
@@ -285,9 +284,6 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
             loadImage(_networkImageUrl!);
           }
-
-          industryType.text = leadDetails['industry_type'] ?? "";
-          industryCode.text = leadDetails['industry_code'] ?? "";
 
           Future.delayed(Duration(seconds: 10), () {
             setState(() {
@@ -399,7 +395,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       return;
     }
     try {
-      String url = '/api/leads/companies/$query';
+      String url = '/api/leads/companies/$query/';
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
 
@@ -807,7 +803,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         }
       }
     } catch (e) {
-      print('Search Error: $e');
+      print('Search Error is this: $e');
     }
   }
 
