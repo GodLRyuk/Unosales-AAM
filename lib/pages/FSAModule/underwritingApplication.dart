@@ -191,12 +191,15 @@ class _UnderwritingapplicationState
                                       "UW Status: ${losStatus['uwStatus'] ?? 'N/A'}"),
 
                                   Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                          "Application No: ${losStatus['applicationNo'] ?? 'N/A'}"),
+                                      Expanded(
+                                        child: Text(
+                                            "Application No: ${losStatus['applicationNo'] ?? 'N/A'}",
+                                            overflow: TextOverflow.ellipsis,),
+                                      ),
                                         
-                                        SizedBox(width: 85,),
-
+                                        
                                        GestureDetector(
                                         
                                         onTap: () {
