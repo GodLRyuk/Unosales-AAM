@@ -406,7 +406,6 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
           // Directly use the API response instead of _ComIdOptions
           if (data.containsKey('id')) {
-            print("1");
             final companyId = data['id'].toString();
             final companyName = data['company_name'].toString();
 
@@ -418,7 +417,6 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
           // If your API also returns a 'results' list, you can still handle it
           if (data['results'] != null && data['results'] is List) {
-            print("2");
             List<dynamic> companies = data['results'];
             setState(() {
               _filteredCompanies = companies
