@@ -35,6 +35,7 @@ class _CampaignlistState extends State<Campaignlist> {
   Duration timeLeft = Duration.zero;
   Timer? countdownTimer;
 
+
   @override
   void initState() {
     super.initState();
@@ -76,6 +77,7 @@ class _CampaignlistState extends State<Campaignlist> {
         if (response.statusCode == 200) {
           Map<String, dynamic> data = json.decode(response.body);
           List<dynamic> leadsData = data['results'] ?? [];
+          print("campaign details is $leadsData");
 
           setState(() {
             if (isLoadMore) {
@@ -85,6 +87,7 @@ class _CampaignlistState extends State<Campaignlist> {
                     'start_date': item['start_date']?.toString() ?? '',
                     'end_date': item['end_date']?.toString() ?? '',
                     'id': item['id']?.toString() ?? '',
+                    'is_and_campaign': item['is_and_campaign']?.toString() ?? '', 
                   }));
             } else {
               leads = leadsData
@@ -94,6 +97,7 @@ class _CampaignlistState extends State<Campaignlist> {
                         'start_date': item['start_date']?.toString() ?? '',
                         'end_date': item['end_date']?.toString() ?? '',
                         'id': item['id']?.toString() ?? '',
+                        'is_and_campaign': item['is_and_campaign']?.toString() ?? '',
                       })
                   .toList();
             }
@@ -340,13 +344,18 @@ class _CampaignlistState extends State<Campaignlist> {
                                     if (index < leads.length) {
                                       return GestureDetector(
                                         onTap: () {
-                                          String leadId = leads[index]['id']!;
+                                          String leadId = leads[index]['id']!;                                                                                  
+                                          String isAndCampaign = leads[index]['is_and_campaign'] ?? '';
+                                          print("is and campaign $isAndCampaign");
+
+
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
                                                   LeadListByCampaign(
-                                                      campaign: leadId),
+                                                      campaign: leadId,
+                                                      is_and_campaign: isAndCampaign,),
                                             ),
                                           );
                                         },
@@ -392,8 +401,10 @@ class _CampaignlistState extends State<Campaignlist> {
                                                 children: [
                                                   Row(
                                                     children: [
+                                                     
                                                       Expanded(
                                                         child: Text(
+                                                         
                                                           leads[index]['name']!.toUpperCase(),
                                                           maxLines: 2,
                                                           overflow: TextOverflow.ellipsis,

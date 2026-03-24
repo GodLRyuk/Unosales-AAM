@@ -214,7 +214,6 @@ class _FsadashboardState extends State<Fsadashboard> {
                 mapeddata,
                 headers,
               );
-              
 
               if (checkInResponse != null) {
                 final data = json.decode(checkInResponse.body);
@@ -302,8 +301,6 @@ class _FsadashboardState extends State<Fsadashboard> {
     });
   }
 
-  
-
   List DashboardstatusList = [
     'Accept',
     'Accept_Manual',
@@ -319,7 +316,6 @@ class _FsadashboardState extends State<Fsadashboard> {
   ];
 
   Future<void> _loadLOSData() async {
-    
     setState(() => _isLoading = true);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userInfo = prefs.getStringList('userInfo');
@@ -371,13 +367,11 @@ class _FsadashboardState extends State<Fsadashboard> {
           }
         }
       }
+      await Future.delayed(Duration(milliseconds: 50));
     }
 
     setState(() => _isLoading = false);
-    
   }
-
-// Done
 
   Future<void> _loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

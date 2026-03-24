@@ -24,8 +24,6 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
   bool isLoading = true;
   bool areDateFieldsVisible =
       false; // Boolean to control visibility of date fields
-  // DateTime? selectedFromDate;
-  // DateTime? selectedToDate;
   final _scrollController = ScrollController();
   bool isFetchingMore = false;
   int currentPage = 1;
@@ -39,14 +37,14 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
   @override
   void initState() {
     super.initState();
-    fetchLeads();
-    fetchAndLeads();
-    // print("is_and_campaign value is ${widget.is_and_campaign}");
-    // if (widget.is_and_campaign == "true") {
-    //     fetchAndLeads();
-    //   } else {
-    //     fetchLeads();
-    //   }
+    print("is_and_campaign value ${widget.is_and_campaign}");
+
+    if (widget.is_and_campaign == "true") {
+      fetchAndLeads();
+    } else {
+      fetchLeads();
+    }
+
     _scrollController.addListener(_onScroll);
   }
 
@@ -85,6 +83,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
         if (response.statusCode == 200) {
           Map<String, dynamic> data = json.decode(response.body);
           List<dynamic> leadsData = data['results'] ?? [];
+          //print("campaign leads $leadsData");
 
           setState(() {
             if (isLoadMore) {
@@ -168,7 +167,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
           Map<String, dynamic> data = json.decode(response.body);
 
           List<dynamic> leadsData = data['results'] ?? [];
-          //print("result is $leadsData");
+          //print("And campaign lead $leadsData");
           setState(() {
             if (isLoadMore) {
               leads.addAll(
@@ -300,233 +299,240 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                       child: isLoading
                           ? const Center(child: CircularProgressIndicator())
                           : leads.isEmpty
-                          ? const Center(
-                              child: Text(
-                                'No Leads Found',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            )
-                          : ListView.builder(
-                              controller:
-                                  _scrollController, // Attach ScrollController
-                              itemCount:
-                                  leads.length +
-                                  1, // Add one extra item for the loader
-                              itemBuilder: (context, index) {
-                                if (index < leads.length) {
-                                  if (widget.is_and_campaign == "false") {
-                                    return GestureDetector(
-                                      onTap: () {
-                                        String leadId = leads[index]['id']!;
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                LosApplicationPage(
+                              ? const Center(
+                                  child: Text(
+                                    'No Leads Found',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                )
+                              : ListView.builder(
+                                  controller:
+                                      _scrollController, // Attach ScrollController
+                                  itemCount: leads.length +
+                                      1, // Add one extra item for the loader
+                                  itemBuilder: (context, index) {
+                                    if (index < leads.length) {
+                                      if (widget.is_and_campaign == "false") {
+                                        return GestureDetector(
+                                          onTap: () {
+                                            String leadId = leads[index]['id']!;
+                                            
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LosApplicationPage(
                                                   leadId: leadId,
                                                   campaign: widget.campaign,
                                                   pagemode: 'edit',
                                                   dsrId: '',
                                                 ),
-                                          ),
-                                        );
-                                      },
-                                      child: Container(
-                                        margin: const EdgeInsets.symmetric(
-                                          vertical: 10,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          border: Border(
-                                            top: BorderSide(
-                                              color: Color(0xFF640D78),
-                                              width: 1.0,
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            margin: const EdgeInsets.symmetric(
+                                              vertical: 10,
                                             ),
-                                            bottom: BorderSide(
-                                              color: Color(0xFF640D78),
-                                              width: 1.0,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                8,
+                                              ),
+                                              border: Border(
+                                                top: BorderSide(
+                                                  color: Color(0xFF640D78),
+                                                  width: 1.0,
+                                                ),
+                                                bottom: BorderSide(
+                                                  color: Color(0xFF640D78),
+                                                  width: 1.0,
+                                                ),
+                                                left: BorderSide(
+                                                  color: Color(0xFF640D78),
+                                                  width: 5.0,
+                                                ),
+                                                right: BorderSide(
+                                                  color: Color(0xFF640D78),
+                                                  width: 1.0,
+                                                ),
+                                              ),
                                             ),
-                                            left: BorderSide(
-                                              color: Color(0xFF640D78),
-                                              width: 5.0,
-                                            ),
-                                            right: BorderSide(
-                                              color: Color(0xFF640D78),
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                        ),
-                                        child: ListTile(
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
+                                            child: ListTile(
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
                                                 horizontal: 0,
                                               ),
-                                          leading: Column(
-                                            children: [
-                                              Image.asset(
-                                                'images/capmaignLeadslogo.PNG',
-                                                height: 55,
-                                                width: 60,
+                                              leading: Column(
+                                                children: [
+                                                  Image.asset(
+                                                    'images/capmaignLeadslogo.PNG',
+                                                    height: 55,
+                                                    width: 60,
+                                                  ),
+                                                ],
                                               ),
-                                            ],
-                                          ),
-                                          title: Container(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
+                                              title: Container(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    Text(
-                                                      leads[index]['name']!
-                                                          .toUpperCase(),
-                                                      style:
-                                                          WidgetSupport.CampaignName(),
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          leads[index]['name']!
+                                                              .toUpperCase(),
+                                                          style: WidgetSupport
+                                                              .CampaignName(),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.mobile_friendly,
+                                                          color:
+                                                              Color(0xFF640D78),
+                                                          size: 17,
+                                                        ),
+                                                        Text(
+                                                          leads[index]['phone']!
+                                                              .toUpperCase(),
+                                                          style: WidgetSupport
+                                                              .campainDescription(),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
-                                                const SizedBox(height: 4),
-                                                Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.mobile_friendly,
-                                                      color: Color(0xFF640D78),
-                                                      size: 17,
-                                                    ),
-                                                    Text(
-                                                      leads[index]['phone']!
-                                                          .toUpperCase(),
-                                                      style:
-                                                          WidgetSupport.campainDescription(),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          trailing: Icon(
-                                            Icons.chevron_right,
-                                            color: Color(0xFF640D78),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  } else {
-                                    return GestureDetector(
-                                      onTap: () {
-                                        String leadId1 = leads[index]['id']!;
-                                        //print("leads1 id is $leadId1");
-                                        //print("campaign id is ${widget.campaign}");
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => Campaign_form(
-                                              campaign: widget.campaign,
-                                              id: leadId1,
+                                              ),
+                                              trailing: Icon(
+                                                Icons.chevron_right,
+                                                color: Color(0xFF640D78),
+                                              ),
                                             ),
                                           ),
                                         );
-                                      },
-                                      child: Container(
-                                        margin: const EdgeInsets.symmetric(
-                                          vertical: 10,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          border: Border(
-                                            top: BorderSide(
-                                              color: Color(0xFF640D78),
-                                              width: 1.0,
+                                      } else {
+                                        return GestureDetector(
+                                          onTap: () {
+                                            String leadId1 =
+                                                leads[index]['id']!;
+                                            //print("leads1 id is $leadId1");
+                                            //print("campaign id is ${widget.campaign}");
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    Campaign_form(
+                                                  campaign: widget.campaign,
+                                                  id: leadId1,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            margin: const EdgeInsets.symmetric(
+                                              vertical: 10,
                                             ),
-                                            bottom: BorderSide(
-                                              color: Color(0xFF640D78),
-                                              width: 1.0,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                8,
+                                              ),
+                                              border: Border(
+                                                top: BorderSide(
+                                                  color: Color(0xFF640D78),
+                                                  width: 1.0,
+                                                ),
+                                                bottom: BorderSide(
+                                                  color: Color(0xFF640D78),
+                                                  width: 1.0,
+                                                ),
+                                                left: BorderSide(
+                                                  color: Color(0xFF640D78),
+                                                  width: 5.0,
+                                                ),
+                                                right: BorderSide(
+                                                  color: Color(0xFF640D78),
+                                                  width: 1.0,
+                                                ),
+                                              ),
                                             ),
-                                            left: BorderSide(
-                                              color: Color(0xFF640D78),
-                                              width: 5.0,
-                                            ),
-                                            right: BorderSide(
-                                              color: Color(0xFF640D78),
-                                              width: 1.0,
-                                            ),
-                                          ),
-                                        ),
-                                        child: ListTile(
-                                          contentPadding:
-                                              const EdgeInsets.symmetric(
+                                            child: ListTile(
+                                              contentPadding:
+                                                  const EdgeInsets.symmetric(
                                                 horizontal: 0,
                                               ),
-                                          leading: Column(
-                                            children: [
-                                              Image.asset(
-                                                'images/capmaignLeadslogo.PNG',
-                                                height: 55,
-                                                width: 60,
+                                              leading: Column(
+                                                children: [
+                                                  Image.asset(
+                                                    'images/capmaignLeadslogo.PNG',
+                                                    height: 55,
+                                                    width: 60,
+                                                  ),
+                                                ],
                                               ),
-                                            ],
-                                          ),
-                                          title: Container(
-                                            child: Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Row(
+                                              title: Container(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
-                                                    Text(
-                                                      leads[index]['name']!
-                                                          .toUpperCase(),
-                                                      style:
-                                                          WidgetSupport.CampaignName(),
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          leads[index]['name']!
+                                                              .toUpperCase(),
+                                                          style: WidgetSupport
+                                                              .CampaignName(),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    const SizedBox(height: 4),
+                                                    Row(
+                                                      children: [
+                                                        Icon(
+                                                          Icons.mobile_friendly,
+                                                          color:
+                                                              Color(0xFF640D78),
+                                                          size: 17,
+                                                        ),
+                                                        Text(
+                                                          leads[index]['phone']!
+                                                              .toUpperCase(),
+                                                          style: WidgetSupport
+                                                              .campainDescription(),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ],
                                                 ),
-                                                const SizedBox(height: 4),
-                                                Row(
-                                                  children: [
-                                                    Icon(
-                                                      Icons.mobile_friendly,
-                                                      color: Color(0xFF640D78),
-                                                      size: 17,
-                                                    ),
-                                                    Text(
-                                                      leads[index]['phone']!
-                                                          .toUpperCase(),
-                                                      style:
-                                                          WidgetSupport.campainDescription(),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
+                                              ),
+                                              trailing: Icon(
+                                                Icons.chevron_right,
+                                                color: Color(0xFF640D78),
+                                              ),
                                             ),
                                           ),
-                                          trailing: Icon(
-                                            Icons.chevron_right,
-                                            color: Color(0xFF640D78),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                } else {
-                                  // Loader at the bottom
-                                  return hasMoreData
-                                      ? Center(
-                                          child: CircularProgressIndicator(),
-                                        )
-                                      : Center(child: Text('No more data'));
-                                }
-                              },
-                            ),
+                                        );
+                                      }
+                                    } else {
+                                      // Loader at the bottom
+                                      return hasMoreData
+                                          ? Center(
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            )
+                                          : Center(child: Text('No more data'));
+                                    }
+                                  },
+                                ),
                     ),
                   ),
                 ],

@@ -339,83 +339,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
   //************************************************************** */
 
-  // Future<void> _searchCompanyGetDSR(String query) async {
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   if (query.isEmpty) {
-  //     setState(() {
-  //       _filteredCompanies = _ComIdOptions.entries
-  //           .map((e) => {'id': e.key, 'company_name': e.value})
-  //           .toList();
-
-  //       // Append "Others" option
-  //       _filteredCompanies.add({'id': 'others', 'company_name': 'Others'});
-  //     });
-  //     return;
-  //   }
-  //   try {
-  //     String url = '/api/leads/companies/?search=$query';
-  //     final headers = await _getAuthHeader();
-  //     final response = await ApiService.getWithHeaders(url, headers);
-
-  //     if (response != null) {
-  //       if (response.statusCode == 200) {
-  //         // Your API is returning a single company object, not a list
-  //         final Map<String, dynamic> data = json.decode(response.body);
-
-  //         // Directly use the API response instead of _ComIdOptions
-  //         if (data.containsKey('id')) {
-  //           final companyId = data['id'].toString();
-  //           final companyName = data['company_name'].toString();
-
-  //           setState(() {
-  //             _searchController.text = companyName;
-  //             emp_Employer_Name.text = companyName;
-  //             _selectedCompany = companyName;
-
-  //           });
-  //         }
-
-  //         // If your API also returns a 'results' list, you can still handle it
-  //         if (data['results'] != null && data['results'] is List) {
-  //           List<dynamic> companies = data['results'];
-  //           setState(() {
-  //             _filteredCompanies = companies
-  //                 .map((e) => {
-  //                       'id': e['id'].toString(),
-  //                       'company_name': e['company_name'].toString(),
-  //                     })
-  //                 .toList();
-
-  //             // Append "Others" option
-  //             _filteredCompanies
-  //                 .add({'id': 'others', 'company_name': 'Others'});
-  //           });
-  //         }
-  //       } else if (response.statusCode == 401) {
-  //         String? refresh = prefs.getString('refreshToken');
-  //         Map<String, String> mappedData = {
-  //           'refresh': refresh ?? '',
-  //         };
-  //         String refressToken = '/api/users/token-refresh/';
-  //         final response2 = await ApiService.post(refressToken, mappedData);
-  //         if (response2 != null) {
-  //           final data = json.decode(response2.body);
-  //           await prefs.setBool('isLoggedIn', true);
-  //           await prefs.setString('accessToken', data['access']);
-  //           await prefs.setString('refreshToken', data['refresh']);
-  //           _searchCompany(query);
-  //         }
-  //       } else {
-  //         throw Exception('Failed to search companies');
-  //       }
-  //     }
-  //   } catch (e) {
-  //     print('Search Error: $e');
-  //   }
-  // }
-
-  //************************************************************************** */
-
   Future<void> _searchCompanyGetDSR(String query) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (query.isEmpty) {
@@ -430,7 +353,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       return;
     }
     try {
-      String url = '/api/leads/companies/?search=$query';
+      String url = '/api/leads/companies/$query/';
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
 
@@ -439,12 +362,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           // Your API is returning a single company object, not a list
           final Map<String, dynamic> data = json.decode(response.body);
 
-          if (data.containsKey('results') && data['results'].isNotEmpty) {
-            final company = data['results'][0];
-
-            final companyId = company['id'].toString();
-            final companyName =
-                utf8.decode(company['company_name'].toString().codeUnits);
+          // Directly use the API response instead of _ComIdOptions
+          if (data.containsKey('id')) {
+            final companyId = data['id'].toString();
+            final companyName = data['company_name'].toString();
 
             setState(() {
               _searchController.text = companyName;
@@ -453,6 +374,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
             });
           }
 
+          // If your API also returns a 'results' list, you can still handle it
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
             setState(() {
@@ -463,6 +385,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                       })
                   .toList();
 
+              // Append "Others" option
               _filteredCompanies
                   .add({'id': 'others', 'company_name': 'Others'});
             });
@@ -490,23 +413,87 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     }
   }
 
-  
+  //************************************************************************** */
 
-  void _searchCompany(String companyId) {
-    // companyId here is the ID from the search result or API
-    if (_ComIdOptions.containsKey(companyId)) {
+  Future<void> _searchCompany(String query) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (query.isEmpty) {
       setState(() {
-        // store the ID internally
-        _selectedCompany = companyId;
+        _filteredCompanies = _ComIdOptions.entries
+            .map((e) => {'id': e.key, 'company_name': e.value})
+            .toList();
 
-        // show the name in the textfield
-        _searchController.text = _ComIdOptions[companyId] ?? '';
+        // Append "Others" option
+        _filteredCompanies.add({'id': 'others', 'company_name': 'Others'});
       });
-    } else {
-      // no match found
-      print('Company ID not found');
+      return;
+    }
+
+    try {
+      String url = '/api/leads/companies/?search=$query';
+      final headers = await _getAuthHeader();
+      final response = await ApiService.getWithHeaders(url, headers);
+      // print("api is $url");
+      // print("header $headers");
+
+      if (response != null) {
+        if (response.statusCode == 200) {
+          //print("response is ${response.body}");
+          final Map<String, dynamic> data = json.decode(response.body);
+          if (data['results'] != null && data['results'] is List) {
+            List<dynamic> companies = data['results'];
+
+            setState(() {
+              _filteredCompanies = companies
+                  .map((e) => {
+                        'id': e['id'].toString(),
+                        'company_name': e['company_name'].toString(),
+                      })
+                  .toList();
+
+              // Append "Others" option
+              _filteredCompanies
+                  .add({'id': 'others', 'company_name': 'Others'});
+            });
+          }
+        } else if (response.statusCode == 401) {
+          String? refresh = prefs.getString('refreshToken');
+          Map<String, String> mappedData = {
+            'refresh': refresh ?? '',
+          };
+          String refressToken = '/api/users/token-refresh/';
+          final response2 = await ApiService.post(refressToken, mappedData);
+          if (response2 != null) {
+            final data = json.decode(response2.body);
+            await prefs.setBool('isLoggedIn', true);
+            await prefs.setString('accessToken', data['access']);
+            await prefs.setString('refreshToken', data['refresh']);
+            _searchCompany(query);
+          }
+        } else {
+          throw Exception('Failed to search companies');
+        }
+      }
+    } catch (e) {
+      print('Search Error is this: $e');
     }
   }
+
+  // void _searchCompany(String companyId) {
+  //   // companyId here is the ID from the search result or API
+  //   if (_ComIdOptions.containsKey(companyId)) {
+  //     setState(() {
+  //       // store the ID internally
+  //       _selectedCompany = companyId;
+
+  //       // show the name in the textfield
+  //       _searchController.text = _ComIdOptions[companyId] ?? '';
+  //     });
+  //   } else {
+  //     // no match found
+  //     print('Company ID not found');
+  //   }
+  // }
 
   Future<Map<String, String>> _getAuthHeader() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -693,7 +680,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           //   print(jsonString.substring(i,
           //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
           // }
-          
+
           firstName.text = leadDetails['first_name'] ?? "";
           lastName.text = leadDetails['last_name'] ?? "";
           middlename.text = leadDetails['middle_name'] ?? "";
@@ -2430,8 +2417,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                           suffixIcon: IconButton(
                                             icon: const Icon(Icons.search),
                                             onPressed: () {
-                                              // Trigger the search when the search icon is pressed
-                                              _searchCompanyGetDSR(
+                                              // _searchCompanyGetDSR(
+                                              //     _searchController.text);
+                                              _searchCompany(
                                                   _searchController.text);
                                             },
                                           ),
@@ -2852,15 +2840,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                         return;
                       }
 
-                      print("cw1");
-                      print("id ${widget.ekycResult?.transactionId}");
-
                       String CWTransactionIdNo =
                           widget.ekycResult?.transactionId?.isNotEmpty == true
                               ? widget.ekycResult!.transactionId!
                               : generateSecureTransactionId();
-
-                      print("cw4");
 
                       LosApplicationModel losData = LosApplicationModel(
                           firstName: firstName.text,
@@ -2929,17 +2912,13 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                           leadDetails: leadDetails,
                           dsrId: widget.dsrId);
 
-                      print(
-                          "losData from model is coming ${CWTransactionIdNo}");
-                      print("pagemode ${widget.pagemode}");
-
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) => Otpconcent(
                                 phoneNumber: mobilePhone.text,
                                 losData: losData,
-                                campaign: "",
+                                campaign: widget.campaign,
                                 leadId: widget.leadId,
                                 pagemode: widget.pagemode)),
                       );

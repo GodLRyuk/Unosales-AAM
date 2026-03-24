@@ -72,7 +72,6 @@ class OtpconcentState extends State<Otpconcent> {
   @override
   void initState() {
     super.initState();
-    //print("check what data receive");
     String jsonString = jsonEncode(widget.losData.toJson());
 
     // for (int i = 0; i < jsonString.length; i += 1000) {
@@ -581,15 +580,39 @@ class OtpconcentState extends State<Otpconcent> {
 
           final uri = Uri.parse(redirectUrl);
           if (await canLaunchUrl(uri)) {
-            // 1️⃣ Navigate to Dashboard first
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => NavigationPage()),
-              (route) => false,
-            );
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            // Navigator.pushAndRemoveUntil(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => NavigationPage()),
+            //   (route) => false,
+            // );
 
+            //  updateWorkflowStatus(losId, "AAM Invoked");
+
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
             updateWorkflowStatus(losId, "AAM Invoked");
+            await Future.delayed(Duration(seconds: 5));
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text("Congratulations!"),
+                  content: Text("Your Application has created Successfully."),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NavigationPage()),
+                          (route) => false,
+                        );
+                      },
+                      child: Text("OK"),
+                    ),
+                  ],
+                );
+              },
+            );
           } else {
             print("Could not launch $redirectUrl");
           }
@@ -624,7 +647,8 @@ class OtpconcentState extends State<Otpconcent> {
           //updateWorkflowStatus(losId, "Prelim UW Failed");
 
           String? offerStatusValue = await updateOfferStatus(cwId);
-          updateWorkflowStatus(losId, "Prelim UW Failed", offerStatusValue: offerStatusValue);
+          updateWorkflowStatus(losId, "Prelim UW Failed",
+              offerStatusValue: offerStatusValue);
 
           Navigator.pushAndRemoveUntil(
             context,
@@ -812,12 +836,14 @@ class OtpconcentState extends State<Otpconcent> {
           "cwtransection_id": "${requestData['CWTransactionID']}",
           "los_status": "submitted",
         };
-        final responseLOS = await http.patch(
-          LosStatusUrl,
-          headers: headers2,
-          body: json.encode(mappedLOsData),
-        );
-        //print("responseLOS is ${responseLOS.statusCode}");
+
+        if (widget.campaign.isNotEmpty) {
+          final responseLOS = await http.patch(
+            LosStatusUrl,
+            headers: headers2,
+            body: json.encode(mappedLOsData),
+          );
+        }
 
         final LoSResponcedata = json.decode(response.body);
         Map<String, dynamic> mappedData = {
@@ -965,7 +991,7 @@ class OtpconcentState extends State<Otpconcent> {
           builder: (BuildContext context) {
             return AlertDialog(
               //title: Text("Hello Error"),
-              title: Text("Success"),
+              title: Text("Error"),
               content: Text("$message\n\n$errorMessages"),
               actions: [
                 TextButton(
