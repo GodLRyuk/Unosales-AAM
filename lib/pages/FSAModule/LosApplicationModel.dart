@@ -30,6 +30,10 @@ class LosApplicationModel {
   String? empMonthsInCompany;
   String? empStatus;
   String? empEmployerName;
+  String? empEmployerOtherName; //********************************** */
+  
+
+
   String? empIndustryType;
   String? empType;
   String? empYearsInCompany;
@@ -107,6 +111,7 @@ class LosApplicationModel {
     this.empMonthsInCompany,
     this.empStatus,
     this.empEmployerName,
+    this.empEmployerOtherName, //******************************/
     this.empIndustryType,
     this.empType,
     this.empYearsInCompany,
@@ -179,6 +184,7 @@ class LosApplicationModel {
       empMonthsInCompany: json['empMonthsInCompany'],
       empStatus: json['empStatus'],
       empEmployerName: json['empEmployerName'],
+      empEmployerOtherName: json['other_employer'], //***************************** */
       empIndustryType: json['empIndustryType'],
       empType: json['empType'],
       empYearsInCompany: json['empYearsInCompany'],
@@ -256,6 +262,7 @@ class LosApplicationModel {
       'empMonthsInCompany': empMonthsInCompany,
       'empStatus': empStatus,
       'empEmployerName': empEmployerName,
+      'empEmployerOtherName':  empEmployerOtherName, //************************************* */
       'empIndustryType': empIndustryType,
       'empType': empType,
       'empYearsInCompany': empYearsInCompany,

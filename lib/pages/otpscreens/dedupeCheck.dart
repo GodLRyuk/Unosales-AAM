@@ -24,6 +24,18 @@ class DedupeCheck extends StatefulWidget {
   final String dob;
   final String mobilePhone;
 
+  // additional field
+  final String zipCode;
+  final String idCard;
+  final String source_of_income;
+  final String? emp_Status;
+  final String companyName;
+  final String? otherCompanyName;
+  final String natureofBusiness;
+  final String monthlyIncome;
+  final String existingLoan;
+  final String? creditLoanAmount;
+
   const DedupeCheck({
     super.key,
     required this.firstName,
@@ -31,6 +43,19 @@ class DedupeCheck extends StatefulWidget {
     required this.lastName,
     required this.dob,
     required this.mobilePhone,
+
+    // additional field
+
+    required this.zipCode,
+    required this.idCard,
+    required this.source_of_income,
+    this.emp_Status,
+    required this.companyName,
+    this.otherCompanyName,
+    required this.natureofBusiness,
+    required this.monthlyIncome,
+    required this.existingLoan,
+    this.creditLoanAmount,
   });
   @override
   State<DedupeCheck> createState() => _DedupeCheckState();
@@ -46,6 +71,18 @@ class _DedupeCheckState extends State<DedupeCheck> {
   final dob = TextEditingController();
   bool _isLoading = false;
 
+  // Additional field
+  final zipCodeController = TextEditingController();
+  final idCardController = TextEditingController();
+  final sourceIncomeController = TextEditingController();
+  final empStatusController = TextEditingController();
+  final companyNameController = TextEditingController();
+  final otherCompanyController = TextEditingController();
+  final natureBusinessController = TextEditingController();
+  final monthlyIncomeController = TextEditingController();
+  final existingLoanController = TextEditingController();
+  final creditLoanAmountController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +92,19 @@ class _DedupeCheckState extends State<DedupeCheck> {
     lastName.text = widget.lastName;
     dob.text = widget.dob;
     mobilePhone.text = widget.mobilePhone;
+
+    // additional field
+
+    zipCodeController.text = widget.zipCode;
+    idCardController.text = widget.idCard;
+    sourceIncomeController.text = widget.source_of_income;
+    empStatusController.text = widget.emp_Status ?? "";
+    companyNameController.text = widget.companyName;
+    otherCompanyController.text = widget.otherCompanyName ?? "";
+    natureBusinessController.text = widget.natureofBusiness;
+    monthlyIncomeController.text = widget.monthlyIncome;
+    existingLoanController.text = widget.existingLoan;
+    creditLoanAmountController.text = widget.creditLoanAmount ?? "";
   }
 
   @override
@@ -158,22 +208,18 @@ class _DedupeCheckState extends State<DedupeCheck> {
                               ),
                               const SizedBox(height: 5),
                               _buildMobileTextField(
-                                controller: mobilePhone,
-                                isPhoneNumber: true,
-                                readOnly: true
-                              ),
+                                  controller: mobilePhone,
+                                  isPhoneNumber: true,
+                                  readOnly: true),
                               SizedBox(
                                 height:
                                     MediaQuery.of(context).size.height * 0.02,
                               ),
-
-                              
                               _buildDobField(dob, "Date of Birth"),
                               SizedBox(
                                 height:
                                     MediaQuery.of(context).size.height * 0.02,
                               ),
-
                               Container(
                                 padding: EdgeInsets.symmetric(
                                   horizontal:
@@ -242,6 +288,8 @@ class _DedupeCheckState extends State<DedupeCheck> {
       obscureText: obscureText,
       readOnly: true,
       decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.grey.shade200,
         hintText: hintText,
         hintStyle: WidgetSupport.inputLabel(),
         suffixIcon: Padding(
@@ -307,6 +355,8 @@ class _DedupeCheckState extends State<DedupeCheck> {
       controller: controller,
       readOnly: true,
       decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.grey.shade200,
         hintText: labelText,
         hintStyle: WidgetSupport.inputLabel(),
         suffixIcon: const Icon(
@@ -364,6 +414,8 @@ class _DedupeCheckState extends State<DedupeCheck> {
             ],
             // maxLength: 10,
             decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.grey.shade200,
               label: isRequired
                   ? RichText(
                       text: TextSpan(
@@ -432,19 +484,6 @@ class _DedupeCheckState extends State<DedupeCheck> {
         'channel': 'fsa',
       };
 
-      // final headers = {
-      //   'Authorization': 'Bearer $token',
-      //   'Accept': 'application/json',
-      //   'Content-Type': 'application/json',
-      //   //'Cookie':'METADATA=ed00e3be-2009-4f02-a8e7-034c6b5ef516; AWSALB=5HnvCHbXFgiKQuUxHH8jpw0zVpH1nkb4q+iTptJEEy8J04v/7blP3ilmKCy4kFPrvUNDeIqse1CO2uR8FivWWU1hO8xQoMz+LnCtrcR0RCJkChBqhN8+jGZAMrDO; AWSALBCORS=5HnvCHbXFgiKQuUxHH8jpw0zVpH1nkb4q+iTptJEEy8J04v/7blP3ilmKCy4kFPrvUNDeIqse1CO2uR8FivWWU1hO8xQoMz+LnCtrcR0RCJkChBqhN8+jGZAMrDO; METADATA=3c6749d5-60ea-4486-aede-fd4538d2fe39',
-      //   'User-Agent':
-      //       'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   'Correlation-Id': '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-      //   'Cookie': 'METADATA=3c6749d5-60ea-4486-aede-fd4538d2fe39',
-      //   'Idempotency-Key': 'djbcjkdnd',
-      //   //'channel': 'salesapp',
-      //   'channel': 'fsa',
-      // };
       try {
         final response =
             await ApiService.postWithHeadersUnoApi(url, mapeddata, headers);
@@ -456,7 +495,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
             await userDetailsMatch(token, "63${mobilePhone.text}");
           } else {
             // NTB
-            // if (responseBody["customerDetails"] == null && responseBody["decision"].toUpperCase() == "START_FRESH")
+
             if ((responseBody["customerDetails"] == null ||
                     responseBody["customerDetails"].isEmpty) &&
                 responseBody["decision"].toUpperCase() == "START_FRESH") {
@@ -518,9 +557,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
                         if (!mounted) return;
                         HyperKycResult result = await EkycService.startKyc();
                         final statusStr = result.status.toString();
-                        print("result for hyperverser is $result");
                         if (statusStr.contains("autoDeclined")) {
-                          print("Decline");
                           showDialog(
                             context: context,
                             builder: (_) => AlertDialog(
@@ -548,6 +585,18 @@ class _DedupeCheckState extends State<DedupeCheck> {
                                 pagemode: "fromHYPERVERSER",
                                 dsrId: "",
                                 ekycResult: result,
+                                mobilePhone: mobilePhone.text,
+                                zipCode: zipCodeController.text,
+                                idCard: idCardController.text,
+                                sourceIncome: sourceIncomeController.text,
+                                empStatus: empStatusController.text,
+                                companyName: companyNameController.text,
+                                otherCompanyName: otherCompanyController.text,
+                                natureOfBusiness: natureBusinessController.text,
+                                monthlyIncome: monthlyIncomeController.text,
+                                existingLoan: existingLoanController.text,
+                                creditLoanAmount:
+                                    creditLoanAmountController.text,
                               ),
                             ),
                           );
@@ -587,11 +636,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
 
             // ETB Block
             else {
-              print("I am ETB user");
-
               if (responseBody["decision"] == "Reject") {
-                print("REJECT BLOCK HIT");
-
                 String reason = responseBody["reason"] ?? "No reason provided";
 
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -605,12 +650,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
               } else if (responseBody["decision"].toUpperCase() ==
                       "START_FRESH" ||
                   responseBody["decision"] == "Resume") {
-                print("I am ETB user in start fresh");
-
                 var Etbdetails = responseBody["customerDetails"];
-                // print(const JsonEncoder.withIndent('  ').convert(Etbdetails));
-                print("details is $Etbdetails");
-                //print(responseBody["customerDetails"]);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -620,73 +660,22 @@ class _DedupeCheckState extends State<DedupeCheck> {
                       pagemode: "fromETBStartFresh",
                       dsrId: "",
                       customerDetails: Etbdetails,
+                      mobilePhone: mobilePhone.text,
+                      zipCode: zipCodeController.text,
+                      idCard: idCardController.text,
+                      sourceIncome: sourceIncomeController.text,
+                      empStatus: empStatusController.text,
+                      companyName: companyNameController.text,
+                      otherCompanyName: otherCompanyController.text,
+                      natureOfBusiness: natureBusinessController.text,
+                      monthlyIncome: monthlyIncomeController.text,
+                      existingLoan: existingLoanController.text,
+                      creditLoanAmount: creditLoanAmountController.text,
                     ),
                   ),
                 );
               }
             }
-
-            //    // REJECT block
-            //     else if (responseBody["decision"] == "Reject" &&
-            //         (responseBody["customerDetails"] == null ||
-            //         (responseBody["customerDetails"] is Map && responseBody["customerDetails"].isEmpty) ||
-            //         (responseBody["customerDetails"] is List && responseBody["customerDetails"].isEmpty))) {
-
-            //         print("REJECT BLOCK HIT");
-
-            //         String reason = responseBody["reason"] ?? "No reason provided";
-
-            //         ScaffoldMessenger.of(context).showSnackBar(
-            //           SnackBar(
-            //             backgroundColor: const Color(0xFFa604ad),
-            //             content: Text(reason, style: TextStyle(fontSize: 15)),
-            //           ),
-            //         );
-
-            //         Future.delayed(const Duration(seconds: 3), () {
-            //           if (!context.mounted) return;
-
-            //           print("NAVIGATING NOW...");
-
-            //           Navigator.of(context, rootNavigator: true).push(
-            //             MaterialPageRoute(builder: (_) => NavigationPage()),
-            //           );
-            //         });
-            //     }
-
-            // //ETB START
-
-            //  else if (responseBody["customerDetails"] != null)
-
-            // {
-            //   print("I am a etb customer");
-            //   if(responseBody["decision"] == "Resume")
-            //   {
-            //       // Redirect to AAM
-            //       print("Decision is Resume");
-            //   }
-
-            //   else if(responseBody["decision"] == "Start_Fresh")
-            //   {
-            //     var Etbdetails = responseBody["customerDetails"];
-            //     print(const JsonEncoder.withIndent('  ').convert(Etbdetails));
-            //     print("details is $Etbdetails");
-            //     //print(responseBody["customerDetails"]);
-            //       Navigator.push(
-            //                 context,
-            //                 MaterialPageRoute(
-            //                   builder: (context) => LosApplicationPage(
-            //                     leadId: "",
-            //                     campaign: "",
-            //                     pagemode: "fromETBStartFresh",
-            //                     dsrId: "",
-            //                     customerDetails: Etbdetails,
-
-            //                   ),
-            //                 ),
-            //               );
-            //   }
-            // }
 
             print("I am in else block");
           }

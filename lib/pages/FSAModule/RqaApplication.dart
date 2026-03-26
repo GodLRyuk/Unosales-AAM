@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:unosfa/pages/FSAModule/fsaleaddashboard.dart';
 import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/otpscreens/dedupeCheck.dart';
 import 'package:unosfa/pages/services/api_service.dart';
@@ -54,6 +53,7 @@ class _RQAApplicationState extends State<RQAApplication> {
   final emp_Status_Code = TextEditingController();
   final emp_Status = TextEditingController();
   final emp_Work_Nature = TextEditingController();
+  final emp_Work_Nature_Code = TextEditingController();
   final credit_loan_amount = TextEditingController();
   final emp_Type_Code = TextEditingController();
   final emp_Type = TextEditingController();
@@ -261,7 +261,6 @@ class _RQAApplicationState extends State<RQAApplication> {
 
           final lovsDetails = firstItem['lovs_details'];
           if (lovsDetails != null && lovsDetails['Occupation'] is List) {
-            if (!mounted) return;
             setState(() {
               empList = (lovsDetails['Occupation'] as List)
                   .map<Map<String, dynamic>>(
@@ -284,6 +283,7 @@ class _RQAApplicationState extends State<RQAApplication> {
       );
     }
   }
+
 
   Future<Map<String, String>> _getAuthHeader() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -402,7 +402,6 @@ class _RQAApplicationState extends State<RQAApplication> {
 
           final lovsDetails = firstItem['lovs_details'];
           if (lovsDetails != null && lovsDetails['NatureOfWork'] is List) {
-            if (!mounted) return;
             setState(() {
               empWorkNatureList = (lovsDetails['NatureOfWork'] as List)
                   .map<Map<String, dynamic>>(
@@ -548,22 +547,42 @@ class _RQAApplicationState extends State<RQAApplication> {
 
       if (response != null && response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        print("data of rqa is $data");
 
         String? status = data['output']['response']['status'];
 
-        print("RQA Status: $status");
 
         if (status != null && status.toLowerCase() == "pass") {
           Navigator.push(
             context,
+            // MaterialPageRoute(
+            //   builder: (context) => DedupeCheck(
+            //     firstName: firstName.text,
+            //     middleName: middlename.text,
+            //     lastName: lastName.text,
+            //     dob: dob.text,
+            //     mobilePhone: mobileController.text,
+            //   ),
+            // ),
+
+            // Additional fieldemp_Status
             MaterialPageRoute(
               builder: (context) => DedupeCheck(
-                firstName: firstName.text,
-                middleName: middlename.text,
-                lastName: lastName.text,
-                dob: dob.text,
-                mobilePhone: mobileController.text,
-              ),
+                  firstName: firstName.text,
+                  middleName: middlename.text,
+                  lastName: lastName.text,
+                  dob: dob.text,
+                  mobilePhone: mobileController.text,
+                  zipCode: zip.text,
+                  idCard: selectedValue.toString(),
+                  source_of_income: emp_Status_Code.text, //*********************** */  emp_status_code
+                  emp_Status: emp_Type_Code.text,  //***************************** */ emp_type_code
+                  companyName: _selectedCompany.toString(),
+                  otherCompanyName: _otherCompanyController.text,
+                  natureofBusiness: emp_Work_Nature_Code.text,  //********************** */ emp_work_nature_code
+                  monthlyIncome: incomeController.text,
+                  existingLoan: creditCardSelectedValue.toString(),
+                  creditLoanAmount: credit_loan_amount.text),
             ),
           );
         } else {
@@ -771,7 +790,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                     _buildTextField(
                       lastName,
                       "Last Name",
-                      "Enter your Last Name",                      
+                      "Enter your Last Name",
                     ),
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.02,
@@ -794,7 +813,6 @@ class _RQAApplicationState extends State<RQAApplication> {
                       "Zip Code",
                       style: WidgetSupport.Questionblack(),
                     ),
-                    
 
                     _buildZipCodeField(),
                     SizedBox(
@@ -815,6 +833,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                       "What Is The Source of Income",
                       style: WidgetSupport.Questionblack(),
                     ),
+
                     _buildEmpStatusDropdown(
                       controller: emp_Status,
                       label: "Select Income Source",
@@ -1025,9 +1044,11 @@ class _RQAApplicationState extends State<RQAApplication> {
                       //   "Please enter Loan Amount/ Credit Limit",
                       // ),
 
-                       _buildIncomeTextField(controller: credit_loan_amount,)
+                      _buildIncomeTextField(
+                        controller: credit_loan_amount,
+                      )
                     ],
-                    
+
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.01,
                     ),
@@ -1051,7 +1072,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                               "SUBMIT",
                               style: TextStyle(color: Colors.white),
                             ))),
-                      SizedBox(
+                    SizedBox(
                       height: MediaQuery.of(context).size.height * 0.05,
                     ),
                   ],
@@ -1110,7 +1131,7 @@ class _RQAApplicationState extends State<RQAApplication> {
           setState(() {
             controller.text = selectedItem['value'] ?? '';
             emp_Status_Code.text = selectedItem['key'] ?? '';
-            // _initializeSourceFundList();
+            //_initializeSourceFundList();
           });
         }
       },
@@ -1619,72 +1640,8 @@ class _RQAApplicationState extends State<RQAApplication> {
     );
   }
 
-  // Widget _buildEmpTypeDropdown({
-  //   required TextEditingController controller,
-  //   required String label,
-  //   bool isRequired = true,
-  // }) {
-  //   return DropdownButtonFormField<String>(
-  //     isExpanded: true,
-  //     focusNode: genderFocusNode,
-  //     value: empList.any((item) => item['value'] == emp_Status.text.trim())
-  //         ? emp_Status.text.trim()
-  //         : null,
-  //     items: empList.map((item) {
-  //       return DropdownMenuItem<String>(
-  //         value: item['value'],
-  //         child: Text(item['value']),
-  //       );
-  //     }).toList(),
-  //     selectedItemBuilder: (BuildContext context) {
-  //       return empList.map<Widget>((item) {
-  //         return Padding(
-  //           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-  //           child: Text(
-  //             item['value'] ?? '',
-  //             overflow: TextOverflow.ellipsis,
-  //             maxLines: 1,
-  //           ),
-  //         );
-  //       }).toList();
-  //     },
-  //     onChanged: (String? newValue) {
-  //       if (newValue != null) {
-  //         final selectedItem =
-  //             empList.firstWhere((item) => item['value'] == newValue);
-  //         setState(() {
-  //           controller.text = selectedItem['value'] ?? '';
-  //         });
-  //       }
-  //     },
-  //     icon: const SizedBox.shrink(),
-  //     decoration: InputDecoration(
-  //       label: isRequired
-  //           ? RichText(
-  //               text: TextSpan(
-  //                 text: label,
-  //                 style: WidgetSupport.inputLabel(),
-  //                 children: const [
-  //                   TextSpan(
-  //                       text: ' *',
-  //                       style: TextStyle(color: Colors.red, fontSize: 25))
-  //                 ],
-  //               ),
-  //             )
-  //           : Text(label, style: WidgetSupport.inputLabel()),
-  //       suffixIcon:
-  //           const Icon(Icons.arrow_drop_down, color: Colors.purple, size: 30),
-  //     ),
-  //     validator: (value) {
-  //       if (isRequired && (value == null || value.isEmpty)) {
-  //         return "Please Select Emp Type";
-  //       }
-  //       return null;
-  //     },
-  //   );
-  // }
-
-  Widget _buildEmpTypeDropdown({
+ 
+ Widget _buildEmpTypeDropdown({
     required TextEditingController controller,
     required String label,
     bool isRequired = true,
@@ -1759,12 +1716,12 @@ class _RQAApplicationState extends State<RQAApplication> {
       isExpanded: true,
       focusNode: genderFocusNode,
       value: empWorkNatureList
-              .any((item) => item['value'] == emp_Work_Nature.text.trim())
-          ? emp_Work_Nature.text.trim()
+              .any((item) => item['key'] == emp_Work_Nature_Code.text.trim())
+          ? emp_Work_Nature_Code.text.trim()
           : null,
       items: empWorkNatureList.map((item) {
         return DropdownMenuItem<String>(
-          value: item['value'],
+          value: item['key'],
           child: Text(item['value']),
         );
       }).toList(),
@@ -1783,10 +1740,11 @@ class _RQAApplicationState extends State<RQAApplication> {
       onChanged: (String? newValue) {
         if (newValue != null) {
           final selectedItem =
-              empWorkNatureList.firstWhere((item) => item['value'] == newValue);
+              empWorkNatureList.firstWhere((item) => item['key'] == newValue);
           setState(() {
             controller.text = selectedItem['value'] ?? '';
-            emp_Work_Nature.text = selectedItem['value'] ?? '';
+            emp_Work_Nature_Code.text = selectedItem['key'] ?? '';
+            //_initializeSourceFundList();
           });
         }
       },

@@ -226,66 +226,6 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
       fetchLeads(isLoadMore: true);
     }
   }
-   Future<String> getlatesApplication() async {
-  
-    String token = "";
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    userInfo = prefs.getStringList('userInfo');
-    String? accessToken = prefs.getString('accessToken');
-    try {
-      String tokenUrl = "/api/leads/los-access-token/";
-      final headers = {
-        'Authorization': 'Bearer $accessToken',
-        'Content-Type': 'application/json',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      };
-      final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
-      if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
-        token = data['access_token'];
-        print("fsaleaddashboard token is $token");
-      }
-    } catch (e) {
-      print("HTTP Request Failed: $e");
-    }
-
-    final url = "/application/latest?agentId=${userInfo![0]}";
-    final headers = {
-      'Content-Type': 'application/json',
-      'Correlation-Id': '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-      //'Channel': 'salesapp',
-      'Channel': 'fsa',
-      "Cookie": "METADATA=3c6749d5-60ea-4486-aede-fd4538d2fe39",
-      "Authorization": "Bearer $token",
-      'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    };
-    try {
-    final response = await ApiService.getWithHeadersOnlyUnoApi(url, headers);
-     if (response == null) return "";
-    final data = json.decode(response.body);
-    print("Latest Application Response: $data");
-    String status = data['status']?.toString() ?? "";
-
-    String createdAt = data['created_Date']; 
-    DateTime createdTime = DateTime.parse(createdAt.replaceAll(" ", "T"));
-    DateTime now = DateTime.now();
-    Duration diff = now.difference(createdTime);
-
-    if (diff.inMinutes > 10) {
-        print("Time exceeded 10 minutes");
-        setState(() {
-          onGoingStatus=true;
-        });
-      } 
-    print("status is $status, type is ${status.runtimeType}");
-    return status;
-  } catch (e) {
-    print("Latest Application API Error: $e");
-    return "";
-  }
-  }
 
 
   Widget _buildLeadTile(Map<String, String> lead, int index) {
@@ -319,8 +259,9 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
           }
         },
         contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-        leading: SizedBox(         //Sized Box is added  because of white screen ISSUE .
-          width: MediaQuery.of(context).size.width * 0.8, 
+        leading: SizedBox(
+          //Sized Box is added  because of white screen ISSUE .
+          width: MediaQuery.of(context).size.width * 0.8,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -486,9 +427,7 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
         ),
       ),
 
-
       // Updated at 1/12/2025
-
 
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 10),
@@ -496,7 +435,7 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Container(
-              width: 56, 
+              width: 56,
               height: 56,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
@@ -507,64 +446,17 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
                 ),
               ),
               child: FloatingActionButton(
-                onPressed: () async{
+                onPressed: () async {
                   String currentTab =
                       tabTitles[_tabController.index].toLowerCase();
 
                   if (currentTab.contains('customer')) {
-                    // if it is in progress
-                    String resultstatus = await getlatesApplication();
-                    print("resultstatus is $resultstatus");
-                    print("onGoingStatus is $onGoingStatus");
-                   
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => DedupeCheck(),
-                    //   ),
-                    // );
-
-                  if(resultstatus.isEmpty || onGoingStatus!=false)                   
-                    {
-                      Navigator.push(
+                    Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => RQAApplication(),
                       ),
                     );
-                  }
-
-                  else if(resultstatus == "In-Progress" && onGoingStatus == false)
-                    {
-                      showDialog(
-                      context: context,
-                      barrierDismissible: false,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text("Application"),
-                          content: Text(
-                            "You already have an ongoing application in AAM.\n"
-                            "Starting a new application is not allowed at this time."
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => NavigationPage(),
-                                  ),
-                                );
-                              },
-                              child: Text("Ok"),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                    }
-                    
                   } else if (currentTab.contains('company')) {
                     Navigator.push(
                       context,

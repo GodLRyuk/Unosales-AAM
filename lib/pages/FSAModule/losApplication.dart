@@ -28,11 +28,22 @@ class LosApplicationPage extends StatefulWidget {
   final String campaign;
   final String pagemode;
   final String dsrId;
-
-  // New add
   final HyperKycResult? ekycResult;
   final dynamic customerDetails;
   final String? isandcampaign;
+
+  // Additional Field
+  final String? mobilePhone;
+  final String? zipCode;
+  final String? idCard;
+  final String? sourceIncome;
+  final String? empStatus;
+  final String? companyName;
+  final String? otherCompanyName;
+  final String? natureOfBusiness;
+  final String? monthlyIncome;
+  final String? existingLoan;
+  final String? creditLoanAmount;
 
   const LosApplicationPage({
     super.key,
@@ -40,11 +51,22 @@ class LosApplicationPage extends StatefulWidget {
     required this.campaign,
     required this.pagemode,
     required this.dsrId,
-
-    // New add
-    this.ekycResult, // For hyperverser data
+    this.ekycResult,
     this.customerDetails,
-    this.isandcampaign, // For ETB details
+    this.isandcampaign,
+
+    //Additional Field
+    this.mobilePhone,
+    this.zipCode,
+    this.idCard,
+    this.sourceIncome,
+    this.empStatus,
+    this.companyName,
+    this.otherCompanyName,
+    this.natureOfBusiness,
+    this.monthlyIncome,
+    this.existingLoan,
+    this.creditLoanAmount,
   });
 
   @override
@@ -1953,6 +1975,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     final details = widget.ekycResult?.details;
 
     setState(() {
+      // HYperverge data
       firstName.text = details?['ocr_firstName']?.trim() ?? '';
       middlename.text = details?['ocr_middleName']?.trim() ?? '';
       lastName.text = details?['ocr_lastName']?.trim() ?? '';
@@ -1968,6 +1991,69 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       documentType.text = details?['ocr_documentId'] ?? '';
       validUntil.text = details?['ocr_dateOfExpiry'] ?? '';
       documentId.text = details?['ocr_documentId'] ?? '';
+
+      // RQA Data
+      perm_ZipCode.text = widget.zipCode ?? "";
+      fin_Mthly_Income.text = widget.monthlyIncome ?? "";
+      mobilePhone.text = widget.mobilePhone ?? "";
+
+      // for company
+      _searchController.text = widget.companyName ?? "";
+      emp_Employer_Name.text = widget.companyName ?? "";
+
+      if ((widget.companyName ?? "").toLowerCase() == "others") {
+        _selectedCompany = 'others';
+        _showOtherCompanyField = true;
+        _otherCompanyController.text = widget.otherCompanyName ?? "";
+      } else {
+        _showOtherCompanyField = false;
+      }
+    });
+
+    if (widget.zipCode != null && widget.zipCode!.isNotEmpty) {
+      await onZipCodeEntered(widget.zipCode!);
+    }
+
+    //****************************************************** */
+    String code1 = widget.sourceIncome ?? "";
+    print("set emp_status ${code1}");
+    final selectedItem1 = empStatusList.firstWhere(
+      (item) => item['key'] == code1,
+      orElse: () => {},
+    );
+
+    setState(() {
+      emp_Status_Code.text = code1;
+      emp_Status.text = selectedItem1['value'] ?? '';
+    });
+
+    // *******************************************************
+
+    String code2 = widget.natureOfBusiness ?? "";
+    print("emp_Work_Nature $code2");
+    final selectedItem2 = empWorkNatureList.firstWhere(
+      (item) => item['key'] == code2,
+      orElse: () => {},
+    );
+
+    setState(() {
+      emp_Work_Nature_Code.text = code2;
+      emp_Work_Nature.text = selectedItem2['value'] ?? '';
+    });
+
+    //************************************************ */
+
+    String code3 = widget.empStatus ?? "";
+    print("value is ${widget.empStatus}");
+    print("emp_Type $code3");
+
+    final selectedItem3 = empList.firstWhere(
+      (item) => item['key'] == code3,
+      orElse: () => {},
+    );
+    setState(() {
+      emp_Type_Code.text = code3;
+      emp_Type.text = selectedItem3['value'] ?? '';
     });
   }
 
@@ -1991,7 +2077,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         email.text = customer['emailAddress'] ?? "";
         birthDate.text = customer['birthDate'] ?? "";
 
-        if (customer?['gender'] == "M") {
+        if (customer?['gender'] == "MALE") {
           gender.text = "Male";
         } else {
           gender.text = "Female";
@@ -2007,6 +2093,18 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
         //Employee monthly income
         fin_Mthly_Income.text = empMonthlyIncome?['fin_Mthly_Income'] ?? "";
+
+        // Company
+        _searchController.text = widget.companyName ?? "";
+        emp_Employer_Name.text = widget.companyName ?? "";
+
+        if ((widget.companyName ?? "").toLowerCase() == "others") {
+          _selectedCompany = 'others';
+          _showOtherCompanyField = true;
+          _otherCompanyController.text = widget.otherCompanyName ?? "";
+        } else {
+          _showOtherCompanyField = false;
+        }
       });
 
       // zip function customer
@@ -2035,6 +2133,33 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         });
       }
     }
+    // Fetch data from RQA
+    //EMPLOYEE STATUS
+    String code1 = widget.sourceIncome ?? "";
+    print("set emp_status ${code1}");
+    final selectedItem1 = empStatusList.firstWhere(
+      (item) => item['key'] == code1,
+      orElse: () => {},
+    );
+
+    setState(() {
+      emp_Status_Code.text = code1;
+      emp_Status.text = selectedItem1['value'] ?? '';
+    });
+
+    // EMPLOYEE TYPE
+
+    String code3 = widget.empStatus ?? "";
+    print("emp_Type $code3");
+
+    final selectedItem3 = empList.firstWhere(
+      (item) => item['key'] == code3,
+      orElse: () => {},
+    );
+    setState(() {
+      emp_Type_Code.text = code3;
+      emp_Type.text = selectedItem3['value'] ?? '';
+    });
   }
   // *************** done  **********************
 
@@ -2140,7 +2265,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "Please Enter First Name",
                                 "firstName",
                                 isRequired: true,
-                                readOnly: (widget.pagemode == "fromDSR")
+                                readOnly: (widget.pagemode == "fromDSR") ||
+                                        (widget.pagemode ==
+                                            "fromHYPERVERSER") ||
+                                        (widget.pagemode == "fromETBStartFresh")
                                     ? true
                                     : false,
                               ),
@@ -2151,7 +2279,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "Please Enter Middle Name",
                                 "middlename",
                                 isRequired: false,
-                                readOnly: (widget.pagemode == "fromDSR")
+                                readOnly: (widget.pagemode == "fromDSR") ||
+                                        (widget.pagemode ==
+                                            "fromHYPERVERSER") ||
+                                        (widget.pagemode == "fromETBStartFresh")
                                     ? true
                                     : false,
                               ),
@@ -2162,7 +2293,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "Please Enter Last Name",
                                 "lastName",
                                 isRequired: true,
-                                readOnly: (widget.pagemode == "fromDSR")
+                                readOnly: (widget.pagemode == "fromDSR") ||
+                                        (widget.pagemode ==
+                                            "fromHYPERVERSER") ||
+                                        (widget.pagemode == "fromETBStartFresh")
                                     ? true
                                     : false,
                               ),
@@ -2170,19 +2304,33 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                               _buildMobileTextField(
                                 controller: mobilePhone,
                                 isPhoneNumber: true,
-                                readOnly: (widget.pagemode == "fromDSR")
+                                readOnly: (widget.pagemode == "fromDSR") ||
+                                        (widget.pagemode ==
+                                            "fromETBStartFresh") ||
+                                        (widget.pagemode == "fromHYPERVERSER")
                                     ? true
                                     : false,
                               ),
                               SizedBox(height: 6),
                               _buildDateField(
-                                controller: birthDate,
-                                label: "Birth Date",
-                              ),
+                                  controller: birthDate,
+                                  label: "Birth Date",
+                                  readOnly:
+                                      (widget.pagemode == "fromHYPERVERSER") ||
+                                              (widget.pagemode ==
+                                                  "fromETBStartFresh")
+                                          ? true
+                                          : false),
                               SizedBox(height: 6),
                               _buildGenderDropdown(
                                   controller: gender,
-                                  label: "   Select Gender"),
+                                  label: "   Select Gender",
+                                  readOnly:
+                                      (widget.pagemode == "fromHYPERVERSER") ||
+                                              (widget.pagemode ==
+                                                  "fromETBStartFresh")
+                                          ? true
+                                          : false),
                               SizedBox(height: 6),
                               _buildTextField(
                                 email,
@@ -2190,8 +2338,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "Please Enter Email Address",
                                 "email",
                                 isRequired: true,
-                                readOnly:
-                                    widget.pagemode == "fromDSR" ? true : false,
+                                readOnly: (widget.pagemode == "fromDSR") ||
+                                        (widget.pagemode == "fromETBStartFresh")
+                                    ? true
+                                    : false,
                               ),
                               SizedBox(height: 6),
                               _buildCivilStatusDropdown(
@@ -2255,8 +2405,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "perm_ZipCode",
                                 isRequired: true,
                                 isZip: true,
-                                readOnly:
-                                    widget.pagemode == "fromDSR" ? true : false,
+                                readOnly: (widget.pagemode == "fromDSR") ||
+                                        (widget.pagemode ==
+                                            "fromETBStartFresh") ||
+                                        (widget.pagemode == "fromHYPERVERSER")
+                                    ? true
+                                    : false,
                                 onChanged: (value) async {
                                   if (value.length == 4) {
                                     onZipCodeEntered(value);
@@ -2344,14 +2498,24 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _buildEmpStatusDropdown(
-                                controller: emp_Status,
-                                label: "Select Status",
-                              ),
+                                  controller: emp_Status,
+                                  label: "Select Status",
+                                  isReadOnly:
+                                      ((widget.pagemode == "fromHYPERVERSER" ||
+                                                  widget.pagemode ==
+                                                      "fromETBStartFresh") &&
+                                              emp_Status_Code.text.isNotEmpty)
+                                          ? true
+                                          : false),
                               SizedBox(height: 6),
                               _buildEmpWorkNatureDropdown(
-                                controller: emp_Work_Nature,
-                                label: "Select Emp Work Nature",
-                              ),
+                                  controller: emp_Work_Nature,
+                                  label: "Select Emp Work Nature",
+                                  isReadOnly: (widget.pagemode ==
+                                              "fromHYPERVERSER" &&
+                                          emp_Work_Nature_Code.text.isNotEmpty)
+                                      ? true
+                                      : false),
                               SizedBox(height: 6),
                               _buildPositionDropdown(
                                 controller: emp_position,
@@ -2388,13 +2552,22 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                       },
                                       child: TextField(
                                         controller: _searchController,
-                                        enabled: widget.pagemode != "fromDSR",
+                                        enabled:
+                                            (widget.pagemode != "fromDSR") &&
+                                                (widget.pagemode !=
+                                                    "fromHYPERVERSER") &&
+                                                (widget.pagemode !=
+                                                    "fromETBStartFresh"),
                                         decoration: InputDecoration(
                                           contentPadding:
                                               EdgeInsets.only(left: 5),
                                           filled: true,
                                           fillColor:
-                                              widget.pagemode == "fromDSR"
+                                              (widget.pagemode == "fromDSR") ||
+                                                      (widget.pagemode ==
+                                                          "fromHYPERVERSER") ||
+                                                      (widget.pagemode ==
+                                                          "fromETBStartFresh")
                                                   ? Colors.grey.shade200
                                                   : Colors.white,
                                           label: RichText(
@@ -2500,13 +2673,22 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 0.9),
                                   child: TextFormField(
-                                    enabled: widget.pagemode != "fromDSR",
+                                    enabled: (widget.pagemode != "fromDSR") &&
+                                        (widget.pagemode !=
+                                            "fromHYPERVERSER") &&
+                                        (widget.pagemode !=
+                                            "fromETBStartFresh"),
                                     controller: _otherCompanyController,
                                     decoration: InputDecoration(
                                       filled: true,
-                                      fillColor: widget.pagemode == "fromDSR"
-                                          ? Colors.grey.shade200
-                                          : Colors.white,
+                                      fillColor:
+                                          (widget.pagemode == "fromDSR") ||
+                                                  (widget.pagemode ==
+                                                      "fromHYPERVERSER") ||
+                                                  (widget.pagemode ==
+                                                      "fromETBStartFresh")
+                                              ? Colors.grey.shade200
+                                              : Colors.white,
                                       contentPadding: EdgeInsets.only(left: 10),
                                       hintText: "Enter company name",
                                     ),
@@ -2530,9 +2712,15 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                               ),
                               SizedBox(height: 6),
                               _buildEmpTypeDropdown(
-                                controller: emp_Type,
-                                label: "   Employee Type",
-                              ),
+                                  controller: emp_Type,
+                                  label: "   Employee Type",
+                                  isReadOnly:
+                                      ((widget.pagemode == "fromHYPERVERSER" ||
+                                                  widget.pagemode ==
+                                                      "fromETBStartFresh") &&
+                                              emp_Type_Code.text.isNotEmpty)
+                                          ? true
+                                          : false),
                               SizedBox(height: 6),
                               _buildTextField(
                                 emp_email,
@@ -2585,8 +2773,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "Please Enter Montly Income",
                                 "fin_Mthly_Income",
                                 isRequired: true,
-                                readOnly:
-                                    widget.pagemode == "fromDSR" ? true : false,
+                                readOnly: (widget.pagemode == "fromDSR") ||
+                                        (widget.pagemode ==
+                                            "fromETBStartFresh") ||
+                                        (widget.pagemode == "fromHYPERVERSER")
+                                    ? true
+                                    : false,
                               ),
                               SizedBox(height: 6),
                               _buildSourceFundDropdown(
@@ -2870,6 +3062,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                           empMonthsInCompany: emp_Mths_In_Cur_Comp.text,
                           empStatus: emp_Status.text,
                           empEmployerName: emp_Employer_Name.text,
+                          empEmployerOtherName: _otherCompanyController
+                              .text, //**************************************** */
                           empIndustryType: emp_Indus_Type.text,
                           empType: emp_Type.text,
                           empYearsInCompany: emp_Yrs_In_Cur_Comp.text,
@@ -3034,6 +3228,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
 // newly added code
   bool validateAndSubmit() {
+    print(
+        "emp_Status.text = '${emp_Status.text}'"); //************************************* */
     // Basic required fields (client details)
     final nameRegex = RegExp(r"^[a-zA-Z\s]+$");
     final specialCharRegex =
@@ -3543,10 +3739,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
     print("position 4");
     try {
-      print("position 5dddd");
-      print(url);
-      print(headers);
-      print(json.encode(requestData));
+      print("position 5");
       final response = await http.post(
         url,
         headers: headers,
@@ -4120,26 +4313,33 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     required TextEditingController controller,
     required String label,
     bool isRequired = true,
+    bool readOnly = false,
   }) {
     return GestureDetector(
-      onTap: () {
-        DatePickerBdaya.showDatePicker(
-          context,
-          showTitleActions: true,
-          minTime: DateTime(1900),
-          maxTime: DateTime.now(),
-          onConfirm: (date) {
-            controller.text = DateFormat('dd-MM-yyyy').format(date);
-            print("date is ${controller.text}");
-          },
-          currentTime: DateTime.now(),
-          locale: LocaleType.en,
-        );
-      },
+      onTap: readOnly
+          ? null
+          : () {
+              DatePickerBdaya.showDatePicker(
+                context,
+                showTitleActions: true,
+                minTime: DateTime(1900),
+                maxTime: DateTime.now(),
+                onConfirm: (date) {
+                  controller.text = DateFormat('dd-MM-yyyy').format(date);
+                  print("date is ${controller.text}");
+                },
+                currentTime: DateTime.now(),
+                locale: LocaleType.en,
+              );
+            },
       child: AbsorbPointer(
         child: TextFormField(
           controller: controller,
+          // readOnly: readOnly,
+          readOnly: true,
           decoration: InputDecoration(
+            filled: true,
+            fillColor: readOnly ? Colors.grey.shade200 : Colors.white,
             hintText: 'DD-MM-YYYY',
             contentPadding: const EdgeInsets.only(left: 9),
             label: isRequired
@@ -4177,6 +4377,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     required TextEditingController controller,
     required String label,
     bool isRequired = true,
+    bool readOnly = false,
   }) {
     return DropdownButtonFormField<String>(
       focusNode: genderFocusNode,
@@ -4201,13 +4402,17 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           );
         }).toList();
       },
-      onChanged: (String? newValue) {
-        if (newValue != null) {
-          controller.text = newValue; // Store value like "Male"
-        }
-      },
+      onChanged: readOnly
+          ? null
+          : (String? newValue) {
+              if (newValue != null) {
+                controller.text = newValue; // Store value like "Male"
+              }
+            },
       icon: const SizedBox.shrink(),
       decoration: InputDecoration(
+        filled: true,
+        fillColor: readOnly ? Colors.grey.shade200 : Colors.white,
         label: isRequired
             ? RichText(
                 text: TextSpan(
@@ -4417,6 +4622,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     required TextEditingController controller,
     required String label,
     bool isRequired = true,
+    bool isReadOnly = false,
   }) {
     return DropdownButtonFormField<String>(
       isExpanded: true,
@@ -4443,19 +4649,23 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           );
         }).toList();
       },
-      onChanged: (String? newValue) {
-        if (newValue != null) {
-          final selectedItem =
-              empWorkNatureList.firstWhere((item) => item['key'] == newValue);
-          setState(() {
-            controller.text = selectedItem['value'] ?? '';
-            emp_Work_Nature_Code.text = selectedItem['key'] ?? '';
-            _initializeSourceFundList();
-          });
-        }
-      },
+      onChanged: isReadOnly
+          ? null
+          : (String? newValue) {
+              if (newValue != null) {
+                final selectedItem = empWorkNatureList
+                    .firstWhere((item) => item['key'] == newValue);
+                setState(() {
+                  controller.text = selectedItem['value'] ?? '';
+                  emp_Work_Nature_Code.text = selectedItem['key'] ?? '';
+                  _initializeSourceFundList();
+                });
+              }
+            },
       icon: const SizedBox.shrink(),
       decoration: InputDecoration(
+        filled: true,
+        fillColor: isReadOnly ? Colors.grey.shade200 : Colors.white,
         contentPadding: EdgeInsets.only(left: 5),
         label: isRequired
             ? RichText(
@@ -4551,6 +4761,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     required TextEditingController controller,
     required String label,
     bool isRequired = true,
+    bool isReadOnly = false,
   }) {
     return DropdownButtonFormField<String>(
       isExpanded: true,
@@ -4577,19 +4788,23 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           );
         }).toList();
       },
-      onChanged: (String? newValue) {
-        if (newValue != null) {
-          final selectedItem =
-              empStatusList.firstWhere((item) => item['key'] == newValue);
-          setState(() {
-            controller.text = selectedItem['value'] ?? '';
-            emp_Status_Code.text = selectedItem['key'] ?? '';
-            _initializeSourceFundList();
-          });
-        }
-      },
+      onChanged: isReadOnly
+          ? null
+          : (String? newValue) {
+              if (newValue != null) {
+                final selectedItem =
+                    empStatusList.firstWhere((item) => item['key'] == newValue);
+                setState(() {
+                  controller.text = selectedItem['value'] ?? '';
+                  emp_Status_Code.text = selectedItem['key'] ?? '';
+                  _initializeSourceFundList();
+                });
+              }
+            },
       icon: const SizedBox.shrink(),
       decoration: InputDecoration(
+        filled: true,
+        fillColor: isReadOnly ? Colors.grey.shade200 : Colors.white,
         contentPadding: EdgeInsets.only(left: 5),
         label: isRequired
             ? RichText(
@@ -4785,6 +5000,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     required TextEditingController controller,
     required String label,
     bool isRequired = true,
+    bool isReadOnly = false,
   }) {
     return DropdownButtonFormField<String>(
       isExpanded: true,
@@ -4810,18 +5026,22 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           );
         }).toList();
       },
-      onChanged: (String? newValue) {
-        if (newValue != null) {
-          final selectedItem =
-              empList.firstWhere((item) => item['key'] == newValue);
-          setState(() {
-            controller.text = selectedItem['value'] ?? '';
-            emp_Type_Code.text = selectedItem['key'] ?? '';
-          });
-        }
-      },
+      onChanged: isReadOnly
+          ? null
+          : (String? newValue) {
+              if (newValue != null) {
+                final selectedItem =
+                    empList.firstWhere((item) => item['key'] == newValue);
+                setState(() {
+                  controller.text = selectedItem['value'] ?? '';
+                  emp_Type_Code.text = selectedItem['key'] ?? '';
+                });
+              }
+            },
       icon: const SizedBox.shrink(),
       decoration: InputDecoration(
+        filled: true,
+        fillColor: isReadOnly ? Colors.grey.shade200 : Colors.white,
         label: isRequired
             ? RichText(
                 text: TextSpan(

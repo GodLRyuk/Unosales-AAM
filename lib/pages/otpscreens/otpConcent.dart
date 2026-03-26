@@ -73,6 +73,7 @@ class OtpconcentState extends State<Otpconcent> {
   void initState() {
     super.initState();
     String jsonString = jsonEncode(widget.losData.toJson());
+    // print("losData is this");
 
     // for (int i = 0; i < jsonString.length; i += 1000) {
     //   print(
@@ -177,7 +178,9 @@ class OtpconcentState extends State<Otpconcent> {
   }
 
   void submitLos(LosApplicationModel data) async {
-    // async is updated here 2.12.2025
+    print("selected company ${data.empEmployerName}");
+    print("selected other comapny ${data.empEmployerOtherName}");
+   
     setState(() => _isLoading = true);
 
     String dob = data.birthDate!; // "28-01-1960"
@@ -276,7 +279,12 @@ class OtpconcentState extends State<Otpconcent> {
           "emp_Work_Nature": data.empWorkNature,
           "emp_Mths_In_Cur_Comp": data.empMonthsInCompany,
           "emp_Status": formatedCode(data.empStatusCode), //data.empStatus,
-          "emp_Employer_Name": data.empEmployerName,
+
+          "emp_Employer_Name": (data.empEmployerName == null ||
+                  data.empEmployerName!.trim().isEmpty || data.empEmployerName!.toLowerCase() == "others")
+              ? data.empEmployerOtherName
+              : data.empEmployerName, //data.empEmployerName,
+
           "emp_Indus_Type":
               formatedCode(data.empIndustryTypeCode), //data.empIndustryType
           "emp_Type": formatedCode(data.empTypeCode), //data.empType
@@ -803,13 +811,13 @@ class OtpconcentState extends State<Otpconcent> {
           "AWSALB=BBxk3EbWLtIG1Kav8Uzq4M35AQ6O/x7hZqOtLs0CoXlu4BrBbrhRhfBqa6tAbbpnx/2orMd0kt7fwL8nCPxthrnqBBozntvZC/Sf6p1jkVPiG3X9ttn0KLI4rtnY; AWSALBCORS=BBxk3EbWLtIG1Kav8Uzq4M35AQ6O/x7hZqOtLs0CoXlu4BrBbrhRhfBqa6tAbbpnx/2orMd0kt7fwL8nCPxthrnqBBozntvZC/Sf6p1jkVPiG3X9ttn0KLI4rtnY; METADATA=3c6749d5-60ea-4486-aede-fd4538d2fe39"
     };
 
-    // print("url is $url");
-    // print("Header is $headers");
-    // String jsonString = jsonEncode(requestData);
-    // for (int i = 0; i < jsonString.length; i += 1000) {
-    //   print(jsonString.substring(
-    //       i, (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-    // }
+    print("url is $url");
+    print("Header is $headers");
+    String jsonString = jsonEncode(requestData);
+    for (int i = 0; i < jsonString.length; i += 1000) {
+      print(jsonString.substring(
+          i, (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
+    }
 
     try {
       final response = await http.post(
@@ -1334,7 +1342,6 @@ class OtpconcentState extends State<Otpconcent> {
               content: Text("OTP Success Full"),
               actions: [
                 TextButton(
-                  //onPressed: () => Navigator.of(context).pop(),
                   onPressed: () {
                     Navigator.of(context).pop(); // Close dialog
                     submitLos(widget.losData);

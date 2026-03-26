@@ -37,8 +37,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
   @override
   void initState() {
     super.initState();
-    print("is_and_campaign value ${widget.is_and_campaign}");
-
+   
     if (widget.is_and_campaign == "true") {
       fetchAndLeads();
     } else {
