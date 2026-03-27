@@ -290,6 +290,7 @@ class _Campaign_formState extends State<Campaign_form> {
                       MaterialPageRoute(
                           builder: (context) => LeadListByCampaign(
                                 campaign: widget.campaign,
+                                is_and_campaign: "true",
                               ))),
                 ),
               ],

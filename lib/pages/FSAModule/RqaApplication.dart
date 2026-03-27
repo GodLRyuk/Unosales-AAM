@@ -284,7 +284,6 @@ class _RQAApplicationState extends State<RQAApplication> {
     }
   }
 
-
   Future<Map<String, String>> _getAuthHeader() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
@@ -537,35 +536,20 @@ class _RQAApplicationState extends State<RQAApplication> {
             : credit_loan_amount.text.trim()
       }
     };
-    print("submitted data is $formData");
 
     try {
       final response =
           await ApiService.postJsonWithUNOApiHeaders(rqaUrl, formData, headers);
 
-      print("response body ${response!.body}");
-
       if (response != null && response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print("data of rqa is $data");
 
         String? status = data['output']['response']['status'];
-
+        String? reason = data['output']['response']['reject_reasons'];
 
         if (status != null && status.toLowerCase() == "pass") {
           Navigator.push(
             context,
-            // MaterialPageRoute(
-            //   builder: (context) => DedupeCheck(
-            //     firstName: firstName.text,
-            //     middleName: middlename.text,
-            //     lastName: lastName.text,
-            //     dob: dob.text,
-            //     mobilePhone: mobileController.text,
-            //   ),
-            // ),
-
-            // Additional fieldemp_Status
             MaterialPageRoute(
               builder: (context) => DedupeCheck(
                   firstName: firstName.text,
@@ -575,11 +559,14 @@ class _RQAApplicationState extends State<RQAApplication> {
                   mobilePhone: mobileController.text,
                   zipCode: zip.text,
                   idCard: selectedValue.toString(),
-                  source_of_income: emp_Status_Code.text, //*********************** */  emp_status_code
-                  emp_Status: emp_Type_Code.text,  //***************************** */ emp_type_code
+                  source_of_income: emp_Status_Code
+                      .text, //*********************** */  emp_status_code
+                  emp_Status: emp_Type_Code
+                      .text, //***************************** */ emp_type_code
                   companyName: _selectedCompany.toString(),
                   otherCompanyName: _otherCompanyController.text,
-                  natureofBusiness: emp_Work_Nature_Code.text,  //********************** */ emp_work_nature_code
+                  natureofBusiness: emp_Work_Nature_Code
+                      .text, //********************** */ emp_work_nature_code
                   monthlyIncome: incomeController.text,
                   existingLoan: creditCardSelectedValue.toString(),
                   creditLoanAmount: credit_loan_amount.text),
@@ -611,7 +598,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                   ],
                 ),
                 content: Text(
-                  "RQA Check Failed.\n\nReason: $status",
+                  "RQA Check Failed.\n\nReason: $reason",
                   style: const TextStyle(
                     fontSize: 16,
                   ),
@@ -664,7 +651,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                 ],
               ),
               content: Text(
-                "Failed to connect with server.\nStatus Code: ${response.statusCode}",
+                "Failed to connect with server.\nStatus Code: ${response!.statusCode}",
                 style: const TextStyle(fontSize: 16),
               ),
               actionsPadding: const EdgeInsets.only(bottom: 10, right: 10),
@@ -1640,8 +1627,7 @@ class _RQAApplicationState extends State<RQAApplication> {
     );
   }
 
- 
- Widget _buildEmpTypeDropdown({
+  Widget _buildEmpTypeDropdown({
     required TextEditingController controller,
     required String label,
     bool isRequired = true,

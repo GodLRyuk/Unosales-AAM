@@ -87,8 +87,12 @@ class OtpconcentState extends State<Otpconcent> {
     _start = 120; // 🔥 Add this line to initialize the countdown
     resendTimer = false;
     isOtpExpired = false;
-    _sendOtp();
-    _startTimer();
+    // _sendOtp();
+    // _startTimer();
+    if(!AppConfig.isProd)
+    {
+      _startTimer();
+    }
     getPublicIP();
     callSosLogoin();
   }
@@ -180,7 +184,7 @@ class OtpconcentState extends State<Otpconcent> {
   void submitLos(LosApplicationModel data) async {
     print("selected company ${data.empEmployerName}");
     print("selected other comapny ${data.empEmployerOtherName}");
-   
+
     setState(() => _isLoading = true);
 
     String dob = data.birthDate!; // "28-01-1960"
@@ -281,7 +285,8 @@ class OtpconcentState extends State<Otpconcent> {
           "emp_Status": formatedCode(data.empStatusCode), //data.empStatus,
 
           "emp_Employer_Name": (data.empEmployerName == null ||
-                  data.empEmployerName!.trim().isEmpty || data.empEmployerName!.toLowerCase() == "others")
+                  data.empEmployerName!.trim().isEmpty ||
+                  data.empEmployerName!.toLowerCase() == "others")
               ? data.empEmployerOtherName
               : data.empEmployerName, //data.empEmployerName,
 
@@ -1281,6 +1286,9 @@ class OtpconcentState extends State<Otpconcent> {
         setState(() {
           recivedOtp = otp.toString();
         });
+
+      _startTimer();  // *************************
+
       } else {
         Map<String, dynamic> logmappedData = {
           "url": "${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'",

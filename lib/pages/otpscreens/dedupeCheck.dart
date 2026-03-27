@@ -438,7 +438,6 @@ class _DedupeCheckState extends State<DedupeCheck> {
   }
 
   Future<void> userDetailsSubmit() async {
-    print("Hello world");
     setState(() {
       _isLoading = true;
     });
@@ -473,7 +472,6 @@ class _DedupeCheckState extends State<DedupeCheck> {
         "dateOfBirth": formattedDate,
         "mobileNumber": "63" + mobilePhone.text
       };
-      print("data is ${mapeddata}");
 
       final headers = {
         'Authorization': 'Bearer $token',
@@ -488,8 +486,8 @@ class _DedupeCheckState extends State<DedupeCheck> {
         final response =
             await ApiService.postWithHeadersUnoApi(url, mapeddata, headers);
         if (response != null) {
-          print("response is ${response.body}");
           final responseBody = json.decode(response.body);
+          //print("response body ${responseBody}");
           final message = responseBody["message"] ?? "";
           if (message == "No Client Found") {
             await userDetailsMatch(token, "63${mobilePhone.text}");
@@ -499,7 +497,6 @@ class _DedupeCheckState extends State<DedupeCheck> {
             if ((responseBody["customerDetails"] == null ||
                     responseBody["customerDetails"].isEmpty) &&
                 responseBody["decision"].toUpperCase() == "START_FRESH") {
-              print("I am NTB user");
               showDialog(
                 context: context,
                 barrierDismissible:
@@ -601,7 +598,6 @@ class _DedupeCheckState extends State<DedupeCheck> {
                             ),
                           );
                         } else {
-                          print("Nothing: $statusStr");
                           showDialog(
                             context: context,
                             builder: (_) => AlertDialog(
@@ -676,8 +672,6 @@ class _DedupeCheckState extends State<DedupeCheck> {
                 );
               }
             }
-
-            print("I am in else block");
           }
         } else {
           _showAlert("No response from server.");
@@ -723,25 +717,17 @@ class _DedupeCheckState extends State<DedupeCheck> {
         "isActive": "Y"
       };
 
-      print("Body : $body");
-
       final response =
           await ApiService.postWithHeadersUnoApi(url, body, headers);
 
       if (response != null) {
-        print("Status code: ${response.statusCode}");
         final responseBody = jsonDecode(response.body);
-        print("Response body: $responseBody");
 
         if (response.statusCode == 200) {
-          print("ETB user data fetch API from UNO");
-
           if (responseBody is List && responseBody.isNotEmpty) {
             final firstOffer = responseBody[0];
             final mobile = firstOffer['mobilePhone'] ?? "N/A";
             final appId = firstOffer['applicationId'] ?? "N/A";
-            print("Mobile No: $mobile");
-            print("Application ID: $appId");
           } else {
             print("No offers found in response.");
           }

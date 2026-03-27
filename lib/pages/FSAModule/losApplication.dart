@@ -163,37 +163,73 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   @override
   void initState() {
     _loadData();
+    // if (widget.pagemode == "edit" || widget.pagemode == 'view') {
+    //   fetchLeadDetails();
+    // }
+
+    // _ComIdOptions = {};
+    // super.initState();
+    // if (widget.pagemode == "fromDSR") {
+    //   setDsrdata();
+    // }
+
+    // if (widget.pagemode == "fromHYPERVERSER") {
+    //   setHyperverserData();
+    // }
+
+    // if (widget.pagemode == "fromETBStartFresh") {
+    //   setEtbFreshCandidate();
+    // }
+
+    _initializeGenderList();
+     print("1");
+    _initializeEmpWorkNatureList();
+     print("2");
+    _initializeEmpStatusList();
+     print("3");
+    _initializeEmpTypeList();
+     print("4");
+    _initializeEmpprofessionList();
+     print("5");
+    _initializeCivilList();
+     print("6");
+    _loadagent();
+     print("7");
+    getPublicIP();
+     print("8");
+    getCurrentLocation(context);
+     print("9");
+    _initializeEmpPositionList();
+     print("10");
+    _initializeIndustryTypeList();
+     print("11");
+    _initializeWorkExprienceList();
+     print("12");
+    _initializeNationalityList();
+     print("13");
+
+    // *********************************************
     if (widget.pagemode == "edit" || widget.pagemode == 'view') {
+       print("14");
       fetchLeadDetails();
     }
 
     _ComIdOptions = {};
     super.initState();
     if (widget.pagemode == "fromDSR") {
+       print("15");
       setDsrdata();
     }
 
     if (widget.pagemode == "fromHYPERVERSER") {
+       print("16");
       setHyperverserData();
     }
 
     if (widget.pagemode == "fromETBStartFresh") {
+       print("17");
       setEtbFreshCandidate();
     }
-
-    _initializeGenderList();
-    _initializeEmpWorkNatureList();
-    _initializeEmpStatusList();
-    _initializeEmpTypeList();
-    _initializeEmpprofessionList();
-    _initializeCivilList();
-    _loadagent();
-    getPublicIP();
-    getCurrentLocation(context);
-    _initializeEmpPositionList();
-    _initializeIndustryTypeList();
-    _initializeWorkExprienceList();
-    _initializeNationalityList();
   }
 
   List<Map<String, dynamic>> genderList = [];
@@ -455,8 +491,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       String url = '/api/leads/companies/?search=$query';
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
-      // print("api is $url");
-      // print("header $headers");
 
       if (response != null) {
         if (response.statusCode == 200) {
@@ -549,7 +583,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       if (response.statusCode == 200) {
         setState(() {
           leadDetails = json.decode(response.body);
-          print("lead details is this........");
+          // print("lead details is this........");
           // String jsonString = jsonEncode(leadDetails);
           // for (int i = 0; i < jsonString.length; i += 1000) {
           //   print(jsonString.substring(i,
@@ -1972,129 +2006,39 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   // For hyperverser use method
 
   Future<void> setHyperverserData() async {
-    final details = widget.ekycResult?.details;
-
     setState(() {
-      // HYperverge data
-      firstName.text = details?['ocr_firstName']?.trim() ?? '';
-      middlename.text = details?['ocr_middleName']?.trim() ?? '';
-      lastName.text = details?['ocr_lastName']?.trim() ?? '';
-
-      if (details?['ocr_gender'] == "M") {
-        gender.text = "Male";
-      } else {
-        gender.text = "Female";
-      }
-      birthDate.text = details?['ocr_dateOfBirth']?.trim() ?? '';
-      issuingAuthority.text = "";
-      address.text = details?['ocr_address'] ?? '';
-      documentType.text = details?['ocr_documentId'] ?? '';
-      validUntil.text = details?['ocr_dateOfExpiry'] ?? '';
-      documentId.text = details?['ocr_documentId'] ?? '';
-
-      // RQA Data
-      perm_ZipCode.text = widget.zipCode ?? "";
-      fin_Mthly_Income.text = widget.monthlyIncome ?? "";
-      mobilePhone.text = widget.mobilePhone ?? "";
-
-      // for company
-      _searchController.text = widget.companyName ?? "";
-      emp_Employer_Name.text = widget.companyName ?? "";
-
-      if ((widget.companyName ?? "").toLowerCase() == "others") {
-        _selectedCompany = 'others';
-        _showOtherCompanyField = true;
-        _otherCompanyController.text = widget.otherCompanyName ?? "";
-      } else {
-        _showOtherCompanyField = false;
-      }
+      _isLoading = true;
     });
 
-    if (widget.zipCode != null && widget.zipCode!.isNotEmpty) {
-      await onZipCodeEntered(widget.zipCode!);
-    }
-
-    //****************************************************** */
-    String code1 = widget.sourceIncome ?? "";
-    print("set emp_status ${code1}");
-    final selectedItem1 = empStatusList.firstWhere(
-      (item) => item['key'] == code1,
-      orElse: () => {},
-    );
-
-    setState(() {
-      emp_Status_Code.text = code1;
-      emp_Status.text = selectedItem1['value'] ?? '';
-    });
-
-    // *******************************************************
-
-    String code2 = widget.natureOfBusiness ?? "";
-    print("emp_Work_Nature $code2");
-    final selectedItem2 = empWorkNatureList.firstWhere(
-      (item) => item['key'] == code2,
-      orElse: () => {},
-    );
-
-    setState(() {
-      emp_Work_Nature_Code.text = code2;
-      emp_Work_Nature.text = selectedItem2['value'] ?? '';
-    });
-
-    //************************************************ */
-
-    String code3 = widget.empStatus ?? "";
-    print("value is ${widget.empStatus}");
-    print("emp_Type $code3");
-
-    final selectedItem3 = empList.firstWhere(
-      (item) => item['key'] == code3,
-      orElse: () => {},
-    );
-    setState(() {
-      emp_Type_Code.text = code3;
-      emp_Type.text = selectedItem3['value'] ?? '';
-    });
-  }
-
-  // ***************** ETB FRESH APPLICATION ********************
-  Future<void> setEtbFreshCandidate() async {
-    final etbDetails = widget.customerDetails;
-
-    if (etbDetails is List && etbDetails.isNotEmpty) {
-      final customer = etbDetails[0];
-      final address = customer['addresses']?[0];
-      final empAddress = customer['_Emp_Address'];
-      final iddocuments = customer['idDocuments']?[0];
-      final empMonthlyIncome = customer['_Fin_Details'];
-      final empDetails = customer['_Emp_Details'];
+    try {
+      print("18");
+      final details = widget.ekycResult?.details;
 
       setState(() {
-        firstName.text = customer['firstName']?.trim() ?? '';
-        lastName.text = customer['lastName']?.trim() ?? '';
-        middlename.text = customer['middleName'] ?? "";
-        mobilePhone.text = customer['mobilePhone'].substring(2) ?? "";
-        email.text = customer['emailAddress'] ?? "";
-        birthDate.text = customer['birthDate'] ?? "";
+        print("19");
+        // HYperverge data
+        firstName.text = details?['ocr_firstName']?.trim() ?? '';
+        middlename.text = details?['ocr_middleName']?.trim() ?? '';
+        lastName.text = details?['ocr_lastName']?.trim() ?? '';
 
-        if (customer?['gender'] == "MALE") {
+        if (details?['ocr_gender'] == "M") {
           gender.text = "Male";
         } else {
           gender.text = "Female";
         }
+        birthDate.text = details?['ocr_dateOfBirth']?.trim() ?? '';
+        issuingAuthority.text = "";
+        address.text = details?['ocr_address'] ?? '';
+        documentType.text = details?['ocr_documentId'] ?? '';
+        validUntil.text = details?['ocr_dateOfExpiry'] ?? '';
+        documentId.text = details?['ocr_documentId'] ?? '';
 
-        // address
-        perm_ZipCode.text = address?['postcode'] ?? "";
-        perm_Street.text = address?['line1'] ?? "";
+        // RQA Data
+        perm_ZipCode.text = widget.zipCode ?? "";
+        fin_Mthly_Income.text = widget.monthlyIncome ?? "";
+        mobilePhone.text = widget.mobilePhone ?? "";
 
-        // document
-        documentType.text = iddocuments?['documentType'] ?? "";
-        documentId.text = iddocuments?['documentId'] ?? "";
-
-        //Employee monthly income
-        fin_Mthly_Income.text = empMonthlyIncome?['fin_Mthly_Income'] ?? "";
-
-        // Company
+        // for company
         _searchController.text = widget.companyName ?? "";
         emp_Employer_Name.text = widget.companyName ?? "";
 
@@ -2107,59 +2051,213 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         }
       });
 
-      // zip function customer
-      if (address != null && address['postcode'] != null) {
-        await onZipCodeEntered(address['postcode']);
+      print("20");
+
+      if (widget.zipCode != null && widget.zipCode!.isNotEmpty) {
+        await onZipCodeEntered(widget.zipCode!);
       }
 
-      // zip for employee
-      if (empAddress != null && empAddress['emp_ZipCode'] != null) {
-        await onEmpZipCodeEntered(address['emp_ZipCode']);
-      }
+      //****************************************************** */
+      String code1 = widget.sourceIncome ?? "";
+      print("set emp_status ${code1}");
+      print("list is $empStatusList");
+      final selectedItem1 = empStatusList.firstWhere(
+        (item) => item['key'] == code1,
+        orElse: () => {},
+      );
 
-      // employee work nature
+      setState(() {
+        emp_Status_Code.text = code1;
+        emp_Status.text = selectedItem1['value'] ?? '';
+        print("emp_status is ${emp_Status.text}");
+        print("21");
+      });
 
-      if (empDetails != null && empDetails['emp_Work_Nature_Code'] != null) {
-        String code = empDetails['emp_Work_Nature_Code'].toString();
+      //****************************************************
 
-        final selectedItem = empWorkNatureList.firstWhere(
-          (item) => item['key'] == code,
-          orElse: () => {},
-        );
+      String code2 = widget.natureOfBusiness ?? "";
+      print("emp_Work_Nature $code2");
+      print("work nature $empWorkNatureList");
+      final selectedItem2 = empWorkNatureList.firstWhere(
+        (item) => item['key'] == code2,
+        orElse: () => {},
+      );
 
+      setState(() {
+        emp_Work_Nature_Code.text = code2;
+        emp_Work_Nature.text = selectedItem2['value'] ?? '';
+        print("emp work natue ${emp_Work_Nature.text}");
+        print("22");
+      });
+
+      //************************************************ */
+
+      String code3 = widget.empStatus ?? "";
+      print("emp_Type $code3");
+      print("emp_type $empList");
+
+      final selectedItem3 = empList.firstWhere(
+        (item) => item['key'] == code3,
+        orElse: () => {},
+      );
+      setState(() {
+        emp_Type_Code.text = code3;
+        emp_Type.text = selectedItem3['value'] ?? '';
+        print("emp_type is ${emp_Type.text}");
+        print("23");
+      });
+
+      Future.delayed(Duration(seconds: 10), () {
+        if (mounted) {
+          setState(() {
+            _isLoading = false; // Data loaded after 5 seconds
+          });
+        }
+      });
+    } catch (e) {
+      print("Error in setNtbFreshCandidate: $e");
+      if (mounted) {
         setState(() {
-          emp_Work_Nature_Code.text = code;
-          emp_Work_Nature.text = selectedItem['value'] ?? '';
+          _isLoading = false;
         });
       }
     }
-    // Fetch data from RQA
-    //EMPLOYEE STATUS
-    String code1 = widget.sourceIncome ?? "";
-    print("set emp_status ${code1}");
-    final selectedItem1 = empStatusList.firstWhere(
-      (item) => item['key'] == code1,
-      orElse: () => {},
-    );
+    print("24");
+  }
 
+  // ***************** ETB FRESH APPLICATION ********************
+  Future<void> setEtbFreshCandidate() async {
     setState(() {
-      emp_Status_Code.text = code1;
-      emp_Status.text = selectedItem1['value'] ?? '';
+      _isLoading = true;
     });
 
-    // EMPLOYEE TYPE
+    try {
+      final etbDetails = widget.customerDetails;
 
-    String code3 = widget.empStatus ?? "";
-    print("emp_Type $code3");
+      if (etbDetails is List && etbDetails.isNotEmpty) {
+        final customer = etbDetails[0];
+        final address = customer['addresses']?[0];
+        final empAddress = customer['_Emp_Address'];
+        final iddocuments = customer['idDocuments']?[0];
+        final empMonthlyIncome = customer['_Fin_Details'];
+        final empDetails = customer['_Emp_Details'];
 
-    final selectedItem3 = empList.firstWhere(
-      (item) => item['key'] == code3,
-      orElse: () => {},
-    );
-    setState(() {
-      emp_Type_Code.text = code3;
-      emp_Type.text = selectedItem3['value'] ?? '';
-    });
+        setState(() {
+          firstName.text = customer['firstName']?.trim() ?? '';
+          lastName.text = customer['lastName']?.trim() ?? '';
+          middlename.text = customer['middleName'] ?? "";
+          mobilePhone.text = customer['mobilePhone'].substring(2) ?? "";
+          email.text = customer['emailAddress'] ?? "";
+          birthDate.text = customer['birthDate'] ?? "";
+
+          if (customer?['gender'] == "MALE") {
+            gender.text = "Male";
+          } else {
+            gender.text = "Female";
+          }
+
+          // address
+          perm_ZipCode.text = address?['postcode'] ?? "";
+          perm_Street.text = address?['line1'] ?? "";
+
+          // document
+          documentType.text = iddocuments?['documentType'] ?? "";
+          documentId.text = iddocuments?['documentId'] ?? "";
+
+          //Employee monthly income
+          fin_Mthly_Income.text = empMonthlyIncome?['fin_Mthly_Income'] ?? "";
+
+          // Company
+          _searchController.text = widget.companyName ?? "";
+          emp_Employer_Name.text = widget.companyName ?? "";
+
+          if ((widget.companyName ?? "").toLowerCase() == "others") {
+            _selectedCompany = 'others';
+            _showOtherCompanyField = true;
+            _otherCompanyController.text = widget.otherCompanyName ?? "";
+          } else {
+            _showOtherCompanyField = false;
+          }
+        });
+
+        // zip function customer
+        if (address != null && address['postcode'] != null) {
+          await onZipCodeEntered(address['postcode']);
+        }
+
+        // zip for employee
+        if (empAddress != null && empAddress['emp_ZipCode'] != null) {
+          await onEmpZipCodeEntered(address['emp_ZipCode']);
+        }
+
+        // employee work nature
+
+        if (empDetails != null && empDetails['emp_Work_Nature_Code'] != null) {
+          String code = empDetails['emp_Work_Nature_Code'].toString();
+
+          final selectedItem = empWorkNatureList.firstWhere(
+            (item) => item['key'] == code,
+            orElse: () => {},
+          );
+          print(" emp_Work_Nature code $code");
+          print("emp work nature lsit ${empWorkNatureList}");
+
+          setState(() {
+            //emp_Work_Nature
+            emp_Work_Nature_Code.text = code;
+            emp_Work_Nature.text = selectedItem['value'] ?? '';
+            print("emp work nature lsit ${emp_Work_Nature.text}");
+          });
+        }
+      }
+
+      // Fetch data from RQA
+      //EMPLOYEE STATUS
+      String code1 = widget.sourceIncome ?? "";
+      print("set emp_status ${code1}");
+      print("list is $empStatusList");
+      final selectedItem1 = empStatusList.firstWhere(
+        (item) => item['key'] == code1,
+        orElse: () => {},
+      );
+
+      setState(() {
+        emp_Status_Code.text = code1;
+        emp_Status.text = selectedItem1['value'] ?? '';
+        print("emp_status is ${emp_Status.text}");
+      });
+
+      // EMPLOYEE TYPE
+
+      String code3 = widget.empStatus ?? "";
+      print("emp_Type $code3");
+      print("emp_type $empList");
+
+      final selectedItem3 = empList.firstWhere(
+        (item) => item['key'] == code3,
+        orElse: () => {},
+      );
+      setState(() {
+        emp_Type_Code.text = code3;
+        emp_Type.text = selectedItem3['value'] ?? '';
+        print("emp_type is ${emp_Type.text}");
+      });
+
+      Future.delayed(Duration(seconds: 10), () {
+        if (mounted) {
+          setState(() {
+            _isLoading = false; // Data loaded after 5 seconds
+          });
+        }
+      });
+    } catch (e) {
+      print("Error in setEtbFreshCandidate: $e");
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
   // *************** done  **********************
 
@@ -2511,8 +2609,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                               _buildEmpWorkNatureDropdown(
                                   controller: emp_Work_Nature,
                                   label: "Select Emp Work Nature",
-                                  isReadOnly: (widget.pagemode ==
-                                              "fromHYPERVERSER" &&
+                                  isReadOnly: ((widget.pagemode ==
+                                                  "fromHYPERVERSER" ||
+                                              widget.pagemode ==
+                                                  "fromETBStartFresh") &&
                                           emp_Work_Nature_Code.text.isNotEmpty)
                                       ? true
                                       : false),
@@ -3228,9 +3328,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
 // newly added code
   bool validateAndSubmit() {
-    print(
-        "emp_Status.text = '${emp_Status.text}'"); //************************************* */
-    // Basic required fields (client details)
     final nameRegex = RegExp(r"^[a-zA-Z\s]+$");
     final specialCharRegex =
         RegExp(r'''[!@#\$%\^&\*\(\)_\+\=\{\}\[\]:;"'<>,\.\?/\\|~`-]''');
@@ -3703,338 +3800,340 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     return "$years";
   }
 
-  Future<void> postLoanCheck(Map<String, dynamic> requestData) async {
-    setState(() {});
-    String tokens = "";
-    try {
-      print("position 2");
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('accessToken');
-      final Tokenresponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
-      final data = json.decode(Tokenresponse.body);
-      tokens = data['access_token'];
-    } catch (e) {
-      print("HTTP Request Failed: $e");
-    }
+  // Future<void> postLoanCheck(Map<String, dynamic> requestData) async {
+  //   setState(() {});
+  //   String tokens = "";
+  //   try {
+  //     print("position 2");
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     String? token = prefs.getString('accessToken');
+  //     final Tokenresponse = await http.get(
+  //       Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+  //       headers: {
+  //         'Authorization': 'Bearer $token',
+  //         'Accept': 'application/json',
+  //         'Content-Type': 'multipart/form-data',
+  //         'User-Agent':
+  //             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+  //       },
+  //     );
+  //     final data = json.decode(Tokenresponse.body);
+  //     tokens = data['access_token'];
+  //   } catch (e) {
+  //     print("HTTP Request Failed: $e");
+  //   }
 
-    print("position 3");
-    final url = Uri.parse("${AppConfig.otpUrl}/partner/loans/check");
-    final headers = {
-      "Idempotency-Key": "th37per9-185d-4e22-83fb-18gf96g0g861",
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-      "Authorization": "Bearer $tokens",
-      'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    };
+  //   print("position 3");
+  //   final url = Uri.parse("${AppConfig.otpUrl}/partner/loans/check");
+  //   final headers = {
+  //     "Idempotency-Key": "th37per9-185d-4e22-83fb-18gf96g0g861",
+  //     "Content-Type": "application/json",
+  //     "Accept": "application/json",
+  //     "Authorization": "Bearer $tokens",
+  //     'User-Agent':
+  //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+  //   };
 
-    print("position 4");
-    try {
-      print("position 5");
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: json.encode(requestData),
-      );
-      print("los respose ${response.statusCode}");
-      print("Response body ${response.body}");
-      if (response.statusCode == 201) {
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? token = prefs.getString('accessToken');
-        final LosStatusUrl = Uri.parse(
-            '${AppConfig.dynamicBaseUrl}/api/campaigns/${widget.campaign}/leads/${widget.leadId}/');
+  //   print("position 4");
+  //   try {
+  //     print("position 5");
+  //     final response = await http.post(
+  //       url,
+  //       headers: headers,
+  //       body: json.encode(requestData),
+  //     );
+  //     print("los respose ${response.statusCode}");
+  //     print("Response body ${response.body}");
+  //     if (response.statusCode == 201) {
+  //       SharedPreferences prefs = await SharedPreferences.getInstance();
+  //       String? token = prefs.getString('accessToken');
+  //       final LosStatusUrl = Uri.parse(
+  //           '${AppConfig.dynamicBaseUrl}/api/campaigns/${widget.campaign}/leads/${widget.leadId}/');
 
-        final headers2 = {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Authorization": "Bearer $token",
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        };
-        print("position 6");
-        Map<String, String> mappedLOsData = {
-          "cwtransection_id": "${requestData['CWTransactionID']}",
-          "los_status": "submitted",
-        };
-        final responseLOS = await http.patch(
-          LosStatusUrl,
-          headers: headers2,
-          body: json.encode(mappedLOsData),
-        );
+  //       final headers2 = {
+  //         "Content-Type": "application/json",
+  //         "Accept": "application/json",
+  //         "Authorization": "Bearer $token",
+  //         'User-Agent':
+  //             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+  //       };
+  //       print("position 6");
+  //       Map<String, String> mappedLOsData = {
+  //         "cwtransection_id": "${requestData['CWTransactionID']}",
+  //         "los_status": "submitted",
+  //       };
+  //       final responseLOS = await http.patch(
+  //         LosStatusUrl,
+  //         headers: headers2,
+  //         body: json.encode(mappedLOsData),
+  //       );
 
-        final LoSResponcedata = json.decode(response.body);
-        Map<String, dynamic> mappedData = {
-          "mobileNo": "",
-          "agentCode": "",
-          "applicationNo": "${LoSResponcedata['applicationNumber']}",
-          "channel": "",
-          "source": ""
-        };
+  //       final LoSResponcedata = json.decode(response.body);
+  //       Map<String, dynamic> mappedData = {
+  //         "mobileNo": "",
+  //         "agentCode": "",
+  //         "applicationNo": "${LoSResponcedata['applicationNumber']}",
+  //         "channel": "",
+  //         "source": ""
+  //       };
 
-        print("position 7");
-        final fetchStatusUrl =
-            Uri.parse("${AppConfig.otpUrl}/api/app/fetch/application/status");
-        final fetchStatusHeaders = {
-          'Content-Type': 'application/json',
-          "Idempotency-Key": "jbkjdbjkjk",
-          "Authorization": "Bearer $tokens",
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        };
+  //       print("position 7");
+  //       final fetchStatusUrl =
+  //           Uri.parse("${AppConfig.otpUrl}/api/app/fetch/application/status");
+  //       final fetchStatusHeaders = {
+  //         'Content-Type': 'application/json',
+  //         "Idempotency-Key": "jbkjdbjkjk",
+  //         "Authorization": "Bearer $tokens",
+  //         'User-Agent':
+  //             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+  //       };
 
-        try {
-          print("position 8");
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (BuildContext context) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            },
-          );
+  //       try {
+  //         print("position 8");
+  //         showDialog(
+  //           context: context,
+  //           barrierDismissible: false,
+  //           builder: (BuildContext context) {
+  //             return const Center(
+  //               child: CircularProgressIndicator(),
+  //             );
+  //           },
+  //         );
 
-          int retryCount = 0;
-          Map<String, dynamic>? data;
-          List<dynamic>? result;
+  //         int retryCount = 0;
+  //         Map<String, dynamic>? data;
+  //         List<dynamic>? result;
 
-          while (retryCount < 3) {
-            final Statusresponse = await http.post(
-              fetchStatusUrl,
-              headers: fetchStatusHeaders,
-              body: json.encode(mappedData),
-            );
+  //         while (retryCount < 3) {
+  //           final Statusresponse = await http.post(
+  //             fetchStatusUrl,
+  //             headers: fetchStatusHeaders,
+  //             body: json.encode(mappedData),
+  //           );
 
-            await Future.delayed(const Duration(seconds: 2)); // 2-second delay
+  //           await Future.delayed(const Duration(seconds: 2)); // 2-second delay
 
-            if (Statusresponse.statusCode == 200) {
-              data = json.decode(Statusresponse.body);
-              result = data?['result'];
-              if (result != null && result.isNotEmpty) {
-                break; // Success, exit retry loop
-              }
-            }
-            retryCount++;
-          }
+  //           if (Statusresponse.statusCode == 200) {
+  //             data = json.decode(Statusresponse.body);
+  //             result = data?['result'];
+  //             if (result != null && result.isNotEmpty) {
+  //               break; // Success, exit retry loop
+  //             }
+  //           }
+  //           retryCount++;
+  //         }
 
-          Navigator.of(context).pop(); // close loader
+  //         Navigator.of(context).pop(); // close loader
 
-          print("Result status is show like that $result");
+  //         print("Result status is show like that $result");
 
-          if (result == null || result.isEmpty) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return const AlertDialog(
-                  title: Text("No Application Data"),
-                  content: Text(
-                      "The application status response returned null after retries."),
-                );
-              },
-            );
-            return;
-          }
+  //         if (result == null || result.isEmpty) {
+  //           showDialog(
+  //             context: context,
+  //             builder: (BuildContext context) {
+  //               return const AlertDialog(
+  //                 title: Text("No Application Data"),
+  //                 content: Text(
+  //                     "The application status response returned null after retries."),
+  //               );
+  //             },
+  //           );
+  //           return;
+  //         }
 
-          var application = result[0]; // Safe to access now
-          print("position 9");
+  //         var application = result[0]; // Safe to access now
+  //         print("position 9");
 
-          final LosbackendStatusUrl =
-              Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-details/');
-          final headers3 = {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Authorization": "Bearer $token",
-            'User-Agent':
-                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-          };
-          print("position 10");
+  //         final LosbackendStatusUrl =
+  //             Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-details/');
+  //         final headers3 = {
+  //           "Content-Type": "application/json",
+  //           "Accept": "application/json",
+  //           "Authorization": "Bearer $token",
+  //           'User-Agent':
+  //               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+  //         };
+  //         print("position 10");
 
-          final finalRequestData;
-          if (widget.pagemode == 'edit') {
-            finalRequestData = Map<String, dynamic>.from(requestData)
-              ..["lead_type"] = "campaign_lead"
-              ..["declaration"] = true;
-          } else {
-            finalRequestData = Map<String, dynamic>.from(requestData)
-              ..["lead_type"] = "fresh_lead"
-              ..["declaration"] = true
-              ..["dsr"] = "${widget.dsrId}";
-          }
+  //         final finalRequestData;
+  //         if (widget.pagemode == 'edit') {
+  //           finalRequestData = Map<String, dynamic>.from(requestData)
+  //             ..["lead_type"] = "campaign_lead"
+  //             ..["declaration"] = true;
+  //         } else {
+  //           finalRequestData = Map<String, dynamic>.from(requestData)
+  //             ..["lead_type"] = "fresh_lead"
+  //             ..["declaration"] = true
+  //             ..["dsr"] = "${widget.dsrId}";
+  //         }
 
-          final backendresponseLOS = await http.post(
-            LosbackendStatusUrl,
-            headers: headers3,
-            body: json.encode(finalRequestData),
-          );
+  //         final backendresponseLOS = await http.post(
+  //           LosbackendStatusUrl,
+  //           headers: headers3,
+  //           body: json.encode(finalRequestData),
+  //         );
 
-          print(LosbackendStatusUrl);
-          print(headers3);
-          String jsonString = jsonEncode(finalRequestData);
-          for (int i = 0; i < jsonString.length; i += 1000) {
-            print(jsonString.substring(i,
-                (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-          }
+  //         print(LosbackendStatusUrl);
+  //         print(headers3);
+  //         String jsonString = jsonEncode(finalRequestData);
+  //         for (int i = 0; i < jsonString.length; i += 1000) {
+  //           print(jsonString.substring(i,
+  //               (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
+  //         }
 
-          if (backendresponseLOS.statusCode == 201) {
-            final data = json.decode(backendresponseLOS.body);
-            final LosBackendResponseUrl = Uri.parse(
-                '${AppConfig.dynamicBaseUrl}/api/leads/los-details/${data['id']}/');
-            final headers4 = {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-              "Authorization": "Bearer $token",
-              'User-Agent':
-                  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-            };
-            Map<String, dynamic> mappedResponseLOsData = {
-              "los_status": {
-                "mobileNo": application['mobileNo'],
-                "applicationNo": application['applicationNo'],
-                "applicationId": application['applicationId'],
-                "source": application['source'],
-                "channel": application['channel'],
-                "offerStatus": application['offerStatus'],
-                "uwStatus": application['uwStatus'],
-                "lastScreen": application['lastScreen']
-              }
-            };
-            final responseLOS = await http.patch(
-              LosBackendResponseUrl,
-              headers: headers4,
-              body: json.encode(mappedResponseLOsData),
-            );
-          }
+  //         if (backendresponseLOS.statusCode == 201) {
+  //           final data = json.decode(backendresponseLOS.body);
+  //           final LosBackendResponseUrl = Uri.parse(
+  //               '${AppConfig.dynamicBaseUrl}/api/leads/los-details/${data['id']}/');
+  //           final headers4 = {
+  //             "Content-Type": "application/json",
+  //             "Accept": "application/json",
+  //             "Authorization": "Bearer $token",
+  //             'User-Agent':
+  //                 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+  //           };
+  //           Map<String, dynamic> mappedResponseLOsData = {
+  //             "los_status": {
+  //               "mobileNo": application['mobileNo'],
+  //               "applicationNo": application['applicationNo'],
+  //               "applicationId": application['applicationId'],
+  //               "source": application['source'],
+  //               "channel": application['channel'],
+  //               "offerStatus": application['offerStatus'],
+  //               "uwStatus": application['uwStatus'],
+  //               "lastScreen": application['lastScreen']
+  //             }
+  //           };
+  //           final responseLOS = await http.patch(
+  //             LosBackendResponseUrl,
+  //             headers: headers4,
+  //             body: json.encode(mappedResponseLOsData),
+  //           );
+  //         }
 
-          if (application['offerStatus'] == "IN-PROGRESS") {
-            print("position 11");
-            checkApplicationStatusLoop(application);
-          } else {
-            print("position 12");
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text("Application Status"),
-                  content: Text(
-                    "Offer Status: ${application['offerStatus']}\nUnderWriting Status: ${application['uwStatus']}",
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                LeadListByCampaign(campaign: widget.campaign),
-                          ),
-                        );
-                      },
-                      child: Text("OK"),
-                    ),
-                  ],
-                );
-              },
-            );
-          }
-        } catch (e) {
-          Navigator.of(context).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Something went wrong: $e')),
-          );
-        }
-      } else {
-        print("position 14");
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? authToken = prefs.getString('accessToken');
-        Map<String, dynamic> logmappedData = {
-          "url": "${AppConfig.otpUrl}/partner/loans/check",
-          "request_body": requestData,
-          "status_code": response.statusCode,
-          "response_body": json.decode(response.body),
-        };
-        final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+  //         if (application['offerStatus'] == "IN-PROGRESS") {
+  //           print("position 11");
+  //           checkApplicationStatusLoop(application);
+  //         } else {
+  //           print("position 12");
+  //           showDialog(
+  //             context: context,
+  //             builder: (BuildContext context) {
+  //               return AlertDialog(
+  //                 title: Text("Application Status"),
+  //                 content: Text(
+  //                   "Offer Status: ${application['offerStatus']}\nUnderWriting Status: ${application['uwStatus']}",
+  //                 ),
+  //                 actions: [
+  //                   TextButton(
+  //                     onPressed: () {
+  //                       Navigator.of(context).pop();
+  //                       Navigator.pushReplacement(
+  //                         context,
+  //                         MaterialPageRoute(
+  //                           builder: (context) =>
+  //                               LeadListByCampaign(campaign: widget.campaign),
+  //                         ),
+  //                       );
+  //                     },
+  //                     child: Text("OK"),
+  //                   ),
+  //                 ],
+  //               );
+  //             },
+  //           );
+  //         }
+  //       } catch (e) {
+  //         Navigator.of(context).pop();
+  //         ScaffoldMessenger.of(context).showSnackBar(
+  //           SnackBar(content: Text('Something went wrong: $e')),
+  //         );
+  //       }
+  //     } else {
+  //       print("position 14");
+  //       SharedPreferences prefs = await SharedPreferences.getInstance();
+  //       String? authToken = prefs.getString('accessToken');
+  //       Map<String, dynamic> logmappedData = {
+  //         "url": "${AppConfig.otpUrl}/partner/loans/check",
+  //         "request_body": requestData,
+  //         "status_code": response.statusCode,
+  //         "response_body": json.decode(response.body),
+  //       };
+  //       final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
 
-        final headers = {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Authorization": "Bearer $authToken",
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        };
-        print("------------------");
-        print(logUrl);
-        print(headers);
-        print(json.encode(logmappedData));
-        final LogResponse = await http.post(
-          logUrl,
-          headers: headers,
-          body: json.encode(logmappedData),
-        );
+  //       final headers = {
+  //         "Content-Type": "application/json",
+  //         "Accept": "application/json",
+  //         "Authorization": "Bearer $authToken",
+  //         'User-Agent':
+  //             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+  //       };
+  //       print("------------------");
+  //       print(logUrl);
+  //       print(headers);
+  //       print(json.encode(logmappedData));
+  //       final LogResponse = await http.post(
+  //         logUrl,
+  //         headers: headers,
+  //         body: json.encode(logmappedData),
+  //       );
 
-        print(LogResponse.statusCode);
-        print(LogResponse.body);
-        if (LogResponse.statusCode == 201) {
-          print("Log Created");
-        }
-        final data = json.decode(response.body);
-        String message = data['message'] ?? "Validation Error";
-        Map<String, dynamic> errors = data['errors'] ?? {};
-        String errorMessages =
-            errors.entries.map((entry) => "${entry.value}").join("\n");
+  //       print(LogResponse.statusCode);
+  //       print(LogResponse.body);
+  //       if (LogResponse.statusCode == 201) {
+  //         print("Log Created");
+  //       }
+  //       final data = json.decode(response.body);
+  //       String message = data['message'] ?? "Validation Error";
+  //       Map<String, dynamic> errors = data['errors'] ?? {};
+  //       String errorMessages =
+  //           errors.entries.map((entry) => "${entry.value}").join("\n");
 
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text("Error"),
-              content: Text("$message\n\n$errorMessages"),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("OK"),
-                ),
-              ],
-            );
-          },
-        );
-      }
-      setState(() {});
-    } catch (e) {
-      print("HTTP Request Failed: $e");
+  //       showDialog(
+  //         context: context,
+  //         builder: (BuildContext context) {
+  //           return AlertDialog(
+  //             title: Text("Error"),
+  //             content: Text("$message\n\n$errorMessages"),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop();
+  //                 },
+  //                 child: Text("OK"),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     }
+  //     setState(() {});
+  //   } catch (e) {
+  //     print("HTTP Request Failed: $e");
 
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text("Error"),
-            content: Text("An error occurred. Please try again."),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text("OK"),
-              ),
-            ],
-          );
-        },
-      );
+  //     showDialog(
+  //       context: context,
+  //       builder: (BuildContext context) {
+  //         return AlertDialog(
+  //           title: Text("Error"),
+  //           content: Text("An error occurred. Please try again."),
+  //           actions: [
+  //             TextButton(
+  //               onPressed: () {
+  //                 Navigator.of(context).pop();
+  //               },
+  //               child: Text("OK"),
+  //             ),
+  //           ],
+  //         );
+  //       },
+  //     );
 
-      setState(() {});
-    }
-  }
+  //     setState(() {});
+  //   }
+  // }
+
+  //***************************************** */
 
   Widget _buildZipTextField(
     TextEditingController controller,
@@ -4326,7 +4425,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                 maxTime: DateTime.now(),
                 onConfirm: (date) {
                   controller.text = DateFormat('dd-MM-yyyy').format(date);
-                  print("date is ${controller.text}");
                 },
                 currentTime: DateTime.now(),
                 locale: LocaleType.en,
@@ -5235,8 +5333,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
             controller.text = selectedItem['value'] ?? '';
             perm_countryCode.text = selectedItem['key'] ?? '';
             emp_countryCode.text = selectedItem['key'] ?? '';
-            print(perm_countryCode.text);
-            print(emp_countryCode.text);
           });
         }
       },
