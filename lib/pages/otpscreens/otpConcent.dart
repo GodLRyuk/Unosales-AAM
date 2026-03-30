@@ -89,8 +89,7 @@ class OtpconcentState extends State<Otpconcent> {
     isOtpExpired = false;
     // _sendOtp();
     // _startTimer();
-    if(!AppConfig.isProd)
-    {
+    if (!AppConfig.isProd) {
       _startTimer();
     }
     getPublicIP();
@@ -182,8 +181,8 @@ class OtpconcentState extends State<Otpconcent> {
   }
 
   void submitLos(LosApplicationModel data) async {
-    print("selected company ${data.empEmployerName}");
-    print("selected other comapny ${data.empEmployerOtherName}");
+    // print("selected company ${data.empEmployerName}");
+    // print("selected other comapny ${data.empEmployerOtherName}");
 
     setState(() => _isLoading = true);
 
@@ -1287,8 +1286,7 @@ class OtpconcentState extends State<Otpconcent> {
           recivedOtp = otp.toString();
         });
 
-      _startTimer();  // *************************
-
+        _startTimer(); // *************************
       } else {
         Map<String, dynamic> logmappedData = {
           "url": "${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'",
