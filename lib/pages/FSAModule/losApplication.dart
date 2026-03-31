@@ -162,74 +162,55 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
   @override
   void initState() {
-    _loadData();
-    // if (widget.pagemode == "edit" || widget.pagemode == 'view') {
-    //   fetchLeadDetails();
-    // }
+    super.initState();
+     initAll();
+  }
 
-    // _ComIdOptions = {};
-    // super.initState();
-    // if (widget.pagemode == "fromDSR") {
-    //   setDsrdata();
-    // }
 
-    // if (widget.pagemode == "fromHYPERVERSER") {
-    //   setHyperverserData();
-    // }
+  Future<void>initAll() async{
+    setState(() {
+      _isLoading= true;
+    });
+    
+     _loadData();
 
-    // if (widget.pagemode == "fromETBStartFresh") {
-    //   setEtbFreshCandidate();
-    // }
-
-    _initializeGenderList();
-     print("1");
-    _initializeEmpWorkNatureList();
-     print("2");
-    _initializeEmpStatusList();
-     print("3");
-    _initializeEmpTypeList();
-     print("4");
-    _initializeEmpprofessionList();
-     print("5");
-    _initializeCivilList();
-     print("6");
-    _loadagent();
-     print("7");
-    getPublicIP();
-     print("8");
-    getCurrentLocation(context);
-     print("9");
-    _initializeEmpPositionList();
-     print("10");
-    _initializeIndustryTypeList();
-     print("11");
-    _initializeWorkExprienceList();
-     print("12");
-    _initializeNationalityList();
-     print("13");
+    await _initializeGenderList();
+    await _initializeEmpWorkNatureList();
+    await _initializeEmpStatusList();
+    await _initializeEmpTypeList();
+    await _initializeEmpprofessionList();
+    await _initializeCivilList();
+    await _loadagent();
+    await getPublicIP();
+    await getCurrentLocation(context);
+    await _initializeEmpPositionList();
+    await _initializeIndustryTypeList();
+    await _initializeWorkExprienceList();
+    await _initializeNationalityList();
 
     // *********************************************
-    if (widget.pagemode == "edit" || widget.pagemode == 'view') {
-       print("14");
-      fetchLeadDetails();
+    if (widget.pagemode == "edit" || widget.pagemode == 'view') {     
+      await fetchLeadDetails();
     }
 
     _ComIdOptions = {};
-    super.initState();
-    if (widget.pagemode == "fromDSR") {
-       print("15");
-      setDsrdata();
+    
+    if (widget.pagemode == "fromDSR") {    
+      await setDsrdata();
     }
 
-    if (widget.pagemode == "fromHYPERVERSER") {
-       print("16");
-      setHyperverserData();
+    if (widget.pagemode == "fromHYPERVERSER") {   
+      await setHyperverserData();
     }
 
     if (widget.pagemode == "fromETBStartFresh") {
-       print("17");
-      setEtbFreshCandidate();
+      
+      await setEtbFreshCandidate();
     }
+
+    setState(() {
+      _isLoading= false;
+    });
   }
 
   List<Map<String, dynamic>> genderList = [];
@@ -1370,6 +1351,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   }
 
   Future<void> _initializeEmpWorkNatureList() async {
+    print("Work nature call ");
     String tokens = "";
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1438,9 +1420,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         SnackBar(content: Text('Failed to load EMP Work Nature list')),
       );
     }
+    print("Work nature end");
   }
 
   Future<void> _initializeEmpStatusList() async {
+    print("Emp status call ");
     String tokens = "";
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1509,9 +1493,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         SnackBar(content: Text('Failed to load EMP Status list')),
       );
     }
+    print("Emp status end ");
   }
 
   Future<void> _initializeEmpTypeList() async {
+    print("Emp type call");
     String tokens = "";
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1580,6 +1566,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         SnackBar(content: Text('Failed to load EMP Type list')),
       );
     }
+    print("Emp type end");
   }
 
   Future<void> _initializeIndustryTypeList() async {
@@ -2006,16 +1993,16 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   // For hyperverser use method
 
   Future<void> setHyperverserData() async {
-    setState(() {
-      _isLoading = true;
-    });
+    // setState(() {
+    //   _isLoading = true;
+    // });
 
     try {
-      print("18");
+      
       final details = widget.ekycResult?.details;
 
       setState(() {
-        print("19");
+        
         // HYperverge data
         firstName.text = details?['ocr_firstName']?.trim() ?? '';
         middlename.text = details?['ocr_middleName']?.trim() ?? '';
@@ -2051,7 +2038,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         }
       });
 
-      print("20");
+     
 
       if (widget.zipCode != null && widget.zipCode!.isNotEmpty) {
         await onZipCodeEntered(widget.zipCode!);
@@ -2107,13 +2094,13 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         print("23");
       });
 
-      Future.delayed(Duration(seconds: 10), () {
-        if (mounted) {
-          setState(() {
-            _isLoading = false; // Data loaded after 5 seconds
-          });
-        }
-      });
+      // Future.delayed(Duration(seconds: 10), () {
+      //   if (mounted) {
+      //     setState(() {
+      //       _isLoading = false; // Data loaded after 5 seconds
+      //     });
+      //   }
+      // });
     } catch (e) {
       print("Error in setNtbFreshCandidate: $e");
       if (mounted) {
@@ -2127,9 +2114,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
   // ***************** ETB FRESH APPLICATION ********************
   Future<void> setEtbFreshCandidate() async {
-    setState(() {
-      _isLoading = true;
-    });
+    // setState(() {
+    //   _isLoading = true;
+    // });
 
     try {
       final etbDetails = widget.customerDetails;
@@ -2243,13 +2230,13 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         print("emp_type is ${emp_Type.text}");
       });
 
-      Future.delayed(Duration(seconds: 10), () {
-        if (mounted) {
-          setState(() {
-            _isLoading = false; // Data loaded after 5 seconds
-          });
-        }
-      });
+      // Future.delayed(Duration(seconds: 10), () {
+      //   if (mounted) {
+      //     setState(() {
+      //       _isLoading = false; // Data loaded after 5 seconds
+      //     });
+      //   }
+      // });
     } catch (e) {
       print("Error in setEtbFreshCandidate: $e");
       if (mounted) {

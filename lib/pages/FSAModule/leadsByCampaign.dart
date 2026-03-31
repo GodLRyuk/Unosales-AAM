@@ -314,20 +314,21 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                                       1, // Add one extra item for the loader
                                   itemBuilder: (context, index) {
                                     if (index < leads.length) {
-                                      if (widget.is_and_campaign == "false") {
+                                      
+                                      if (widget.is_and_campaign == "true") {
                                         return GestureDetector(
                                           onTap: () {
-                                            String leadId = leads[index]['id']!;
-                                            
+                                            String leadId1 =
+                                                leads[index]['id']!;
+                                            //print("leads1 id is $leadId1");
+                                            //print("campaign id is ${widget.campaign}");
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    LosApplicationPage(
-                                                  leadId: leadId,
+                                                    Campaign_form(
                                                   campaign: widget.campaign,
-                                                  pagemode: 'edit',
-                                                  dsrId: '',
+                                                  id: leadId1,
                                                 ),
                                               ),
                                             );
@@ -420,17 +421,17 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                                       } else {
                                         return GestureDetector(
                                           onTap: () {
-                                            String leadId1 =
-                                                leads[index]['id']!;
-                                            //print("leads1 id is $leadId1");
-                                            //print("campaign id is ${widget.campaign}");
+                                            String leadId = leads[index]['id']!;
+                                            
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) =>
-                                                    Campaign_form(
+                                                    LosApplicationPage(
+                                                  leadId: leadId,
                                                   campaign: widget.campaign,
-                                                  id: leadId1,
+                                                  pagemode: 'edit',
+                                                  dsrId: '',
                                                 ),
                                               ),
                                             );

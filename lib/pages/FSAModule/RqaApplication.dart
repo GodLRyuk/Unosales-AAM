@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/otpscreens/dedupeCheck.dart';
@@ -483,6 +485,76 @@ class _RQAApplicationState extends State<RQAApplication> {
     }
   }
 
+  // Random Application ID create
+  String generateApplicationId() {
+  final random = Random();
+
+  // 6 digit random number
+  int randomNumber = 100000 + random.nextInt(900000);
+
+  // current date time (yyyyMMddHHmmss)
+  String dateTime = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+
+  return "APP$randomNumber$dateTime";
+}
+ 
+ // Store data in UNO Data Base
+  Future<void> submitDataUnoDB(
+      String lostoken, Map<String, dynamic> responseData) async {
+    String url = "/save/external-response";
+    final header1 = {
+      'Authorization': 'Bearer $lostoken',
+      'Correlation-Id': '3b2d2c13-4e48-4c6d-8b5d-dbdba6c3c0a8',
+      'Channel': 'FSA',
+      'Content-Type': 'application/json'
+    };
+
+    Map<String, dynamic> formData1 = {
+      "applicationId": generateApplicationId(),
+      "externalSourceSystem": "RQA",
+      "workFlowStage": "ACTICO_RQA_CHECK",
+      "requestBody": {
+        "rqa": {
+          "q1_id": selectedValue,
+          "q2_dob": dob.text,
+          "q3_zipcode": zip.text,
+          "q4_source_income": emp_Status.text,
+          "q4a_emp_status":
+              emp_Type.text.trim().isEmpty ? null : emp_Type.text.trim(),
+          "q5_comp_name": _selectedCompany,
+          "q5a_oth_comp_name": _otherCompanyController.text.trim().isEmpty
+              ? null
+              : _otherCompanyController.text.trim(),
+          "q6_nat_business": emp_Work_Nature.text,
+          "q7_monthly_income": incomeController.text,
+          "q8_exist_cc_loan": creditCardSelectedValue,
+          "q8a_cc_loan_amt": credit_loan_amount.text.trim().isEmpty
+              ? null
+              : credit_loan_amount.text.trim()
+        }
+      },
+      "responseBody": responseData
+    };
+
+    try {
+      final response =
+          await ApiService.postJsonWithUNOApiHeaders(url, formData1, header1);
+          // print("body is $formData1");
+      if (response != null) {
+        if (response.statusCode == 200) {
+          print("Data submitted successfully in UNO DB");
+          // print("response is ${response.body}");
+        } else {
+          print("Data is not submitted ");
+        }
+      }
+    } catch (e) {
+      print("error is $e");
+    }
+  }
+
+  //******************************************* */
+
   Future<void> submitData() async {
     setState(() {
       _isLoading = true;
@@ -543,11 +615,16 @@ class _RQAApplicationState extends State<RQAApplication> {
 
       if (response != null && response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        print("response body $data");
 
         String? status = data['output']['response']['status'];
         String? reason = data['output']['response']['reject_reasons'];
 
         if (status != null && status.toLowerCase() == "pass") {
+          //  ****************************************************
+          submitDataUnoDB(token,data);
+
+          // ***************************************************
           Navigator.push(
             context,
             MaterialPageRoute(
