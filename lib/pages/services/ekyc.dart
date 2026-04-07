@@ -19,12 +19,13 @@ class EkycService {
       );
 
   /// MAIN FUNCTION TO START HYPERVERGE EKYC
-  static Future<HyperKycResult> startKyc() async {
+  static Future<HyperKycResult> startKyc(cwTranscationID) async {
     String token = "";
     String finalToken = "";
 
 
-  final transactionId =  generateSecureTransactionId();
+  // final transactionId =  generateSecureTransactionId();
+  final transactionId =cwTranscationID;
     
     print("Transaction Id for eKyc is $transactionId");
 

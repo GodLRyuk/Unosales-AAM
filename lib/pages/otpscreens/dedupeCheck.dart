@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:top_snackbar_flutter/custom_snack_bar.dart';
 import 'package:top_snackbar_flutter/top_snack_bar.dart';
+import 'package:unosfa/pages/FSAModule/RqaApplication.dart';
 import 'package:unosfa/pages/FSAModule/fsaleaddashboard.dart';
 import 'package:unosfa/pages/FSAModule/losApplication.dart';
 import 'package:unosfa/pages/commingSoon.dart';
@@ -35,6 +36,7 @@ class DedupeCheck extends StatefulWidget {
   final String monthlyIncome;
   final String existingLoan;
   final String? creditLoanAmount;
+  final String CWTranscationID ;
 
   const DedupeCheck({
     super.key,
@@ -55,7 +57,8 @@ class DedupeCheck extends StatefulWidget {
     required this.natureofBusiness,
     required this.monthlyIncome,
     required this.existingLoan,
-    this.creditLoanAmount,
+    this.creditLoanAmount, 
+    required  this.CWTranscationID,
   });
   @override
   State<DedupeCheck> createState() => _DedupeCheckState();
@@ -86,6 +89,8 @@ class _DedupeCheckState extends State<DedupeCheck> {
   @override
   void initState() {
     super.initState();
+
+    print("TRANSCATION ID ${widget.CWTranscationID}");
     // _checkLoginStatus();
     firstName.text = widget.firstName;
     middlename.text = widget.middleName ?? "";
@@ -552,7 +557,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
                       ),
                       onPressed: () async {
                         if (!mounted) return;
-                        HyperKycResult result = await EkycService.startKyc();
+                        HyperKycResult result = await EkycService.startKyc(widget.CWTranscationID);
                         final statusStr = result.status.toString();
                         if (statusStr.contains("autoDeclined")) {
                           showDialog(
@@ -565,7 +570,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
                                 TextButton(
                                   child: const Text("OK"),
                                   onPressed: () {
-                                    Navigator.of(context).pop();
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => RQAApplication()));
                                   },
                                 ),
                               ],
@@ -573,6 +578,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
                           );
                         } else if ((statusStr.contains("autoApproved")) ||
                             (statusStr.contains("needsReview"))) {
+
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -581,6 +587,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
                                 campaign: "",
                                 pagemode: "fromHYPERVERSER",
                                 dsrId: "",
+                                CWTransactionID: widget.CWTranscationID,
                                 ekycResult: result,
                                 mobilePhone: mobilePhone.text,
                                 zipCode: zipCodeController.text,
@@ -592,8 +599,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
                                 natureOfBusiness: natureBusinessController.text,
                                 monthlyIncome: monthlyIncomeController.text,
                                 existingLoan: existingLoanController.text,
-                                creditLoanAmount:
-                                    creditLoanAmountController.text,
+                                creditLoanAmount: creditLoanAmountController.text, 
                               ),
                             ),
                           );
@@ -647,6 +653,8 @@ class _DedupeCheckState extends State<DedupeCheck> {
                       "START_FRESH" ||
                   responseBody["decision"] == "Resume") {
                 var Etbdetails = responseBody["customerDetails"];
+
+                print("IM iN ETB with Cdetails");
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -655,6 +663,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
                       campaign: "",
                       pagemode: "fromETBStartFresh",
                       dsrId: "",
+                      CWTransactionID:widget.CWTranscationID,
                       customerDetails: Etbdetails,
                       mobilePhone: mobilePhone.text,
                       zipCode: zipCodeController.text,

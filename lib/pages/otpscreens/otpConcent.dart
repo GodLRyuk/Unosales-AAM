@@ -73,6 +73,7 @@ class OtpconcentState extends State<Otpconcent> {
   void initState() {
     super.initState();
     String jsonString = jsonEncode(widget.losData.toJson());
+    // print("CW iN CONSENT ${widget.losData.applicationNumber}");
     // print("losData is this");
 
     // for (int i = 0; i < jsonString.length; i += 1000) {
@@ -281,7 +282,7 @@ class OtpconcentState extends State<Otpconcent> {
         "_Emp_Details": {
           "emp_Work_Nature": data.empWorkNature,
           "emp_Mths_In_Cur_Comp": data.empMonthsInCompany,
-          "emp_Status": formatedCode(data.empStatusCode), //data.empStatus,
+          "emp_Status": data.empStatus, 
 
           "emp_Employer_Name": (data.empEmployerName == null ||
                   data.empEmployerName!.trim().isEmpty ||
@@ -289,9 +290,8 @@ class OtpconcentState extends State<Otpconcent> {
               ? data.empEmployerOtherName
               : data.empEmployerName, //data.empEmployerName,
 
-          "emp_Indus_Type":
-              formatedCode(data.empIndustryTypeCode), //data.empIndustryType
-          "emp_Type": formatedCode(data.empTypeCode), //data.empType
+          "emp_Indus_Type": data.empIndustryType,
+          "emp_Type": data.empType, 
           "emp_Yrs_In_Cur_Comp": data.empYearsInCompany,
           "Office_phone_no": "",
           "emp_Type_Code": formatedCode(data

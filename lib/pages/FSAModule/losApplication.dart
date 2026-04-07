@@ -44,6 +44,8 @@ class LosApplicationPage extends StatefulWidget {
   final String? monthlyIncome;
   final String? existingLoan;
   final String? creditLoanAmount;
+  final String? CWTransactionID;
+
 
   const LosApplicationPage({
     super.key,
@@ -67,6 +69,7 @@ class LosApplicationPage extends StatefulWidget {
     this.monthlyIncome,
     this.existingLoan,
     this.creditLoanAmount,
+    this.CWTransactionID,
   });
 
   @override
@@ -163,16 +166,15 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   @override
   void initState() {
     super.initState();
-     initAll();
+    initAll();
   }
 
-
-  Future<void>initAll() async{
+  Future<void> initAll() async {
     setState(() {
-      _isLoading= true;
+      _isLoading = true;
     });
-    
-     _loadData();
+
+    _loadData();
 
     await _initializeGenderList();
     await _initializeEmpWorkNatureList();
@@ -189,27 +191,29 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     await _initializeNationalityList();
 
     // *********************************************
-    if (widget.pagemode == "edit" || widget.pagemode == 'view') {     
+    if (widget.pagemode == "edit" || widget.pagemode == 'view') {
       await fetchLeadDetails();
     }
 
     _ComIdOptions = {};
-    
-    if (widget.pagemode == "fromDSR") {    
+
+    if (widget.pagemode == "fromDSR") {
       await setDsrdata();
     }
 
-    if (widget.pagemode == "fromHYPERVERSER") {   
+    if (widget.pagemode == "fromHYPERVERSER") {
+      print("CWTranscation ID1 ${widget.CWTransactionID}");
       await setHyperverserData();
     }
 
     if (widget.pagemode == "fromETBStartFresh") {
-      
+      print("CWTranscation ID2 ${widget.CWTransactionID}");
+
       await setEtbFreshCandidate();
     }
 
     setState(() {
-      _isLoading= false;
+      _isLoading = false;
     });
   }
 
@@ -1351,7 +1355,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   }
 
   Future<void> _initializeEmpWorkNatureList() async {
-    print("Work nature call ");
     String tokens = "";
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1420,11 +1423,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         SnackBar(content: Text('Failed to load EMP Work Nature list')),
       );
     }
-    print("Work nature end");
+    
   }
 
   Future<void> _initializeEmpStatusList() async {
-    print("Emp status call ");
     String tokens = "";
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1493,11 +1495,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         SnackBar(content: Text('Failed to load EMP Status list')),
       );
     }
-    print("Emp status end ");
+    
   }
 
   Future<void> _initializeEmpTypeList() async {
-    print("Emp type call");
+   
     String tokens = "";
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1566,7 +1568,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         SnackBar(content: Text('Failed to load EMP Type list')),
       );
     }
-    print("Emp type end");
   }
 
   Future<void> _initializeIndustryTypeList() async {
@@ -1998,11 +1999,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     // });
 
     try {
-      
       final details = widget.ekycResult?.details;
 
       setState(() {
-        
         // HYperverge data
         firstName.text = details?['ocr_firstName']?.trim() ?? '';
         middlename.text = details?['ocr_middleName']?.trim() ?? '';
@@ -2038,16 +2037,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         }
       });
 
-     
-
       if (widget.zipCode != null && widget.zipCode!.isNotEmpty) {
         await onZipCodeEntered(widget.zipCode!);
       }
 
       //****************************************************** */
       String code1 = widget.sourceIncome ?? "";
-      print("set emp_status ${code1}");
-      print("list is $empStatusList");
       final selectedItem1 = empStatusList.firstWhere(
         (item) => item['key'] == code1,
         orElse: () => {},
@@ -2056,15 +2051,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       setState(() {
         emp_Status_Code.text = code1;
         emp_Status.text = selectedItem1['value'] ?? '';
-        print("emp_status is ${emp_Status.text}");
-        print("21");
       });
 
       //****************************************************
 
       String code2 = widget.natureOfBusiness ?? "";
-      print("emp_Work_Nature $code2");
-      print("work nature $empWorkNatureList");
+
       final selectedItem2 = empWorkNatureList.firstWhere(
         (item) => item['key'] == code2,
         orElse: () => {},
@@ -2073,15 +2065,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       setState(() {
         emp_Work_Nature_Code.text = code2;
         emp_Work_Nature.text = selectedItem2['value'] ?? '';
-        print("emp work natue ${emp_Work_Nature.text}");
-        print("22");
       });
 
       //************************************************ */
 
       String code3 = widget.empStatus ?? "";
-      print("emp_Type $code3");
-      print("emp_type $empList");
 
       final selectedItem3 = empList.firstWhere(
         (item) => item['key'] == code3,
@@ -2090,17 +2078,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       setState(() {
         emp_Type_Code.text = code3;
         emp_Type.text = selectedItem3['value'] ?? '';
-        print("emp_type is ${emp_Type.text}");
-        print("23");
       });
-
-      // Future.delayed(Duration(seconds: 10), () {
-      //   if (mounted) {
-      //     setState(() {
-      //       _isLoading = false; // Data loaded after 5 seconds
-      //     });
-      //   }
-      // });
     } catch (e) {
       print("Error in setNtbFreshCandidate: $e");
       if (mounted) {
@@ -2109,7 +2087,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         });
       }
     }
-    print("24");
   }
 
   // ***************** ETB FRESH APPLICATION ********************
@@ -2186,14 +2163,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
             (item) => item['key'] == code,
             orElse: () => {},
           );
-          print(" emp_Work_Nature code $code");
-          print("emp work nature lsit ${empWorkNatureList}");
 
           setState(() {
             //emp_Work_Nature
             emp_Work_Nature_Code.text = code;
             emp_Work_Nature.text = selectedItem['value'] ?? '';
-            print("emp work nature lsit ${emp_Work_Nature.text}");
           });
         }
       }
@@ -2201,8 +2175,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       // Fetch data from RQA
       //EMPLOYEE STATUS
       String code1 = widget.sourceIncome ?? "";
-      print("set emp_status ${code1}");
-      print("list is $empStatusList");
       final selectedItem1 = empStatusList.firstWhere(
         (item) => item['key'] == code1,
         orElse: () => {},
@@ -2211,15 +2183,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       setState(() {
         emp_Status_Code.text = code1;
         emp_Status.text = selectedItem1['value'] ?? '';
-        print("emp_status is ${emp_Status.text}");
       });
 
       // EMPLOYEE TYPE
 
       String code3 = widget.empStatus ?? "";
-      print("emp_Type $code3");
-      print("emp_type $empList");
-
       final selectedItem3 = empList.firstWhere(
         (item) => item['key'] == code3,
         orElse: () => {},
@@ -2227,16 +2195,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       setState(() {
         emp_Type_Code.text = code3;
         emp_Type.text = selectedItem3['value'] ?? '';
-        print("emp_type is ${emp_Type.text}");
       });
-
-      // Future.delayed(Duration(seconds: 10), () {
-      //   if (mounted) {
-      //     setState(() {
-      //       _isLoading = false; // Data loaded after 5 seconds
-      //     });
-      //   }
-      // });
     } catch (e) {
       print("Error in setEtbFreshCandidate: $e");
       if (mounted) {
@@ -3120,9 +3079,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                       }
 
                       String CWTransactionIdNo =
-                          widget.ekycResult?.transactionId?.isNotEmpty == true
-                              ? widget.ekycResult!.transactionId!
+                          widget.CWTransactionID?.isNotEmpty == true
+                              ? widget.CWTransactionID.toString()
                               : generateSecureTransactionId();
+                      //  String? CWTransactionIdNo = widget.CWTransactionID;
 
                       LosApplicationModel losData = LosApplicationModel(
                           firstName: firstName.text,
@@ -3203,6 +3163,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 leadId: widget.leadId,
                                 pagemode: widget.pagemode)),
                       );
+
+                      print("cw transaction id ${losData.cwTransactionID}");
                     } else {
                       return null;
                     }

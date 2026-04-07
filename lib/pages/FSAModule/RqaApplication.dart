@@ -495,12 +495,12 @@ class _RQAApplicationState extends State<RQAApplication> {
   // current date time (yyyyMMddHHmmss)
   String dateTime = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
 
-  return "APP$randomNumber$dateTime";
+  return "FSA_$randomNumber$dateTime";
 }
  
  // Store data in UNO Data Base
   Future<void> submitDataUnoDB(
-      String lostoken, Map<String, dynamic> responseData) async {
+      String lostoken, Map<String, dynamic> responseData, String CWTransactionID) async {
     String url = "/save/external-response";
     final header1 = {
       'Authorization': 'Bearer $lostoken',
@@ -510,7 +510,7 @@ class _RQAApplicationState extends State<RQAApplication> {
     };
 
     Map<String, dynamic> formData1 = {
-      "applicationId": generateApplicationId(),
+      "applicationId": CWTransactionID,
       "externalSourceSystem": "RQA",
       "workFlowStage": "ACTICO_RQA_CHECK",
       "requestBody": {
@@ -559,6 +559,8 @@ class _RQAApplicationState extends State<RQAApplication> {
     setState(() {
       _isLoading = true;
     });
+        String CWTransactionID =generateApplicationId();
+
     String token = "";
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? accessToken = prefs.getString('accessToken');
@@ -619,16 +621,16 @@ class _RQAApplicationState extends State<RQAApplication> {
 
         String? status = data['output']['response']['status'];
         String? reason = data['output']['response']['reject_reasons'];
-
+        //  ****************************************************
+          submitDataUnoDB(token,data,CWTransactionID);
+        // ***************************************************
         if (status != null && status.toLowerCase() == "pass") {
-          //  ****************************************************
-          submitDataUnoDB(token,data);
-
-          // ***************************************************
+         
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => DedupeCheck(
+                CWTranscationID: CWTransactionID,
                   firstName: firstName.text,
                   middleName: middlename.text,
                   lastName: lastName.text,

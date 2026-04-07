@@ -1897,7 +1897,8 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                                 leadId: "",
                                 campaign: "",
                                 pagemode: "fromDSR",
-                                dsrId: dsrId),
+                                dsrId: dsrId,
+                                CWTransactionID: '',),
                           ),
                         );
                       },
@@ -1984,7 +1985,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                                 leadId: "",
                                 campaign: "",
                                 pagemode: "fromDSR",
-                                dsrId: dsrId),
+                                dsrId: dsrId, CWTransactionID: '',),
                           ),
                         );
                       },
