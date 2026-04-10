@@ -487,20 +487,20 @@ class _RQAApplicationState extends State<RQAApplication> {
 
   // Random Application ID create
   String generateApplicationId() {
-  final random = Random();
+    final random = Random();
 
-  // 6 digit random number
-  int randomNumber = 100000 + random.nextInt(900000);
+    // 6 digit random number
+    int randomNumber = 100000 + random.nextInt(900000);
 
-  // current date time (yyyyMMddHHmmss)
-  String dateTime = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
+    // current date time (yyyyMMddHHmmss)
+    String dateTime = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
 
-  return "FSA_$randomNumber$dateTime";
-}
- 
- // Store data in UNO Data Base
-  Future<void> submitDataUnoDB(
-      String lostoken, Map<String, dynamic> responseData, String CWTransactionID) async {
+    return "FSA_$randomNumber$dateTime";
+  }
+
+  // Store data in UNO Data Base
+  Future<void> submitDataUnoDB(String lostoken,
+      Map<String, dynamic> responseData, String CWTransactionID) async {
     String url = "/save/external-response";
     final header1 = {
       'Authorization': 'Bearer $lostoken',
@@ -539,7 +539,7 @@ class _RQAApplicationState extends State<RQAApplication> {
     try {
       final response =
           await ApiService.postJsonWithUNOApiHeaders(url, formData1, header1);
-          // print("body is $formData1");
+      // print("body is $formData1");
       if (response != null) {
         if (response.statusCode == 200) {
           print("Data submitted successfully in UNO DB");
@@ -559,7 +559,7 @@ class _RQAApplicationState extends State<RQAApplication> {
     setState(() {
       _isLoading = true;
     });
-        String CWTransactionID =generateApplicationId();
+    String CWTransactionID = generateApplicationId();
 
     String token = "";
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -620,17 +620,19 @@ class _RQAApplicationState extends State<RQAApplication> {
         print("response body $data");
 
         String? status = data['output']['response']['status'];
-        String? reason = data['output']['response']['reject_reasons'];
+        print("status is $status");
+        
+
         //  ****************************************************
-          submitDataUnoDB(token,data,CWTransactionID);
+        print("status is $status");
+        submitDataUnoDB(token, data, CWTransactionID);
         // ***************************************************
         if (status != null && status.toLowerCase() == "pass") {
-         
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => DedupeCheck(
-                CWTranscationID: CWTransactionID,
+                  CWTranscationID: CWTransactionID,
                   firstName: firstName.text,
                   middleName: middlename.text,
                   lastName: lastName.text,
@@ -652,6 +654,8 @@ class _RQAApplicationState extends State<RQAApplication> {
             ),
           );
         } else {
+          List reason = data['output']['response']['reject_reasons'];
+          String allReasons = reason.map((e) => e['reason']).join('\n');
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -677,7 +681,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                   ],
                 ),
                 content: Text(
-                  "RQA Check Failed.\n\nReason: $reason",
+                  "RQA Check Failed.Reason:\n$allReasons",
                   style: const TextStyle(
                     fontSize: 16,
                   ),

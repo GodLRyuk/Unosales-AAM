@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 class ComingSoon extends StatefulWidget {
   const ComingSoon({super.key});
 
@@ -9,9 +10,7 @@ class ComingSoon extends StatefulWidget {
 class _ComingSoonState extends State<ComingSoon> {
   void initState() {
     super.initState();
-   
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +47,6 @@ class _ComingSoonState extends State<ComingSoon> {
             // height: double.infinity,
           ),
         ),
-        
       ),
     );
   }

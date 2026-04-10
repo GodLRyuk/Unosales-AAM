@@ -10,6 +10,11 @@ import 'package:unosfa/pages/generalscreens/profileUpdate.dart';
 import 'package:unosfa/pages/services/api_service.dart';
 import 'package:unosfa/widgetSupport/widgetstyle.dart';
 
+const String uatBuildNumber = String.fromEnvironment(
+  'UAT_BUILD_NUMBER',
+  defaultValue: 'unknown',
+);
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -18,7 +23,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String appVersion ="";
+  String appVersion = "";
   String appCode = "";
   List<String>? userInfo;
   Map<String, dynamic> userData = {};
@@ -42,14 +47,13 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
       final cleanVersion = packageInfo.version.split('-').first;
-    setState(() {
-      appVersion ='Version $cleanVersion';
-      appCode ='Code ${packageInfo.buildNumber}';
-    });      
+      setState(() {
+        appVersion = 'Version $cleanVersion';
+        appCode = 'Code ${packageInfo.buildNumber}';
+      });
     } catch (e) {
       print("catch error $e");
     }
-   
   }
 
   Future<void> _loadData() async {
@@ -417,112 +421,121 @@ class _ProfilePageState extends State<ProfilePage> {
                         label: "Email",
                         value: userData['email'] ?? 'No Email'),
                     const SizedBox(height: 7),
-                        Text("Right Quality Application Defination".toUpperCase(),
+                    Text("Right Quality Application Defination".toUpperCase(),
                         style: WidgetSupport.titleTextPurple()),
                     const SizedBox(height: 7),
                     Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.arrow_right, color: Color(0xFFa604ad), size: 25),
-                          const SizedBox(width: 5),
-                          Text(
-                            "Age >21 and <60",
-                            style: WidgetSupport.personaldetailsText(),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Icons.arrow_right, color: Color(0xFFa604ad), size: 25),
-                          const SizedBox(width: 5),
-                          Text(
-                            "Location is part of Serviceable Zip codes",
-                            style: WidgetSupport.personaldetailsText(),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Icons.arrow_right, color: Color(0xFFa604ad), size: 25),
-                          const SizedBox(width: 5),
-                          Text(
-                            "Non-BPO 25K+ income",
-                            style: WidgetSupport.personaldetailsText(),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Icons.arrow_right, color: Color(0xFFa604ad), size: 25),
-                          const SizedBox(width: 5),
-                          Text(
-                            "BPO 40K+ income",
-                            style: WidgetSupport.personaldetailsText(),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Icons.arrow_right, color: Color(0xFFa604ad), size: 25),
-                          const SizedBox(width: 5),
-                          Text(
-                            "Bank Loan 25,000 or above",
-                            style: WidgetSupport.personaldetailsText(),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Icons.arrow_right, color: Color(0xFFa604ad), size: 25),
-                          const SizedBox(width: 5),
-                          Text(
-                            "Bank CC 25,000 limit or above",
-                            style: WidgetSupport.personaldetailsText(),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Icons.arrow_right, color: Color(0xFFa604ad), size: 25),
-                          const SizedBox(width: 5),
-                          Text(
-                            "Home Credit Loan 15,000 or above",
-                            style: WidgetSupport.personaldetailsText(),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Icons.arrow_right, color: Color(0xFFa604ad), size: 25),
-                          const SizedBox(width: 5),
-                          Text(
-                            "GLoan 15,000 or above",
-                            style: WidgetSupport.personaldetailsText(),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(Icons.arrow_right, color: Color(0xFFa604ad), size: 25),
-                          const SizedBox(width: 5),
-                          Text(
-                            "Valid and complete Document",
-                            style: WidgetSupport.personaldetailsText(),
-                          ),
-                        ],
-                      ),
-                    ],
-                  )
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.arrow_right,
+                                color: Color(0xFFa604ad), size: 25),
+                            const SizedBox(width: 5),
+                            Text(
+                              "Age >21 and <60",
+                              style: WidgetSupport.personaldetailsText(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(Icons.arrow_right,
+                                color: Color(0xFFa604ad), size: 25),
+                            const SizedBox(width: 5),
+                            Text(
+                              "Location is part of Serviceable Zip codes",
+                              style: WidgetSupport.personaldetailsText(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(Icons.arrow_right,
+                                color: Color(0xFFa604ad), size: 25),
+                            const SizedBox(width: 5),
+                            Text(
+                              "Non-BPO 25K+ income",
+                              style: WidgetSupport.personaldetailsText(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(Icons.arrow_right,
+                                color: Color(0xFFa604ad), size: 25),
+                            const SizedBox(width: 5),
+                            Text(
+                              "BPO 40K+ income",
+                              style: WidgetSupport.personaldetailsText(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(Icons.arrow_right,
+                                color: Color(0xFFa604ad), size: 25),
+                            const SizedBox(width: 5),
+                            Text(
+                              "Bank Loan 25,000 or above",
+                              style: WidgetSupport.personaldetailsText(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(Icons.arrow_right,
+                                color: Color(0xFFa604ad), size: 25),
+                            const SizedBox(width: 5),
+                            Text(
+                              "Bank CC 25,000 limit or above",
+                              style: WidgetSupport.personaldetailsText(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(Icons.arrow_right,
+                                color: Color(0xFFa604ad), size: 25),
+                            const SizedBox(width: 5),
+                            Text(
+                              "Home Credit Loan 15,000 or above",
+                              style: WidgetSupport.personaldetailsText(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(Icons.arrow_right,
+                                color: Color(0xFFa604ad), size: 25),
+                            const SizedBox(width: 5),
+                            Text(
+                              "GLoan 15,000 or above",
+                              style: WidgetSupport.personaldetailsText(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            const Icon(Icons.arrow_right,
+                                color: Color(0xFFa604ad), size: 25),
+                            const SizedBox(width: 5),
+                            Text(
+                              "Valid and complete Document",
+                              style: WidgetSupport.personaldetailsText(),
+                            ),
+                          ],
+                        ),
+                      ],
+                    )
                   ],
                 ),
               ),
@@ -566,14 +579,29 @@ class _ProfilePageState extends State<ProfilePage> {
                       : () => _handleLogout(context, isCheckout: true),
                 ),
               ),
-
-              SizedBox(height: MediaQuery.sizeOf(context).height *0.2,),
-             
-              Text("$appVersion", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-              SizedBox(height: MediaQuery.sizeOf(context).height *0.01,),
-
-              Text("$appCode", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
-
+              SizedBox(
+                height: MediaQuery.sizeOf(context).height * 0.2,
+              ),
+              Text(
+                "$appVersion",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(
+                height: MediaQuery.sizeOf(context).height * 0.01,
+              ),
+              Text(
+                "$appCode",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(
+                height: MediaQuery.sizeOf(context).height * 0.01,
+              ),
+              Text('UAT Build No: $uatBuildNumber',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ))
             ],
           ),
         ),
