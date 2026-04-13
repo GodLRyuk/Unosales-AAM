@@ -46,7 +46,6 @@ class LosApplicationPage extends StatefulWidget {
   final String? creditLoanAmount;
   final String? CWTransactionID;
 
-
   const LosApplicationPage({
     super.key,
     required this.leadId,
@@ -1423,7 +1422,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         SnackBar(content: Text('Failed to load EMP Work Nature list')),
       );
     }
-    
   }
 
   Future<void> _initializeEmpStatusList() async {
@@ -1495,11 +1493,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         SnackBar(content: Text('Failed to load EMP Status list')),
       );
     }
-    
   }
 
   Future<void> _initializeEmpTypeList() async {
-   
     String tokens = "";
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -2000,18 +1996,22 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
     try {
       final details = widget.ekycResult?.details;
-
+      
       setState(() {
         // HYperverge data
         firstName.text = details?['ocr_firstName']?.trim() ?? '';
         middlename.text = details?['ocr_middleName']?.trim() ?? '';
         lastName.text = details?['ocr_lastName']?.trim() ?? '';
 
-        if (details?['ocr_gender'] == "M") {
+        if ((details?['ocr_gender'] == "M") || (details?['psa_gender'] == "Male")) {
           gender.text = "Male";
-        } else {
+        } else if ((details?['ocr_gender'] == "F") || (details?['psa_gender'] == "Female")) {
           gender.text = "Female";
+        } 
+        else {
+          gender.text = "";
         }
+
         birthDate.text = details?['ocr_dateOfBirth']?.trim() ?? '';
         issuingAuthority.text = "";
         address.text = details?['ocr_address'] ?? '';
@@ -2369,12 +2369,13 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                               _buildGenderDropdown(
                                   controller: gender,
                                   label: "   Select Gender",
-                                  readOnly:
-                                      (widget.pagemode == "fromHYPERVERSER") ||
-                                              (widget.pagemode ==
+                                  readOnly: gender.text.isNotEmpty &&
+                                          (widget.pagemode ==
+                                                  "fromHYPERVERSER" ||
+                                              widget.pagemode ==
                                                   "fromETBStartFresh")
-                                          ? true
-                                          : false),
+                                      ? true
+                                      : false),
                               SizedBox(height: 6),
                               _buildTextField(
                                 email,

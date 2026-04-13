@@ -264,7 +264,6 @@ class _LosStatusChartState extends State<LosStatusChart>
     });
   }
 
-
   Future<void> _searchLOSData({
     String? searchQuery,
     bool isLoadMore = false,
@@ -577,7 +576,7 @@ class _LosStatusChartState extends State<LosStatusChart>
                                                         .toString();
                                                 waybookImplement(
                                                     cwTransactionID,
-                                                    lead['id']);
+                                                    lead['id'].toString());
                                               },
                                               child: Text(
                                                 "CHECK STATUS",
@@ -720,6 +719,9 @@ class _LosStatusChartState extends State<LosStatusChart>
   }
 
   Future<void> waybookImplement(String cwId, String losId) async {
+    setState(() {
+      _isLoading = true;
+    });
     String losToken = "";
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -750,8 +752,6 @@ class _LosStatusChartState extends State<LosStatusChart>
       }
 
       final encodedToken = Uri.encodeComponent(ssotoken);
-
-      //final url = Uri.parse('${AppConfig.unoBaseApiUrl}/api/app/offer');
       final offerUrl = "/api/app/offer";
 
       final headers = {
@@ -765,6 +765,8 @@ class _LosStatusChartState extends State<LosStatusChart>
       final response =
           await ApiService.postJsonWithUNOApiHeaders(offerUrl, body, headers);
       final data = json.decode(response!.body);
+      print("response is $data");
+    
       String offerStatus = data[0]['offerStatus'];
       print("offerStatus = $offerStatus");
 
@@ -807,7 +809,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         }
 
         return;
-      } else {
+      } else if(offerStatus=="Failed") {
         final losUrl = "/api/leads/los-details/$losId/";
         final headers = {
           'Authorization': 'Bearer $token',
@@ -815,30 +817,28 @@ class _LosStatusChartState extends State<LosStatusChart>
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
           'Content-Type': 'application/json',
         };
-        final body = {"workflow_status": "Prelim UW Failed"};
+        final body = {
+          "workflow_status": "Prelim UW Failed",
+          "offerStatus": offerStatus};
 
         final responsefromLOS =
             await ApiService.patchWithHeaders(losUrl, headers, body);
-        print("code is ${responsefromLOS!.statusCode}");
+        // print("code is ${responsefromLOS!.statusCode}");
 
         showDialog(
           context: context,
           barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("Application Status "),
-              content: Text("Your application has been $offerStatus"),
+              title: Text("Application Status $offerStatus"),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => NavigationPage(),
-                      ),
-                      (route) => false,
-                    );
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => NavigationPage()));
                   },
                   child: const Text("OK"),
                 ),
@@ -846,6 +846,39 @@ class _LosStatusChartState extends State<LosStatusChart>
             );
           },
         );
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        return;
+      }
+      else  {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Application Status $offerStatus"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => NavigationPage()));
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+
+        setState(() {
+          _isLoading = false;
+        });
 
         return;
       }

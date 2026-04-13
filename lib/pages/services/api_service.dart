@@ -209,8 +209,9 @@ class ApiService {
     final fullUrl = Uri.parse('${AppConfig.unoBaseApiUrl}$endpoint');
     final isHttps = baseUri.scheme == 'https';
 
-    //  print("postJsonWithHeaders header $fullUrl"); //********** */
-    //  print("postJsonWithHeaders header $headers"); 
+     print("postJsonWithHeaders header $fullUrl"); //********** */
+     print("postJsonWithHeaders header $headers"); 
+     print("Body ${body}");
     // headers['User-Agent'] =
     //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
     if (isHttps) {

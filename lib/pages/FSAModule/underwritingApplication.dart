@@ -17,20 +17,19 @@ class Underwritingapplication extends StatefulWidget {
       _UnderwritingapplicationState();
 }
 
-class _UnderwritingapplicationState
-    extends State<Underwritingapplication> {
+class _UnderwritingapplicationState extends State<Underwritingapplication> {
   final TextEditingController _searchFilter = TextEditingController();
 
-  List results = []; 
+  List results = [];
   String? workflowStatus;
   bool isLoading = false;
   List<String>? userInfo;
 
   @override
   void initState() {
-  super.initState();
-  loadInitialLeads();
-}
+    super.initState();
+    loadInitialLeads();
+  }
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,32 +65,27 @@ class _UnderwritingapplicationState
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => NavigationPage()),
+                  MaterialPageRoute(builder: (context) => NavigationPage()),
                 );
               },
             ),
           ),
         ),
       ),
-
       body: Column(
         children: [
-
           /// 🔎 Search Field
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: TextField(
               controller: _searchFilter,
               decoration: InputDecoration(
-                labelText:
-                    'Search By Name, Phone Number, TransactionID',
+                labelText: 'Search By Name, Phone Number, TransactionID',
                 enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.grey),
                 ),
                 focusedBorder: const OutlineInputBorder(
-                  borderSide:
-                      BorderSide(color: Color(0xFFac00d0)),
+                  borderSide: BorderSide(color: Color(0xFFac00d0)),
                 ),
                 suffixIcon: Container(
                   color: const Color(0xFFac00d0),
@@ -102,15 +96,13 @@ class _UnderwritingapplicationState
                         underWritingStatus(searchData);
                       }
                     },
-                    icon: const Icon(Icons.search,
-                        color: Colors.white),
+                    icon: const Icon(Icons.search, color: Colors.white),
                   ),
                 ),
               ),
             ),
           ),
 
-         
           Expanded(
             child: isLoading
                 ? const Center(
@@ -120,42 +112,31 @@ class _UnderwritingapplicationState
                     ? const Center(
                         child: Text(
                           "No Data Found",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold),
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       )
                     : ListView.builder(
                         itemCount: results.length,
                         itemBuilder: (context, index) {
-
                           final leadData = results[index];
-                          final client =
-                              leadData["clientDetails"] ?? {};
-                          final losStatus =
-                              leadData["los_status"] ?? {};
+                          final client = leadData["clientDetails"] ?? {};
+                          final losStatus = leadData["los_status"] ?? {};
 
                           return Container(
-                            margin:
-                                const EdgeInsets.symmetric(
-                                    vertical: 10,
-                                    horizontal: 10),
+                            margin: const EdgeInsets.symmetric(
+                                vertical: 10, horizontal: 10),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius:
-                                  BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(8),
                               border: const Border(
                                 top: BorderSide(
-                                    color: Color(0xFF640D78),
-                                    width: 1.0),
+                                    color: Color(0xFF640D78), width: 1.0),
                                 bottom: BorderSide(
-                                    color: Color(0xFF640D78),
-                                    width: 1.0),
+                                    color: Color(0xFF640D78), width: 1.0),
                                 left: BorderSide(
-                                    color: Color(0xFF640D78),
-                                    width: 5.0),
+                                    color: Color(0xFF640D78), width: 5.0),
                                 right: BorderSide(
-                                    color: Color(0xFF640D78),
-                                    width: 1.0),
+                                    color: Color(0xFF640D78), width: 1.0),
                               ),
                             ),
                             child: ListTile(
@@ -166,45 +147,40 @@ class _UnderwritingapplicationState
                               ),
                               title: Text(
                                 "${client['firstName'] ?? ''} "
-                                "${client['middleName'] ?? ''} "
-                                "${client['lastName'] ?? ''}"
+                                        "${client['middleName'] ?? ''} "
+                                        "${client['lastName'] ?? ''}"
                                     .trim(),
                                 style: const TextStyle(
-                                    fontWeight:
-                                        FontWeight.bold),
+                                    fontWeight: FontWeight.bold),
                               ),
                               subtitle: Column(
-                                crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-
                                   Text(
                                       "Mobile: ${client['mobilePhone'] ?? 'N/A'}"),
-
                                   Text(
                                       "CWTransactionID: ${leadData['CWTransactionID'] ?? 'N/A'}"),
-
                                   Text(
                                       "Offer Status: ${losStatus['offerStatus'] ?? 'N/A'}"),
-
                                   Text(
                                       "UW Status: ${losStatus['uwStatus'] ?? 'N/A'}"),
-
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Expanded(
                                         child: Text(
-                                            "Application No: ${losStatus['applicationNo'] ?? 'N/A'}",
-                                            overflow: TextOverflow.ellipsis,),
+                                          "Application No: ${losStatus['applicationNo'] ?? 'N/A'}",
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
                                       ),
-                                        
-                                        
-                                       GestureDetector(
-                                        
+                                      GestureDetector(
                                         onTap: () {
-                                         String cwTransactionID = leadData['CWTransactionID'].toString();
-                                         waybookImplement(cwTransactionID, leadData['id']);
+                                          String cwTransactionID =
+                                              leadData['CWTransactionID'];
+
+                                          waybookImplement(cwTransactionID,
+                                              leadData['id'].toString());
                                         },
                                         child: Text(
                                           "CHECK STATUS",
@@ -218,7 +194,6 @@ class _UnderwritingapplicationState
                                     ],
                                   ),
                                   SizedBox(height: 5),
-
                                 ],
                               ),
                             ),
@@ -231,54 +206,50 @@ class _UnderwritingapplicationState
     );
   }
 
-
   Future<void> loadInitialLeads() async {
-  try {
-    setState(() {
-      isLoading = true;
-    });
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('accessToken');
-
-    final url = "/api/leads/los-details/";
-
-    final headers = {
-      'Authorization': 'Bearer $token',
-      'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    };
-
-    final response = await ApiService.getWithHeaders(url, headers);
-
-    if (response != null && response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-
-      List allResults = data["results"] ?? [];
-
-      
-      List filteredResults = allResults
-          .where((item) => item["workflow_status"] == "SW_PW")
-          .toList();
-
+    try {
       setState(() {
-        results = filteredResults;
+        isLoading = true;
+      });
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('accessToken');
+
+      final url = "/api/leads/los-details/";
+
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+
+      final response = await ApiService.getWithHeaders(url, headers);
+
+      if (response != null && response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        List allResults = data["results"] ?? [];
+
+        List filteredResults = allResults
+            .where((item) => item["workflow_status"] == "SW_PW")
+            .toList();
+
+        setState(() {
+          results = filteredResults;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
         isLoading = false;
       });
-    } else {
-      setState(() {
-        isLoading = false;
-      });
+      print("Exception: $e");
     }
-  } catch (e) {
-    setState(() {
-      isLoading = false;
-    });
-    print("Exception: $e");
   }
-}
-
-
 
   Future<void> underWritingStatus(String searchValue) async {
     try {
@@ -294,45 +265,38 @@ class _UnderwritingapplicationState
       final headers = {
         'Authorization': 'Bearer $token',
         'User-Agent':
-                      'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
 
-      final response =
-          await ApiService.getWithHeaders(url, headers);
+      final response = await ApiService.getWithHeaders(url, headers);
 
-     if (response != null && response.statusCode == 200) {
-            final data = jsonDecode(response.body);
+      if (response != null && response.statusCode == 200) {
+        final data = jsonDecode(response.body);
 
-            List allResults = data["results"] ?? [];
+        List allResults = data["results"] ?? [];
 
+        List filteredResults = allResults
+            .where((item) => item["workflow_status"] == "SW_PW")
+            .toList();
 
-            List filteredResults = allResults
-                .where((item) => item["workflow_status"] == "SW_PW")
-                .toList();
-
-            setState(() {
-              results = filteredResults;
-              isLoading = false;
-            });
-          }
-          else {
-                  setState(() {
-                    isLoading = false;
-                  });
-                  print("Error: ${response?.body}");
-                }
-              } catch (e) {
-                setState(() {
-                  isLoading = false;
-                });
-                print("Exception: $e");
-            }
+        setState(() {
+          results = filteredResults;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        print("Error: ${response?.body}");
       }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print("Exception: $e");
+    }
+  }
 
-
-
-
-    
   String publicKeyP1 = """
 -----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAibVtzmmpQ8OpmWzF3M3Z
@@ -345,271 +309,246 @@ AQIDAQAB
 -----END PUBLIC KEY-----
 """;
 
-Future<Map<String, dynamic>> buildPayload() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-    userInfo = prefs.getStringList('userInfo');
-  //String agentCode = "testFSA";
-  print("agent code is $userInfo[0]");
-
-  if (userInfo![0] == null || userInfo![0].isEmpty) {
-    throw Exception("Agent code not found in SharedPreferences");
-  }
-
-  // Parse RSA Public Key
-  final parser = RSAKeyParser();
-  final RSAPublicKey rsaPublicKey = parser.parse(publicKeyP1) as RSAPublicKey;
-
-  final encrypter = Encrypter(
-    RSA(publicKey: rsaPublicKey),
-  );
-
-  // 1️⃣ JSON object to encrypt
-  final jsonObject = 
- 
-  {
-    "userId": userInfo![0],
-    "appId": "Sales_App",
-  };
-
-  // 2️⃣ Convert to JSON string
-  final jsonString = json.encode(jsonObject);
-
-  // 3️⃣ Encrypt JSON once
-  final encrypted = encrypter.encrypt(jsonString).base64;
-
-  // 4️⃣ Final payload
-  return {
-    "data": encrypted,
-    "keyId": "v1",
-  };
-}
-
-Future<void> callSosLogoin() async {
-  try {
-    final payload = await buildPayload();
+  Future<Map<String, dynamic>> buildPayload() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('accessToken');
-     try {
-      String tokenUrl = "/api/leads/los-access-token/";
-      final headers = {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      };
-      final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
-      if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
-        token = data['access_token'];
-        
-      }
-    } catch (e) {
-      print("HTTP Request Failed: $e");
+    userInfo = prefs.getStringList('userInfo');
+    //String agentCode = "testFSA";
+    print("agent code is $userInfo[0]");
+
+    if (userInfo![0] == null || userInfo![0].isEmpty) {
+      throw Exception("Agent code not found in SharedPreferences");
     }
 
-    // Done
-    final url = Uri.parse("${AppConfig.otpUrl}/auth/sso-login");   
-    final headers = {
-      "Authorization": 'Bearer $token',
+    // Parse RSA Public Key
+    final parser = RSAKeyParser();
+    final RSAPublicKey rsaPublicKey = parser.parse(publicKeyP1) as RSAPublicKey;
 
-      "Content-Type": "application/json",
-      "Accept": "application/json",
-      "User-Agent":
-          "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+    final encrypter = Encrypter(
+      RSA(publicKey: rsaPublicKey),
+    );
 
+    // 1️⃣ JSON object to encrypt
+    final jsonObject = {
+      "userId": userInfo![0],
+      "appId": "Sales_App",
     };
 
-    final response = await http.post(
-      url,
-      headers: headers,
-      body: jsonEncode(payload),
-    );
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final sostoken = data["token"];
+    // 2️⃣ Convert to JSON string
+    final jsonString = json.encode(jsonObject);
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString("ssoToken", sostoken);
+    // 3️⃣ Encrypt JSON once
+    final encrypted = encrypter.encrypt(jsonString).base64;
 
-      
-      //return sostoken;
-    } else {
-      print("Error happened → Status: ${response.statusCode}");
-     // return null;
-    }
-  } catch (e) {
-    print("Error is this: $e");
-    //return null;
+    // 4️⃣ Final payload
+    return {
+      "data": encrypted,
+      "keyId": "v1",
+    };
   }
-}
 
+  Future<void> callSosLogoin() async {
+    try {
+      final payload = await buildPayload();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('accessToken');
+      try {
+        String tokenUrl = "/api/leads/los-access-token/";
+        final headers = {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'User-Agent':
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        };
+        final Tokenresponse =
+            await ApiService.getWithHeaders(tokenUrl, headers);
+        if (Tokenresponse != null) {
+          final data = json.decode(Tokenresponse.body);
+          token = data['access_token'];
+        }
+      } catch (e) {
+        print("HTTP Request Failed: $e");
+      }
 
-  
- Future<void> waybookImplement(String cwId,String losId) async {
-  String losToken = "";
-  try {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('accessToken');
-    String? ssotoken = prefs.getString('ssoToken');
-
-     try {
-      String tokenUrl = "/api/leads/los-access-token/";
+      // Done
+      final url = Uri.parse("${AppConfig.otpUrl}/auth/sso-login");
       final headers = {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        "Authorization": 'Bearer $token',
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "User-Agent":
+            "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
       };
-      final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
-      if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
-       losToken = data['access_token'];
+
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: jsonEncode(payload),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final sostoken = data["token"];
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString("ssoToken", sostoken);
+
+        //return sostoken;
+      } else {
+        print("Error happened → Status: ${response.statusCode}");
+        // return null;
       }
     } catch (e) {
-      print("HTTP Request Failed: $e");
+      print("Error is this: $e");
+      //return null;
     }
+  }
 
-    if (ssotoken == null) {
-      print("ERROR: SSO token is missing. Run callSosLogoin() first.");
-      return;
-    }
+  Future<void> waybookImplement(String cwId, String losId) async {
+    setState(() {
+      isLoading = true;
+    });
 
-    final encodedToken = Uri.encodeComponent(ssotoken);
-   // print("encode token is $encodedToken");
-  
-          final url = Uri.parse('${AppConfig.unoBaseApiUrl}/api/app/offer');
+    print("web hock call");
+    String losToken = "";
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('accessToken');
+      String? ssotoken = prefs.getString('ssoToken');
 
-                final headers = {
-                  'Authorization': 'Bearer $losToken',
-                  'Content-Type': 'application/json',
-                };
-
-                final body = {
-                  "applicationId": cwId,
-                  
-                };
-                print("cw id is $cwId");
-
-                final response = await http.post(
-                  url,
-                  headers: headers,
-                  body: jsonEncode(body),
-                );
-
-                print("url is $url");
-                print("header is $headers");
-
-                print("response code is ${response.statusCode}");
-                print("response body ${response.body}");
-
-
-           final data = json.decode(response.body);
-           print("data is $data");
-           String offerStatus = data[0]['offerStatus'];
-           print("offerStatus = $offerStatus");
- 
-            // 1) PASSED → STOP LOOP + REDIRECT
-           
-            if (offerStatus == "Pass") {
-              print("APPROVED → Redirecting to AAM");
-
-              String applicationId = cwId;
-
-              final redirectUrl =
-            
-                  "${AppConfig.aamredictUrl}/fsa-aam-auth?token=$encodedToken&sales_app=$applicationId";
-
-              final uri = Uri.parse(redirectUrl);
-            if (await canLaunchUrl(uri)) {
-
-                  // 1️⃣ Navigate to Dashboard first
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => NavigationPage()),
-                    (route) => false,
-                  );
-
-                  // 2️⃣ Then launch AAM URL in browser
-                  await launchUrl(uri, mode: LaunchMode.externalApplication);
-
-
-                  final losUrl = "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/";
-                    final headers = {
-                            'Authorization': 'Bearer $token',
-                            'User-Agent':
-                                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-                          };
-                      final body = {
-                        "workflow_status": "AAM Invoked"
-                      };
-
-                      final responsefromLOS = await ApiService.patchWithHeaders(
-                        losUrl,
-                        headers,
-                        body
-                      );
-
-                } else {
-                  print("Could not launch $redirectUrl");
-                }
-
-
-              return;
-            }
-
-           
-             else {
-              final losUrl = "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/";
-              final headers = {
-                            'Authorization': 'Bearer $token',
-                            'User-Agent':
-                                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-                          };
-              final body = {
-                        "workflow_status": "Prelim UW Failed"
-                      };
-
-             final responsefromLOS = await ApiService.patchWithHeaders(
-                        losUrl,
-                        headers,
-                        body
-                  );
-                  
-              showDialog(
-                context: context,
-                barrierDismissible: false, 
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: Text("Application Status $offerStatus"),
-                    content: Text("Your application has been REJECTED."),
-                    actions: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop(); 
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => NavigationPage(),
-                            ),
-                            (route) => false,
-                          );
-                        },
-                        child: const Text("OK"),
-                      ),
-                    ],
-                  );
-                },
-              );
-
-              return;
-
-            }    
-
+      try {
+        String tokenUrl = "/api/leads/los-access-token/";
+        final headers = {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+          'User-Agent':
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        };
+        final Tokenresponse =
+            await ApiService.getWithHeaders(tokenUrl, headers);
+        if (Tokenresponse != null) {
+          final data = json.decode(Tokenresponse.body);
+          losToken = data['access_token'];
+        }
       } catch (e) {
-         print("ERROR calling API: $e");
+        print("HTTP Request Failed: $e");
       }
-   }
 
+      if (ssotoken == null) {
+        print("ERROR: SSO token is missing. Run callSosLogoin() first.");
+        return;
+      }
 
+      final encodedToken = Uri.encodeComponent(ssotoken);
+      // print("encode token is $encodedToken");
 
+      final url = Uri.parse('${AppConfig.unoBaseApiUrl}/api/app/offer');
+
+      final headers = {
+        'Authorization': 'Bearer $losToken',
+        'Content-Type': 'application/json',
+      };
+
+      final body = {
+        "applicationId": cwId,
+      };
+      print("cw id is $cwId");
+
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: jsonEncode(body),
+      );
+
+      print("url is $url");
+      print("header is $headers");
+
+      print("response code is ${response.statusCode}");
+      print("response body ${response.body}");
+
+      final data = json.decode(response.body);
+      print("data is $data");
+      String offerStatus = data[0]['offerStatus'];
+      print("offerStatus = $offerStatus");
+
+      // 1) PASSED → STOP LOOP + REDIRECT
+
+      if (offerStatus == "Pass") {
+        print("APPROVED → Redirecting to AAM");
+
+        String applicationId = cwId;
+
+        final redirectUrl =
+            "${AppConfig.aamredictUrl}/fsa-aam-auth?token=$encodedToken&sales_app=$applicationId";
+
+        final uri = Uri.parse(redirectUrl);
+        if (await canLaunchUrl(uri)) {
+          // 1️⃣ Navigate to Dashboard first
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => NavigationPage()),
+            (route) => false,
+          );
+
+          // 2️⃣ Then launch AAM URL in browser
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+          final losUrl =
+              "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/";
+          final headers = {
+            'Authorization': 'Bearer $token',
+            'User-Agent':
+                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          };
+          final body = {"workflow_status": "AAM Invoked"};
+
+          final responsefromLOS =
+              await ApiService.patchWithHeaders(losUrl, headers, body);
+        } else {
+          print("Could not launch $redirectUrl");
+        }
+
+        return;
+      } else {
+        final losUrl =
+            "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/";
+        final headers = {
+          'Authorization': 'Bearer $token',
+          'User-Agent':
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        };
+        final body = {"workflow_status": "Prelim UW Failed"};
+
+        final responsefromLOS =
+            await ApiService.patchWithHeaders(losUrl, headers, body);
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Application Status $offerStatus "),
+             
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=> NavigationPage()));
+                    
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+
+        setState(() {
+          isLoading = false;
+        });
+
+        return;
+      }
+    } catch (e) {
+      print("ERROR calling API: $e");
+    }
+  }
 }
