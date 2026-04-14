@@ -618,7 +618,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 // Find matching months from workExperience and assign that string value
           emp_Mths_In_Cur_Comp.text = getClosestWorkExperienceMonths(months);
           emp_Status.text = leadDetails['emp_status'] ?? "";
-          emp_Status_Code.text = leadDetails['emp_status_code'];
+          emp_Status_Code.text = leadDetails['emp_status_code'] ?? "";
           emp_Employer_Name.text = leadDetails['emp_employer_name'] ?? "";
           emp_Indus_Type.text = leadDetails['emp_indus_type'] ?? "";
           emp_Indus_Type_Code.text = leadDetails['emp_indus_type_code'] ?? "";

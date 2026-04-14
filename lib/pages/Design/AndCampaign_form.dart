@@ -118,17 +118,42 @@ class _Campaign_formState extends State<Campaign_form> {
             //_feedback.text = data['customer_feedback'].toString() ?? '';
             _feedback.text = data['customer_feedback']?.toString() ?? '';
 
-            _networkImageUrl1 = data['upload_selfie'];
+            // _networkImageUrl1 = data['upload_selfie'];
 
-            if (AppConfig.isDev != true) {
-              _networkImageUrl = _networkImageUrl1!.replaceFirst(
+            // if (AppConfig.isDev != true) {
+            //   _networkImageUrl = _networkImageUrl1!.replaceFirst(
+            //       "http://salesapp.${AppConfig.flavour}.ph.unobank.asia",
+            //       "https://unoapi.${AppConfig.flavour}.ph.unobank.asia");
+            //   loadImage(_networkImageUrl!);
+            // } else {
+            //   _networkImageUrl = _networkImageUrl1;
+            //   loadImage(_networkImageUrl!);
+            // }
+
+            // ***************************************************
+
+            _networkImageUrl1 = data['upload_selfie']?.toString();
+
+            if (_networkImageUrl1 != null && _networkImageUrl1!.isNotEmpty) {
+              if (AppConfig.isDev != true) {
+                _networkImageUrl = _networkImageUrl1!.replaceFirst(
                   "http://salesapp.${AppConfig.flavour}.ph.unobank.asia",
-                  "https://unoapi.${AppConfig.flavour}.ph.unobank.asia");
+                  "https://unoapi.${AppConfig.flavour}.ph.unobank.asia",
+                );
+              } else {
+                _networkImageUrl = _networkImageUrl1;
+              }
+
               loadImage(_networkImageUrl!);
             } else {
-              _networkImageUrl = _networkImageUrl1;
-              loadImage(_networkImageUrl!);
+              
+              _networkImageUrl = null;
+              _imageBytes = null;
+
+              print("No image from API");
             }
+
+            //************************************************** */
 
             _selectedStatusCode = data['disposition_status'];
             if (data["sub_disposition_status"] == null &&
