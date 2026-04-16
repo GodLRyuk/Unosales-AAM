@@ -458,33 +458,18 @@ AQIDAQAB
         body: jsonEncode(body),
       );
 
-      print("url is $url");
-      print("header is $headers");
-
-      print("response code is ${response.statusCode}");
-      print("response body ${response.body}");
-
       final data = json.decode(response.body);
-      print("data is $data");
       String offerStatus = data[0]['offerStatus'];
-      print("offerStatus = $offerStatus");
-
       //********************************************** */
 
-      String aamUrl =
-            "/api/leads/los-details/?los_status__applicationNo=$cwId";
-        final aamheader = {'Authorization': 'Bearer $token'};
+      String aamUrl = "/api/leads/los-details/?los_status__applicationNo=$cwId";
+      final aamheader = {'Authorization': 'Bearer $token'};
 
-        final res = await ApiService.getWithHeaders(aamUrl, aamheader);
-        final datares = json.decode(response!.body);
-        final resresult = datares['results'][0]['los_status'];
-        
-        final applicationStatus = resresult['applicationStatus'];
+      final res = await ApiService.getWithHeaders(aamUrl, aamheader);
+      final datares = json.decode(res!.body);
+      final resresult = datares['results'][0]['los_status'];
 
-       
-        print("applicationStatus = $applicationStatus");
-
-      
+      final applicationStatus = resresult['applicationStatus'];
 
       // 1) PASSED → STOP LOOP + REDIRECT
 
@@ -524,8 +509,8 @@ AQIDAQAB
         }
 
         return;
-      } 
-      else if (offerStatus == "In-Progress" && applicationStatus == "Failed") {
+      } else if (offerStatus == "In-Progress" &&
+          applicationStatus == "Failed") {
         final losUrl = "/api/leads/los-details/$losId/";
         final headers = {
           'Authorization': 'Bearer $token',
@@ -535,7 +520,8 @@ AQIDAQAB
         };
         final body = {
           "workflow_status": "Prelim UW Failed",
-          "offerStatus": offerStatus};
+          "offerStatus": "Fail"
+        };
 
         final responsefromLOS =
             await ApiService.patchWithHeaders(losUrl, headers, body);
@@ -568,9 +554,52 @@ AQIDAQAB
         });
 
         return;
-      }
-           
-      else  {
+      } else if (offerStatus == "Fail" && applicationStatus == "Failed") {
+        final losUrl = "/api/leads/los-details/$losId/";
+        final headers = {
+          'Authorization': 'Bearer $token',
+          'User-Agent':
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          'Content-Type': 'application/json',
+        };
+        final body = {
+          "workflow_status": "Prelim UW Failed",
+          "offerStatus": "Fail",
+          
+        };
+
+        final responsefromLOS =
+            await ApiService.patchWithHeaders(losUrl, headers, body);
+        // print("code is ${responsefromLOS!.statusCode}");
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Application Status $offerStatus"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => NavigationPage()));
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+
+        setState(() {
+          isLoading = false;
+        });
+
+        return;
+      } else {
         showDialog(
           context: context,
           barrierDismissible: false,

@@ -312,7 +312,8 @@ class _FsadashboardState extends State<Fsadashboard> {
     'REJECT',
     'Dedupe',
     'Availed',
-    'Avail_Manual'
+    'Avail_Manual',
+    'Failed',
   ];
 
   Future<void> _loadLOSData() async {
@@ -358,7 +359,8 @@ class _FsadashboardState extends State<Fsadashboard> {
           if (status == 'Cancel' ||
               status == 'Fail' ||
               status == 'REJECT' ||
-              status == 'Dedupe') {
+              status == 'Dedupe'||
+              status == 'Failed') {
             declined += totalCount;
           }
 
