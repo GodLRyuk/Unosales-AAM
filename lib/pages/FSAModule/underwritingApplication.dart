@@ -507,32 +507,67 @@ AQIDAQAB
         }
 
         return;
-      } else {
-        final losUrl =
-            "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/";
+      } 
+      else if(offerStatus=="Failed") {
+        final losUrl = "/api/leads/los-details/$losId/";
         final headers = {
           'Authorization': 'Bearer $token',
           'User-Agent':
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          'Content-Type': 'application/json',
         };
-        final body = {"workflow_status": "Prelim UW Failed"};
+        final body = {
+          "workflow_status": "Prelim UW Failed",
+          "offerStatus": offerStatus};
 
         final responsefromLOS =
             await ApiService.patchWithHeaders(losUrl, headers, body);
+        // print("code is ${responsefromLOS!.statusCode}");
 
         showDialog(
           context: context,
           barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("Application Status $offerStatus "),
-             
+              title: Text("Application Status $offerStatus"),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=> NavigationPage()));
-                    
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => NavigationPage()));
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+
+        setState(() {
+          isLoading = false;
+        });
+
+        return;
+      }
+           
+      else  {
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Application Status $offerStatus"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => NavigationPage()));
                   },
                   child: const Text("OK"),
                 ),
