@@ -469,9 +469,26 @@ AQIDAQAB
       String offerStatus = data[0]['offerStatus'];
       print("offerStatus = $offerStatus");
 
+      //********************************************** */
+
+      String aamUrl =
+            "/api/leads/los-details/?los_status__applicationNo=$cwId";
+        final aamheader = {'Authorization': 'Bearer $token'};
+
+        final res = await ApiService.getWithHeaders(aamUrl, aamheader);
+        final datares = json.decode(response!.body);
+        final resresult = datares['results'][0]['los_status'];
+        
+        final applicationStatus = resresult['applicationStatus'];
+
+       
+        print("applicationStatus = $applicationStatus");
+
+      
+
       // 1) PASSED → STOP LOOP + REDIRECT
 
-      if (offerStatus == "Pass") {
+      if (offerStatus == "In-Progress" && applicationStatus == "Passed") {
         print("APPROVED → Redirecting to AAM");
 
         String applicationId = cwId;
@@ -508,7 +525,7 @@ AQIDAQAB
 
         return;
       } 
-      else if(offerStatus=="Failed") {
+      else if (offerStatus == "In-Progress" && applicationStatus == "Failed") {
         final losUrl = "/api/leads/los-details/$losId/";
         final headers = {
           'Authorization': 'Bearer $token',
