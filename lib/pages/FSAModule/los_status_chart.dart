@@ -813,7 +813,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         };
         final body = {
           "workflow_status": "Prelim UW Failed",
-          "offerStatus": "Fail"
+           "los_status":{"offerStatus": "Fail",}
         };
 
         final responsefromLOS =
@@ -847,9 +847,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         });
 
         return;
-      }
-      else if (offerStatus == "Fail" &&
-          applicationStatus == "Failed") {
+      } else if (offerStatus == "Fail" && applicationStatus == "Failed") {
         final losUrl = "/api/leads/los-details/$losId/";
         final headers = {
           'Authorization': 'Bearer $token',
@@ -859,7 +857,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         };
         final body = {
           "workflow_status": "Prelim UW Failed",
-          "offerStatus": "Fail"
+           "los_status":{"offerStatus": "Fail",}
         };
 
         final responsefromLOS =

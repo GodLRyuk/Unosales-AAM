@@ -298,9 +298,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
     }
   }
 
-
-
- Future<Map<String, dynamic>> buildPayload() async {
+  Future<Map<String, dynamic>> buildPayload() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userInfo = prefs.getStringList('userInfo');
     //String agentCode = "testFSA";
@@ -337,6 +335,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       "keyId": "v1",
     };
   }
+
   Future<void> callSosLogoin() async {
     try {
       final payload = await buildPayload();
@@ -451,7 +450,6 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
 
       final data = json.decode(response.body);
       String offerStatus = data[0]['offerStatus'];
-     
 
       String aamUrl = "/api/leads/los-details/?los_status__applicationNo=$cwId";
       final aamheader = {'Authorization': 'Bearer $token'};
@@ -484,10 +482,10 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
           // 2️⃣ Then launch AAM URL in browser
           await launchUrl(uri, mode: LaunchMode.externalApplication);
 
-          final losUrl =
-              "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/";
+          final losUrl = "/api/leads/los-details/$losId/";
           final headers = {
             'Authorization': 'Bearer $token',
+            'Content-Type': 'application/json',
             'User-Agent':
                 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
           };
@@ -511,7 +509,9 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         };
         final body = {
           "workflow_status": "Prelim UW Failed",
-          "offerStatus": "Fail"
+          "los_status": {
+            "offerStatus": "Fail",
+          }
         };
 
         final responsefromLOS =
@@ -555,8 +555,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         };
         final body = {
           "workflow_status": "Prelim UW Failed",
-          "offerStatus": "Fail",
-          
+           "los_status":{"offerStatus": "Fail",}
         };
 
         final responsefromLOS =
