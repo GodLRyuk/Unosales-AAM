@@ -515,7 +515,12 @@ class _LosStatusChartState extends State<LosStatusChart>
                       categorizedData[tabTitles[_tabController.index]]!;
         
                   if (currentTabLeads.isEmpty) {
-                    return Center(child: Text("No Data Found"));
+                    return ListView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      children: [
+                        SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                        Center(child: Text("No Data Found"))
+                        ]);
                   }
         
                   return ListView.builder(
@@ -617,10 +622,7 @@ class _LosStatusChartState extends State<LosStatusChart>
 
   Future<void> _handleRefresh() async {
      _searchFilter.clear();
-   _resetAndLoad();
-   
-  
-   
+   _resetAndLoad();  
     await Future.delayed(Duration(seconds: 2)); // Simulate a delay
   }
 

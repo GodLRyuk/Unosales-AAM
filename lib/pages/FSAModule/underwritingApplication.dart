@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:unosfa/pages/FSAModule/los_status_chart.dart';
 import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/generalscreens/customNavigation.dart';
 import 'package:unosfa/pages/services/api_service.dart';
@@ -64,9 +65,11 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
             leading: IconButton(
               icon: const Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => NavigationPage()),
+                  MaterialPageRoute(builder: (context) => LosStatusChart(
+                                                          initialTabTitle:
+                                                              'IN-PROGRESS'),),
                 );
               },
             ),
