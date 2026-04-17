@@ -467,150 +467,163 @@ class _LosStatusChartState extends State<LosStatusChart>
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(top: 17, left: 250),
-            child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      (MaterialPageRoute(
-                          builder: (context) => Underwritingapplication())));
-                },
-                child: Text(
-                  "CHECK UW APPLICATION",
-                  style: TextStyle(fontSize: 13, color: Colors.purple),
-                )),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              labelColor: Colors.purple,
-              unselectedLabelColor: Colors.grey,
-              indicatorColor: Colors.purple,
-              labelPadding: EdgeInsets.only(left: 16.0, right: 16.0),
-              tabs: tabTitles.map((title) {
-                return Container(
-                  alignment: Alignment.centerLeft,
-                  width: 120,
-                  child: Tab(text: title),
-                );
-              }).toList(),
+      body: RefreshIndicator(
+        onRefresh: _handleRefresh,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 17, left: 250),
+              child: GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        (MaterialPageRoute(
+                            builder: (context) => Underwritingapplication())));
+                  },
+                  child: Text(
+                    "CHECK UW APPLICATION",
+                    style: TextStyle(fontSize: 13, color: Colors.purple),
+                  )),
             ),
-          ),
-          Expanded(
-            child: Builder(
-              builder: (context) {
-                if (_isLoading || _tabLoading[_tabController.index]!) {
-                  return Center(
-                      child: CircularProgressIndicator(color: Colors.purple));
-                }
-
-                final currentTabLeads =
-                    categorizedData[tabTitles[_tabController.index]]!;
-
-                if (currentTabLeads.isEmpty) {
-                  return Center(child: Text("No Data Found"));
-                }
-
-                return ListView.builder(
-                  itemCount: currentTabLeads.length,
-                  itemBuilder: (context, index) {
-                    final lead = currentTabLeads[index];
-                    final selectedTab = tabTitles[_tabController.index];
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 10, horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border(
-                          top: BorderSide(color: Color(0xFF640D78), width: 1.0),
-                          bottom:
-                              BorderSide(color: Color(0xFF640D78), width: 1.0),
-                          left:
-                              BorderSide(color: Color(0xFF640D78), width: 5.0),
-                          right:
-                              BorderSide(color: Color(0xFF640D78), width: 1.0),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TabBar(
+                controller: _tabController,
+                isScrollable: true,
+                labelColor: Colors.purple,
+                unselectedLabelColor: Colors.grey,
+                indicatorColor: Colors.purple,
+                labelPadding: EdgeInsets.only(left: 16.0, right: 16.0),
+                tabs: tabTitles.map((title) {
+                  return Container(
+                    alignment: Alignment.centerLeft,
+                    width: 120,
+                    child: Tab(text: title),
+                  );
+                }).toList(),
+              ),
+            ),
+            Expanded(
+              child: Builder(
+                builder: (context) {
+                  if (_isLoading || _tabLoading[_tabController.index]!) {
+                    return Center(
+                        child: CircularProgressIndicator(color: Colors.purple));
+                  }
+        
+                  final currentTabLeads =
+                      categorizedData[tabTitles[_tabController.index]]!;
+        
+                  if (currentTabLeads.isEmpty) {
+                    return Center(child: Text("No Data Found"));
+                  }
+        
+                  return ListView.builder(
+                    itemCount: currentTabLeads.length,
+                    itemBuilder: (context, index) {
+                      final lead = currentTabLeads[index];
+                      final selectedTab = tabTitles[_tabController.index];
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 10, horizontal: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border(
+                            top: BorderSide(color: Color(0xFF640D78), width: 1.0),
+                            bottom:
+                                BorderSide(color: Color(0xFF640D78), width: 1.0),
+                            left:
+                                BorderSide(color: Color(0xFF640D78), width: 5.0),
+                            right:
+                                BorderSide(color: Color(0xFF640D78), width: 1.0),
+                          ),
                         ),
-                      ),
-                      child: ListTile(
-                        leading:
-                            Icon(Icons.person, color: Colors.purple, size: 30),
-                        title: Text(
-                          "${lead['firstName']} ${lead['middleName']} ${lead['lastName']}"
-                              .trim(),
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: selectedTab == 'UNDERWRITING STATUS'
-                            ? Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text("Mobile: ${lead['mobilePhone']}"),
-                                        Text(
-                                            "CWTransactionID: ${lead['CWTransactionID']}"),
-                                        Text(
-                                            "ApplicationNo: ${lead['applicationNo']}"),
-                                        SizedBox(height: 5),
-                                        Row(
-                                          //mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                "OfferStatus: ${lead['offerStatus']}",
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                            GestureDetector(
-                                              onTap: () {
-                                                String cwTransactionID =
-                                                    lead['CWTransactionID']
-                                                        .toString();
-                                                waybookImplement(
-                                                    cwTransactionID,
-                                                    lead['id'].toString());
-                                              },
-                                              child: Text(
-                                                "CHECK STATUS",
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Colors.purple,
+                        child: ListTile(
+                          leading:
+                              Icon(Icons.person, color: Colors.purple, size: 30),
+                          title: Text(
+                            "${lead['firstName']} ${lead['middleName']} ${lead['lastName']}"
+                                .trim(),
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: selectedTab == 'UNDERWRITING STATUS'
+                              ? Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text("Mobile: ${lead['mobilePhone']}"),
+                                          Text(
+                                              "CWTransactionID: ${lead['CWTransactionID']}"),
+                                          Text(
+                                              "ApplicationNo: ${lead['applicationNo']}"),
+                                          SizedBox(height: 5),
+                                          Row(
+                                            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  "OfferStatus: ${lead['offerStatus']}",
+                                                  overflow: TextOverflow.ellipsis,
                                                 ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                              GestureDetector(
+                                                onTap: () {
+                                                  String cwTransactionID =
+                                                      lead['CWTransactionID']
+                                                          .toString();
+                                                  waybookImplement(
+                                                      cwTransactionID,
+                                                      lead['id'].toString());
+                                                },
+                                                child: Text(
+                                                  "CHECK STATUS",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.purple,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              )
-                            : Text(
-                                "Mobile: ${lead['mobilePhone']}\n"
-                                "CWTransactionID: ${lead['CWTransactionID']}\n"
-                                "ApplicationNo: ${lead['applicationNo']}\n"
-                                "OfferStatus: ${lead['offerStatus']}",
-                              ),
-                      ),
-                    );
-                  },
-                );
-              },
+                                  ],
+                                )
+                              : Text(
+                                  "Mobile: ${lead['mobilePhone']}\n"
+                                  "CWTransactionID: ${lead['CWTransactionID']}\n"
+                                  "ApplicationNo: ${lead['applicationNo']}\n"
+                                  "OfferStatus: ${lead['offerStatus']}",
+                                ),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
+
+  Future<void> _handleRefresh() async {
+     _searchFilter.clear();
+   _resetAndLoad();
+   
+  
+   
+    await Future.delayed(Duration(seconds: 2)); // Simulate a delay
+  }
+
 
   Future<Map<String, dynamic>> buildPayload() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

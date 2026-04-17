@@ -73,139 +73,156 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          /// 🔎 Search Field
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: TextField(
-              controller: _searchFilter,
-              decoration: InputDecoration(
-                labelText: 'Search By Name, Phone Number, TransactionID',
-                enabledBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-                focusedBorder: const OutlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xFFac00d0)),
-                ),
-                suffixIcon: Container(
-                  color: const Color(0xFFac00d0),
-                  child: IconButton(
-                    onPressed: () {
-                      final searchData = _searchFilter.text.trim();
-                      if (searchData.isNotEmpty) {
-                        underWritingStatus(searchData);
-                      }
-                    },
-                    icon: const Icon(Icons.search, color: Colors.white),
+      body: RefreshIndicator(
+        onRefresh: _handleRefresh,
+        child: Column(
+          children: [
+            /// 🔎 Search Field
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: TextField(
+                controller: _searchFilter,
+                decoration: InputDecoration(
+                  labelText: 'Search By Name, Phone Number, TransactionID',
+                  enabledBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                  focusedBorder: const OutlineInputBorder(
+                    borderSide: BorderSide(color: Color(0xFFac00d0)),
+                  ),
+                  suffixIcon: Container(
+                    color: const Color(0xFFac00d0),
+                    child: IconButton(
+                      onPressed: () {
+                        final searchData = _searchFilter.text.trim();
+                        if (searchData.isNotEmpty) {
+                          underWritingStatus(searchData);
+                        }
+                      },
+                      icon: const Icon(Icons.search, color: Colors.white),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-
-          Expanded(
-            child: isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : results.isEmpty
-                    ? const Center(
-                        child: Text(
-                          "No Data Found",
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: results.length,
-                        itemBuilder: (context, index) {
-                          final leadData = results[index];
-                          final client = leadData["clientDetails"] ?? {};
-                          final losStatus = leadData["los_status"] ?? {};
-
-                          return Container(
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
-                              border: const Border(
-                                top: BorderSide(
-                                    color: Color(0xFF640D78), width: 1.0),
-                                bottom: BorderSide(
-                                    color: Color(0xFF640D78), width: 1.0),
-                                left: BorderSide(
-                                    color: Color(0xFF640D78), width: 5.0),
-                                right: BorderSide(
-                                    color: Color(0xFF640D78), width: 1.0),
-                              ),
+        
+            Expanded(
+              child: isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : results.isEmpty
+                      ? ListView(
+                        physics: AlwaysScrollableScrollPhysics(),
+                        children: [
+                           SizedBox(height: 200),
+                          Center(
+                            child: Text(
+                              "No Data Found",
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
-                            child: ListTile(
-                              leading: const Icon(
-                                Icons.person,
-                                color: Colors.purple,
-                                size: 30,
+                          ),
+                        ]
+                      )
+                      : ListView.builder(
+                          itemCount: results.length,
+                          itemBuilder: (context, index) {
+                            final leadData = results[index];
+                            final client = leadData["clientDetails"] ?? {};
+                            final losStatus = leadData["los_status"] ?? {};
+        
+                            return Container(
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                                border: const Border(
+                                  top: BorderSide(
+                                      color: Color(0xFF640D78), width: 1.0),
+                                  bottom: BorderSide(
+                                      color: Color(0xFF640D78), width: 1.0),
+                                  left: BorderSide(
+                                      color: Color(0xFF640D78), width: 5.0),
+                                  right: BorderSide(
+                                      color: Color(0xFF640D78), width: 1.0),
+                                ),
                               ),
-                              title: Text(
-                                "${client['firstName'] ?? ''} "
-                                        "${client['middleName'] ?? ''} "
-                                        "${client['lastName'] ?? ''}"
-                                    .trim(),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                      "Mobile: ${client['mobilePhone'] ?? 'N/A'}"),
-                                  Text(
-                                      "CWTransactionID: ${leadData['CWTransactionID'] ?? 'N/A'}"),
-                                  Text(
-                                      "Offer Status: ${losStatus['offerStatus'] ?? 'N/A'}"),
-                                  Text(
-                                      "UW Status: ${losStatus['uwStatus'] ?? 'N/A'}"),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          "Application No: ${losStatus['applicationNo'] ?? 'N/A'}",
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () {
-                                          String cwTransactionID =
-                                              leadData['CWTransactionID'];
-
-                                          waybookImplement(cwTransactionID,
-                                              leadData['id'].toString());
-                                        },
-                                        child: Text(
-                                          "CHECK STATUS",
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w600,
-                                            color: Colors.purple,
+                              child: ListTile(
+                                leading: const Icon(
+                                  Icons.person,
+                                  color: Colors.purple,
+                                  size: 30,
+                                ),
+                                title: Text(
+                                  "${client['firstName'] ?? ''} "
+                                          "${client['middleName'] ?? ''} "
+                                          "${client['lastName'] ?? ''}"
+                                      .trim(),
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                        "Mobile: ${client['mobilePhone'] ?? 'N/A'}"),
+                                    Text(
+                                        "CWTransactionID: ${leadData['CWTransactionID'] ?? 'N/A'}"),
+                                    Text(
+                                        "Offer Status: ${losStatus['offerStatus'] ?? 'N/A'}"),
+                                    Text(
+                                        "UW Status: ${losStatus['uwStatus'] ?? 'N/A'}"),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            "Application No: ${losStatus['applicationNo'] ?? 'N/A'}",
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(height: 5),
-                                ],
+                                        GestureDetector(
+                                          onTap: () {
+                                            String cwTransactionID =
+                                                leadData['CWTransactionID'];
+        
+                                            waybookImplement(cwTransactionID,
+                                                leadData['id'].toString());
+                                          },
+                                          child: Text(
+                                            "CHECK STATUS",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.purple,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 5),
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-          ),
-        ],
+                            );
+                          },
+                        ),
+            ),
+          ],
+        ),
       ),
     );
   }
+
+   Future<void> _handleRefresh() async {
+   
+    _searchFilter.clear();
+    await loadInitialLeads();
+    await Future.delayed(Duration(seconds: 2)); // Simulate a delay
+  }
+
 
   Future<void> loadInitialLeads() async {
     try {
@@ -430,7 +447,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       final encodedToken = Uri.encodeComponent(ssotoken);
       // print("encode token is $encodedToken");
 
-      final url = Uri.parse('${AppConfig.unoBaseApiUrl}/api/app/offer');
+      final url = "/api/app/offer";
 
       final headers = {
         'Authorization': 'Bearer $losToken',
@@ -442,13 +459,9 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       };
       print("cw id is $cwId");
 
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(body),
-      );
+      final response = await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
 
-      final data = json.decode(response.body);
+      final data = json.decode(response!.body);
       String offerStatus = data[0]['offerStatus'];
 
       String aamUrl = "/api/leads/los-details/?los_status__applicationNo=$cwId";
