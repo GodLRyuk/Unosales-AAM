@@ -295,6 +295,7 @@ class _LoginPageState extends State<LoginPage> {
         'password': _passwordController.text,
       };
         final response = await ApiService.post(url, mapeddata);
+        print("Resp: $response");
       try {
         if (response != null) {
           final statusCode = response.statusCode;

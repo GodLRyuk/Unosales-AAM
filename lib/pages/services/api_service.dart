@@ -15,6 +15,13 @@ enum CertificateState {
   CONNECTION_SECURE,
 }
 
+CertificateState parseCertificateState(String value) {
+  return CertificateState.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => CertificateState.ERROR_CHECKING_CERTIFICATE,
+  );
+}
+
 final certificate = AppConfig.certificateChecks;
 
 class ApiService {
@@ -31,7 +38,8 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-      if (result != CertificateState.CERTIFICATE_VALID) {
+      final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         print("✅ SSL pinning succeededs");
         return await http.post(
           fullUrl,
@@ -43,6 +51,8 @@ class ApiService {
                 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
           },
         );
+      } else {
+        print("not Secure");
       }
     } else {
       print("🌐 Non-HTTPS endpoint, skipping pinning 1");
@@ -72,7 +82,8 @@ class ApiService {
       // print("uploadMultipart url1 is $fullUrl"); //***********/
       // print("uploadMultipart hearder1 is $headers"); //************** */
 
-      if (result != CertificateState.CERTIFICATE_VALID) {
+      final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         print("✅ SSL pinning succeeded");
         final request = http.MultipartRequest('POST', fullUrl);
         request.headers.addAll(headers ??
@@ -83,8 +94,8 @@ class ApiService {
             });
         request.fields.addAll(fields);
 
-      // print("uploadMultipart url2 is $fullUrl"); //***********/
-      // print("uploadMultipart hearder2 is $headers"); //**************** */
+        // print("uploadMultipart url2 is $fullUrl"); //***********/
+        // print("uploadMultipart hearder2 is $headers"); //**************** */
 
         if (file != null) {
           request.files
@@ -107,7 +118,7 @@ class ApiService {
             'User-Agent':
                 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
           });
-        
+
       request.fields.addAll(fields);
       if (file != null) {
         request.files
@@ -118,10 +129,8 @@ class ApiService {
 
       final streamedResponse = await request.send();
       return await http.Response.fromStream(streamedResponse);
-      
     }
   }
-
 
   static Future<http.Response?> putuploadMultipart({
     required String endpoint,
@@ -145,8 +154,8 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-
-      if (result != CertificateState.CERTIFICATE_VALID) {
+      final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         print("✅ SSL pinning succeeded");
         final request = http.MultipartRequest('PUT', fullUrl);
         request.headers.addAll(headers ??
@@ -157,7 +166,7 @@ class ApiService {
                   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
             });
         request.fields.addAll(fields);
-        
+
         // print("putuploadMultipart url2 is $fullUrl"); //********************* */
         // print("putuploadMultipart hearder2 is $headers"); //********************** */
 
@@ -172,7 +181,6 @@ class ApiService {
         print("❌ SSL pinning failed: ${result}");
         return null;
       }
-
     } else {
       print("🌐 Non-HTTPS endpoint, skipping pinning3");
       final request = http.MultipartRequest('PUT', fullUrl);
@@ -187,7 +195,7 @@ class ApiService {
 
       // print("putuploadMultipart url3 is $fullUrl"); //********************* */
       // print("putuploadMultipart hearder3 is $headers"); //********************** */
-   
+
       if (file != null) {
         request.files
             .add(await http.MultipartFile.fromPath(fileField, file.path));
@@ -209,9 +217,9 @@ class ApiService {
     final fullUrl = Uri.parse('${AppConfig.unoBaseApiUrl}$endpoint');
     final isHttps = baseUri.scheme == 'https';
 
-     print("postJsonWithHeaders header $fullUrl"); //********** */
-     print("postJsonWithHeaders header $headers"); 
-     print("Body ${body}");
+    print("postJsonWithHeaders header $fullUrl"); //********** */
+    print("postJsonWithHeaders header $headers");
+    print("Body ${body}");
     // headers['User-Agent'] =
     //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
     if (isHttps) {
@@ -222,28 +230,25 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-      if (result != CertificateState.CERTIFICATE_VALID) {
+      final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         print("✅ SSL pinning succeeded");
         return await http.post(
           fullUrl,
           headers: headers,
           body: jsonEncode(body),
-        );        
+        );
       } else {
         print("❌ SSL pinning failed: ${result}");
         return null;
       }
-      
     } else {
       print("🌐 Non-HTTPS endpoint, skipping pinning4");
       return await http.post(fullUrl, body: jsonEncode(body), headers: headers);
     }
-    
   }
 
-
-
-   static Future<http.Response?> postJsonWithHeaders(
+  static Future<http.Response?> postJsonWithHeaders(
     String endpoint,
     Map<String, dynamic> body,
     Map<String, String> headers,
@@ -265,26 +270,23 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-      if (result != CertificateState.CERTIFICATE_VALID) {
+      final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         print("✅ SSL pinning succeeded");
         return await http.post(
           fullUrl,
           headers: headers,
           body: jsonEncode(body),
-        );        
+        );
       } else {
         print("❌ SSL pinning failed: ${result}");
         return null;
       }
-      
     } else {
       print("🌐 Non-HTTPS endpoint, skipping pinning4");
       return await http.post(fullUrl, body: jsonEncode(body), headers: headers);
     }
-    
   }
-
-
 
   static Future<http.Response?> getWithHeaders(
     String endpoint,
@@ -296,8 +298,8 @@ class ApiService {
     headers['User-Agent'] =
         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
 
-     print("getWithHeaders url is $fullUrl");
-     print("getWithHeaders url is $headers"); 
+    print("getWithHeaders url is $fullUrl");
+    print("getWithHeaders url is $headers");
     if (isHttps) {
       final result = await HttpCertificatePinning.check(
         serverURL: baseUri.origin,
@@ -306,7 +308,8 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-      if (result != CertificateState.CERTIFICATE_VALID) {
+      final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         print("✅ SSL pinning succeeded");
         return await http.get(fullUrl, headers: headers);
       } else {
@@ -318,8 +321,6 @@ class ApiService {
     }
   }
 
-
-
   static Future<http.Response?> getWithUnoApiHeaders(
     String endpoint,
     Map<String, String> headers,
@@ -330,8 +331,8 @@ class ApiService {
     headers['User-Agent'] =
         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
 
-      // print("getWithUnoApiHeaders url is $fullUrl"); //************** */
-      // print("getWithUnoApiHeaders header is $headers"); //************** */
+    // print("getWithUnoApiHeaders url is $fullUrl"); //************** */
+    // print("getWithUnoApiHeaders header is $headers"); //************** */
 
     if (isHttps) {
       final result = await HttpCertificatePinning.check(
@@ -341,7 +342,7 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-      if (result != CertificateState.CERTIFICATE_VALID) {
+      if (result == CertificateState.CERTIFICATE_VALID) {
         print("✅ SSL pinning succeeded");
         return await http.get(fullUrl, headers: headers);
       } else {
@@ -370,8 +371,8 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-
-      if (result != CertificateState.CERTIFICATE_VALID) {
+      final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         print("✅ SSL pinning succeeded");
         return await http.get(fullUrl);
       } else {
@@ -400,7 +401,7 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-      if (result != CertificateState.CERTIFICATE_VALID) {
+      if (result == CertificateState.CERTIFICATE_VALID) {
         //  print("patchWithHeaders url is $fullUrl"); //********************* */
         //  print("patchWithHeaders header is $headers"); //***************** */
         return await http.patch(
@@ -423,7 +424,6 @@ class ApiService {
         body: jsonEncode(body),
       );
     }
-    
   }
 
   static Future<http.Response?> postWithHeadersUnoApi(
@@ -448,7 +448,7 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-      if (result != CertificateState.CERTIFICATE_VALID) {
+      if (result == CertificateState.CERTIFICATE_VALID) {
         print("✅ SSL pinning succeeded");
         return await http.post(
           fullUrl,
@@ -465,7 +465,7 @@ class ApiService {
     }
   }
 
-static Future<http.Response?> getWithHeadersOnlyUnoApi(
+  static Future<http.Response?> getWithHeadersOnlyUnoApi(
     String endpoint,
     Map<String, String> headers,
   ) async {
@@ -485,7 +485,7 @@ static Future<http.Response?> getWithHeadersOnlyUnoApi(
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-      if (result != CertificateState.CERTIFICATE_VALID) {
+      if (result == CertificateState.CERTIFICATE_VALID) {
         print("✅ SSL pinning succeeded");
         return await http.get(
           fullUrl,
@@ -517,7 +517,7 @@ static Future<http.Response?> getWithHeadersOnlyUnoApi(
         allowedSHAFingerprints: [certificate],
       );
 
-      if (result != CertificateState.CERTIFICATE_VALID) {
+      if (result == CertificateState.CERTIFICATE_VALID) {
         print("✅ SSL pinning succeeded");
         return await http.post(
           fullUrl,
@@ -533,158 +533,149 @@ static Future<http.Response?> getWithHeadersOnlyUnoApi(
     }
   }
 
+  static Future<http.Response?> patchWithHeadersUploadMultiPart(
+    String endpoint,
+    Map<String, String> headers,
+    Map<String, dynamic> body, {
+    File? imageFile,
+    String imageField = 'upload_selfie',
+  }) async {
+    final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
+    final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
+    final isHttps = baseUri.scheme == 'https';
 
+    // print("🌐 URL: $fullUrl");
+    // print("📌 Headers: $headers");
+    // print("📦 Body: $body");
 
+    // ---------- SSL PINNING ----------
+    if (isHttps) {
+      final result = await HttpCertificatePinning.check(
+        serverURL: baseUri.origin,
+        headerHttp: {},
+        timeout: 50,
+        sha: SHA.SHA256,
+        allowedSHAFingerprints: [certificate],
+      );
 
- 
-static Future<http.Response?> patchWithHeadersUploadMultiPart(
-  String endpoint,
-  Map<String, String> headers,
-  Map<String, dynamic> body, {
-  File? imageFile,
-  String imageField = 'upload_selfie',
-}) async {
-  final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
-  final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
-  final isHttps = baseUri.scheme == 'https';
+      if (result == CertificateState.CERTIFICATE_VALID) {
+        print("✅ SSL pinning success");
 
-  // print("🌐 URL: $fullUrl");
-  // print("📌 Headers: $headers");
-  // print("📦 Body: $body");
-
-  // ---------- SSL PINNING ----------
-  if (isHttps) {
-    final result = await HttpCertificatePinning.check(
-      serverURL: baseUri.origin,
-      headerHttp: {},
-      timeout: 50,
-      sha: SHA.SHA256,
-      allowedSHAFingerprints: [certificate],
-    );
-
-    if (result != CertificateState.CERTIFICATE_VALID) {
-       print("✅ SSL pinning success");
-      
-      // DO NOT silently return null — allow request or throw
-      // throw Exception("SSL pinning failed");
-    } else {
-      
-      print("❌ SSL pinning failed: $result");
-    }
-  } else {
-    print("🌐 Non-HTTPS endpoint, skipping pinning");
-  }
-
-  // ---------- MULTIPART PATCH ----------
-  if (imageFile != null) {
-    final request = http.MultipartRequest('PATCH', fullUrl);
-
-    // Safe headers
-    headers.forEach((key, value) {
-      request.headers[key] = value;
-    });
-
-    // Add fields
-    body.forEach((key, value) {
-      if (value != null) {
-        request.fields[key] = value.toString();
+        // DO NOT silently return null — allow request or throw
+        // throw Exception("SSL pinning failed");
+      } else {
+        print("❌ SSL pinning failed: $result");
       }
-    });
-
-    // Add image
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        imageField,
-        imageFile.path,
-      ),
-    );
-
-    final streamedResponse = await request.send();
-    return await http.Response.fromStream(streamedResponse);
-  }
-
-  // ---------- NORMAL PATCH (NO IMAGE) ----------
-  return await http.patch(
-    fullUrl,
-    headers: {
-      ...headers,
-      'Content-Type': 'application/json',
-    },
-    body: jsonEncode(body),
-  );
-}
-
-
-
-static Future<http.Response?> postWithHeadersUploadMultiPart(
-  String endpoint,
-  Map<String, String> headers,
-  Map<String, dynamic> body, {
-  File? imageFile,
-  String imageField = 'upload_selfie',
-}) async {
-  final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
-  final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
-  final isHttps = baseUri.scheme == 'https';
-
-  // ---------- SSL PINNING ----------
-  if (isHttps) {
-    final result = await HttpCertificatePinning.check(
-      serverURL: baseUri.origin,
-      headerHttp: {},
-      timeout: 50,
-      sha: SHA.SHA256,
-      allowedSHAFingerprints: [certificate],
-    );
-
-    if (result != CertificateState.CERTIFICATE_VALID) {
-      print("✅ SSL pinning success");
     } else {
-      print("❌ SSL pinning failed: $result");
-      return null; // stop request if failed
+      print("🌐 Non-HTTPS endpoint, skipping pinning");
     }
-  } else {
-    print("🌐 Non-HTTPS endpoint, skipping pinning");
-  }
 
-  // ---------- MULTIPART POST ----------
-  if (imageFile != null) {
-    final request = http.MultipartRequest('POST', fullUrl);
+    // ---------- MULTIPART PATCH ----------
+    if (imageFile != null) {
+      final request = http.MultipartRequest('PATCH', fullUrl);
 
-    // Add headers
-    headers.forEach((key, value) {
-      request.headers[key] = value;
-    });
+      // Safe headers
+      headers.forEach((key, value) {
+        request.headers[key] = value;
+      });
 
-    // Add fields
-    body.forEach((key, value) {
-      if (value != null) {
-        request.fields[key] = value.toString();
-      }
-    });
+      // Add fields
+      body.forEach((key, value) {
+        if (value != null) {
+          request.fields[key] = value.toString();
+        }
+      });
 
-    // Add image file
-    request.files.add(
-      await http.MultipartFile.fromPath(
-        imageField,
-        imageFile.path,
-      ),
+      // Add image
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          imageField,
+          imageFile.path,
+        ),
+      );
+
+      final streamedResponse = await request.send();
+      return await http.Response.fromStream(streamedResponse);
+    }
+
+    // ---------- NORMAL PATCH (NO IMAGE) ----------
+    return await http.patch(
+      fullUrl,
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(body),
     );
-
-    final streamedResponse = await request.send();
-    return await http.Response.fromStream(streamedResponse);
   }
 
-  // ---------- NORMAL POST (NO IMAGE) ----------
-  return await http.post(
-    fullUrl,
-    headers: {
-      ...headers,
-      'Content-Type': 'application/json',
-    },
-    body: jsonEncode(body),
-  );
-}
+  static Future<http.Response?> postWithHeadersUploadMultiPart(
+    String endpoint,
+    Map<String, String> headers,
+    Map<String, dynamic> body, {
+    File? imageFile,
+    String imageField = 'upload_selfie',
+  }) async {
+    final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
+    final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
+    final isHttps = baseUri.scheme == 'https';
 
+    // ---------- SSL PINNING ----------
+    if (isHttps) {
+      final result = await HttpCertificatePinning.check(
+        serverURL: baseUri.origin,
+        headerHttp: {},
+        timeout: 50,
+        sha: SHA.SHA256,
+        allowedSHAFingerprints: [certificate],
+      );
 
+      if (result == CertificateState.CERTIFICATE_VALID) {
+        print("✅ SSL pinning success");
+      } else {
+        print("❌ SSL pinning failed: $result");
+        return null; // stop request if failed
+      }
+    } else {
+      print("🌐 Non-HTTPS endpoint, skipping pinning");
+    }
+
+    // ---------- MULTIPART POST ----------
+    if (imageFile != null) {
+      final request = http.MultipartRequest('POST', fullUrl);
+
+      // Add headers
+      headers.forEach((key, value) {
+        request.headers[key] = value;
+      });
+
+      // Add fields
+      body.forEach((key, value) {
+        if (value != null) {
+          request.fields[key] = value.toString();
+        }
+      });
+
+      // Add image file
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          imageField,
+          imageFile.path,
+        ),
+      );
+
+      final streamedResponse = await request.send();
+      return await http.Response.fromStream(streamedResponse);
+    }
+
+    // ---------- NORMAL POST (NO IMAGE) ----------
+    return await http.post(
+      fullUrl,
+      headers: {
+        ...headers,
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(body),
+    );
+  }
 }
