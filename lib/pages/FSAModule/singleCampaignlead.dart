@@ -2149,8 +2149,8 @@ class _FSACampaignSingleLeadState extends State<FSACampaignSingleLead> {
       String url = "/api/leads/los-access-token/";
       final headers = {
         'Authorization': 'Bearer $token',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        //'User-Agent':
+          //  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final Tokenresponse = await ApiService.getWithHeaders(url, headers);
       if (Tokenresponse != null) {

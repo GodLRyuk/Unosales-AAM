@@ -8,8 +8,8 @@ import 'package:unosfa/pages/generalscreens/customNavigation.dart';
 import 'package:unosfa/pages/generalscreens/entrypage.dart';
 import 'package:unosfa/widgetSupport/widgetstyle.dart';
 
-// final bool ENABLE_SECURITY_CHECKS = false;
-final bool ENABLE_SECURITY_CHECKS = AppConfig.enableSecurityChecks;
+final bool ENABLE_SECURITY_CHECKS = false;
+//final bool ENABLE_SECURITY_CHECKS = AppConfig.enableSecurityChecks;
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

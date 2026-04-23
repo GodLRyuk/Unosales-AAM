@@ -498,8 +498,9 @@ class _RQAApplicationState extends State<RQAApplication> {
     return "FSA_$randomNumber$dateTime";
   }
 
+   bool databaseUpdate_value = false; 
   // Store data in UNO Data Base
-  Future<void> submitDataUnoDB(String lostoken,
+  Future<bool> submitDataUnoDB(String lostoken,
       Map<String, dynamic> responseData, String CWTransactionID) async {
     String url = "/save/external-response";
     final header1 = {
@@ -539,18 +540,74 @@ class _RQAApplicationState extends State<RQAApplication> {
     try {
       final response =
           await ApiService.postJsonWithUNOApiHeaders(url, formData1, header1);
-      // print("body is $formData1");
+
       if (response != null) {
         if (response.statusCode == 200) {
-          print("Data submitted successfully in UNO DB");
-          // print("response is ${response.body}");
-        } else {
-          print("Data is not submitted ");
+          databaseUpdate_value=true;
+          print("Data submitted successfully in UNO DB");          
+           
+        } 
+        else {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                title: Row(
+                  children: const [
+                    Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 28,
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      "Something Went Wrong",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                  ],
+                ),
+                content: Text(
+                  "Failed to connect with server.\nStatus Code: ${response.statusCode}",
+                  style: const TextStyle(fontSize: 16),
+                ),
+                actionsPadding: const EdgeInsets.only(bottom: 10, right: 10),
+                actions: [
+                  Center(
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.purple,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        "OK",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+          databaseUpdate_value=false;
         }
       }
     } catch (e) {
       print("error is $e");
+     
     }
+    return databaseUpdate_value;
+   
   }
 
   //******************************************* */
@@ -569,8 +626,8 @@ class _RQAApplicationState extends State<RQAApplication> {
       final headers = {
         'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        // 'User-Agent':
+        //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
       if (Tokenresponse != null) {
@@ -585,8 +642,8 @@ class _RQAApplicationState extends State<RQAApplication> {
         '/engine/v1/executions/loans-interface/1.x/rqa-check/rqa_check/RQA_Check';
     final headers = {
       'Authorization': 'Bearer $token',
-      'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      // 'User-Agent':
+      //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       'Content-Type': 'application/json'
     };
 
@@ -621,13 +678,12 @@ class _RQAApplicationState extends State<RQAApplication> {
 
         String? status = data['output']['response']['status'];
         print("status is $status");
-        
 
         //  ****************************************************
         print("status is $status");
-        submitDataUnoDB(token, data, CWTransactionID);
+        bool dataUpdatedValue = await submitDataUnoDB(token, data, CWTransactionID);
         // ***************************************************
-        if (status != null && status.toLowerCase() == "pass") {
+        if (status != null && status.toLowerCase() == "pass" && dataUpdatedValue == true) {
           Navigator.push(
             context,
             MaterialPageRoute(

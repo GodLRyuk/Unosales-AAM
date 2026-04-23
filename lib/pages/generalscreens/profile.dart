@@ -4,6 +4,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/generalscreens/entrypage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/generalscreens/profileUpdate.dart';
@@ -250,6 +251,8 @@ class _ProfilePageState extends State<ProfilePage> {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
         "Content-Type": "application/json",
+        'User-Agent':
+          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
 
       final response =
@@ -596,12 +599,17 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(
                 height: MediaQuery.sizeOf(context).height * 0.01,
               ),
-              Text('UAT Build No: $uatBuildNumber',
-                  style: TextStyle(
+              Visibility(
+                visible: AppConfig.isUat,
+                child: Text(
+                  'UAT Build No: $uatBuildNumber',
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
-                  ))
+                  ),
+                ),
+              ),
             ],
           ),
         ),

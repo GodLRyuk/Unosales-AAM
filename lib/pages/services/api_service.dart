@@ -220,8 +220,8 @@ class ApiService {
     print("postJsonWithHeaders header $fullUrl"); //********** */
     print("postJsonWithHeaders header $headers");
     print("Body ${body}");
-    // headers['User-Agent'] =
-    //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
+    headers['User-Agent'] =
+        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
     if (isHttps) {
       final result = await HttpCertificatePinning.check(
         serverURL: baseUri.origin,
@@ -342,7 +342,8 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-      if (result == CertificateState.CERTIFICATE_VALID) {
+      final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         print("✅ SSL pinning succeeded");
         return await http.get(fullUrl, headers: headers);
       } else {
@@ -401,7 +402,8 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-      if (result == CertificateState.CERTIFICATE_VALID) {
+     final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         //  print("patchWithHeaders url is $fullUrl"); //********************* */
         //  print("patchWithHeaders header is $headers"); //***************** */
         return await http.patch(
@@ -448,7 +450,8 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-      if (result == CertificateState.CERTIFICATE_VALID) {
+      final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         print("✅ SSL pinning succeeded");
         return await http.post(
           fullUrl,
@@ -485,7 +488,8 @@ class ApiService {
         sha: SHA.SHA256,
         allowedSHAFingerprints: [certificate],
       );
-      if (result == CertificateState.CERTIFICATE_VALID) {
+      final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         print("✅ SSL pinning succeeded");
         return await http.get(
           fullUrl,
@@ -517,7 +521,8 @@ class ApiService {
         allowedSHAFingerprints: [certificate],
       );
 
-      if (result == CertificateState.CERTIFICATE_VALID) {
+     final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         print("✅ SSL pinning succeeded");
         return await http.post(
           fullUrl,
@@ -558,7 +563,8 @@ class ApiService {
         allowedSHAFingerprints: [certificate],
       );
 
-      if (result == CertificateState.CERTIFICATE_VALID) {
+      final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         print("✅ SSL pinning success");
 
         // DO NOT silently return null — allow request or throw
@@ -630,7 +636,8 @@ class ApiService {
         allowedSHAFingerprints: [certificate],
       );
 
-      if (result == CertificateState.CERTIFICATE_VALID) {
+      final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
         print("✅ SSL pinning success");
       } else {
         print("❌ SSL pinning failed: $result");

@@ -105,7 +105,7 @@ class _LoginOtpState extends State<LoginOtp> {
     String otp = generateSecureTransactionId();
     setState(() {
       recivedOtp = otp.toString();
-      // print("OTP : $recivedOtp");
+      print("OTP : $recivedOtp");
     });
     // Step 1: Get access token
     String clientId = await otpClientId();

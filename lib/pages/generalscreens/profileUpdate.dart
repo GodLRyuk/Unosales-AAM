@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/generalscreens/customNavigation.dart';
 import 'package:unosfa/pages/services/api_service.dart';
+import 'package:unosfa/pages/services/secret_key.dart';
 import 'package:unosfa/widgetSupport/widgetstyle.dart';
 import 'package:pointycastle/random/fortuna_random.dart';
 import 'package:crypto/crypto.dart';
@@ -167,64 +168,76 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
   }
 
   Future<void> _sendOtp() async {
-    String otp = generateSecureTransactionId();
-    setState(() {
-      recivedOtp = otp;
-    });
+    // String otp = generateSecureTransactionId();
+    // setState(() {
+    //   recivedOtp = otp;
+    // });
 
-    if (emailChanged) {
-      // API sends OTP to email when updating email
-      _updateprofile(sendOtpOnly: true);
-    } else if (phoneChanged) {
-      // OTP sent via SMS
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? authToken = prefs.getString('accessToken');
+    // if (emailChanged) {
+    //   // API sends OTP to email when updating email
+    //   _updateprofile(sendOtpOnly: true);
+    // } else if (phoneChanged) {
+    //   // OTP sent via SMS
+    //   SharedPreferences prefs = await SharedPreferences.getInstance();
+    //   String? authToken = prefs.getString('accessToken');
 
-      final body = AppConfig.flavour == 'uat'
-          ? {
-              'client_id':
-                  'NP8bjuRa4l0BK71XatIfMfdNmKVXndaCoWOYXFeILmXTi2gT6N8p',
-              'client_secret':
-                  'XRpjpMeThK8Q88wgsM7GAtIf5nVN0gTHjni7lmFKVD2AeGx9JJdWW5UEffqTQjOGgl',
-              'grant_type': 'client_credentials',
-            }
-          : {
-              'client_id':
-                  'Bm9CjuRa4l0BK71XatIGdHdNmKVXndaloWpYXFeILmXTi2re5f6v',
-              'client_secret':
-                  'DswfeVuRhK8Q88wgsM7GAtIf7MCX0gTHjni7lmFKVD2AeGx9JJdWW5UERtsWEKYSD3',
-              'grant_type': 'client_credentials',
-            };
+    //  Client Id and client secret changed. So use through firebase where it is updated
+    // String clientId = await otpClientId();
+    // String clientSecret = await otpClientSecret();
 
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/oauth2/token'),
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: body,
-      );
+    // final body = {
+    //   'client_id': clientId,
+    //   'client_secret': clientSecret,
+    //   'grant_type': 'client_credentials',
+    // };
 
-      if (response.statusCode == 200) {
-        final accessToken = json.decode(response.body)['access_token'];
-        await http.post(
-          Uri.parse('${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $accessToken',
-          },
-          body: json.encode({
-            "messages": [
-              {
-                "from": "UnoBank",
-                "destinations": [
-                  {"to": "+63${_phoneNumber.text}"}
-                ],
-                "text": "Your OTP is $otp. NEVER SHARE THIS OTP."
-              }
-            ]
-          }),
-        );
-      }
-    }
-    _startTimer();
+    // ********************************************************
+    //
+    //   final body = AppConfig.flavour == 'uat'
+    //       ? {
+    //           'client_id':
+    //               'NP8bjuRa4l0BK71XatIfMfdNmKVXndaCoWOYXFeILmXTi2gT6N8p',
+    //           'client_secret':
+    //               'XRpjpMeThK8Q88wgsM7GAtIf5nVN0gTHjni7lmFKVD2AeGx9JJdWW5UEffqTQjOGgl',
+    //           'grant_type': 'client_credentials',
+    //         }
+    //       : {
+    //           'client_id':
+    //               'Bm9CjuRa4l0BK71XatIGdHdNmKVXndaloWpYXFeILmXTi2re5f6v',
+    //           'client_secret':
+    //               'DswfeVuRhK8Q88wgsM7GAtIf7MCX0gTHjni7lmFKVD2AeGx9JJdWW5UERtsWEKYSD3',
+    //           'grant_type': 'client_credentials',
+    //         };
+
+    //   final response = await http.post(
+    //     Uri.parse('${AppConfig.otpUrl}/oauth2/token'),
+    //     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    //     body: body,
+    //   );
+
+    //   if (response.statusCode == 200) {
+    //     final accessToken = json.decode(response.body)['access_token'];
+    //     await http.post(
+    //       Uri.parse('${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'),
+    //       headers: {
+    //         'Content-Type': 'application/json',
+    //         'Authorization': 'Bearer $accessToken',
+    //       },
+    //       body: json.encode({
+    //         "messages": [
+    //           {
+    //             "from": "UnoBank",
+    //             "destinations": [
+    //               {"to": "+63${_phoneNumber.text}"}
+    //             ],
+    //             "text": "Your OTP is $otp. NEVER SHARE THIS OTP."
+    //           }
+    //         ]
+    //       }),
+    //     );
+    //   }
+    // }
+    // _startTimer();
   }
 
   Future<void> _verifyOtp() async {
@@ -264,6 +277,8 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
     final headers = {
       'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
+      'User-Agent':
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
     };
 
     final response = await ApiService.patchWithHeaders(

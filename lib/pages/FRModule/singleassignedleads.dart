@@ -1315,7 +1315,10 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
           );
         } else if (response.statusCode == 401) {
           String url = "/api/users/token-refresh/";
-          final headers = {'Content-Type': 'application/json'};
+          final headers = {
+          'Content-Type': 'application/json',
+          'User-Agent':
+          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',};
           Map<String, String> mappedData = {'refresh': refresh ?? ''};
           final refreshResponse =
               await ApiService.postJsonWithHeaders(url, mappedData, headers);

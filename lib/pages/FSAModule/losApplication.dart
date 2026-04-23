@@ -3596,6 +3596,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                     'Content-Type': 'application/json',
                     "Idempotency-Key": "jbkjdbjkjk",
                     "Authorization": "Bearer $tokens",
+                    'User-Agent':
+                      'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
                   },
                   body: json.encode({
                     "mobileNo": "",
