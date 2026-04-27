@@ -127,3 +127,30 @@ Future<String> getPublicKey() async{
 
 }
 
+
+Future<String> enableSecurityChecks() async {
+ 
+  final remoteConfig = FirebaseRemoteConfig.instance;
+
+  await remoteConfig.setConfigSettings(RemoteConfigSettings(
+    fetchTimeout: const Duration(seconds: 10),
+    minimumFetchInterval: const Duration(hours: 1),
+  ));
+
+  await remoteConfig.fetchAndActivate();
+
+  final jsonString = remoteConfig.getString('security_check');
+  if (jsonString.isEmpty) {
+    throw Exception("No Security check found");
+  }
+
+  final Map<String, dynamic> securityCheck = json.decode(jsonString);
+  final bool isProd = AppConfig.isProd;
+  final String getSecurityCheck = AppConfig.isDev ? securityCheck['dev_security_check'] :
+  isProd
+      ? securityCheck['prod_security_check']
+      : securityCheck['uat_security_check'];
+
+  return getSecurityCheck;
+}
+
