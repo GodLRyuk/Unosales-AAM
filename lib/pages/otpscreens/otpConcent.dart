@@ -73,6 +73,7 @@ class OtpconcentState extends State<Otpconcent> {
   void initState() {
     super.initState();
     String jsonString = jsonEncode(widget.losData.toJson());
+    print("phone number ${widget.phoneNumber}");
     // print("CW iN CONSENT ${widget.losData.applicationNumber}");
     // print("losData is this");
 
@@ -1270,7 +1271,7 @@ class OtpconcentState extends State<Otpconcent> {
             {
               "from": "UnoBank",
               "destinations": [
-                {"to": "${widget.phoneNumber}"}
+                {"to": "+63${widget.phoneNumber}"}
               ],
               "text":
                   """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
@@ -1293,7 +1294,7 @@ class OtpconcentState extends State<Otpconcent> {
               {
                 "from": "UnoBank",
                 "destinations": [
-                  {"to": "${widget.phoneNumber}"}
+                  {"to": "63${widget.phoneNumber}"}
                 ],
                 "text":
                     """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""

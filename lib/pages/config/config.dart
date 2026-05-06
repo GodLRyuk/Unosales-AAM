@@ -1,4 +1,6 @@
 
+import 'package:unosfa/pages/services/secret_key.dart';
+
 class AppConfig {
   /// Active flavor (defaults to 'dev' if not passed via --dart-define)
   static final String flavour =
@@ -99,11 +101,25 @@ class AppConfig {
   //   }
   // }
 
-  static bool get isScreenshotDisabled => flavour == 'prod';
 
-  static bool get enableSecurityChecks => isProd;
+  // ***************************
+  static String securityValue = "";
+  static Future<void> initSecurity() async {
+  securityValue = await enableSecurityChecks();
+  
+  
+}
+static bool get isScreenshotDisabled => securityValue == "true";
+
+
+//**************************** 
+//static bool get isScreenshotDisabled => flavour == 'prods';
+
+//static bool get enableSecurityChecks => isProd;
 
   static bool get isUat => flavour == 'uat';
   static bool get isProd => flavour == 'prod';
   static bool get isDev => flavour == 'dev';
+
+
 }

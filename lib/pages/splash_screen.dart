@@ -15,9 +15,6 @@ import 'package:unosfa/widgetSupport/widgetstyle.dart';
 // final bool ENABLE_SECURITY_CHECKS = AppConfig.enableSecurityChecks;
 
 
-
-
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 

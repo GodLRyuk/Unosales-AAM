@@ -27,6 +27,8 @@ class SecureHttpOverrides extends HttpOverrides {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await AppConfig.initSecurity();
+  
   AppConfig.certificateChecks = await setupSslKeys();
   if (AppConfig.isScreenshotDisabled) {
     print("Disabling screenshots...");
