@@ -73,7 +73,9 @@ class OtpconcentState extends State<Otpconcent> {
   void initState() {
     super.initState();
     String jsonString = jsonEncode(widget.losData.toJson());
-    print("phone number ${widget.phoneNumber}");
+    print("phone number1 ${widget.phoneNumber}");
+    
+
     // print("CW iN CONSENT ${widget.losData.applicationNumber}");
     // print("losData is this");
 
@@ -283,7 +285,7 @@ class OtpconcentState extends State<Otpconcent> {
         "_Emp_Details": {
           "emp_Work_Nature": data.empWorkNature,
           "emp_Mths_In_Cur_Comp": data.empMonthsInCompany,
-          "emp_Status": data.empStatus, 
+          "emp_Status": data.empStatus,
 
           "emp_Employer_Name": (data.empEmployerName == null ||
                   data.empEmployerName!.trim().isEmpty ||
@@ -292,7 +294,7 @@ class OtpconcentState extends State<Otpconcent> {
               : data.empEmployerName, //data.empEmployerName,
 
           "emp_Indus_Type": data.empIndustryType,
-          "emp_Type": data.empType, 
+          "emp_Type": data.empType,
           "emp_Yrs_In_Cur_Comp": data.empYearsInCompany,
           "Office_phone_no": "",
           "emp_Type_Code": formatedCode(data
@@ -445,7 +447,6 @@ class OtpconcentState extends State<Otpconcent> {
     // }
   }
 
-
   Future<Map<String, dynamic>> buildPayload() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userInfo = prefs.getStringList('userInfo');
@@ -496,7 +497,7 @@ class OtpconcentState extends State<Otpconcent> {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
           //'User-Agent':
-           //   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          //   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
@@ -706,7 +707,6 @@ class OtpconcentState extends State<Otpconcent> {
           '__METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95; __METADATA__=6989a6b0-dbfa-4caa-9a56-5d6231dd6a95',
       "Authorization": "Bearer $token",
       'Content-Type': "application/json",
-      
     };
 
     final body = {
@@ -867,7 +867,6 @@ class OtpconcentState extends State<Otpconcent> {
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
 
-        
         try {
           showDialog(
             context: context,
@@ -1076,7 +1075,7 @@ class OtpconcentState extends State<Otpconcent> {
                     "Idempotency-Key": "jbkjdbjkjk",
                     "Authorization": "Bearer $tokens",
                     'User-Agent':
-                       'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+                        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
                   },
                   body: json.encode({
                     "mobileNo": "",
@@ -1225,6 +1224,13 @@ class OtpconcentState extends State<Otpconcent> {
   }
 
   Future<void> _sendOtp() async {
+
+    String phone = widget.phoneNumber.toString();
+    if (phone.length == 13 && phone.startsWith("63")) {
+      phone = phone.substring(2); 
+    }
+    print("phone number $phone");
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? authToken = prefs.getString('accessToken');
     String otp = generateSecureOTP();
@@ -1247,9 +1253,8 @@ class OtpconcentState extends State<Otpconcent> {
       Uri.parse('${AppConfig.otpUrl}/oauth2/token'),
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-         'User-Agent':
-                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36'
-        
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36'
       },
       body: body,
     );
@@ -1271,7 +1276,7 @@ class OtpconcentState extends State<Otpconcent> {
             {
               "from": "UnoBank",
               "destinations": [
-                {"to": "+63${widget.phoneNumber}"}
+                {"to": "+63${phone}"}
               ],
               "text":
                   """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
@@ -1294,7 +1299,7 @@ class OtpconcentState extends State<Otpconcent> {
               {
                 "from": "UnoBank",
                 "destinations": [
-                  {"to": "63${widget.phoneNumber}"}
+                  {"to": "63${phone}"}
                 ],
                 "text":
                     """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
