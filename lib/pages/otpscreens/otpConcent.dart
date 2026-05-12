@@ -1226,7 +1226,7 @@ class OtpconcentState extends State<Otpconcent> {
   Future<void> _sendOtp() async {
 
     String phone = widget.phoneNumber.toString();
-    if (phone.length == 13 && phone.startsWith("63")) {
+    if (phone.length == 12 && phone.startsWith("63")) {
       phone = phone.substring(2); 
     }
     print("phone number $phone");
