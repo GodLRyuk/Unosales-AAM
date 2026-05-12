@@ -1750,7 +1750,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
         body: jsonEncode({
           "filters": [
-            {"id": "18"}
+            {"id": "15"}
           ]
         }),
       );
@@ -1763,9 +1763,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
               responseBody['data'][0]; // The first map in the list
 
           final lovsDetails = firstItem['lovs_details'];
-          if (lovsDetails != null && lovsDetails['Profession'] is List) {
+          if (lovsDetails != null && lovsDetails['Position'] is List) {
             setState(() {
-              empProfessionList = (lovsDetails['Profession'] as List)
+              empProfessionList = (lovsDetails['Position'] as List)
                   .map<Map<String, dynamic>>(
                       (item) => Map<String, dynamic>.from(item))
                   .toList();
