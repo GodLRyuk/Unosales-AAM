@@ -488,8 +488,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
         'Correlation-Id': '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-        'Cookie': cookies['dedupe']!,
-           
+        'Cookie': cookies['dedupe']!,           
         'channel': 'fsa',
       };
 
