@@ -770,6 +770,7 @@ class OtpconcentState extends State<Otpconcent> {
 // Done  by 8.12.2025
 
   Future<void> postLoanCheck(Map<String, dynamic> requestData) async {
+    
     setState(() {});
     String tokens = "";
     try {
@@ -792,6 +793,8 @@ class OtpconcentState extends State<Otpconcent> {
     }
 
     final url = Uri.parse("${AppConfig.otpUrl}/pre-uw/save-payload");
+    final cookies = await cookie();
+
 
     final headers = {
       "Idempotency-Key": "th37per9-185d-4e22-83fb-18gf96g0g861",
@@ -802,8 +805,8 @@ class OtpconcentState extends State<Otpconcent> {
           'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       "Correlation-Id": "1234",
       "Channel": "FSA",
-      "Cookie":
-          "AWSALB=BBxk3EbWLtIG1Kav8Uzq4M35AQ6O/x7hZqOtLs0CoXlu4BrBbrhRhfBqa6tAbbpnx/2orMd0kt7fwL8nCPxthrnqBBozntvZC/Sf6p1jkVPiG3X9ttn0KLI4rtnY; AWSALBCORS=BBxk3EbWLtIG1Kav8Uzq4M35AQ6O/x7hZqOtLs0CoXlu4BrBbrhRhfBqa6tAbbpnx/2orMd0kt7fwL8nCPxthrnqBBozntvZC/Sf6p1jkVPiG3X9ttn0KLI4rtnY; METADATA=3c6749d5-60ea-4486-aede-fd4538d2fe39"
+      "Cookie": cookies['save_payload']!
+          
     };
 
     print("url is $url");

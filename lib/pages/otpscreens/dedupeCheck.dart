@@ -16,6 +16,7 @@ import 'package:unosfa/pages/generalscreens/entrypage.dart';
 import 'package:unosfa/pages/generalscreens/profile.dart';
 import 'package:unosfa/pages/services/api_service.dart';
 import 'package:unosfa/pages/services/ekyc.dart';
+import 'package:unosfa/pages/services/secret_key.dart';
 import '../../widgetSupport/widgetstyle.dart';
 
 class DedupeCheck extends StatefulWidget {
@@ -481,13 +482,14 @@ class _DedupeCheckState extends State<DedupeCheck> {
         "dateOfBirth": formattedDate,
         "mobileNumber": "63" + mobilePhone.text
       };
+      final cookies = await cookie();
 
       final headers = {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
         'Correlation-Id': '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-        'Cookie':
-            'AWSALB=SsezDH7Q4QiKN438NtO/HC1sdemLNqTbSxUTsxitbCuhbKjGbD5T00rWZBWky9HiAmeoFHAM/W6bNouDd1TtsYS9PUuJgXh+s/kbdFg0GOKuq4VzW3lqZgkP5Wcg; AWSALBCORS=SsezDH7Q4QiKN438NtO/HC1sdemLNqTbSxUTsxitbCuhbKjGbD5T00rWZBWky9HiAmeoFHAM/W6bNouDd1TtsYS9PUuJgXh+s/kbdFg0GOKuq4VzW3lqZgkP5Wcg',
+        'Cookie': cookies['dedupe']!,
+           
         'channel': 'fsa',
       };
 

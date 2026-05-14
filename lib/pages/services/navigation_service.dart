@@ -1,13 +1,11 @@
 import 'dart:convert';
 import 'package:latlong2/latlong.dart';
 import 'package:unosfa/pages/services/api_service.dart';
+import 'package:unosfa/pages/services/secret_key.dart';
 
 class NavigationService {
-  static const String apiKey =
-      '5b3ce3597851110001cf6248b81d893bae354ba5811ad741987e9686';
-
-  // Fetch route from OpenRouteService API
   static Future<List<LatLng>> getRoute(LatLng start, LatLng end) async {
+    final apiKey = await openrouteApiKey();
     final url =
         'https://api.openrouteservice.org/v2/directions/driving-car?api_key=$apiKey&start=${start.longitude},${start.latitude}&end=${end.longitude},${end.latitude}';
 
