@@ -94,3 +94,9 @@
 -optimizationpasses 5
 -keepattributes !SourceDebugExtension
 -dontusemixedcaseclassnames
+
+############################################
+# FLATTEN PACKAGE STRUCTURE
+############################################
+-repackageclasses 'x'
+-optimizationpasses 5
