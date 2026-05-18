@@ -295,8 +295,8 @@ class _LoginPageState extends State<LoginPage> {
         'username': _usernameController.text,
         'password': _passwordController.text,
       };
-        final response = await ApiService.post(url, mapeddata);
-        print("Resp: $response");
+      final response = await ApiService.post(url, mapeddata);
+      print("Resp: $response");
       try {
         if (response != null) {
           final statusCode = response.statusCode;
@@ -305,10 +305,10 @@ class _LoginPageState extends State<LoginPage> {
               final data = json.decode(response.body);
 
               if (statusCode == 200) {
-                await globalKeys();
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setString('accessToken', data['access']);
                 await prefs.setString('refreshToken', data['refresh']);
+                await globalKeys();
                 final role = data['roles'][0];
                 if (widget.loginWith == role && data['access'] != null) {
                   Navigator.pushReplacement(
