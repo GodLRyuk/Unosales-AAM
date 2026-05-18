@@ -1,6 +1,45 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/config/config.dart';
+import 'package:unosfa/pages/services/api_service.dart';
+
+Future<void> globalKeys() async{
+  final endpoint= '/api/secrets/?key=${AppConfig.flavour}';
+   SharedPreferences prefs = await SharedPreferences.getInstance();
+  final accessToken = prefs.getString('accessToken') ?? '';
+  try {
+    final response = await ApiService.getWithHeaders(endpoint, {
+      'Authorization': 'Bearer $accessToken',
+      'Content-Type': 'application/json',
+    });
+
+    if(response!.statusCode == 200){
+      final data = jsonDecode(response.body);
+      print("result: $data");
+      // ssl certificates
+      final certificate= data['result']['otp_client_secret'];
+
+      log("Certificate: $certificate");
+
+      //  setupSslKeys(certificate);
+      // //  otp client id and secret
+      // final otpClientIdValue = data['result']['otp_client_id'];
+      // final otpClientSecretValue = data['result']['otp_client_secret'];
+      //   otpClientId(otpClientIdValue);
+      //   otpClientSecret(otpClientSecretValue);
+
+
+    } else {
+      throw Exception("Failed to fetch secret key: ${response.statusCode}");
+    }
+
+  } catch (e) {
+    throw Exception("Failed to fetch secret key: $e");
+  }
+
+}
 
 Future<String> setupSslKeys() async {
   final remoteConfig = FirebaseRemoteConfig.instance;
@@ -52,7 +91,7 @@ Future<String> otpClientId() async {
     throw Exception("No Client Id found in Remote Config");
   }
 
-  final Map<String, dynamic> sslKeys = json.decode(jsonString);
+  final Map<String, dynamic> sslKeys = json.decode(jsonString)  ;
   final bool isProd = AppConfig.isProd;
   final String otpClientId =
       isProd ? sslKeys['prod_otp_client_id'] : sslKeys['uat_otp_client_id'];

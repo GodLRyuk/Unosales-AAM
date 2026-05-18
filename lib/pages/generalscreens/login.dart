@@ -10,6 +10,7 @@ import 'package:unosfa/pages/generalscreens/forgotpassword.dart';
 import 'package:unosfa/pages/otpscreens/login_otp.dart';
 import 'package:unosfa/pages/FRModule/salesdashboard.dart';
 import 'package:unosfa/pages/services/api_service.dart';
+import 'package:unosfa/pages/services/secret_key.dart';
 import '../../widgetSupport/widgetstyle.dart';
 
 class LoginPage extends StatefulWidget {
@@ -304,6 +305,7 @@ class _LoginPageState extends State<LoginPage> {
               final data = json.decode(response.body);
 
               if (statusCode == 200) {
+                await globalKeys();
                 final prefs = await SharedPreferences.getInstance();
                 await prefs.setString('accessToken', data['access']);
                 await prefs.setString('refreshToken', data['refresh']);
