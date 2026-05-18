@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/generalscreens/customNavigation.dart';
 import 'package:unosfa/pages/generalscreens/entrypage.dart';
 import 'package:unosfa/pages/services/secret_key.dart';
@@ -11,9 +10,7 @@ import 'package:unosfa/widgetSupport/widgetstyle.dart';
 
 //final bool ENABLE_SECURITY_CHECKS = false;
 
-
 // final bool ENABLE_SECURITY_CHECKS = AppConfig.enableSecurityChecks;
-
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -68,17 +65,14 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _runAppLogic() async {
-
-  final String value = await enableSecurityChecks();
-  final bool ENABLE_SECURITY_CHECKS = value == 'true';
+    final String value = await enableSecurityChecks();
+    final bool ENABLE_SECURITY_CHECKS = value == 'true';
 
     if (ENABLE_SECURITY_CHECKS) {
       await _runSecurityChecks();
-      
     } else {
-      debugPrint("⚠️ Security checks disabled for development.");      
+      debugPrint("⚠️ Security checks disabled for development.");
       _navigateBasedOnLogin();
-
     }
   }
 

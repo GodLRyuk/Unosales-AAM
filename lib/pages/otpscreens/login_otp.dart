@@ -100,6 +100,12 @@ class _LoginOtpState extends State<LoginOtp> {
   }
 
   Future<void> _sendOtp() async {
+     String phone = widget.phone_number.toString();
+    if (phone.length == 12 && phone.startsWith("63")) {
+      phone = phone.substring(2); 
+    }
+    print("phone number $phone");
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? authToken = prefs.getString('accessToken');
     String otp = generateSecureTransactionId();
@@ -143,7 +149,7 @@ class _LoginOtpState extends State<LoginOtp> {
             {
               "from": "UnoBank",
               "destinations": [
-                {"to": "+63${widget.phone_number}"}
+                {"to": "+63${phone}"}
               ],
               "text":
                   """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
@@ -164,7 +170,7 @@ class _LoginOtpState extends State<LoginOtp> {
               {
                 "from": "UnoBank",
                 "destinations": [
-                  {"to": "63${widget.phone_number}"}
+                  {"to": "63${phone}"}
                 ],
                 "text":
                     """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""

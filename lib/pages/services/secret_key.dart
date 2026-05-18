@@ -154,3 +154,62 @@ Future<String> enableSecurityChecks() async {
   return getSecurityCheck;
 }
 
+
+  Future<String> openrouteApiKey() async {
+    final remoteConfig = FirebaseRemoteConfig.instance;
+
+    await remoteConfig.fetchAndActivate();
+
+    final jsonString =
+        remoteConfig.getString('openroute_apiKey');
+
+    if (jsonString.isEmpty) {
+      throw Exception("Key not found in Remote Config");
+    }
+
+    final Map<String, dynamic> data =
+        jsonDecode(jsonString);
+
+    final String apiKey = data['api_key'] ?? '';
+
+    if (apiKey.isEmpty) {
+      throw Exception("api_key missing in JSON");
+    }
+
+    return apiKey;
+  }
+
+
+  Future<Map<String, String>> cookie() async {
+  final remoteConfig = FirebaseRemoteConfig.instance;
+
+  await remoteConfig.fetchAndActivate();
+
+  final jsonString = remoteConfig.getString('cookie');
+
+  if (jsonString.isEmpty) {
+    throw Exception("Key not found in Remote Config");
+  }
+
+  final Map<String, dynamic> data =
+      jsonDecode(jsonString);
+
+  final String savePayloadCookie =
+      data['save_payload'] ?? '';
+
+  final String dedupePayloadCookie =
+      data['dedupe'] ?? '';
+
+  if (savePayloadCookie.isEmpty) {
+    throw Exception("save_payload missing in JSON");
+  }
+
+  if (dedupePayloadCookie.isEmpty) {
+    throw Exception("dedupe missing in JSON");
+  }
+
+  return {
+    "save_payload": savePayloadCookie,
+    "dedupe": dedupePayloadCookie,
+  };
+}
