@@ -99,7 +99,7 @@ class _FSAOSMRouteTrackingState extends State<FSAOSMRouteTracking> {
           String url = "/api/users/token-refresh/";
           final response2 = await ApiService.post(url, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -171,7 +171,7 @@ class _FSAOSMRouteTrackingState extends State<FSAOSMRouteTracking> {
       final response = await http.get(Uri.parse(url));
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.data.body);
+        final data = json.decode(response.body);
 
         if (data['routes'] != null && data['routes'].isNotEmpty) {
           final route = data['routes'][0];
@@ -195,7 +195,7 @@ class _FSAOSMRouteTrackingState extends State<FSAOSMRouteTracking> {
           print("No route found");
         }
       } else {
-        print("Failed to load route: ${response.data.body}");
+        print("Failed to load route: ${response.body}");
       }
     } catch (e) {
       print("Error fetching route: $e");

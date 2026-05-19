@@ -704,7 +704,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         body: jsonEncode(payload),
       );
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.data.body);
+        final data = jsonDecode(response.body);
         final sostoken = data["token"];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -767,13 +767,13 @@ class _LosStatusChartState extends State<LosStatusChart>
       };
       final response =
           await ApiService.postJsonWithUNOApiHeaders(offerUrl, body, headers);
-      final data = json.decode(response!.body);
+      final data = json.decode(response!.data);
       String offerStatus = data[0]['offerStatus'];
       String aamUrl = "/api/leads/los-details/?los_status__applicationNo=$cwId";
       final aamheader = {'Authorization': 'Bearer $token'};
 
       final res = await ApiService.getWithHeaders(aamUrl, aamheader);
-      final datares = json.decode(res!.body);
+      final datares = json.decode(res!.data);
       final resresult = datares['results'][0]['los_status'];
 
       final applicationStatus = resresult['applicationStatus'];
