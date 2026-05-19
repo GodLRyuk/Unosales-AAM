@@ -74,7 +74,7 @@ class _FRCampaignlistState extends State<FRCampaignlist> {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = json.decode(response.data.body);
           List<dynamic> leadsData = data['results'] ?? [];
 
           setState(() {
@@ -160,7 +160,7 @@ class _FRCampaignlistState extends State<FRCampaignlist> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = json.decode(response.data.body);
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             campaign = leadsData.map((item) {

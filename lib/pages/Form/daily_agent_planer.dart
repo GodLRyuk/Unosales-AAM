@@ -114,7 +114,7 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
     try {
       if (response != null) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.data.body);
         final locationData = data['assigned_locations'];
 
         plannedMeeting.text = data['meetings_planned']?.toString() ?? "";
@@ -235,7 +235,7 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
         },
       );
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
         if (responseBody['results'] is List) {
           final List<dynamic> results = responseBody['results'];
           setState(() {
@@ -265,7 +265,7 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
         },
       );
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
         if (responseBody['results'] is List) {
           final List<dynamic> results = responseBody['results'];
           setState(() {
@@ -1047,7 +1047,7 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
     final response = await ApiService.postJsonWithHeaders(url, mappedData, headers);
 
     if (response != null && response.statusCode == 201) {
-      final data = json.decode(response.body);
+      final data = json.decode(response.data.body);
       setState(() {
         daily_activity = data['id'].toString();
       });

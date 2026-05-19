@@ -79,7 +79,7 @@ class _OSMRouteTrackingState extends State<OSMRouteTracking> {
         if (response.statusCode == 200) {
           // Parse the response body as JSON
           setState(() {
-            leadDetails = json.decode(response.body);
+            leadDetails = json.decode(response.data.body);
             isLoading = false; // Data loaded
             getLatLngFromAddress(leadDetails['perm_state'] +
                 ' ' +
@@ -269,7 +269,7 @@ class _OSMRouteTrackingState extends State<OSMRouteTracking> {
 
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.data.body);
 
         if (data['routes'] != null && data['routes'].isNotEmpty) {
           final route = data['routes'][0];
@@ -293,7 +293,7 @@ class _OSMRouteTrackingState extends State<OSMRouteTracking> {
           print("No route found");
         }
       } else {
-        print("Failed to load route: ${response.body}");
+        print("Failed to load route: ${response.data.body}");
       }
     } catch (e) {
       print("Error fetching route: $e");

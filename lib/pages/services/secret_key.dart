@@ -21,7 +21,7 @@ Future<void> globalKeys() async {
     });
 
     if (response!.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(response.data.body);
 
       // 1. Extract the 'results' list
       List<dynamic> resultsList = data['results'];

@@ -460,7 +460,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
       };
       final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
+        final data = json.decode(Tokenresponse.data.body);
         token = data['access_token'];
       }
     } catch (e) {
@@ -496,7 +496,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
         final response =
             await ApiService.postWithHeadersUnoApi(url, mapeddata, headers);
         if (response != null) {
-          final responseBody = json.decode(response.body);
+          final responseBody = json.decode(response.data.body);
           //print("response body ${responseBody}");
           final message = responseBody["message"] ?? "";
           if (message == "No Client Found") {
@@ -739,7 +739,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
           await ApiService.postWithHeadersUnoApi(url, body, headers);
 
       if (response != null) {
-        final responseBody = jsonDecode(response.body);
+        final responseBody = jsonDecode(response.data.body);
 
         if (response.statusCode == 200) {
           if (responseBody is List && responseBody.isNotEmpty) {

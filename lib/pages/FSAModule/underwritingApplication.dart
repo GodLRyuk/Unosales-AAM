@@ -247,7 +247,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       final response = await ApiService.getWithHeaders(url, headers);
 
       if (response != null && response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = jsonDecode(response.data.body);
 
         List allResults = data["results"] ?? [];
 
@@ -292,7 +292,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       final response = await ApiService.getWithHeaders(url, headers);
 
       if (response != null && response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = jsonDecode(response.data.body);
 
         List allResults = data["results"] ?? [];
 
@@ -372,7 +372,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.body);
+          final data = json.decode(Tokenresponse.data.body);
           token = data['access_token'];
         }
       } catch (e) {
@@ -395,7 +395,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         body: jsonEncode(payload),
       );
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = jsonDecode(response.data.body);
         final sostoken = data["token"];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -435,7 +435,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.body);
+          final data = json.decode(Tokenresponse.data.body);
           losToken = data['access_token'];
         }
       } catch (e) {

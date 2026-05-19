@@ -159,7 +159,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -223,7 +223,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -280,7 +280,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> tenor = data['results'];
 
@@ -332,7 +332,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> docs = data['results'];
 
@@ -382,7 +382,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> citydata = data['results'];
             Map<String, String> fetchedData = {};
@@ -435,7 +435,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> cityData = data['results'];
 
@@ -484,7 +484,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
           if (data['barangays'] != null && data['barangays'] is List) {
             List<dynamic> barangays = data['barangays'];
 
@@ -552,7 +552,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
 
     final file = File('${documentDirectory.path}/$fileName');
     print(file);
-    file.writeAsBytesSync(response.bodyBytes);
+    file.writeAsBytesSync(response.data.bodyBytes);
     return file;
   }
 
@@ -565,11 +565,11 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.data.body);
         String cityUrl = "/api/leads/cities/?search=${data['city_name']}";
         final cityresponse = await ApiService.getWithHeaders(cityUrl, headers);
         if (cityresponse != null) {
-          final Map<String, dynamic> data44 = json.decode(cityresponse.body);
+          final Map<String, dynamic> data44 = json.decode(cityresponse.data.body);
           if (data44['results'] != null && data44['results'] is List) {
             List<dynamic> citydata = data44['results'];
             Map<String, String> fetchedData = {};
@@ -595,7 +595,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
               await ApiService.getWithHeaders(locationUrl, headers);
           if (locationresponse != null) {
             final Map<String, dynamic> data2 =
-                json.decode(locationresponse.body);
+                json.decode(locationresponse.data.body);
             if (data2['results'] != null && data2['results'] is List) {
               List<dynamic> location = data2['results'];
               Map<String, String> fetchedData2 = {};
@@ -609,7 +609,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
                 await ApiService.getWithHeaders(activityUrl, headers);
             if (activityresponse != null) {
               final Map<String, dynamic> data3 =
-                  json.decode(activityresponse.body);
+                  json.decode(activityresponse.data.body);
               if (data3['results'] != null && data3['results'] is List) {
                 List<dynamic> activity = data3['results'];
                 Map<String, String> fetchedData3 = {};
@@ -623,7 +623,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
                   await ApiService.getWithHeaders(tenorUrl, headers);
               if (tenorsresponse != null) {
                 final Map<String, dynamic> data4 =
-                    json.decode(tenorsresponse.body);
+                    json.decode(tenorsresponse.data.body);
                 if (data4['results'] != null && data4['results'] is List) {
                   List<dynamic> tenor = data4['results'];
                   Map<String, String> fetchedData4 = {};
@@ -643,7 +643,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
                     await ApiService.getWithHeaders(barangayUrl, headers);
                 if (barangayresponse != null) {
                   final Map<String, dynamic> data6 =
-                      json.decode(barangayresponse.body);
+                      json.decode(barangayresponse.data.body);
 
                   if (data6['barangays'] != null &&
                       data6['barangays'] is List) {
@@ -665,7 +665,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
                       await ApiService.getWithHeaders(companyUrl, headers);
                   if (companyResponse != null) {
                     final Map<String, dynamic> dataComp =
-                        json.decode(companyResponse.body);
+                        json.decode(companyresponse.data.body);
 
                     if (dataComp['results'] != null &&
                         dataComp['results'] is List) {
@@ -795,7 +795,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(imageUrl, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Uint8List imageBytes = response.bodyBytes;
+          Uint8List imageBytes = response.data.bodyBytes;
           if (imageBytes.isNotEmpty) {
             setState(() {
               _imageBytes = imageBytes;
@@ -837,7 +837,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
           final fileName = Uri.parse(imageUrl).pathSegments.last;
           final filePath = '${tempDir.path}/$fileName';
           final _image = File(filePath);
-          await _image.writeAsBytes(response.bodyBytes);
+          await _image.writeAsBytes(response.data.bodyBytes);
 
           return _image;
         } else {
@@ -1599,7 +1599,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
           );
           if (response != null) {
             if (response.statusCode == 201) {
-              json.decode(response.body);
+              json.decode(response.data.body);
               showDialog(
                 context: context,
                 barrierDismissible:
@@ -1642,9 +1642,9 @@ class _LeadGenerateState extends State<LeadGenerate> {
                 leadSubmit(); // Retry the submission
               }
             } else {
-              // final data = json.decode(response.body);
+              // final data = json.decode(response.data.body);
               // Handle API errors
-              final Map<String, dynamic> bodyJson = json.decode(response.body);
+              final Map<String, dynamic> bodyJson = json.decode(response.data.body);
               String errorMessage = "";
 
               if (bodyJson.containsKey("company") &&
@@ -1697,7 +1697,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
           );
           if (response != null) {
             if (response.statusCode == 200) {
-              json.decode(response.body);
+              json.decode(response.data.body);
               showDialog(
                 context: context,
                 barrierDismissible:
@@ -1748,7 +1748,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: Text('Validation'),
-                    content: Text(response.body),
+                    content: Text(response.data.body),
                     actions: [
                       TextButton(
                         onPressed: () {
@@ -1763,7 +1763,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content:
-                      Text("Failed to update lead. Error: ${response.body}"),
+                      Text("Failed to update lead. Error: ${response.data.body}"),
                 ),
               );
             }

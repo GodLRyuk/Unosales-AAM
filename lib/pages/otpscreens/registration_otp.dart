@@ -148,7 +148,7 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
       body: body,
     );
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final data = json.decode(response.data.body);
       final accessToken = data['access_token'];
       // Step 2: Send SMS using the access token
       final smsResponse = await http.post(
@@ -191,7 +191,7 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
             ]
           }),
           "status_code": smsResponse.statusCode,
-          "response_body": json.decode(smsResponse.body),
+          "response_body": json.decode(smsresponse.data.body),
         };
         final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
         final headers = {

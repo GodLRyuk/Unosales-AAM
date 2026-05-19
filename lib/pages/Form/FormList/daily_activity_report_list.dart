@@ -62,7 +62,7 @@ class _CampaignlistState extends State<DailyActivityList> {
     try {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
       if (response != null && response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.data.body);
         final leadsData = data['results'];
         List<Map<String, dynamic>> newLeads =
             List<Map<String, dynamic>>.from(leadsData);
@@ -124,7 +124,7 @@ class _CampaignlistState extends State<DailyActivityList> {
     try {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null && response.statusCode == 200) {
-                final data = json.decode(response.body);
+                final data = json.decode(response.data.body);
 
         final leadsData = data['results'];
         List<Map<String, dynamic>> newLeads =

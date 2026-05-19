@@ -1,688 +1,478 @@
-import 'dart:convert';
 import 'dart:io';
-import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:dio/dio.dart';
 import 'package:http_certificate_pinning/http_certificate_pinning.dart';
-import 'package:pdf/widgets.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/config/config.dart';
+import 'package:unosfa/pages/services/old_api_service.dart';
 
-enum CertificateState {
-  CERTIFICATE_VALID,
-  CERTIFICATE_NOT_MATCH_PIN,
-  CERTIFICATE_NOT_TRUSTED,
-  HOST_NAME_NOT_MATCH,
-  CERTIFICATE_EXPIRED,
-  ERROR_CHECKING_CERTIFICATE,
-  CONNECTION_SECURE,
-}
+// ─── SSL Pinning Interceptor ──────────────────────
+class SSLPinningInterceptor extends Interceptor {
+  final String baseUrl;
 
-CertificateState parseCertificateState(String value) {
-  return CertificateState.values.firstWhere(
-    (e) => e.name == value,
-    orElse: () => CertificateState.ERROR_CHECKING_CERTIFICATE,
-  );
-}
+  SSLPinningInterceptor({required this.baseUrl});
 
-final certificate = AppConfig.certificateChecks;
-
-class ApiService {
-  static Future<http.Response?> post(
-      String endpoint, Map<String, String> body) async {
-    final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
-    final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    final baseUri = Uri.parse(baseUrl);
     final isHttps = baseUri.scheme == 'https';
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
-      );
-      final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        print("✅ SSL pinning succeededs");
-        return await http.post(
-          fullUrl,
-          body: body,
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'User-Agent':
-                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
-          },
-        );
-      } else {
-        print("not Secure");
-      }
-    } else {
-      print("🌐 Non-HTTPS endpoint, skipping pinning 1");
-      return await http.post(fullUrl, body: body);
+
+    if (!isHttps) {
+      print("🌐 Non-HTTPS endpoint, skipping pinning");
+      return handler.next(options);
     }
+
+    final result = await HttpCertificatePinning.check(
+      serverURL: baseUri.origin,
+      headerHttp: {},
+      timeout: 50,
+      sha: SHA.SHA256,
+      allowedSHAFingerprints: [certificate],
+    );
+
+    final state = parseCertificateState(result);
+
+    if (state == CertificateState.CONNECTION_SECURE) {
+      print("✅ SSL pinning succeeded");
+      return handler.next(options);
+    } else {
+      print("❌ SSL pinning failed: $result");
+      return handler.reject(
+        DioException(
+          requestOptions: options,
+          type: DioExceptionType.connectionError,
+          error: "SSL pinning failed: $state",
+          message: "SSL pinning failed with state: ${state.name}",
+        ),
+        true,
+      );
+    }
+  }
+}
+
+// ─── Token Interceptor ───────────────────────────────────
+
+class TokenInterceptor extends Interceptor {
+  @override
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    // Skip token attachment for public endpoints
+    if (options.path.contains('/customer-login') ||
+        options.path.contains('/register')) {
+      return handler.next(options);
+    }
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('accessToken');
+    if (token != null && token.isNotEmpty) {
+      options.headers['Authorization'] = 'Bearer $token';
+    }
+    return handler.next(options);
+  }
+
+  @override
+  Future<void> onError(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    if (err.response?.statusCode == 401) {
+      try {
+        final newToken = await _refreshToken();
+        if (newToken != null) {
+          final opts = err.requestOptions;
+          opts.headers['Authorization'] = 'Bearer $newToken';
+          final response = await DioClient.dynamic.fetch(opts);
+          return handler.resolve(response);
+        }
+      } catch (e) {
+        print("🔴 Token refresh failed: $e");
+      }
+    }
+    return handler.next(err);
+  }
+
+  Future<String?> _refreshToken() async {
+    // Replace with your token refresh logic
     return null;
   }
+}
 
-  static Future<http.Response?> uploadMultipart({
+// ─── Shared headers ───────────────────────────────────────────────────────────
+
+const _kUserAgent = 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36'
+    ' (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
+
+// ─── Dio Client Factory ───────────────────────────────────────────────────────
+
+class DioClient {
+  DioClient._();
+
+  // Client for AppConfig.dynamicBaseUrl
+  static final Dio dynamic = _build(AppConfig.dynamicBaseUrl);
+
+  // Client for AppConfig.unoBaseApiUrl
+  static final Dio uno = _build(AppConfig.unoBaseApiUrl);
+
+  // Client for AppConfig.otpUrl
+  static final Dio otp = _build(AppConfig.otpUrl);
+
+  static Dio _build(String baseUrl) {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: baseUrl,
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': _kUserAgent,
+        },
+        connectTimeout: const Duration(seconds: 30),
+        receiveTimeout: const Duration(seconds: 30),
+      ),
+    );
+
+    dio.interceptors.addAll([
+      SSLPinningInterceptor(baseUrl: baseUrl),
+      TokenInterceptor(),
+    ]);
+
+    return dio;
+  }
+}
+
+// ─── API Service ──────────────────────────────────────────────────────────────
+
+class ApiService {
+  ApiService._();
+
+  // ── POST form-urlencoded ────────────────────────────────────────────────────
+
+  static Future<Response?> post(
+    String endpoint,
+    Map<String, String> body,
+  ) async {
+    try {
+      return await DioClient.dynamic.post(
+        endpoint,
+        data: body,
+        options: Options(contentType: 'application/x-www-form-urlencoded'),
+      );
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
+    }
+  }
+
+  // ── POST multipart (file upload) ────────────────────────────────────────────
+
+  static Future<Response?> uploadMultipart({
     required String endpoint,
     required Map<String, String> fields,
     Map<String, String>? headers,
     File? file,
     String fileField = 'image',
   }) async {
-    final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
-    final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
-    final isHttps = baseUri.scheme == 'https';
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
+    try {
+      final formData = await _buildFormData(fields, file, fileField);
+      return await DioClient.dynamic.post(
+        endpoint,
+        data: formData,
+        options: Options(headers: headers),
       );
-      // print("uploadMultipart url1 is $fullUrl"); //***********/
-      // print("uploadMultipart hearder1 is $headers"); //************** */
-
-      final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        print("✅ SSL pinning succeeded");
-        final request = http.MultipartRequest('POST', fullUrl);
-        request.headers.addAll(headers ??
-            {
-              'Accept': 'application/json',
-              'User-Agent':
-                  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
-            });
-        request.fields.addAll(fields);
-
-        // print("uploadMultipart url2 is $fullUrl"); //***********/
-        // print("uploadMultipart hearder2 is $headers"); //**************** */
-
-        if (file != null) {
-          request.files
-              .add(await http.MultipartFile.fromPath(fileField, file.path));
-        }
-
-        final streamedResponse = await request.send();
-        return await http.Response.fromStream(streamedResponse);
-      } else {
-        print("❌ SSL pinning failed: ${result}");
-        return null;
-      }
-    } else {
-      print("🌐 Non-HTTPS endpoint, skipping pinning2");
-      final request = http.MultipartRequest('POST', fullUrl);
-      request.headers.addAll(headers ??
-          {
-            'Accept': 'application/json',
-            'Content-Type': 'multipart/form-data',
-            'User-Agent':
-                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
-          });
-
-      request.fields.addAll(fields);
-      if (file != null) {
-        request.files
-            .add(await http.MultipartFile.fromPath(fileField, file.path));
-      }
-      // print("uploadMultipart url3 is $fullUrl"); //***********/
-      // print("uploadMultipart hearder3 is $headers"); //************** */
-
-      final streamedResponse = await request.send();
-      return await http.Response.fromStream(streamedResponse);
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
   }
 
-  static Future<http.Response?> putuploadMultipart({
+  // ── PUT multipart ───────────────────────────────────────────────────────────
+
+  static Future<Response?> putuploadMultipart({
     required String endpoint,
     required Map<String, String> fields,
     Map<String, String>? headers,
     File? file,
     String fileField = 'image',
   }) async {
-    final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
-    final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
-    final isHttps = baseUri.scheme == 'https';
-
-    // print("putuploadMultipart url1 is $fullUrl"); //********************* */
-    // print("putuploadMultipart hearder1 is $headers"); //********************** */
-
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
+    try {
+      final formData = await _buildFormData(fields, file, fileField);
+      return await DioClient.dynamic.put(
+        endpoint,
+        data: formData,
+        options: Options(headers: headers),
       );
-      final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        print("✅ SSL pinning succeeded");
-        final request = http.MultipartRequest('PUT', fullUrl);
-        request.headers.addAll(headers ??
-            {
-              'Accept': 'application/json',
-              'Content-Type': 'multipart/form-data',
-              'User-Agent':
-                  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
-            });
-        request.fields.addAll(fields);
-
-        // print("putuploadMultipart url2 is $fullUrl"); //********************* */
-        // print("putuploadMultipart hearder2 is $headers"); //********************** */
-
-        if (file != null) {
-          request.files
-              .add(await http.MultipartFile.fromPath(fileField, file.path));
-        }
-
-        final streamedResponse = await request.send();
-        return await http.Response.fromStream(streamedResponse);
-      } else {
-        print("❌ SSL pinning failed: ${result}");
-        return null;
-      }
-    } else {
-      print("🌐 Non-HTTPS endpoint, skipping pinning3");
-      final request = http.MultipartRequest('PUT', fullUrl);
-      request.headers.addAll(headers ??
-          {
-            'Accept': 'application/json',
-            'Content-Type': 'multipart/form-data',
-            'User-Agent':
-                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
-          });
-      request.fields.addAll(fields);
-
-      // print("putuploadMultipart url3 is $fullUrl"); //********************* */
-      // print("putuploadMultipart hearder3 is $headers"); //********************** */
-
-      if (file != null) {
-        request.files
-            .add(await http.MultipartFile.fromPath(fileField, file.path));
-      }
-
-      final streamedResponse = await request.send();
-      return await http.Response.fromStream(streamedResponse);
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
   }
 
-//
+  // ── POST JSON with UNO API headers ──────────────────────────────────────────
 
-  static Future<http.Response?> postJsonWithUNOApiHeaders(
+  static Future<Response?> postJsonWithUNOApiHeaders(
     String endpoint,
     Map<String, dynamic> body,
     Map<String, String> headers,
   ) async {
-    final baseUri = Uri.parse(AppConfig.unoBaseApiUrl);
-    final fullUrl = Uri.parse('${AppConfig.unoBaseApiUrl}$endpoint');
-    final isHttps = baseUri.scheme == 'https';
-
-    print("postJsonWithHeaders header $fullUrl"); //********** */
-    print("postJsonWithHeaders header $headers");
-    print("Body ${body}");
-    headers['User-Agent'] =
-        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
-      );
-      final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        print("✅ SSL pinning succeeded");
-        return await http.post(
-          fullUrl,
+    try {
+      print("postJsonWithHeaders header ${AppConfig.unoBaseApiUrl}$endpoint");
+      print("postJsonWithHeaders header $headers");
+      print("Body $body");
+      return await DioClient.uno.post(
+        endpoint,
+        data: jsonEncode(body),
+        options: Options(
+          contentType: 'application/json',
           headers: headers,
-          body: jsonEncode(body),
-        );
-      } else {
-        print("❌ SSL pinning failed: ${result}");
-        return null;
-      }
-    } else {
-      print("🌐 Non-HTTPS endpoint, skipping pinning4");
-      return await http.post(fullUrl, body: jsonEncode(body), headers: headers);
+        ),
+      );
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
   }
 
-  static Future<http.Response?> postJsonWithHeaders(
+  // ── POST JSON with dynamic headers ──────────────────────────────────────────
+
+  static Future<Response?> postJsonWithHeaders(
     String endpoint,
     Map<String, dynamic> body,
     Map<String, String> headers,
   ) async {
-    final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
-    final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
-    final isHttps = baseUri.scheme == 'https';
-    // print(fullUrl);
-    // print(jsonEncode(body) );
-    //  print("postJsonWithHeaders header $fullUrl"); //********** */
-    //  print("postJsonWithHeaders header $headers"); //********** */
-    // headers['User-Agent'] =
-    //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
-      );
-      final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        print("✅ SSL pinning succeeded");
-        return await http.post(
-          fullUrl,
+    try {
+      return await DioClient.dynamic.post(
+        endpoint,
+        data: jsonEncode(body),
+        options: Options(
+          contentType: 'application/json',
           headers: headers,
-          body: jsonEncode(body),
-        );
-      } else {
-        print("❌ SSL pinning failed: ${result}");
-        return null;
-      }
-    } else {
-      print("🌐 Non-HTTPS endpoint, skipping pinning4");
-      return await http.post(fullUrl, body: jsonEncode(body), headers: headers);
+        ),
+      );
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
   }
 
-  static Future<http.Response?> getWithHeaders(
+  // ── GET with headers ────────────────────────────────────────────────────────
+
+  static Future<Response?> getWithHeaders(
     String endpoint,
     Map<String, String> headers,
   ) async {
-    final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
-    final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
-    final isHttps = baseUri.scheme == 'https';
-    headers['User-Agent'] =
-        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
-
-    print("getWithHeaders url is $fullUrl");
-    print("getWithHeaders url is $headers");
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
+    try {
+      print("getWithHeaders url is ${AppConfig.dynamicBaseUrl}$endpoint");
+      print("getWithHeaders headers are $headers");
+      return await DioClient.dynamic.get(
+        endpoint,
+        options: Options(headers: headers),
       );
-      final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        print("✅ SSL pinning succeeded");
-        return await http.get(fullUrl, headers: headers);
-      } else {
-        print("❌ SSL pinning failed: ${result}");
-        return null;
-      }
-    } else {
-      return await http.get(fullUrl, headers: headers);
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
   }
 
-  static Future<http.Response?> getWithUnoApiHeaders(
+  // ── GET with UNO API headers ────────────────────────────────────────────────
+
+  static Future<Response?> getWithUnoApiHeaders(
     String endpoint,
     Map<String, String> headers,
   ) async {
-    final baseUri = Uri.parse(AppConfig.unoBaseApiUrl);
-    final fullUrl = Uri.parse('${AppConfig.unoBaseApiUrl}$endpoint');
-    final isHttps = baseUri.scheme == 'https';
-    headers['User-Agent'] =
-        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
-
-    // print("getWithUnoApiHeaders url is $fullUrl"); //************** */
-    // print("getWithUnoApiHeaders header is $headers"); //************** */
-
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
+    try {
+      return await DioClient.uno.get(
+        endpoint,
+        options: Options(headers: headers),
       );
-      final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        print("✅ SSL pinning succeeded");
-        return await http.get(fullUrl, headers: headers);
-      } else {
-        print("❌ SSL pinning failed: ${result}");
-        return null;
-      }
-    } else {
-      return await http.get(fullUrl, headers: headers);
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
   }
 
-  static Future<http.Response?> getWithsingleHeaders(
-    String endpoint,
-  ) async {
-    final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
-    final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
-    final isHttps = baseUri.scheme == 'https';
+  // ── GET (no headers) ────────────────────────────────────────────────────────
 
-    // print("getWithsingleHeaders url is $fullUrl"); //********* */
-
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
-      );
-      final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        print("✅ SSL pinning succeeded");
-        return await http.get(fullUrl);
-      } else {
-        print("❌ SSL pinning failed: ${result}");
-        return null;
-      }
-    } else {
-      print("🌐 Non-HTTPS endpoint, skipping pinning6");
-      return await http.post(fullUrl);
+  static Future<Response?> getWithsingleHeaders(String endpoint) async {
+    try {
+      return await DioClient.dynamic.get(endpoint);
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
   }
 
-  static Future<http.Response?> patchWithHeaders(
+  // ── PATCH JSON ──────────────────────────────────────────────────────────────
+
+  static Future<Response?> patchWithHeaders(
     String endpoint,
     Map<String, String> headers,
     Map<String, dynamic> body,
   ) async {
-    final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
-    final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
-    final isHttps = baseUri.scheme == 'https';
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
-      );
-     final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        //  print("patchWithHeaders url is $fullUrl"); //********************* */
-        //  print("patchWithHeaders header is $headers"); //***************** */
-        return await http.patch(
-          fullUrl,
+    try {
+      return await DioClient.dynamic.patch(
+        endpoint,
+        data: jsonEncode(body),
+        options: Options(
+          contentType: 'application/json',
           headers: headers,
-          body: json.encode(body),
-        );
-      } else {
-        print("❌ SSL pinning failed: ${result}");
-        return null;
-      }
-    } else {
-      print(fullUrl);
-      print("HEADERS $headers");
-      print(jsonEncode(body));
-      print("🌐 Non-HTTPS endpoint, skipping pinning7sss");
-      return await http.patch(
-        fullUrl,
-        headers: headers,
-        body: jsonEncode(body),
+        ),
       );
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
   }
 
-  static Future<http.Response?> postWithHeadersUnoApi(
+  // ── POST with OTP/UNO API (with headers) ────────────────────────────────────
+
+  static Future<Response?> postWithHeadersUnoApi(
     String endpoint,
     Map<String, dynamic> body,
     Map<String, String> headers,
   ) async {
-    final baseUri = Uri.parse(AppConfig.otpUrl);
-    final fullUrl = Uri.parse('${AppConfig.otpUrl}$endpoint');
-    final isHttps = baseUri.scheme == 'https';
-    headers['User-Agent'] =
-        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
-
-    //  print("postWithHeadersUnoApi url $fullUrl"); //*********** */
-    //  print("postWithHeadersUnoApi header $headers"); //************* */
-    // print(jsonEncode(body) );
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
-      );
-      final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        print("✅ SSL pinning succeeded");
-        return await http.post(
-          fullUrl,
+    try {
+      return await DioClient.otp.post(
+        endpoint,
+        data: jsonEncode(body),
+        options: Options(
+          contentType: 'application/json',
           headers: headers,
-          body: jsonEncode(body),
-        );
-      } else {
-        print("❌ SSL pinning failed: ${result}");
-        return null;
-      }
-    } else {
-      print("🌐 Non-HTTPS endpoint, skipping pinnings8");
-      return await http.post(fullUrl, body: jsonEncode(body));
+        ),
+      );
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
   }
 
-  static Future<http.Response?> getWithHeadersOnlyUnoApi(
+  // ── GET with OTP/UNO API headers only ──────────────────────────────────────
+
+  static Future<Response?> getWithHeadersOnlyUnoApi(
     String endpoint,
     Map<String, String> headers,
   ) async {
-    final baseUri = Uri.parse(AppConfig.otpUrl);
-    final fullUrl = Uri.parse('${AppConfig.otpUrl}$endpoint');
-    final isHttps = baseUri.scheme == 'https';
-    headers['User-Agent'] =
-        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
-    //  print("getWithHeadersOnlyUnoApi url $fullUrl"); //********** */
-    //  print("getWithHeadersOnlyUnoApi header $headers");//********* */
-    // print(jsonEncode(body) );
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
+    try {
+      return await DioClient.otp.get(
+        endpoint,
+        options: Options(headers: headers),
       );
-      final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        print("✅ SSL pinning succeeded");
-        return await http.get(
-          fullUrl,
-          headers: headers,
-        );
-      } else {
-        print("❌ SSL pinning failed: ${result}");
-        return null;
-      }
-    } else {
-      print("🌐 Non-HTTPS endpoint, skipping pinnings8");
-      return await http.get(fullUrl);
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
   }
 
-  static Future<http.Response?> postWithBodyUnoApi(
+  // ── POST with body (OTP/UNO API, no custom headers) ────────────────────────
+
+  static Future<Response?> postWithBodyUnoApi(
     String endpoint,
     Map<String, dynamic> body,
   ) async {
-    final baseUri = Uri.parse(AppConfig.otpUrl);
-    final fullUrl = Uri.parse('${AppConfig.otpUrl}$endpoint');
-    final isHttps = baseUri.scheme == 'https';
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
+    try {
+      return await DioClient.otp.post(
+        endpoint,
+        data: jsonEncode(body),
+        options: Options(contentType: 'application/json'),
       );
-
-     final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        print("✅ SSL pinning succeeded");
-        return await http.post(
-          fullUrl,
-          body: jsonEncode(body),
-        );
-      } else {
-        print("❌ SSL pinning failed: ${result}");
-        return null;
-      }
-    } else {
-      print("🌐 Non-HTTPS endpoint, skipping pinning9");
-      return await http.post(fullUrl, body: body);
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
   }
 
-  static Future<http.Response?> patchWithHeadersUploadMultiPart(
+  // ── PATCH multipart (optional image) ────────────────────────────────────────
+
+  static Future<Response?> patchWithHeadersUploadMultiPart(
     String endpoint,
     Map<String, String> headers,
     Map<String, dynamic> body, {
     File? imageFile,
     String imageField = 'upload_selfie',
   }) async {
-    final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
-    final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
-    final isHttps = baseUri.scheme == 'https';
-
-    // print("🌐 URL: $fullUrl");
-    // print("📌 Headers: $headers");
-    // print("📦 Body: $body");
-
-    // ---------- SSL PINNING ----------
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
-      );
-
-      final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        print("✅ SSL pinning success");
-
-        // DO NOT silently return null — allow request or throw
-        // throw Exception("SSL pinning failed");
-      } else {
-        print("❌ SSL pinning failed: $result");
+    try {
+      if (imageFile != null) {
+        final fields = body.map((k, v) => MapEntry(k, v?.toString() ?? ''));
+        final formData = await _buildFormData(fields, imageFile, imageField);
+        return await DioClient.dynamic.patch(
+          endpoint,
+          data: formData,
+          options: Options(headers: headers),
+        );
       }
-    } else {
-      print("🌐 Non-HTTPS endpoint, skipping pinning");
-    }
-
-    // ---------- MULTIPART PATCH ----------
-    if (imageFile != null) {
-      final request = http.MultipartRequest('PATCH', fullUrl);
-
-      // Safe headers
-      headers.forEach((key, value) {
-        request.headers[key] = value;
-      });
-
-      // Add fields
-      body.forEach((key, value) {
-        if (value != null) {
-          request.fields[key] = value.toString();
-        }
-      });
-
-      // Add image
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          imageField,
-          imageFile.path,
+      // No image → plain JSON patch
+      return await DioClient.dynamic.patch(
+        endpoint,
+        data: jsonEncode(body),
+        options: Options(
+          contentType: 'application/json',
+          headers: headers,
         ),
       );
-
-      final streamedResponse = await request.send();
-      return await http.Response.fromStream(streamedResponse);
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
-
-    // ---------- NORMAL PATCH (NO IMAGE) ----------
-    return await http.patch(
-      fullUrl,
-      headers: {
-        ...headers,
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(body),
-    );
   }
 
-  static Future<http.Response?> postWithHeadersUploadMultiPart(
+  // ── POST multipart (optional image) ─────────────────────────────────────────
+
+  static Future<Response?> postWithHeadersUploadMultiPart(
     String endpoint,
     Map<String, String> headers,
     Map<String, dynamic> body, {
     File? imageFile,
     String imageField = 'upload_selfie',
   }) async {
-    final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
-    final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
-    final isHttps = baseUri.scheme == 'https';
-
-    // ---------- SSL PINNING ----------
-    if (isHttps) {
-      final result = await HttpCertificatePinning.check(
-        serverURL: baseUri.origin,
-        headerHttp: {},
-        timeout: 50,
-        sha: SHA.SHA256,
-        allowedSHAFingerprints: [certificate],
-      );
-
-      final state = parseCertificateState(result);
-      if (state == CertificateState.CONNECTION_SECURE) {
-        print("✅ SSL pinning success");
-      } else {
-        print("❌ SSL pinning failed: $result");
-        return null; // stop request if failed
+    try {
+      if (imageFile != null) {
+        final fields = body.map((k, v) => MapEntry(k, v?.toString() ?? ''));
+        final formData = await _buildFormData(fields, imageFile, imageField);
+        return await DioClient.dynamic.post(
+          endpoint,
+          data: formData,
+          options: Options(headers: headers),
+        );
       }
-    } else {
-      print("🌐 Non-HTTPS endpoint, skipping pinning");
-    }
-
-    // ---------- MULTIPART POST ----------
-    if (imageFile != null) {
-      final request = http.MultipartRequest('POST', fullUrl);
-
-      // Add headers
-      headers.forEach((key, value) {
-        request.headers[key] = value;
-      });
-
-      // Add fields
-      body.forEach((key, value) {
-        if (value != null) {
-          request.fields[key] = value.toString();
-        }
-      });
-
-      // Add image file
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          imageField,
-          imageFile.path,
+      // No image → plain JSON post
+      return await DioClient.dynamic.post(
+        endpoint,
+        data: jsonEncode(body),
+        options: Options(
+          contentType: 'application/json',
+          headers: headers,
         ),
       );
-
-      final streamedResponse = await request.send();
-      return await http.Response.fromStream(streamedResponse);
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
+  }
 
-    // ---------- NORMAL POST (NO IMAGE) ----------
-    return await http.post(
-      fullUrl,
-      headers: {
-        ...headers,
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(body),
-    );
+  // ─── Shared helpers ─────────────────────────────────────────────────────────
+
+  static Future<FormData> _buildFormData(
+    Map<String, String> fields,
+    File? file,
+    String fileField,
+  ) async {
+    final formData = FormData.fromMap(fields);
+    if (file != null) {
+      formData.files.add(MapEntry(
+        fileField,
+        await MultipartFile.fromFile(file.path),
+      ));
+    }
+    return formData;
+  }
+
+  static void _handleError(DioException e) {
+    if (e.error?.toString().contains("SSL pinning failed") ?? false) {
+      print("❌ SSL pinning failed");
+    } else {
+      print("🔴 Request failed: ${e.message}");
+    }
   }
 }

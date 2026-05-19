@@ -120,7 +120,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
     if (response.statusCode == 200) {
       setState(() {
-        _imageBytes = response.bodyBytes;
+        _imageBytes = response.data.bodyBytes;
         _isLoading = false;
       });
     } else {
@@ -175,7 +175,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       );
       if (response.statusCode == 200) {
         setState(() {
-          leadDetails = json.decode(response.body);
+          leadDetails = json.decode(response.data.body);
 
           firstName.text = leadDetails['first_name'] ?? "";
           lastName.text = leadDetails['last_name'] ?? "";
@@ -333,7 +333,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -350,14 +350,14 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         body: jsonEncode({"zipcode": "$zipCode"}),
       );
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.data.body);
         setState(() {
           perm_Region.text = data['region'];
           perm_State.text = data['province'];
           perm_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
           final barangays = responseBody['barangays'];
@@ -402,7 +402,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       if (response != null) {
         if (response.statusCode == 200) {
           // Your API is returning a single company object, not a list
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
 
           // Directly use the API response instead of _ComIdOptions
           if (data.containsKey('id')) {
@@ -468,7 +468,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.body);
+          var decodedResponse = json.decode(response.data.body);
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['results'] != null) {
             decodedResponse = decodedResponse['results'];
@@ -525,7 +525,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -653,7 +653,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -671,14 +671,14 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         body: jsonEncode({"zipcode": "$zipCode"}),
       );
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.data.body);
         setState(() {
           perm_Region.text = data['region'];
           perm_State.text = data['province'];
           perm_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
@@ -716,7 +716,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         },
       );
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['results'] is List) {
           final List<dynamic> results = responseBody['results'];
@@ -766,8 +766,8 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          //print("response is ${response.body}");
-          final Map<String, dynamic> data = json.decode(response.body);
+          //print("response is ${response.data.body}");
+          final Map<String, dynamic> data = json.decode(response.data.body);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -824,7 +824,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -847,7 +847,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -894,7 +894,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
         if (responseBody['results'] is List) {
           final List<dynamic> results = responseBody['results'];
           // print(results);
@@ -1873,7 +1873,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       try {
         String dsrId = "";
         if (response != null && (response.statusCode == 201)) {
-          final data = json.decode(response.body);
+          final data = json.decode(response.data.body);
 
           dsrId = data['id'].toString();
           // ✅ Show success dialog
@@ -1962,7 +1962,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       try {
         String dsrId = "";
         if (response != null && (response.statusCode == 200)) {
-          final data = json.decode(response.body);
+          final data = json.decode(response.data.body);
           dsrId = data['id'].toString();
           // ✅ Show success dialog
           if (formSubmition == "Interested & Eligible") {
@@ -2619,7 +2619,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.body);
+          var decodedResponse = json.decode(response.data.body);
 
           // ✅ If API returns a Map with sub_disposition_codes
           if (decodedResponse is Map<String, dynamic>) {

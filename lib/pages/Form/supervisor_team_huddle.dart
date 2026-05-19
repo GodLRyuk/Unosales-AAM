@@ -66,7 +66,7 @@ class _DailyAgentPlanerState extends State<SuppervisorHuddle> {
 
     final response = await ApiService.getWithHeaders(apiUrl1, headers);
     if (response != null && response.statusCode == 200) {
-      final decoded = json.decode(response.body);
+      final decoded = json.decode(response.data.body);
 
       // print(decoded);
       // print(decoded['live_agents_count']);

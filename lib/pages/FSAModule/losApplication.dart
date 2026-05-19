@@ -251,7 +251,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     final response =
         await http.get(Uri.parse('https://api64.ipify.org?format=json'));
     if (response.statusCode == 200) {
-      String ip = jsonDecode(response.body)['ip'];
+      String ip = jsonDecode(response.data.body)['ip'];
       // if (mounted) {
       setState(() {
         IpAddress = ip;
@@ -274,7 +274,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -410,7 +410,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       if (response != null) {
         if (response.statusCode == 200) {
           // Your API is returning a single company object, not a list
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
 
           // Directly use the API response instead of _ComIdOptions
           if (data.containsKey('id')) {
@@ -486,8 +486,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          //print("response is ${response.body}");
-          final Map<String, dynamic> data = json.decode(response.body);
+          //print("response is ${response.data.body}");
+          final Map<String, dynamic> data = json.decode(response.data.body);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -574,7 +574,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
       if (response.statusCode == 200) {
         setState(() {
-          leadDetails = json.decode(response.body);
+          leadDetails = json.decode(response.data.body);
           // print("lead details is this........");
           // String jsonString = jsonEncode(leadDetails);
           // for (int i = 0; i < jsonString.length; i += 1000) {
@@ -720,7 +720,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
       if (response.statusCode == 200) {
         setState(() {
-          leadDetails = json.decode(response.body);
+          leadDetails = json.decode(response.data.body);
 
           // print("lead details is $leadDetails");
           // String jsonString = jsonEncode(leadDetails);
@@ -873,7 +873,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -892,14 +892,14 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         body: jsonEncode({"zipcode": "$zipCode"}),
       );
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.data.body);
         setState(() {
           perm_Region.text = data['region'];
           perm_State.text = data['province'];
           perm_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
           final barangays = responseBody['barangays'];
@@ -945,7 +945,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -962,14 +962,14 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         body: jsonEncode({"zipcode": "$zipCode"}),
       );
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.data.body);
         setState(() {
           perm_Region.text = data['region'];
           perm_State.text = data['province'];
           perm_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
           final barangays = responseBody['barangays'];
@@ -1011,7 +1011,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -1028,14 +1028,14 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         body: jsonEncode({"zipcode": "$zipCode"}),
       );
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.data.body);
         setState(() {
           perm_Region.text = data['region'];
           perm_State.text = data['province'];
           perm_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
           final barangays = responseBody['barangays'];
@@ -1085,7 +1085,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -1103,7 +1103,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         body: jsonEncode({"zipcode": "$zipCode"}),
       );
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.data.body);
 
         setState(() {
           emp_Region.text = data['region'];
@@ -1111,7 +1111,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           emp_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
@@ -1159,7 +1159,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -1176,7 +1176,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         body: jsonEncode({"zipcode": "$zipCode"}),
       );
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = json.decode(response.data.body);
 
         setState(() {
           emp_Region.text = data['region'];
@@ -1184,7 +1184,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           emp_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
@@ -1239,7 +1239,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         throw Exception('Failed to fetch LOS access token');
       }
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
 
       final response = await http.post(
@@ -1259,7 +1259,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem = responseBody['data'][0];
@@ -1307,7 +1307,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -1330,7 +1330,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
     try {
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1378,7 +1378,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -1401,7 +1401,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1449,7 +1449,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -1472,7 +1472,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1520,7 +1520,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -1543,7 +1543,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1591,7 +1591,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -1614,7 +1614,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1662,7 +1662,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -1685,7 +1685,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1733,7 +1733,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -1756,7 +1756,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1804,7 +1804,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -1827,7 +1827,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1875,7 +1875,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -1898,7 +1898,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1946,7 +1946,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -1970,7 +1970,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final dataList = responseBody['data'];
@@ -3639,7 +3639,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       },
     );
-    final data = json.decode(Tokenresponse.body);
+    final data = json.decode(Tokenresponse.data.body);
     tokens = data['access_token'];
     // String applicationN =application['applicationNo'];
     showDialog(
@@ -3674,7 +3674,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                   }),
                 );
                 if (refreshedResponse.statusCode == 200) {
-                  final refreshedData = json.decode(refreshedResponse.body);
+                  final refreshedData = json.decode(refreshedresponse.data.body);
                   if (refreshedData['result'] != null &&
                       refreshedData['result'].isNotEmpty) {
                     application = refreshedData['result'][0];
@@ -3835,7 +3835,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   //             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
   //       },
   //     );
-  //     final data = json.decode(Tokenresponse.body);
+  //     final data = json.decode(Tokenresponse.data.body);
   //     tokens = data['access_token'];
   //   } catch (e) {
   //     print("HTTP Request Failed: $e");
@@ -3861,7 +3861,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   //       body: json.encode(requestData),
   //     );
   //     print("los respose ${response.statusCode}");
-  //     print("Response body ${response.body}");
+  //     print("Response body ${response.data.body}");
   //     if (response.statusCode == 201) {
   //       SharedPreferences prefs = await SharedPreferences.getInstance();
   //       String? token = prefs.getString('accessToken');
@@ -3886,7 +3886,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   //         body: json.encode(mappedLOsData),
   //       );
 
-  //       final LoSResponcedata = json.decode(response.body);
+  //       final LoSResponcedata = json.decode(response.data.body);
   //       Map<String, dynamic> mappedData = {
   //         "mobileNo": "",
   //         "agentCode": "",
@@ -3932,7 +3932,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   //           await Future.delayed(const Duration(seconds: 2)); // 2-second delay
 
   //           if (Statusresponse.statusCode == 200) {
-  //             data = json.decode(Statusresponse.body);
+  //             data = json.decode(Statusresponse.data.body);
   //             result = data?['result'];
   //             if (result != null && result.isNotEmpty) {
   //               break; // Success, exit retry loop
@@ -4075,7 +4075,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   //         "url": "${AppConfig.otpUrl}/partner/loans/check",
   //         "request_body": requestData,
   //         "status_code": response.statusCode,
-  //         "response_body": json.decode(response.body),
+  //         "response_body": json.decode(response.data.body),
   //       };
   //       final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
 
@@ -4097,11 +4097,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   //       );
 
   //       print(LogResponse.statusCode);
-  //       print(LogResponse.body);
+  //       print(Logresponse.data.body);
   //       if (LogResponse.statusCode == 201) {
   //         print("Log Created");
   //       }
-  //       final data = json.decode(response.body);
+  //       final data = json.decode(response.data.body);
   //       String message = data['message'] ?? "Validation Error";
   //       Map<String, dynamic> errors = data['errors'] ?? {};
   //       String errorMessages =

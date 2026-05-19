@@ -233,7 +233,7 @@ class _LosStatusChartState extends State<LosStatusChart>
 
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null && response.statusCode == 200) {
-        final appJson = json.decode(response.body);
+        final appJson = json.decode(response.data.body);
         final List results = appJson['results'];
 
         for (var item in results) {
@@ -296,7 +296,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         return;
       }
 
-      final appJson = json.decode(response.body);
+      final appJson = json.decode(response.data.body);
       final List results = appJson['results'] ?? [];
 
       final uniqueStatuses = results
@@ -681,7 +681,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.body);
+          final data = json.decode(Tokenresponse.data.body);
           token = data['access_token'];
         }
       } catch (e) {
@@ -704,7 +704,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         body: jsonEncode(payload),
       );
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = jsonDecode(response.data.body);
         final sostoken = data["token"];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -742,7 +742,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.body);
+          final data = json.decode(Tokenresponse.data.body);
           losToken = data['access_token'];
         }
       } catch (e) {

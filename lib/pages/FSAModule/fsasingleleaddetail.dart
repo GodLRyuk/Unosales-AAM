@@ -36,7 +36,7 @@ class _FsaCompanySingleLeadState extends State<FsaCompanySingleLead> {
         if (response.statusCode == 200) {
           // Parse the response body as JSON
           setState(() {
-            leadDetails = json.decode(response.body);
+            leadDetails = json.decode(response.data.body);
             isLoading = false; // Data loaded
             _fetchImage(leadDetails['kyc_document']);
           });
@@ -84,7 +84,7 @@ class _FsaCompanySingleLeadState extends State<FsaCompanySingleLead> {
       final response = await ApiService.getWithHeaders(imageUrl, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Uint8List imageBytes = response.bodyBytes;
+          Uint8List imageBytes = response.data.bodyBytes;
           if (imageBytes.isNotEmpty) {
             setState(() {
               _imageBytes = imageBytes;

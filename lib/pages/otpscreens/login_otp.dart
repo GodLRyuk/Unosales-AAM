@@ -133,7 +133,7 @@ class _LoginOtpState extends State<LoginOtp> {
       body: body,
     );
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final data = json.decode(response.data.body);
       final accessToken = data['access_token'];
       // Step 2: Send SMS using the access token
       final smsResponse = await http.post(
@@ -178,7 +178,7 @@ class _LoginOtpState extends State<LoginOtp> {
             ]
           }),
           "status_code": smsResponse.statusCode,
-          "response_body": json.decode(smsResponse.body),
+          "response_body": json.decode(smsresponse.data.body),
         };
         final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
         final headers = {
@@ -195,11 +195,11 @@ class _LoginOtpState extends State<LoginOtp> {
           body: json.encode(logmappedData),
         );
         print('Failed to send SMS. Status: ${smsResponse.statusCode}');
-        print('Response: ${smsResponse.body}');
+        print('Response: ${smsresponse.data.body}');
       }
     } else {
       print('Failed to fetch token. Status: ${response.statusCode}');
-      print('Response: ${response.body}');
+      print('Response: ${response.data.body}');
     }
   }
 // Function to check location access
@@ -229,7 +229,7 @@ class _LoginOtpState extends State<LoginOtp> {
           final response = await ApiService.post(url, mapeddata);
           if (response != null) {
             if (response.statusCode == 200) {
-              final data = json.decode(response.body);
+              final data = json.decode(response.data.body);
               if (data['access'] != null) {
                 List<String> userInfo = [
                   data['user']['username'],
@@ -254,7 +254,7 @@ class _LoginOtpState extends State<LoginOtp> {
                     await ApiService.getWithHeaders(checkInUserUrl, headers);
 
                 if (checkInUserResponse != null) {
-                  final data2 = json.decode(checkInUserResponse.body);
+                  final data2 = json.decode(checkInUserresponse.data.body);
                   if (data2['data'] is List && data2['data'].isNotEmpty) {
                     final firstItem = data2['data'][0];
                     checkIndata =

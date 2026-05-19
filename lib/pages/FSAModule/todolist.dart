@@ -72,7 +72,7 @@ class _TodoListDateWiseState extends State<TodoListDateWise> {
       if (response != null) {
         if (response.statusCode == 200) {
           Map<String, dynamic> data =
-              json.decode(response.body); // API returns a map
+              json.decode(response.data.body); // API returns a map
           List<dynamic> leadsData =
               data['results'] ?? []; // Extract 'results' list
 
@@ -153,7 +153,7 @@ class _TodoListDateWiseState extends State<TodoListDateWise> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = json.decode(response.data.body);
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             leads = leadsData.map((item) {
