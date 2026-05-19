@@ -401,7 +401,7 @@ class _FsadashboardState extends State<Fsadashboard> {
       if (response2 != null && response != null) {
         if (response.statusCode == 200) {
           final Map<String, dynamic> data = response.data;
-          final Map<String, dynamic> data2 = json.decode(response2.data.body);
+          final Map<String, dynamic> data2 = response2.data;
 
           if (mounted) {
             setState(() {
