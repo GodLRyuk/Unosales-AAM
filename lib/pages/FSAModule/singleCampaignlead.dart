@@ -207,7 +207,7 @@ class _FSACampaignSingleLeadState extends State<FSACampaignSingleLead> {
             await http.get(Uri.parse('${baseUri.toString()}?format=json'));
 
         if (response.statusCode == 200) {
-          String ip = jsonDecode(response.data.body)['ip'];
+          String ip = jsonDecode(response.body)['ip'];
           setState(() {
             IpAddress = ip;
           });
@@ -430,7 +430,7 @@ class _FSACampaignSingleLeadState extends State<FSACampaignSingleLead> {
           String url = "/api/users/token-refresh/";
           final response2 = await ApiService.post(url, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);

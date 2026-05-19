@@ -121,7 +121,7 @@ class _DailyAgentPlanerState extends State<SuppervisorIntraDayCall> {
 
     final response = await ApiService.getWithHeaders(apiUrl1, headers);
     if (response != null && response.statusCode == 200) {
-      final decoded = json.decode(response.data.body);
+      final decoded = json.decode(response.data);
 
       // print(decoded['live_agents_count']);
       setState(() {
