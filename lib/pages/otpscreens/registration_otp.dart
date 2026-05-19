@@ -119,9 +119,9 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
   }
 
   Future<void> _sendOtp() async {
-     String phone = widget.phoneNumber.toString();
+    String phone = widget.phoneNumber.toString();
     if (phone.length == 12 && phone.startsWith("63")) {
-      phone = phone.substring(2); 
+      phone = phone.substring(2);
     }
     print("phone number $phone");
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -148,7 +148,7 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
       body: body,
     );
     if (response.statusCode == 200) {
-      final data = json.decode(response.data.body);
+      final data = json.decode(response.body);
       final accessToken = data['access_token'];
       // Step 2: Send SMS using the access token
       final smsResponse = await http.post(
@@ -191,7 +191,7 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
             ]
           }),
           "status_code": smsResponse.statusCode,
-          "response_body": json.decode(smsresponse.data.body),
+          "response_body": json.decode(smsResponse.body),
         };
         final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
         final headers = {
@@ -253,8 +253,8 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
                   ? widget.kycDocument
                   : null,
             );
-            print(response?.body);
-            if (response != null && response.statusCode == 201) {
+            print(response!.data.body);
+            if (response.statusCode == 201) {
               showDialog(
                 context: context,
                 builder: (_) => AlertDialog(
@@ -262,7 +262,6 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
                   content: Text(
                       // "You have successfully registered.\nYou will receive your ID and Password in the registered Email ID."),
                       "Please contact your supervisor or administrator for further approval"),
-
                   actions: [
                     TextButton(
                       onPressed: () {
@@ -283,7 +282,7 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
                 ),
               );
             } else {
-              final body = response?.body;
+              final body = response.data.body;
               dynamic data;
               try {
                 data = json.decode(body ?? '{}');
