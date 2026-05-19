@@ -74,7 +74,6 @@ class OtpconcentState extends State<Otpconcent> {
     super.initState();
     String jsonString = jsonEncode(widget.losData.toJson());
     print("phone number1 ${widget.phoneNumber}");
-    
 
     // print("CW iN CONSENT ${widget.losData.applicationNumber}");
     // print("losData is this");
@@ -502,7 +501,7 @@ class OtpconcentState extends State<Otpconcent> {
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.data.body);
+          final data = json.decode(Tokenresponse.data);
           token = data['access_token'];
         }
       } catch (e) {
@@ -566,7 +565,7 @@ class OtpconcentState extends State<Otpconcent> {
         final aamheader = {'Authorization': 'Bearer $token'};
 
         final response = await ApiService.getWithHeaders(aamUrl, aamheader);
-        final data = json.decode(response!.data);
+        final data = json.decode(response!.data.body);
         final result2 = data['results'][0]['los_status'];
         final offerStatus = result2['offerStatus'];
         final applicationStatus = result2['applicationStatus'];
@@ -689,7 +688,7 @@ class OtpconcentState extends State<Otpconcent> {
       final tokenResponse = await ApiService.getWithHeaders(tokenUrl, headers);
 
       if (tokenResponse != null) {
-        final data = json.decode(tokenresponse.data.body);
+        final data = json.decode(tokenResponse.data);
         token = data['access_token'];
       }
     } catch (e) {
@@ -717,7 +716,7 @@ class OtpconcentState extends State<Otpconcent> {
         await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
 
     if (response != null && response.statusCode == 200) {
-      final appJson = json.decode(response.data.body);
+      final appJson = json.decode(response.data);
       final List results = appJson['result'] ?? [];
 
       if (results.isNotEmpty) {
@@ -770,7 +769,6 @@ class OtpconcentState extends State<Otpconcent> {
 // Done  by 8.12.2025
 
   Future<void> postLoanCheck(Map<String, dynamic> requestData) async {
-    
     setState(() {});
     String tokens = "";
     try {
@@ -786,7 +784,7 @@ class OtpconcentState extends State<Otpconcent> {
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         },
       );
-      final data = json.decode(Tokenresponse.data.body);
+      final data = json.decode(Tokenresponse.body);
       tokens = data['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -794,7 +792,6 @@ class OtpconcentState extends State<Otpconcent> {
 
     final url = Uri.parse("${AppConfig.otpUrl}/pre-uw/save-payload");
     final cookies = await cookie();
-
 
     final headers = {
       "Idempotency-Key": "th37per9-185d-4e22-83fb-18gf96g0g861",
@@ -806,7 +803,6 @@ class OtpconcentState extends State<Otpconcent> {
       "Correlation-Id": "1234",
       "Channel": "FSA",
       "Cookie": cookies['save_payload']!
-          
     };
 
     print("url is $url");
@@ -851,7 +847,7 @@ class OtpconcentState extends State<Otpconcent> {
           );
         }
 
-        final LoSResponcedata = json.decode(response.data.body);
+        final LoSResponcedata = json.decode(response.body);
         Map<String, dynamic> mappedData = {
           "mobileNo": "",
           "agentCode": "",
@@ -969,7 +965,7 @@ class OtpconcentState extends State<Otpconcent> {
           "url": "${AppConfig.otpUrl}/partner/loans/check",
           "request_body": requestData,
           "status_code": response.statusCode,
-          "response_body": json.decode(response.data.body),
+          "response_body": json.decode(response.body),
         };
         final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
 
@@ -986,7 +982,7 @@ class OtpconcentState extends State<Otpconcent> {
           body: json.encode(logmappedData),
         );
         if (LogResponse.statusCode == 201) {}
-        final data = json.decode(response.data.body);
+        final data = json.decode(response.body);
         String message = data['message'] ?? "Validation Error";
         Map<String, dynamic> errors = data['errors'] ?? {};
         String errorMessages =
@@ -1054,7 +1050,7 @@ class OtpconcentState extends State<Otpconcent> {
             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       },
     );
-    final data = json.decode(Tokenresponse.data.body);
+    final data = json.decode(Tokenresponse.body);
     tokens = data['access_token'];
     // String applicationN =application['applicationNo'];
     showDialog(
@@ -1089,7 +1085,7 @@ class OtpconcentState extends State<Otpconcent> {
                   }),
                 );
                 if (refreshedResponse.statusCode == 200) {
-                  final refreshedData = json.decode(refreshedresponse.data.body);
+                  final refreshedData = json.decode(refreshedResponse.body);
                   if (refreshedData['result'] != null &&
                       refreshedData['result'].isNotEmpty) {
                     application = refreshedData['result'][0];
@@ -1227,10 +1223,9 @@ class OtpconcentState extends State<Otpconcent> {
   }
 
   Future<void> _sendOtp() async {
-
     String phone = widget.phoneNumber.toString();
     if (phone.length == 12 && phone.startsWith("63")) {
-      phone = phone.substring(2); 
+      phone = phone.substring(2);
     }
     print("phone number $phone");
 
@@ -1263,7 +1258,7 @@ class OtpconcentState extends State<Otpconcent> {
     );
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.data.body);
+      final data = json.decode(response.body);
       final accessToken = data['access_token'];
       // Step 2: Send SMS using the access token
       final smsResponse = await http.post(
@@ -1310,7 +1305,7 @@ class OtpconcentState extends State<Otpconcent> {
             ]
           }),
           "status_code": smsResponse.statusCode,
-          "response_body": json.decode(smsresponse.data.body),
+          "response_body": json.decode(smsResponse.body),
         };
         final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
         final headers = {

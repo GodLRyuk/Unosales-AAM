@@ -118,7 +118,6 @@ class _ChangepasswordotpState extends State<Changepasswordotp> {
     // // Step 1: Get access token
     String clientId = await otpClientId();
     String clientSecret = await otpClientSecret();
-    
 
     final body = {
       'client_id': clientId,
@@ -178,7 +177,7 @@ class _ChangepasswordotpState extends State<Changepasswordotp> {
             ]
           }),
           "status_code": smsResponse.statusCode,
-          "response_body": json.decode( smsResponse.body),
+          "response_body": json.decode(smsResponse.body),
         };
         final logUrl = Uri.parse("${AppConfig.otpUrl}/api/logs/");
         final headers = {
@@ -195,7 +194,7 @@ class _ChangepasswordotpState extends State<Changepasswordotp> {
           body: json.encode(logmappedData),
         );
         print('Failed to send SMS. Status: ${smsResponse.statusCode}');
-        print('Response: ${ smsResponse.body}');
+        print('Response: ${smsResponse.body}');
       }
     } else {
       print('Failed to fetch token. Status: ${response.statusCode}');

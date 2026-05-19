@@ -173,7 +173,7 @@ class ApiService {
 
   static Future<Response?> post(
     String endpoint,
-    Map<String, String> body,
+    Map<String, dynamic> body,
   ) async {
     try {
       return await DioClient.dynamic.post(

@@ -100,9 +100,9 @@ class _LoginOtpState extends State<LoginOtp> {
   }
 
   Future<void> _sendOtp() async {
-     String phone = widget.phone_number.toString();
+    String phone = widget.phone_number.toString();
     if (phone.length == 12 && phone.startsWith("63")) {
-      phone = phone.substring(2); 
+      phone = phone.substring(2);
     }
     print("phone number $phone");
 
@@ -133,7 +133,7 @@ class _LoginOtpState extends State<LoginOtp> {
       body: body,
     );
     if (response.statusCode == 200) {
-      final data = json.decode(response.data.body);
+      final data = json.decode(response.body);
       final accessToken = data['access_token'];
       // Step 2: Send SMS using the access token
       final smsResponse = await http.post(
@@ -178,7 +178,7 @@ class _LoginOtpState extends State<LoginOtp> {
             ]
           }),
           "status_code": smsResponse.statusCode,
-          "response_body": json.decode(smsresponse.data.body),
+          "response_body": json.decode(response.body),
         };
         final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
         final headers = {
@@ -195,11 +195,11 @@ class _LoginOtpState extends State<LoginOtp> {
           body: json.encode(logmappedData),
         );
         print('Failed to send SMS. Status: ${smsResponse.statusCode}');
-        print('Response: ${smsresponse.data.body}');
+        print('Response: ${response.body}');
       }
     } else {
       print('Failed to fetch token. Status: ${response.statusCode}');
-      print('Response: ${response.data.body}');
+      print('Response: ${response.body}');
     }
   }
 // Function to check location access
@@ -254,7 +254,7 @@ class _LoginOtpState extends State<LoginOtp> {
                     await ApiService.getWithHeaders(checkInUserUrl, headers);
 
                 if (checkInUserResponse != null) {
-                  final data2 = json.decode(checkInUserresponse.data.body);
+                  final data2 = json.decode(response.data.body);
                   if (data2['data'] is List && data2['data'].isNotEmpty) {
                     final firstItem = data2['data'][0];
                     checkIndata =
