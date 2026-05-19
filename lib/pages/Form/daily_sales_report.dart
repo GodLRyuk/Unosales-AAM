@@ -120,7 +120,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
     if (response.statusCode == 200) {
       setState(() {
-        _imageBytes = response.data.bodyBytes;
+        _imageBytes = response.bodyBytes;
         _isLoading = false;
       });
     } else {
@@ -175,7 +175,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       );
       if (response.statusCode == 200) {
         setState(() {
-          leadDetails = json.decode(response.data.body);
+          leadDetails = json.decode(response.body);
 
           firstName.text = leadDetails['first_name'] ?? "";
           lastName.text = leadDetails['last_name'] ?? "";
@@ -333,7 +333,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         },
       );
 
-      final tokenData = json.decode(tokenresponse.data.body);
+      final tokenData = json.decode(tokenResponse.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -350,14 +350,14 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         body: jsonEncode({"zipcode": "$zipCode"}),
       );
       if (response.statusCode == 200) {
-        final data = json.decode(response.data.body);
+        final data = json.decode(response.body);
         setState(() {
           perm_Region.text = data['region'];
           perm_State.text = data['province'];
           perm_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
           final barangays = responseBody['barangays'];
@@ -439,7 +439,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
           String refressToken = '/api/users/token-refresh/';
           final response2 = await ApiService.post(refressToken, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -497,7 +497,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
           String url2 = "/api/users/token-refresh/";
           final response2 = await ApiService.post(url2, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -554,7 +554,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
           String refressToken = '/api/users/token-refresh/';
           final response2 = await ApiService.post(refressToken, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -653,7 +653,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         },
       );
 
-      final tokenData = json.decode(tokenresponse.data.body);
+      final tokenData = json.decode(tokenResponse.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -671,14 +671,14 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         body: jsonEncode({"zipcode": "$zipCode"}),
       );
       if (response.statusCode == 200) {
-        final data = json.decode(response.data.body);
+        final data = json.decode(response.body);
         setState(() {
           perm_Region.text = data['region'];
           perm_State.text = data['province'];
           perm_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
@@ -716,7 +716,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         },
       );
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
         if (responseBody['results'] is List) {
           final List<dynamic> results = responseBody['results'];
@@ -792,7 +792,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
           String refressToken = '/api/users/token-refresh/';
           final response2 = await ApiService.post(refressToken, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -824,7 +824,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         },
       );
 
-      final tokenData = json.decode(tokenresponse.data.body);
+      final tokenData = json.decode(tokenResponse.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -847,7 +847,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -894,7 +894,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.body);
         if (responseBody['results'] is List) {
           final List<dynamic> results = responseBody['results'];
           // print(results);
@@ -1948,7 +1948,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
           _isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("An error occurred: ${response?.body}")),
+          SnackBar(content: Text("An error occurred: ${response?.data}")),
         );
       }
     } else {

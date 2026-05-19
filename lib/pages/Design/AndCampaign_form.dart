@@ -73,7 +73,7 @@ class _Campaign_formState extends State<Campaign_form> {
 
     if (response.statusCode == 200) {
       setState(() {
-        _imageBytes = response.data.bodyBytes;
+        _imageBytes = response.bodyBytes;
         _isLoading = false;
       });
     } else {
@@ -103,7 +103,7 @@ class _Campaign_formState extends State<Campaign_form> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          data = json.decode(response.data.body);
+          data = json.decode(response.data);
 
           setState(() {
             _customerName.text = data['full_name'] ?? '';
@@ -326,7 +326,7 @@ class _Campaign_formState extends State<Campaign_form> {
             context: context,
             builder: (_) => AlertDialog(
               title: Text("Error"),
-              content: Text(response.data.body),
+              content: Text(response.data),
               actions: [
                 TextButton(
                   child: const Text("OK"),
@@ -364,8 +364,8 @@ class _Campaign_formState extends State<Campaign_form> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          //var decodedResponse = json.decode(response.data.body);
-          var decodedResponse = json.decode(utf8.decode(response.data.bodyBytes));
+          //var decodedResponse = json.decode(response.data);
+          var decodedResponse = json.decode(utf8.decode(response.data));
 
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['results'] != null) {
@@ -397,7 +397,7 @@ class _Campaign_formState extends State<Campaign_form> {
           String url2 = "/api/users/token-refresh/";
           final response2 = await ApiService.post(url2, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -436,7 +436,7 @@ class _Campaign_formState extends State<Campaign_form> {
       if (response == null) return;
 
       if (response.statusCode == 200) {
-        final decodedResponse = json.decode(response.data.body);
+        final decodedResponse = json.decode(response.data);
 
         final Map<String, String> fetchedData = {};
         String? matchedStatusCode;
@@ -481,7 +481,7 @@ class _Campaign_formState extends State<Campaign_form> {
         );
 
         if (response2 != null && response2.statusCode == 200) {
-          final tokenData = json.decode(response2.body);
+          final tokenData = json.decode(response2.data);
           await prefs.setString('accessToken', tokenData['access']);
           await prefs.setString('refreshToken', tokenData['refresh']);
         }

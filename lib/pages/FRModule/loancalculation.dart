@@ -64,7 +64,7 @@ class _LoancalculationState extends State<Loancalculation> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data.body);
+          var decodedResponse = json.decode(response.data);
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['results'] != null) {
             decodedResponse = decodedResponse['results'];
@@ -122,7 +122,7 @@ class _LoancalculationState extends State<Loancalculation> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data.body);
+          var decodedResponse = json.decode(response.data);
           if (decodedResponse['description'] == 'Submitted') {
             isSubmittedPresent = true;
             _selectedDependentData = "";
@@ -525,7 +525,7 @@ class _LoancalculationState extends State<Loancalculation> {
             await ApiService.patchWithHeaders(url, headers, mappedData);
         if (response != null) {
           if (response.statusCode == 200) {
-            json.decode(response.data.body);
+            json.decode(response.data);
             showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -555,7 +555,7 @@ class _LoancalculationState extends State<Loancalculation> {
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text("Failed to submit lead. Error: ${response.data.body}"),
+                content: Text("Failed to submit lead. Error: ${response.data}"),
               ),
             );
           }
