@@ -74,7 +74,7 @@ class _CampaignlistState extends State<SuppervisorIntraDayList> {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.data.body);
+          Map<String, dynamic> data = json.decode(response.data);
           List<dynamic> leadsData = data['results'] ?? [];
 
           setState(() {
@@ -153,7 +153,7 @@ class _CampaignlistState extends State<SuppervisorIntraDayList> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.data.body);
+          Map<String, dynamic> data = json.decode(response.data);
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             leads = leadsData.map((item) {
@@ -174,7 +174,7 @@ class _CampaignlistState extends State<SuppervisorIntraDayList> {
           final response2 =
               await ApiService.getWithHeaders(url, {'refresh': refresh ?? ''});
           if (response2 != null) {
-            final data = json.decode(response2.data.body);
+            final data = json.decode(response2.data);
             SharedPreferences prefs = await SharedPreferences.getInstance();
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
