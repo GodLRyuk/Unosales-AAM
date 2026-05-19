@@ -64,7 +64,7 @@ class _DailyActivityViewPageState extends State<DailyActivityViewPage> {
 
   try {
     if (response != null && response.statusCode == 200) {
-      final data = json.decode(response.data.body);
+      final data = json.decode(response.data);
       if (data != null && data.isNotEmpty) {
         final List<dynamic> locations = data['assigned_locations'] ?? [];
 
@@ -150,7 +150,7 @@ Future<String> _getActivityTypeDescription(dynamic actid) async {
       },
     );
     if (response.statusCode == 200) {
-      final Map<String, dynamic> body = jsonDecode(response.data.body);
+      final Map<String, dynamic> body = jsonDecode(response.body);
       return body['description'] ?? 'N/A';
     }
   } catch (e) {
