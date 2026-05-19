@@ -186,7 +186,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
             );
 
             if (response2 != null && response2.statusCode == 200) {
-              final data = json.decode(response2.body);
+              final data = json.decode(response2.data);
               SharedPreferences prefs = await SharedPreferences.getInstance();
               await prefs.setString('accessToken', data['access']);
               await prefs.setString('refreshToken', data['refresh']);

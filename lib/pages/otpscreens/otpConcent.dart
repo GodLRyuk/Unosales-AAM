@@ -104,7 +104,7 @@ class OtpconcentState extends State<Otpconcent> {
     final response =
         await http.get(Uri.parse('https://api64.ipify.org?format=json'));
     if (response.statusCode == 200) {
-      String ip = jsonDecode(response.data.body)['ip'];
+      String ip = jsonDecode(response.body)['ip'];
       // if (mounted) {
       setState(() {
         IpAddress = ip;
@@ -526,7 +526,7 @@ class OtpconcentState extends State<Otpconcent> {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.data.body);
+        final data = jsonDecode(response.body);
         final sostoken = data["token"];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -566,7 +566,7 @@ class OtpconcentState extends State<Otpconcent> {
         final aamheader = {'Authorization': 'Bearer $token'};
 
         final response = await ApiService.getWithHeaders(aamUrl, aamheader);
-        final data = json.decode(response!.body);
+        final data = json.decode(response!.data);
         final result2 = data['results'][0]['los_status'];
         final offerStatus = result2['offerStatus'];
         final applicationStatus = result2['applicationStatus'];

@@ -171,7 +171,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
           String refressToken = '/api/users/token-refresh/';
           final response2 = await ApiService.post(refressToken, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -231,7 +231,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
           String refressToken = '/api/users/token-refresh/';
           final response2 = await ApiService.post(refressToken, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -292,7 +292,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
           await prefs.setString('refreshToken', data['refresh']);
@@ -340,7 +340,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
@@ -389,7 +389,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
           await prefs.setString('refreshToken', data['refresh']);
@@ -438,7 +438,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
           await prefs.setString('refreshToken', data['refresh']);
@@ -486,7 +486,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
           await prefs.setString('refreshToken', data['refresh']);
@@ -539,7 +539,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
           await prefs.setString('refreshToken', data['refresh']);
@@ -588,7 +588,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
           await prefs.setString('refreshToken', data['refresh']);
@@ -752,7 +752,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
             await ApiService.getWithHeaders(companyUrl, headers);
         if (companyResponse != null) {
           final Map<String, dynamic> compData =
-              json.decode(companyresponse.data.body);
+              json.decode(companyResponse.data);
           if (compData['results'] != null && compData['results'] is List) {
             _ComIdOptions = {
               for (var item in compData['results'])
@@ -1621,7 +1621,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
           final refreshResponse = await ApiService.post(url2, mappedData);
           if (refreshResponse != null) {
             if (refreshResponse.statusCode == 200) {
-              final data = json.decode(refreshresponse.data.body);
+              final data = json.decode(refreshResponse.data);
               await prefs.setString('accessToken', data['access']);
               await prefs.setString('refreshToken', data['refresh']);
               leadSubmit(); // retry
@@ -1644,7 +1644,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
             builder: (BuildContext context) {
               return AlertDialog(
                 title: const Text("Submission Failed"),
-                content: Text("Error: ${response?.body ?? 'Unknown error'}"),
+                content: Text("Error: ${response?.data ?? 'Unknown error'}"),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
