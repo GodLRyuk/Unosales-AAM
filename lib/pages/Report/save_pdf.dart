@@ -37,7 +37,7 @@ class ExcelService {
       };
       final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.data.body);
+        final data = json.decode(Tokenresponse.data);
         //token = data['access_token'];
         print('token is $accessToken');  //Uno server access token
         return accessToken;
