@@ -127,7 +127,7 @@ Future<String> _getLocationTypeDescription(dynamic locid) async {
       },
     );
     if (response.statusCode == 200) {
-      final Map<String, dynamic> body = jsonDecode(response.data.body);
+      final Map<String, dynamic> body = jsonDecode(response.body);
       return body['description'] ?? 'N/A';
     }
   } catch (e) {
