@@ -72,7 +72,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
       );
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = json.decode(response.data.body);
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             if (isLoadMore) {
@@ -154,7 +154,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
       final response = await ApiService.getWithHeaders("$url", headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = json.decode(response.data.body);
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             leads = leadsData.map((item) {

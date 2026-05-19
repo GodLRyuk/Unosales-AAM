@@ -104,7 +104,7 @@ class OtpconcentState extends State<Otpconcent> {
     final response =
         await http.get(Uri.parse('https://api64.ipify.org?format=json'));
     if (response.statusCode == 200) {
-      String ip = jsonDecode(response.body)['ip'];
+      String ip = jsonDecode(response.data.body)['ip'];
       // if (mounted) {
       setState(() {
         IpAddress = ip;
@@ -502,7 +502,7 @@ class OtpconcentState extends State<Otpconcent> {
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.body);
+          final data = json.decode(Tokenresponse.data.body);
           token = data['access_token'];
         }
       } catch (e) {
@@ -526,7 +526,7 @@ class OtpconcentState extends State<Otpconcent> {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = jsonDecode(response.data.body);
         final sostoken = data["token"];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -689,7 +689,7 @@ class OtpconcentState extends State<Otpconcent> {
       final tokenResponse = await ApiService.getWithHeaders(tokenUrl, headers);
 
       if (tokenResponse != null) {
-        final data = json.decode(tokenResponse.body);
+        final data = json.decode(tokenresponse.data.body);
         token = data['access_token'];
       }
     } catch (e) {
@@ -717,7 +717,7 @@ class OtpconcentState extends State<Otpconcent> {
         await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
 
     if (response != null && response.statusCode == 200) {
-      final appJson = json.decode(response.body);
+      final appJson = json.decode(response.data.body);
       final List results = appJson['result'] ?? [];
 
       if (results.isNotEmpty) {
@@ -786,7 +786,7 @@ class OtpconcentState extends State<Otpconcent> {
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         },
       );
-      final data = json.decode(Tokenresponse.body);
+      final data = json.decode(Tokenresponse.data.body);
       tokens = data['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -851,7 +851,7 @@ class OtpconcentState extends State<Otpconcent> {
           );
         }
 
-        final LoSResponcedata = json.decode(response.body);
+        final LoSResponcedata = json.decode(response.data.body);
         Map<String, dynamic> mappedData = {
           "mobileNo": "",
           "agentCode": "",
@@ -969,7 +969,7 @@ class OtpconcentState extends State<Otpconcent> {
           "url": "${AppConfig.otpUrl}/partner/loans/check",
           "request_body": requestData,
           "status_code": response.statusCode,
-          "response_body": json.decode(response.body),
+          "response_body": json.decode(response.data.body),
         };
         final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
 
@@ -986,7 +986,7 @@ class OtpconcentState extends State<Otpconcent> {
           body: json.encode(logmappedData),
         );
         if (LogResponse.statusCode == 201) {}
-        final data = json.decode(response.body);
+        final data = json.decode(response.data.body);
         String message = data['message'] ?? "Validation Error";
         Map<String, dynamic> errors = data['errors'] ?? {};
         String errorMessages =
@@ -1054,7 +1054,7 @@ class OtpconcentState extends State<Otpconcent> {
             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       },
     );
-    final data = json.decode(Tokenresponse.body);
+    final data = json.decode(Tokenresponse.data.body);
     tokens = data['access_token'];
     // String applicationN =application['applicationNo'];
     showDialog(
@@ -1089,7 +1089,7 @@ class OtpconcentState extends State<Otpconcent> {
                   }),
                 );
                 if (refreshedResponse.statusCode == 200) {
-                  final refreshedData = json.decode(refreshedResponse.body);
+                  final refreshedData = json.decode(refreshedresponse.data.body);
                   if (refreshedData['result'] != null &&
                       refreshedData['result'].isNotEmpty) {
                     application = refreshedData['result'][0];
@@ -1263,7 +1263,7 @@ class OtpconcentState extends State<Otpconcent> {
     );
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final data = json.decode(response.data.body);
       final accessToken = data['access_token'];
       // Step 2: Send SMS using the access token
       final smsResponse = await http.post(
@@ -1310,7 +1310,7 @@ class OtpconcentState extends State<Otpconcent> {
             ]
           }),
           "status_code": smsResponse.statusCode,
-          "response_body": json.decode(smsResponse.body),
+          "response_body": json.decode(smsresponse.data.body),
         };
         final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
         final headers = {

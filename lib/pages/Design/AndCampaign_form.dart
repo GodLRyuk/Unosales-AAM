@@ -73,7 +73,7 @@ class _Campaign_formState extends State<Campaign_form> {
 
     if (response.statusCode == 200) {
       setState(() {
-        _imageBytes = response.bodyBytes;
+        _imageBytes = response.data.bodyBytes;
         _isLoading = false;
       });
     } else {
@@ -103,7 +103,7 @@ class _Campaign_formState extends State<Campaign_form> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          data = json.decode(response.body);
+          data = json.decode(response.data.body);
 
           setState(() {
             _customerName.text = data['full_name'] ?? '';
@@ -326,7 +326,7 @@ class _Campaign_formState extends State<Campaign_form> {
             context: context,
             builder: (_) => AlertDialog(
               title: Text("Error"),
-              content: Text(response.body),
+              content: Text(response.data.body),
               actions: [
                 TextButton(
                   child: const Text("OK"),
@@ -364,8 +364,8 @@ class _Campaign_formState extends State<Campaign_form> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          //var decodedResponse = json.decode(response.body);
-          var decodedResponse = json.decode(utf8.decode(response.bodyBytes));
+          //var decodedResponse = json.decode(response.data.body);
+          var decodedResponse = json.decode(utf8.decode(response.data.bodyBytes));
 
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['results'] != null) {
@@ -436,7 +436,7 @@ class _Campaign_formState extends State<Campaign_form> {
       if (response == null) return;
 
       if (response.statusCode == 200) {
-        final decodedResponse = json.decode(response.body);
+        final decodedResponse = json.decode(response.data.body);
 
         final Map<String, String> fetchedData = {};
         String? matchedStatusCode;

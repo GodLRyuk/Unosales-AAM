@@ -71,7 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (response != null && response.statusCode == 200) {
         setState(() {
-          userData = json.decode(response.body);
+          userData = json.decode(response.data.body);
         });
       } else {
         print("Profile load failed: ${response?.statusCode}");

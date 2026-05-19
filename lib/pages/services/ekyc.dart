@@ -53,10 +53,10 @@ class EkycService {
       },
     );
     print("HV response ${hvResponse!.statusCode}");
-    print("HV response ${hvResponse.body}");
+    print("HV response ${hvresponse.data.body}");
     finalToken = json.decode(hvResponse!.body)['token'];
     print("Final token $finalToken");
-    print(hvResponse.body);
+    print(hvresponse.data.body);
     /// Step 3 → Build HyperKYC Config
     var config = HyperKycConfig.fromAccessToken(
       accessToken: finalToken,

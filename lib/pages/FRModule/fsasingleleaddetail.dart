@@ -34,7 +34,7 @@ class _FsaSingleAssignLeadState extends State<FsaSingleAssignLead> {
         if (response.statusCode == 200) {
           // Parse the response body as JSON
           setState(() {
-            leadDetails = json.decode(response.body);
+            leadDetails = json.decode(response.data.body);
             isLoading = false; // Data loaded
           });
         } else if (response.statusCode == 401) {

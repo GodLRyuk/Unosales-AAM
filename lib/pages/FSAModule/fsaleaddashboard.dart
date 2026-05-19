@@ -162,7 +162,7 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
         final response = responses[i];
         if (response != null) {
           if (response.statusCode == 200) {
-            Map<String, dynamic> data = json.decode(response.body);
+            Map<String, dynamic> data = json.decode(response.data.body);
             List<dynamic> leadsData = data['results'] ?? [];
 
             if (i == 0) {

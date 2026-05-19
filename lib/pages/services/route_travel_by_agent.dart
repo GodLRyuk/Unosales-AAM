@@ -48,7 +48,7 @@ class _AgentRouteTraveledState extends State<AgentRouteTraveled> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
           leadDetails = data;
           setState(() {
             allleadsdetails = data['results'] ?? [];
@@ -204,7 +204,7 @@ class _AgentRouteTraveledState extends State<AgentRouteTraveled> {
           print("No route found.");
         }
       } else {
-        print("Google Directions API error: ${response.body}");
+        print("Google Directions API error: ${response..body}");
       }
     } catch (e) {
       print("Error fetching Google route: $e");

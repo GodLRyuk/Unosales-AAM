@@ -300,9 +300,9 @@ class _LoginPageState extends State<LoginPage> {
       try {
         if (response != null) {
           final statusCode = response.statusCode;
-          if (response.body.isNotEmpty) {
+          if (response.data.body.isNotEmpty) {
             try {
-              final data = json.decode(response.body);
+              final data = json.decode(response.data.body);
 
               if (statusCode == 200) {
                 final prefs = await SharedPreferences.getInstance();

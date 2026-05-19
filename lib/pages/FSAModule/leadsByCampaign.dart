@@ -80,7 +80,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = json.decode(response.data.body);
           List<dynamic> leadsData = data['results'] ?? [];
           //print("campaign leads $leadsData");
 
@@ -163,7 +163,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = json.decode(response.data.body);
 
           List<dynamic> leadsData = data['results'] ?? [];
           //print("And campaign lead $leadsData");
@@ -201,7 +201,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
           String errorMessage = 'Something went wrong';
 
           try {
-            data1 = json.decode(response.body);
+            data1 = json.decode(response.data.body);
             errorMessage = data1['detail'] ?? errorMessage;
           } catch (_) {}
 

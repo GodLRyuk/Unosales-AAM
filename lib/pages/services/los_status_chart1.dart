@@ -184,7 +184,7 @@ final Map<String, String> _tabStatusMap = {
       };
       final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
+        final data = json.decode(Tokenresponse.data.body);
         token = data['access_token'];
       }
     } catch (e) {
@@ -203,7 +203,7 @@ final Map<String, String> _tabStatusMap = {
     };
 
     final response = await ApiService.getWithUnoApiHeaders(url, headers);
-    print("response is ${response!.body}");
+    print("response is ${response!.data.body}");
     print("response status is ${response!.statusCode}");
 
     if (response == null || response.statusCode != 200) {
@@ -214,7 +214,7 @@ final Map<String, String> _tabStatusMap = {
       return;
     }
 
-    final appJson = json.decode(response.body);
+    final appJson = json.decode(response.data.body);
     final List results = appJson['result'] ?? [];
     print("result is $results");
 
@@ -296,7 +296,7 @@ Future<void> _searchLOSData({
       };
       final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
+        final data = json.decode(Tokenresponse.data.body);
         token = data['access_token'];
       }
     } catch (e) {
@@ -334,7 +334,7 @@ Future<void> _searchLOSData({
 
 
     final response = await ApiService.postJsonWithHeaders(url, body,headers);
-    print("response is ${response!.body}");
+    print("response is ${response!.data.body}");
     print("response is ${response.statusCode}"); //_99333220251218174946 639811223344
 
     if (response == null || response.statusCode != 200) {
@@ -345,7 +345,7 @@ Future<void> _searchLOSData({
       return;
     }
 
-    final appJson = json.decode(response.body);
+    final appJson = json.decode(response.data.body);
     final List results = appJson['result'] ?? [];
     print("result is $results");
 

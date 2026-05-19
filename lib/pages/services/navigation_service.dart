@@ -12,7 +12,7 @@ class NavigationService {
     final response = await ApiService.getWithsingleHeaders(url);
     if (response != null) {
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = jsonDecode(response.data.body);
         final coordinates = data['routes'][0]['geometry']['coordinates'];
 
         return coordinates

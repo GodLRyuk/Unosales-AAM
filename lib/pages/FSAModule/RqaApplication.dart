@@ -86,7 +86,7 @@ class _RQAApplicationState extends State<RQAApplication> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -109,7 +109,7 @@ class _RQAApplicationState extends State<RQAApplication> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -159,7 +159,7 @@ class _RQAApplicationState extends State<RQAApplication> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -182,7 +182,7 @@ class _RQAApplicationState extends State<RQAApplication> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -232,7 +232,7 @@ class _RQAApplicationState extends State<RQAApplication> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -255,7 +255,7 @@ class _RQAApplicationState extends State<RQAApplication> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -314,7 +314,7 @@ class _RQAApplicationState extends State<RQAApplication> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
             if (!mounted) return;
@@ -372,7 +372,7 @@ class _RQAApplicationState extends State<RQAApplication> {
         },
       );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = json.decode(tokenresponse.data.body);
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -395,7 +395,7 @@ class _RQAApplicationState extends State<RQAApplication> {
       );
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = jsonDecode(response.data.body);
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -440,7 +440,7 @@ class _RQAApplicationState extends State<RQAApplication> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = json.decode(response.data.body);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -631,7 +631,7 @@ class _RQAApplicationState extends State<RQAApplication> {
       };
       final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
+        final data = json.decode(Tokenresponse.data.body);
         token = data['access_token'];
       }
     } catch (e) {
@@ -673,7 +673,7 @@ class _RQAApplicationState extends State<RQAApplication> {
           await ApiService.postJsonWithUNOApiHeaders(rqaUrl, formData, headers);
 
       if (response != null && response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = jsonDecode(response.data.body);
         print("response body $data");
 
         String? status = data['output']['response']['status'];
