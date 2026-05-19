@@ -247,7 +247,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       final response = await ApiService.getWithHeaders(url, headers);
 
       if (response != null && response.statusCode == 200) {
-        final data = jsonDecode(response.data.body);
+        final data = jsonDecode(response.data);
 
         List allResults = data["results"] ?? [];
 
@@ -372,7 +372,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.data.body);
+          final data = json.decode(Tokenresponse.data);
           token = data['access_token'];
         }
       } catch (e) {
