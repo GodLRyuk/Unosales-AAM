@@ -336,7 +336,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final response = await ApiService.postJsonWithHeaders(url, data, headers);
-      final responseData = json.decode(response!.body);
+      final responseData = json.decode(response!.data);
       if (response.statusCode == 200) {
         setState(() {
           _isloading = false;

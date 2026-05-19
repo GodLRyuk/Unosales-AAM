@@ -75,7 +75,7 @@ class _MyTodoListState extends State<MyTodoList> {
       if (response != null) {
         if (response.statusCode == 200) {
           Map<String, dynamic> data =
-              json.decode(response.data.body); // API returns a map
+              json.decode(response.data); // API returns a map
           List<dynamic> leadsData =
               data['results'] ?? []; // Extract 'results' list
 
@@ -156,7 +156,7 @@ class _MyTodoListState extends State<MyTodoList> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.data.body);
+          Map<String, dynamic> data = json.decode(response.data);
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             leads = leadsData.map((item) {

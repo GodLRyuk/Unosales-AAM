@@ -4,7 +4,28 @@ import 'package:dio/dio.dart';
 import 'package:http_certificate_pinning/http_certificate_pinning.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/config/config.dart';
-import 'package:unosfa/pages/services/old_api_service.dart';
+
+
+
+enum CertificateState {
+  CERTIFICATE_VALID,
+  CERTIFICATE_NOT_MATCH_PIN,
+  CERTIFICATE_NOT_TRUSTED,
+  HOST_NAME_NOT_MATCH,
+  CERTIFICATE_EXPIRED,
+  ERROR_CHECKING_CERTIFICATE,
+  CONNECTION_SECURE,
+}
+
+CertificateState parseCertificateState(String value) {
+  return CertificateState.values.firstWhere(
+    (e) => e.name == value,
+    orElse: () => CertificateState.ERROR_CHECKING_CERTIFICATE,
+  );
+}
+
+final certificate = AppConfig.certificateChecks;
+
 
 // ─── SSL Pinning Interceptor ──────────────────────
 class SSLPinningInterceptor extends Interceptor {

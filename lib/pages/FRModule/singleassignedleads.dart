@@ -46,7 +46,7 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
         if (response.statusCode == 200) {
           // Parse the response body as JSON
           setState(() {
-            leadDetails = json.decode(response.data.body);
+            leadDetails = json.decode(response.data);
             _selectedStatusCode = leadDetails['contact_status'].toString();
             _loadDependentData(leadDetails['contact_status']);
             _loadSubSubData(leadDetails['disposition_status']);
@@ -99,7 +99,7 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data.body);
+          var decodedResponse = json.decode(response.data);
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['results'] != null) {
             decodedResponse = decodedResponse['results'];
@@ -155,7 +155,7 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data.body);
+          var decodedResponse = json.decode(response.data);
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['disposition_statuses'] != null) {
             decodedResponse = decodedResponse['disposition_statuses'];
@@ -235,7 +235,7 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data.body);
+          var decodedResponse = json.decode(response.data);
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['sub_dispositions'] != null) {
             decodedResponse = decodedResponse['sub_dispositions'];
@@ -1289,7 +1289,7 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
           await ApiService.patchWithHeaders(url, headers, mappedData);
       if (response != null) {
         if (response.statusCode == 200) {
-          json.decode(response.data.body);
+          json.decode(response.data);
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -1324,7 +1324,7 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
               await ApiService.postJsonWithHeaders(url, mappedData, headers);
           if (refreshResponse != null) {
             if (refreshResponse.statusCode == 200) {
-              final data = json.decode(refreshresponse.data.body);
+              final data = json.decode(refreshResponse.data);
               await prefs.setBool('isLoggedIn', true);
               await prefs.setString('accessToken', data['access']);
               await prefs.setString('refreshToken', data['refresh']);
@@ -1342,7 +1342,7 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content:
-                    Text("Failed to submit lead. Error: ${response.data.body}")),
+                    Text("Failed to submit lead. Error: ${response.data}")),
           );
         }
       }

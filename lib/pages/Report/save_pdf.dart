@@ -101,7 +101,7 @@ class ExcelService {
           '${directory.path}/Agent_Hourly_Report_$formatted.xlsx';
       final file = File(filePath);
 
-      await file.writeAsBytes(response!.bodyBytes, flush: true);
+      await file.writeAsBytes(response!.data.bodyBytes, flush: true);
 
       // iOS → Share dialog (since iOS cannot save to Downloads)
       if (Platform.isIOS) {
