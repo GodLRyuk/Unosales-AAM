@@ -72,7 +72,7 @@ class _TodoListDateWiseState extends State<TodoListDateWise> {
       if (response != null) {
         if (response.statusCode == 200) {
           Map<String, dynamic> data =
-              json.decode(response.data.body); // API returns a map
+              json.decode(response.data); // API returns a map
           List<dynamic> leadsData =
               data['results'] ?? []; // Extract 'results' list
 
@@ -153,7 +153,7 @@ class _TodoListDateWiseState extends State<TodoListDateWise> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.data.body);
+          Map<String, dynamic> data = json.decode(response.data);
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             leads = leadsData.map((item) {
@@ -176,7 +176,7 @@ class _TodoListDateWiseState extends State<TodoListDateWise> {
           Map<String, String> mappedData = {'refresh': refresh ?? ""};
           final response2 = await ApiService.post(url, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             SharedPreferences prefs = await SharedPreferences.getInstance();
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);

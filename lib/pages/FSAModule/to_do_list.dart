@@ -127,7 +127,7 @@ class _TodoPageState extends State<TodoPage> {
     try {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
-        final data = json.decode(response.data.body);
+        final data = json.decode(response.data);
         setState(() {
           dsrCount = data['count'];
         });
@@ -161,7 +161,7 @@ class _TodoPageState extends State<TodoPage> {
     try {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null && response.statusCode == 200) {
-        final data = json.decode(response.data.body);
+        final data = json.decode(response.data);
         setState(() {
           assignleadCount = data['count'];
         });

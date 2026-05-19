@@ -207,7 +207,7 @@ class _FSACampaignSingleLeadState extends State<FSACampaignSingleLead> {
             await http.get(Uri.parse('${baseUri.toString()}?format=json'));
 
         if (response.statusCode == 200) {
-          String ip = jsonDecode(response.data.body)['ip'];
+          String ip = jsonDecode(response.body)['ip'];
           setState(() {
             IpAddress = ip;
           });
@@ -308,7 +308,7 @@ class _FSACampaignSingleLeadState extends State<FSACampaignSingleLead> {
         if (response.statusCode == 200) {
           // Parse the response body as JSON
           setState(() {
-            leadDetails = json.decode(response.data.body);
+            leadDetails = json.decode(response.data);
             // String jsonString = jsonEncode(leadDetails);
             // for (int i = 0; i < jsonString.length; i += 1000) {
             //   print(jsonString.substring(i,
@@ -430,7 +430,7 @@ class _FSACampaignSingleLeadState extends State<FSACampaignSingleLead> {
           String url = "/api/users/token-refresh/";
           final response2 = await ApiService.post(url, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -2154,7 +2154,7 @@ class _FSACampaignSingleLeadState extends State<FSACampaignSingleLead> {
       };
       final Tokenresponse = await ApiService.getWithHeaders(url, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.data.body);
+        final data = json.decode(Tokenresponse.data);
         tokens = data['access_token'];
       }
     } catch (e) {
@@ -2197,7 +2197,7 @@ class _FSACampaignSingleLeadState extends State<FSACampaignSingleLead> {
           final responseLOS = await ApiService.patchWithHeaders(
               LosStatusUrl as String, headers2, mappedLOsData);
 
-          final LoSResponcedata = json.decode(response.data.body);
+          final LoSResponcedata = json.decode(response.data);
 
           //LOS Application Status Check
           Map<String, dynamic> mappedData = {
@@ -2237,7 +2237,7 @@ class _FSACampaignSingleLeadState extends State<FSACampaignSingleLead> {
             Navigator.of(context).pop();
             if (Statusresponse != null) {
               if (Statusresponse.statusCode == 200) {
-                final data = json.decode(Statusresponse.data.body);
+                final data = json.decode(Statusresponse.data);
                 var result = data['result'];
 
                 if (result != null && result.isNotEmpty) {
@@ -2287,7 +2287,7 @@ class _FSACampaignSingleLeadState extends State<FSACampaignSingleLead> {
             "url": "${AppConfig.unoApiurluat}/partner/loans/check",
             "request_body": requestData,
             "status_code": response.statusCode,
-            "response_body": json.decode(response.data.body),
+            "response_body": json.decode(response.data),
           };
           final logUrl = "/api/logs/";
 
@@ -2304,7 +2304,7 @@ class _FSACampaignSingleLeadState extends State<FSACampaignSingleLead> {
             if (LogResponse.statusCode == 201) {
               print("Log Created");
             }
-            final data = json.decode(response.data.body);
+            final data = json.decode(response.data);
 
             // Extracting the message
             String message = data['message'] ?? "Validation Error";

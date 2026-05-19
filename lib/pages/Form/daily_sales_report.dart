@@ -402,7 +402,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       if (response != null) {
         if (response.statusCode == 200) {
           // Your API is returning a single company object, not a list
-          final Map<String, dynamic> data = json.decode(response.data.body);
+          final Map<String, dynamic> data = json.decode(response.data);
 
           // Directly use the API response instead of _ComIdOptions
           if (data.containsKey('id')) {
@@ -468,7 +468,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data.body);
+          var decodedResponse = json.decode(response.data);
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['results'] != null) {
             decodedResponse = decodedResponse['results'];
@@ -525,7 +525,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data.body);
+          final Map<String, dynamic> data = json.decode(response.data);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -767,7 +767,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       if (response != null) {
         if (response.statusCode == 200) {
           //print("response is ${response.data.body}");
-          final Map<String, dynamic> data = json.decode(response.data.body);
+          final Map<String, dynamic> data = json.decode(response.data);
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -1873,7 +1873,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       try {
         String dsrId = "";
         if (response != null && (response.statusCode == 201)) {
-          final data = json.decode(response.data.body);
+          final data = json.decode(response.data);
 
           dsrId = data['id'].toString();
           // ✅ Show success dialog
@@ -1962,7 +1962,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       try {
         String dsrId = "";
         if (response != null && (response.statusCode == 200)) {
-          final data = json.decode(response.data.body);
+          final data = json.decode(response.data);
           dsrId = data['id'].toString();
           // ✅ Show success dialog
           if (formSubmition == "Interested & Eligible") {
@@ -2619,7 +2619,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data.body);
+          var decodedResponse = json.decode(response.data);
 
           // ✅ If API returns a Map with sub_disposition_codes
           if (decodedResponse is Map<String, dynamic>) {

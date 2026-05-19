@@ -247,7 +247,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       final response = await ApiService.getWithHeaders(url, headers);
 
       if (response != null && response.statusCode == 200) {
-        final data = jsonDecode(response.data.body);
+        final data = jsonDecode(response.data);
 
         List allResults = data["results"] ?? [];
 
@@ -292,7 +292,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       final response = await ApiService.getWithHeaders(url, headers);
 
       if (response != null && response.statusCode == 200) {
-        final data = jsonDecode(response.data.body);
+        final data = jsonDecode(response.data);
 
         List allResults = data["results"] ?? [];
 
@@ -308,7 +308,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         setState(() {
           isLoading = false;
         });
-        print("Error: ${response?.body}");
+        print("Error: ${response?.data}");
       }
     } catch (e) {
       setState(() {
@@ -372,7 +372,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.data.body);
+          final data = json.decode(Tokenresponse.data);
           token = data['access_token'];
         }
       } catch (e) {
@@ -395,7 +395,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         body: jsonEncode(payload),
       );
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.data.body);
+        final data = jsonDecode(response.body);
         final sostoken = data["token"];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -435,7 +435,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.data.body);
+          final data = json.decode(Tokenresponse.data);
           losToken = data['access_token'];
         }
       } catch (e) {
@@ -464,14 +464,14 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
 
       final response = await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
 
-      final data = json.decode(response!.body);
+      final data = json.decode(response!.data);
       String offerStatus = data[0]['offerStatus'];
 
       String aamUrl = "/api/leads/los-details/?los_status__applicationNo=$cwId";
       final aamheader = {'Authorization': 'Bearer $token'};
 
       final res = await ApiService.getWithHeaders(aamUrl, aamheader);
-      final datares = json.decode(res!.body);
+      final datares = json.decode(res!.data);
       final resresult = datares['results'][0]['los_status'];
 
       final applicationStatus = resresult['applicationStatus'];

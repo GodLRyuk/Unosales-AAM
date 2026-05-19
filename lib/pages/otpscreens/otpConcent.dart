@@ -501,7 +501,7 @@ class OtpconcentState extends State<Otpconcent> {
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.data.body);
+          final data = json.decode(Tokenresponse.data);
           token = data['access_token'];
         }
       } catch (e) {
@@ -688,7 +688,7 @@ class OtpconcentState extends State<Otpconcent> {
       final tokenResponse = await ApiService.getWithHeaders(tokenUrl, headers);
 
       if (tokenResponse != null) {
-        final data = json.decode(tokenResponse.data.body);
+        final data = json.decode(tokenResponse.data);
         token = data['access_token'];
       }
     } catch (e) {
@@ -716,7 +716,7 @@ class OtpconcentState extends State<Otpconcent> {
         await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
 
     if (response != null && response.statusCode == 200) {
-      final appJson = json.decode(response.data.body);
+      final appJson = json.decode(response.data);
       final List results = appJson['result'] ?? [];
 
       if (results.isNotEmpty) {

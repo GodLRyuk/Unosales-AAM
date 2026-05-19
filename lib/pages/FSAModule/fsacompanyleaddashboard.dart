@@ -69,7 +69,7 @@ class _CompanyLeadDetailsState extends State<CompanyLeadDetails> {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.data.body);
+          Map<String, dynamic> data = json.decode(response.data);
           List<dynamic> leadsData = data['results'] ?? [];
 
           setState(() {
@@ -149,7 +149,7 @@ class _CompanyLeadDetailsState extends State<CompanyLeadDetails> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.data.body);
+          Map<String, dynamic> data = json.decode(response.data);
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             leads = leadsData.map((item) {
