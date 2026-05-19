@@ -135,7 +135,7 @@ class _ChangepasswordotpState extends State<Changepasswordotp> {
     );
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.data.body);
+      final data = json.decode(response.body);
       final accessToken = data['access_token'];
       // Step 2: Send SMS using the access token
       final smsResponse = await http.post(
@@ -178,7 +178,7 @@ class _ChangepasswordotpState extends State<Changepasswordotp> {
             ]
           }),
           "status_code": smsResponse.statusCode,
-          "response_body": json.decode(smsresponse.data.body),
+          "response_body": json.decode( smsResponse.body),
         };
         final logUrl = Uri.parse("${AppConfig.otpUrl}/api/logs/");
         final headers = {
@@ -195,11 +195,11 @@ class _ChangepasswordotpState extends State<Changepasswordotp> {
           body: json.encode(logmappedData),
         );
         print('Failed to send SMS. Status: ${smsResponse.statusCode}');
-        print('Response: ${smsresponse.data.body}');
+        print('Response: ${ smsResponse.body}');
       }
     } else {
       print('Failed to fetch token. Status: ${response.statusCode}');
-      print('Response: ${response.data.body}');
+      print('Response: ${response.body}');
     }
   }
 

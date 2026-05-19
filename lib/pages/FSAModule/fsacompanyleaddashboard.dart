@@ -171,7 +171,7 @@ class _CompanyLeadDetailsState extends State<CompanyLeadDetails> {
           final response2 =
               await ApiService.getWithHeaders(url, {'refresh': refresh ?? ''});
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             SharedPreferences prefs = await SharedPreferences.getInstance();
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
