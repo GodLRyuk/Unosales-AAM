@@ -61,6 +61,12 @@ class TokenInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
+    // Skip token attachment for public endpoints
+    if (options.path.contains('/customer-login') ||
+        options.path.contains('/register')) {
+      return handler.next(options);
+    }
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
     if (token != null && token.isNotEmpty) {
