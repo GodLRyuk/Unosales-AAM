@@ -85,7 +85,7 @@ class _FSAOSMRouteTrackingState extends State<FSAOSMRouteTracking> {
       if (response != null) {
         if (response.statusCode == 200) {
           setState(() {
-            leadDetails = json.decode(response.data.body);
+            leadDetails = response.data;
             isLoading = false;
           });
 
@@ -166,7 +166,8 @@ class _FSAOSMRouteTrackingState extends State<FSAOSMRouteTracking> {
       String clientSecret = await googleApiKey();
       String apiKey = clientSecret;
 
-      final String url = "https://maps.googleapis.com/maps/api/directions/json?origin=${position.latitude},${position.longitude}&destination=${destination.latitude},${destination.longitude}&mode=driving&key=$apiKey";
+      final String url =
+          "https://maps.googleapis.com/maps/api/directions/json?origin=${position.latitude},${position.longitude}&destination=${destination.latitude},${destination.longitude}&mode=driving&key=$apiKey";
 
       final response = await http.get(Uri.parse(url));
 

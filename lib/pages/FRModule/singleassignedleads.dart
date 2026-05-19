@@ -38,15 +38,15 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
       String url = "/api/agents/assigned-leads/${widget.leadId}/";
       final headers = {
         'Authorization': 'Bearer $token',
-                 'User-Agent':
-                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', 
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
           // Parse the response body as JSON
           setState(() {
-            leadDetails = json.decode(response.data);
+            leadDetails = response.data;
             _selectedStatusCode = leadDetails['contact_status'].toString();
             _loadDependentData(leadDetails['contact_status']);
             _loadSubSubData(leadDetails['disposition_status']);
@@ -92,14 +92,14 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
     try {
       String url = "/api/campaigns/leads-contact-statuses/";
       final headers = {
-      'Authorization': 'Bearer $token',
-      'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    };
+        'Authorization': 'Bearer $token',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data);
+          var decodedResponse = response.data;
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['results'] != null) {
             decodedResponse = decodedResponse['results'];
@@ -148,14 +148,14 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
     try {
       String url = "/api/campaigns/leads-contact-statuses/$statusId/";
       final headers = {
-      'Authorization': 'Bearer $token',
-      'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    };
+        'Authorization': 'Bearer $token',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data);
+          var decodedResponse = response.data;
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['disposition_statuses'] != null) {
             decodedResponse = decodedResponse['disposition_statuses'];
@@ -228,14 +228,14 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
       String url =
           "/api/campaigns/leads-dispositions-statuses/$SubDispStatusId/";
       final headers = {
-      'Authorization': 'Bearer $token',
-      'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    };
+        'Authorization': 'Bearer $token',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data);
+          var decodedResponse = response.data;
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['sub_dispositions'] != null) {
             decodedResponse = decodedResponse['sub_dispositions'];
@@ -284,6 +284,7 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
       print('Error: $e');
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1282,14 +1283,14 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
       final headers = {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
-                 'User-Agent':
-                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', 
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final response =
           await ApiService.patchWithHeaders(url, headers, mappedData);
       if (response != null) {
         if (response.statusCode == 200) {
-          json.decode(response.data);
+          response.data;
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -1316,9 +1317,10 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
         } else if (response.statusCode == 401) {
           String url = "/api/users/token-refresh/";
           final headers = {
-          'Content-Type': 'application/json',
-          'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',};
+            'Content-Type': 'application/json',
+            'User-Agent':
+                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          };
           Map<String, String> mappedData = {'refresh': refresh ?? ''};
           final refreshResponse =
               await ApiService.postJsonWithHeaders(url, mappedData, headers);

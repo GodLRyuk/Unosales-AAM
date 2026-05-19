@@ -37,7 +37,7 @@ class _SingleLeadState extends State<SingleLead> {
         if (response.statusCode == 200) {
           // Parse the response body as JSON
           setState(() {
-            leadDetails = json.decode(response.data);
+            leadDetails = response.data;
             isLoading = false; // Data loaded
             _fetchImage(leadDetails['kyc_document']);
           });

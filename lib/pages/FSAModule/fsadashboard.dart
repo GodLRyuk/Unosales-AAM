@@ -337,7 +337,7 @@ class _FsadashboardState extends State<Fsadashboard> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final data = json.decode(response.data.body);
+          final data = response.data;
           int totalCount = data['count'];
 
           if (status == 'Accept' || status == 'Accept_Manual') {
@@ -359,7 +359,7 @@ class _FsadashboardState extends State<Fsadashboard> {
           if (status == 'Cancel' ||
               status == 'Fail' ||
               status == 'REJECT' ||
-              status == 'Dedupe'||
+              status == 'Dedupe' ||
               status == 'Failed') {
             declined += totalCount;
           }
@@ -400,7 +400,7 @@ class _FsadashboardState extends State<Fsadashboard> {
       // print(response2?.body);
       if (response2 != null && response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data.body);
+          final Map<String, dynamic> data = response.data;
           final Map<String, dynamic> data2 = json.decode(response2.data.body);
 
           if (mounted) {
@@ -421,7 +421,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                 await ApiService.postJsonWithHeaders(url2, mappedData, headers);
             if (response2 != null) {
               if (response2.statusCode == 200) {
-                final data = json.decode(response2.data.body);
+                final data = response2.data;
                 await prefs.setBool('isLoggedIn', true);
                 await prefs.setString('accessToken', data['access']);
                 await prefs.setString('refreshToken', data['refresh']);
@@ -559,7 +559,8 @@ class _FsadashboardState extends State<Fsadashboard> {
                         controller: _searchFilter,
                         key: SearchFilterKey,
                         decoration: InputDecoration(
-                          labelText: 'Search By Name / Phone No / Application Id',
+                          labelText:
+                              'Search By Name / Phone No / Application Id',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(0),
                             borderSide: const BorderSide(

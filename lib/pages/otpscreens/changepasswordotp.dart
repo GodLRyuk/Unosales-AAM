@@ -177,7 +177,7 @@ class _ChangepasswordotpState extends State<Changepasswordotp> {
             ]
           }),
           "status_code": smsResponse.statusCode,
-          "response_body": json.decode( smsResponse.body),
+          "response_body": json.decode(smsResponse.body),
         };
         final logUrl = Uri.parse("${AppConfig.otpUrl}/api/logs/");
         final headers = {
@@ -194,7 +194,7 @@ class _ChangepasswordotpState extends State<Changepasswordotp> {
           body: json.encode(logmappedData),
         );
         print('Failed to send SMS. Status: ${smsResponse.statusCode}');
-        print('Response: ${ smsResponse.body}');
+        print('Response: ${smsResponse.body}');
       }
     } else {
       print('Failed to fetch token. Status: ${response.statusCode}');
@@ -272,7 +272,7 @@ class _ChangepasswordotpState extends State<Changepasswordotp> {
                 },
               );
             } else if (response.statusCode == 400) {
-              final data = json.decode(response.data.body);
+              final data = response.data;
               String errorMessage = '';
 
               if (data['non_field_errors'] is List) {

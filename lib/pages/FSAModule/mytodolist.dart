@@ -73,8 +73,7 @@ class _FSAMyTodoListState extends State<FSAMyTodoList> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data =
-              json.decode(response.data); // API returns a map
+          Map<String, dynamic> data = response.data; // API returns a map
           List<dynamic> leadsData =
               data['results'] ?? []; // Extract 'results' list
 
@@ -155,7 +154,7 @@ class _FSAMyTodoListState extends State<FSAMyTodoList> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.data);
+          Map<String, dynamic> data = response.data;
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             leads = leadsData.map((item) {

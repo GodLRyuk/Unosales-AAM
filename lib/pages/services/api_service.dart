@@ -5,8 +5,6 @@ import 'package:http_certificate_pinning/http_certificate_pinning.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/config/config.dart';
 
-
-
 enum CertificateState {
   CERTIFICATE_VALID,
   CERTIFICATE_NOT_MATCH_PIN,
@@ -25,7 +23,6 @@ CertificateState parseCertificateState(String value) {
 }
 
 final certificate = AppConfig.certificateChecks;
-
 
 // ─── SSL Pinning Interceptor ──────────────────────
 class SSLPinningInterceptor extends Interceptor {
@@ -83,7 +80,7 @@ class TokenInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     // Skip token attachment for public endpoints
-    if (options.path.contains('/customer-login') ||
+    if (options.path.contains('/users/login/') ||
         options.path.contains('/register')) {
       return handler.next(options);
     }

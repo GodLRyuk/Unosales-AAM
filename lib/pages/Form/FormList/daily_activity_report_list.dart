@@ -62,7 +62,7 @@ class _CampaignlistState extends State<DailyActivityList> {
     try {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
       if (response != null && response.statusCode == 200) {
-        final data = json.decode(response.data);
+        final data = response.data;
         final leadsData = data['results'];
         List<Map<String, dynamic>> newLeads =
             List<Map<String, dynamic>>.from(leadsData);
@@ -91,7 +91,6 @@ class _CampaignlistState extends State<DailyActivityList> {
   }
 
   // ===================== GET DISPOSITION CODES =======================
-  
 
   // ==================== SCROLL LISTENER ====================
   void _onScroll() {
@@ -124,7 +123,7 @@ class _CampaignlistState extends State<DailyActivityList> {
     try {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null && response.statusCode == 200) {
-                final data = json.decode(response.data);
+        final data = response.data;
 
         final leadsData = data['results'];
         List<Map<String, dynamic>> newLeads =
@@ -237,179 +236,207 @@ class _CampaignlistState extends State<DailyActivityList> {
                           ),
                         )
                       : Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: ListView.builder(
-                          controller: _scrollController,
-                          itemCount: leads.length + 1,
-                          itemBuilder: (context, index) {
-                            if (index < leads.length) {
-                              final lead = leads[index];
+                          padding: const EdgeInsets.all(10.0),
+                          child: ListView.builder(
+                            controller: _scrollController,
+                            itemCount: leads.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index < leads.length) {
+                                final lead = leads[index];
 
-                              // Parse created_at safely
-                              String createdAtStr = (lead['created_at'] ?? '').toString();
-                              DateTime? createdAt;
+                                // Parse created_at safely
+                                String createdAtStr =
+                                    (lead['created_at'] ?? '').toString();
+                                DateTime? createdAt;
 
-                              try {
-                                // Parse ISO 8601 timestamp with timezone
-                                createdAt = DateTime.parse(createdAtStr);
+                                try {
+                                  // Parse ISO 8601 timestamp with timezone
+                                  createdAt = DateTime.parse(createdAtStr);
 
-                                // Convert to local timezone
-                                createdAt = createdAt.toLocal();
+                                  // Convert to local timezone
+                                  createdAt = createdAt.toLocal();
 
-                                // Remove time, keep only date
-                                createdAt = DateTime(createdAt.year, createdAt.month, createdAt.day);
-                              } catch (_) {
-                                createdAt = null;
-                              }
+                                  // Remove time, keep only date
+                                  createdAt = DateTime(createdAt.year,
+                                      createdAt.month, createdAt.day);
+                                } catch (_) {
+                                  createdAt = null;
+                                }
 
-                              DateTime now = DateTime.now();
+                                DateTime now = DateTime.now();
 
-                              // Today's date (local, date only)
-                              DateTime todayDateOnly = DateTime(now.year, now.month, now.day);
+                                // Today's date (local, date only)
+                                DateTime todayDateOnly =
+                                    DateTime(now.year, now.month, now.day);
 
+                                // Format date as yyyy-MM-dd
+                                String formattedCreatedAt = createdAt != null
+                                    ? "${createdAt.year.toString().padLeft(4, '0')}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}"
+                                    : "Unknown Date";
 
-                              // Format date as yyyy-MM-dd
-                              String formattedCreatedAt = createdAt != null
-                                  ? "${createdAt.year.toString().padLeft(4, '0')}-${createdAt.month.toString().padLeft(2, '0')}-${createdAt.day.toString().padLeft(2, '0')}"
-                                  : "Unknown Date";
-
-                              String formattedToday = "${todayDateOnly.year.toString().padLeft(4, '0')}-${todayDateOnly.month.toString().padLeft(2, '0')}-${todayDateOnly.day.toString().padLeft(2, '0')}";
-                              bool isToday = (createdAt != null && formattedCreatedAt == formattedToday);
-                              return GestureDetector(
-                                onTap: () {
-                                  String id = (lead['id'] ?? '').toString();
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => DailyActivityViewPage(
-                                        pageMode: 'view',
-                                        activityId: id,
+                                String formattedToday =
+                                    "${todayDateOnly.year.toString().padLeft(4, '0')}-${todayDateOnly.month.toString().padLeft(2, '0')}-${todayDateOnly.day.toString().padLeft(2, '0')}";
+                                bool isToday = (createdAt != null &&
+                                    formattedCreatedAt == formattedToday);
+                                return GestureDetector(
+                                  onTap: () {
+                                    String id = (lead['id'] ?? '').toString();
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            DailyActivityViewPage(
+                                          pageMode: 'view',
+                                          activityId: id,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 75,
+                                    margin:
+                                        const EdgeInsets.symmetric(vertical: 5),
+                                    decoration: BoxDecoration(
+                                      color: isToday
+                                          ? const Color(0xFFEEDFF2)
+                                          : Colors.white,
+                                      borderRadius: BorderRadius.circular(8),
+                                      border: const Border(
+                                        left: BorderSide(
+                                            color: Color(0xFF640D78),
+                                            width: 5.0),
+                                        top: BorderSide(
+                                            color: Color(0xFF640D78),
+                                            width: 1.0),
+                                        bottom: BorderSide(
+                                            color: Color(0xFF640D78),
+                                            width: 1.0),
+                                        right: BorderSide(
+                                            color: Color(0xFF640D78),
+                                            width: 1.0),
                                       ),
                                     ),
-                                  );
-                                },
-                                child: Container(
-                                  height: 75,
-                                  margin: const EdgeInsets.symmetric(vertical: 5),
-                                  decoration: BoxDecoration(
-                                    color: isToday ? const Color(0xFFEEDFF2) : Colors.white,
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: const Border(
-                                      left: BorderSide(color: Color(0xFF640D78), width: 5.0),
-                                      top: BorderSide(color: Color(0xFF640D78), width: 1.0),
-                                      bottom: BorderSide(color: Color(0xFF640D78), width: 1.0),
-                                      right: BorderSide(color: Color(0xFF640D78), width: 1.0),
-                                    ),
-                                  ),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                isToday? "Today Activity ": formattedCreatedAt,
-                                                style: WidgetSupport.mediumText().copyWith(
-                                                  color: isToday
-                                                      ? const Color(0xFF640D78)
-                                                      : Colors.black,
-                                                  fontWeight: isToday
-                                                      ? FontWeight.bold
-                                                      : FontWeight.normal,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  isToday
+                                                      ? "Today Activity "
+                                                      : formattedCreatedAt,
+                                                  style:
+                                                      WidgetSupport.mediumText()
+                                                          .copyWith(
+                                                    color: isToday
+                                                        ? const Color(
+                                                            0xFF640D78)
+                                                        : Colors.black,
+                                                    fontWeight: isToday
+                                                        ? FontWeight.bold
+                                                        : FontWeight.normal,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            } else {
-                              return nextPageUrl != null
-                                  ? const Center(child: CircularProgressIndicator())
-                                  : const Center(child: Text('No more data'));
-                            }
-                          },
+                                );
+                              } else {
+                                return nextPageUrl != null
+                                    ? const Center(
+                                        child: CircularProgressIndicator())
+                                    : const Center(child: Text('No more data'));
+                              }
+                            },
+                          ),
                         ),
-                      ),
-
                 ),
               ],
             ),
       floatingActionButton: Padding(
-          padding: const EdgeInsets.only(bottom: 10),
-          child: FloatingActionButton(
-            onPressed: () {
-              // Check if today's activity exists
-              bool hasTodayActivity = leads.any((lead) {
-                String createdAtStr = (lead['created_at'] ?? '').toString();
-                DateTime? createdAt;
-                try {
-                  createdAt = DateTime.parse(createdAtStr);
-                } catch (_) {
-                  createdAt = null;
-                }
+        padding: const EdgeInsets.only(bottom: 10),
+        child: FloatingActionButton(
+          onPressed: () {
+            // Check if today's activity exists
+            bool hasTodayActivity = leads.any((lead) {
+              String createdAtStr = (lead['created_at'] ?? '').toString();
+              DateTime? createdAt;
+              try {
+                createdAt = DateTime.parse(createdAtStr);
+              } catch (_) {
+                createdAt = null;
+              }
 
-                return createdAt != null &&
-                    createdAt.year == DateTime.now().year &&
-                    createdAt.month == DateTime.now().month &&
-                    createdAt.day == DateTime.now().day;
-              });
+              return createdAt != null &&
+                  createdAt.year == DateTime.now().year &&
+                  createdAt.month == DateTime.now().month &&
+                  createdAt.day == DateTime.now().day;
+            });
 
-              if (hasTodayActivity) {
-                // ✅ Show modal dialog
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
+            if (hasTodayActivity) {
+              // ✅ Show modal dialog
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    title: const Text(
+                      "Notice",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF640D78),
                       ),
-                      title: const Text(
-                        "Notice",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF640D78),
-                        ),
-                      ),
-                      content: const Text(
-                        "Your plan for the day has already been submitted.",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text(
-                            "OK",
-                            style: TextStyle(
-                              color: Color(0xFF640D78),
-                              fontWeight: FontWeight.bold,
-                            ),
+                    ),
+                    content: const Text(
+                      "Your plan for the day has already been submitted.",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text(
+                          "OK",
+                          style: TextStyle(
+                            color: Color(0xFF640D78),
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ],
-                    );
-                  },
-                );
-              } else {
-                // ✅ Navigate to planner only if no activity today
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => DailyAgentPlaner(pageMode: '', activityId: '',)),
-                );
-              }
-            },
-            tooltip: 'Create New Plan',
-            backgroundColor: const Color(0xFFac00d0),
-            child: const Icon(Icons.add, color: Colors.white),
-          ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            } else {
+              // ✅ Navigate to planner only if no activity today
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => DailyAgentPlaner(
+                          pageMode: '',
+                          activityId: '',
+                        )),
+              );
+            }
+          },
+          tooltip: 'Create New Plan',
+          backgroundColor: const Color(0xFFac00d0),
+          child: const Icon(Icons.add, color: Colors.white),
         ),
+      ),
     );
   }
 }

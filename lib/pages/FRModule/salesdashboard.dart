@@ -180,7 +180,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data);
+          final Map<String, dynamic> data = response.data;
           setState(() {
             leadDetails = data['count'];
           });
@@ -217,7 +217,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
         'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
         //'User-Agent':
-           // 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        // 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
       if (Tokenresponse != null) {
@@ -249,7 +249,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
           await ApiService.postWithHeadersUnoApi(url, mappedData, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final data = json.decode(response.data );
+          final data = json.decode(response.data);
           List<dynamic> losData = data['result'] ?? [];
           setState(() {
             accepted = losData

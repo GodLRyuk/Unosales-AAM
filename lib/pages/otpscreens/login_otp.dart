@@ -229,7 +229,7 @@ class _LoginOtpState extends State<LoginOtp> {
           final response = await ApiService.post(url, mapeddata);
           if (response != null) {
             if (response.statusCode == 200) {
-              final data = json.decode(response.data.body);
+              final data = response.data;
               if (data['access'] != null) {
                 List<String> userInfo = [
                   data['user']['username'],
@@ -254,7 +254,7 @@ class _LoginOtpState extends State<LoginOtp> {
                     await ApiService.getWithHeaders(checkInUserUrl, headers);
 
                 if (checkInUserResponse != null) {
-                  final data2 = json.decode(response.data.body);
+                  final data2 = response.data;
                   if (data2['data'] is List && data2['data'].isNotEmpty) {
                     final firstItem = data2['data'][0];
                     checkIndata =

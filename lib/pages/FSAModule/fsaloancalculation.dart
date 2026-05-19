@@ -64,7 +64,7 @@ class _FsaLoancalculationState extends State<FsaLoancalculation> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data.body);
+          var decodedResponse = response.data;
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['results'] != null) {
             decodedResponse = decodedResponse['results'];
@@ -121,7 +121,7 @@ class _FsaLoancalculationState extends State<FsaLoancalculation> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data.body);
+          var decodedResponse = response.data;
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['sub_disposition_codes'] != null) {
             decodedResponse = decodedResponse['sub_disposition_codes'];
@@ -524,7 +524,7 @@ class _FsaLoancalculationState extends State<FsaLoancalculation> {
         // print(json.encode(mappedData));
         if (response != null) {
           if (response.statusCode == 200) {
-            json.decode(response.data.body);
+            response.data;
             showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -569,7 +569,8 @@ class _FsaLoancalculationState extends State<FsaLoancalculation> {
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text("Failed to submit lead. Error: ${response.data.body}"),
+                content:
+                    Text("Failed to submit lead. Error: ${response.data.body}"),
               ),
             );
           }

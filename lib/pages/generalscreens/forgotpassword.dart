@@ -383,7 +383,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       );
 
       if (response != null) {
-        final data = json.decode(response.data.body);
+        final data = response.data;
 
         if (response.statusCode == 200) {
           setState(() {

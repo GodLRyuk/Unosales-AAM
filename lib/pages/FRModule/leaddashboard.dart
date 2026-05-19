@@ -80,7 +80,7 @@ class _LeadDashBoardState extends State<LeadDashBoard> {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.data);
+          Map<String, dynamic> data = response.data;
           List<dynamic> leadsData = data['results'] ?? [];
 
           setState(() {
@@ -156,13 +156,13 @@ class _LeadDashBoardState extends State<LeadDashBoard> {
       String url = "/api/leads/$searchQuery";
       final headers = {
         'Authorization': 'Bearer $token',
-                 'User-Agent':
-                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', 
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.data);
+          Map<String, dynamic> data = response.data;
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             leads = leadsData.map((item) {

@@ -79,7 +79,7 @@ class _OSMRouteTrackingState extends State<OSMRouteTracking> {
         if (response.statusCode == 200) {
           // Parse the response body as JSON
           setState(() {
-            leadDetails = json.decode(response.data);
+            leadDetails = response.data;
             isLoading = false; // Data loaded
             getLatLngFromAddress(leadDetails['perm_state'] +
                 ' ' +
@@ -100,7 +100,7 @@ class _OSMRouteTrackingState extends State<OSMRouteTracking> {
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
-            fetchLeadDetails(); 
+            fetchLeadDetails();
           }
         } else {
           throw Exception('Failed to load lead details');

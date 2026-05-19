@@ -61,17 +61,16 @@ class _CampaignlistState extends State<DailySalesReportList> {
     };
     String date = widget.searchQuery;
     String apiUrl = "";
-    if (date!="") { 
-    apiUrl= url ?? '/api/timesheet/agent-daily-sales/?follow_up_date__gte=${date}T00:00:00&follow_up_date__lte=${date}T23:59:59';
-    }
-    else
-    {
-    apiUrl= url ?? '/api/timesheet/agent-daily-sales/';
+    if (date != "") {
+      apiUrl = url ??
+          '/api/timesheet/agent-daily-sales/?follow_up_date__gte=${date}T00:00:00&follow_up_date__lte=${date}T23:59:59';
+    } else {
+      apiUrl = url ?? '/api/timesheet/agent-daily-sales/';
     }
     try {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
       if (response != null && response.statusCode == 200) {
-        final data = json.decode(response.data);
+        final data = response.data;
         final leadsData = data['results'];
         List<Map<String, dynamic>> newLeads =
             List<Map<String, dynamic>>.from(leadsData);
@@ -113,7 +112,7 @@ class _CampaignlistState extends State<DailySalesReportList> {
       };
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null && response.statusCode == 200) {
-        var decodedResponse = json.decode(response.data);
+        var decodedResponse = response.data;
 
         if (decodedResponse is Map<String, dynamic> &&
             decodedResponse['results'] != null) {
@@ -166,7 +165,7 @@ class _CampaignlistState extends State<DailySalesReportList> {
     try {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null && response.statusCode == 200) {
-                final data = json.decode(response.data);
+        final data = response.data;
 
         final leadsData = data['results'];
         List<Map<String, dynamic>> newLeads =
@@ -329,8 +328,8 @@ class _CampaignlistState extends State<DailySalesReportList> {
                                     margin:
                                         const EdgeInsets.symmetric(vertical: 5),
                                     decoration: BoxDecoration(
-                                      color:
-                                          const Color.fromARGB(255, 255, 255, 255),
+                                      color: const Color.fromARGB(
+                                          255, 255, 255, 255),
                                       borderRadius: BorderRadius.circular(8),
                                       border: const Border(
                                         left: BorderSide(

@@ -67,9 +67,10 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LosStatusChart(
-                                                          initialTabTitle:
-                                                              'IN-PROGRESS'),),
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        LosStatusChart(initialTabTitle: 'IN-PROGRESS'),
+                  ),
                 );
               },
             ),
@@ -108,7 +109,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
                 ),
               ),
             ),
-        
+
             Expanded(
               child: isLoading
                   ? const Center(
@@ -116,24 +117,23 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
                     )
                   : results.isEmpty
                       ? ListView(
-                        physics: AlwaysScrollableScrollPhysics(),
-                        children: [
-                           SizedBox(height: 200),
-                          Center(
-                            child: Text(
-                              "No Data Found",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ]
-                      )
+                          physics: AlwaysScrollableScrollPhysics(),
+                          children: [
+                              SizedBox(height: 200),
+                              Center(
+                                child: Text(
+                                  "No Data Found",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ])
                       : ListView.builder(
                           itemCount: results.length,
                           itemBuilder: (context, index) {
                             final leadData = results[index];
                             final client = leadData["clientDetails"] ?? {};
                             final losStatus = leadData["los_status"] ?? {};
-        
+
                             return Container(
                               margin: const EdgeInsets.symmetric(
                                   vertical: 10, horizontal: 10),
@@ -190,7 +190,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
                                           onTap: () {
                                             String cwTransactionID =
                                                 leadData['CWTransactionID'];
-        
+
                                             waybookImplement(cwTransactionID,
                                                 leadData['id'].toString());
                                           },
@@ -219,13 +219,11 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
     );
   }
 
-   Future<void> _handleRefresh() async {
-   
+  Future<void> _handleRefresh() async {
     _searchFilter.clear();
     await loadInitialLeads();
     await Future.delayed(Duration(seconds: 2)); // Simulate a delay
   }
-
 
   Future<void> loadInitialLeads() async {
     try {
@@ -247,7 +245,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       final response = await ApiService.getWithHeaders(url, headers);
 
       if (response != null && response.statusCode == 200) {
-        final data = jsonDecode(response.data);
+        final data = response.data;
 
         List allResults = data["results"] ?? [];
 
@@ -292,7 +290,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       final response = await ApiService.getWithHeaders(url, headers);
 
       if (response != null && response.statusCode == 200) {
-        final data = jsonDecode(response.data);
+        final data = response.data;
 
         List allResults = data["results"] ?? [];
 
@@ -429,8 +427,8 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         final headers = {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
-         // 'User-Agent':
-           //   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          // 'User-Agent':
+          //   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
@@ -462,7 +460,8 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       };
       print("cw id is $cwId");
 
-      final response = await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
+      final response =
+          await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
 
       final data = json.decode(response!.data);
       String offerStatus = data[0]['offerStatus'];
@@ -571,7 +570,9 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         };
         final body = {
           "workflow_status": "Prelim UW Failed",
-           "los_status":{"offerStatus": "Fail",}
+          "los_status": {
+            "offerStatus": "Fail",
+          }
         };
 
         final responsefromLOS =

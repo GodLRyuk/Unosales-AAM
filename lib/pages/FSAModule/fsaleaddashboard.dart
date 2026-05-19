@@ -162,7 +162,7 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
         final response = responses[i];
         if (response != null) {
           if (response.statusCode == 200) {
-            Map<String, dynamic> data = json.decode(response.data.body);
+            Map<String, dynamic> data = response.data;
             List<dynamic> leadsData = data['results'] ?? [];
 
             if (i == 0) {
@@ -226,7 +226,6 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
       fetchLeads(isLoadMore: true);
     }
   }
-
 
   Widget _buildLeadTile(Map<String, String> lead, int index) {
     final isCustomerLead = lead['type'] == 'Customer Lead';

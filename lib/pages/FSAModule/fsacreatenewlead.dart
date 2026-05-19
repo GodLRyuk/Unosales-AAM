@@ -135,14 +135,14 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
     try {
       String url = '/api/leads/companies/?page_size=10';
       final headers = {
-      'Authorization': 'Bearer $token',
-      'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    };
+        'Authorization': 'Bearer $token',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data.body);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -206,7 +206,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data.body);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -268,7 +268,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
 
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.data.body);
+        final Map<String, dynamic> data = response.data;
         if (data['results'] != null && data['results'] is List) {
           List<dynamic> location = data['results'];
 
@@ -316,7 +316,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.data.body);
+        final Map<String, dynamic> data = response.data;
         if (data['results'] != null && data['results'] is List) {
           List<dynamic> location = data['results'];
 
@@ -365,7 +365,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.data.body);
+        final Map<String, dynamic> data = response.data;
         if (data['results'] != null && data['results'] is List) {
           List<dynamic> tenor = data['results'];
 
@@ -414,7 +414,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.data.body);
+        final Map<String, dynamic> data = response.data;
         if (data['results'] != null && data['results'] is List) {
           List<dynamic> docs = data['results'];
 
@@ -464,7 +464,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.data.body);
+        final Map<String, dynamic> data = response.data;
         if (data['results'] != null && data['results'] is List) {
           List<dynamic> citydata = data['results'];
           Map<String, String> fetchedData = {};
@@ -517,7 +517,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.data.body);
+        final Map<String, dynamic> data = response.data;
         if (data['results'] != null && data['results'] is List) {
           List<dynamic> cityData = data['results'];
 
@@ -563,7 +563,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.data.body);
+        final Map<String, dynamic> data = response.data;
         if (data['barangays'] != null && data['barangays'] is List) {
           List<dynamic> barangays = data['barangays'];
 
@@ -633,12 +633,13 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
-        final data = json.decode(response.data.body);
+        final data = response.data;
         String citiesUrl = '/api/leads/cities/?id=${data['city_name']}/';
         final cityresponse =
             await ApiService.getWithHeaders(citiesUrl, headers);
         if (cityresponse != null) {
-          final Map<String, dynamic> cityData = json.decode(cityresponse.data.body);
+          final Map<String, dynamic> cityData =
+              json.decode(cityresponse.data.body);
           if (cityData['results'] != null && cityData['results'] is List) {
             List<dynamic> cityList = cityData['results'];
             Map<String, String> fetchedCities = {
@@ -1601,7 +1602,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
 
         if (response != null &&
             (response.statusCode == 201 || response.statusCode == 200)) {
-          final data = json.decode(response.data.body);
+          final data = response.data;
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(

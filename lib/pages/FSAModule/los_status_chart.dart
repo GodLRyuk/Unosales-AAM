@@ -233,7 +233,7 @@ class _LosStatusChartState extends State<LosStatusChart>
 
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null && response.statusCode == 200) {
-        final appJson = json.decode(response.data.body);
+        final appJson = response.data;
         final List results = appJson['results'];
 
         for (var item in results) {
@@ -296,7 +296,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         return;
       }
 
-      final appJson = json.decode(response.data.body);
+      final appJson = response.data;
       final List results = appJson['results'] ?? [];
 
       final uniqueStatuses = results
@@ -510,19 +510,20 @@ class _LosStatusChartState extends State<LosStatusChart>
                     return Center(
                         child: CircularProgressIndicator(color: Colors.purple));
                   }
-        
+
                   final currentTabLeads =
                       categorizedData[tabTitles[_tabController.index]]!;
-        
+
                   if (currentTabLeads.isEmpty) {
                     return ListView(
-                      physics: AlwaysScrollableScrollPhysics(),
-                      children: [
-                        SizedBox(height: MediaQuery.of(context).size.height * 0.3),
-                        Center(child: Text("No Data Found"))
+                        physics: AlwaysScrollableScrollPhysics(),
+                        children: [
+                          SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.3),
+                          Center(child: Text("No Data Found"))
                         ]);
                   }
-        
+
                   return ListView.builder(
                     itemCount: currentTabLeads.length,
                     itemBuilder: (context, index) {
@@ -535,18 +536,19 @@ class _LosStatusChartState extends State<LosStatusChart>
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border(
-                            top: BorderSide(color: Color(0xFF640D78), width: 1.0),
-                            bottom:
-                                BorderSide(color: Color(0xFF640D78), width: 1.0),
-                            left:
-                                BorderSide(color: Color(0xFF640D78), width: 5.0),
-                            right:
-                                BorderSide(color: Color(0xFF640D78), width: 1.0),
+                            top: BorderSide(
+                                color: Color(0xFF640D78), width: 1.0),
+                            bottom: BorderSide(
+                                color: Color(0xFF640D78), width: 1.0),
+                            left: BorderSide(
+                                color: Color(0xFF640D78), width: 5.0),
+                            right: BorderSide(
+                                color: Color(0xFF640D78), width: 1.0),
                           ),
                         ),
                         child: ListTile(
-                          leading:
-                              Icon(Icons.person, color: Colors.purple, size: 30),
+                          leading: Icon(Icons.person,
+                              color: Colors.purple, size: 30),
                           title: Text(
                             "${lead['firstName']} ${lead['middleName']} ${lead['lastName']}"
                                 .trim(),
@@ -561,7 +563,8 @@ class _LosStatusChartState extends State<LosStatusChart>
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text("Mobile: ${lead['mobilePhone']}"),
+                                          Text(
+                                              "Mobile: ${lead['mobilePhone']}"),
                                           Text(
                                               "CWTransactionID: ${lead['CWTransactionID']}"),
                                           Text(
@@ -573,7 +576,8 @@ class _LosStatusChartState extends State<LosStatusChart>
                                               Expanded(
                                                 child: Text(
                                                   "OfferStatus: ${lead['offerStatus']}",
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                               ),
                                               GestureDetector(
@@ -621,11 +625,10 @@ class _LosStatusChartState extends State<LosStatusChart>
   }
 
   Future<void> _handleRefresh() async {
-     _searchFilter.clear();
-   _resetAndLoad();  
+    _searchFilter.clear();
+    _resetAndLoad();
     await Future.delayed(Duration(seconds: 2)); // Simulate a delay
   }
-
 
   Future<Map<String, dynamic>> buildPayload() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -676,12 +679,12 @@ class _LosStatusChartState extends State<LosStatusChart>
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
           //'User-Agent':
-           //   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          //   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.data.body);
+          final data = Tokenresponse.data;
           token = data['access_token'];
         }
       } catch (e) {
@@ -737,12 +740,12 @@ class _LosStatusChartState extends State<LosStatusChart>
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
           //'User-Agent':
-            //  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          //  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.data.body);
+          final data = Tokenresponse.data;
           losToken = data['access_token'];
         }
       } catch (e) {
@@ -828,7 +831,9 @@ class _LosStatusChartState extends State<LosStatusChart>
         };
         final body = {
           "workflow_status": "Prelim UW Failed",
-           "los_status":{"offerStatus": "Fail",}
+          "los_status": {
+            "offerStatus": "Fail",
+          }
         };
 
         final responsefromLOS =
@@ -872,7 +877,9 @@ class _LosStatusChartState extends State<LosStatusChart>
         };
         final body = {
           "workflow_status": "Prelim UW Failed",
-           "los_status":{"offerStatus": "Fail",}
+          "los_status": {
+            "offerStatus": "Fail",
+          }
         };
 
         final responsefromLOS =

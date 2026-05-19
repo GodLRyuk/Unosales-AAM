@@ -26,15 +26,15 @@ class _FsaSingleAssignLeadState extends State<FsaSingleAssignLead> {
       String url = "/api/agents/assigned-leads/${widget.leadId}";
       final headers = {
         'Authorization': 'Bearer $token',
-         'User-Agent':
-                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', 
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
           // Parse the response body as JSON
           setState(() {
-            leadDetails = json.decode(response.data);
+            leadDetails = response.data;
             isLoading = false; // Data loaded
           });
         } else if (response.statusCode == 401) {

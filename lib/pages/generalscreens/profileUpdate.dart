@@ -90,7 +90,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
         },
       );
       if (response != null && response.statusCode == 200) {
-        userData = json.decode(response.data.body);
+        userData = response.data;
         setState(() {
           storedEmail = userData['email'];
           _firstName.text = userData['first_name'];
@@ -278,7 +278,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
       'Authorization': 'Bearer $token',
       'Content-Type': 'application/json',
       'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
     };
 
     final response = await ApiService.patchWithHeaders(

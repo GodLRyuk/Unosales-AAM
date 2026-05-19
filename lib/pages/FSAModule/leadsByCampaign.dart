@@ -37,7 +37,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
   @override
   void initState() {
     super.initState();
-   
+
     if (widget.is_and_campaign == "true") {
       fetchAndLeads();
     } else {
@@ -80,7 +80,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.data.body);
+          Map<String, dynamic> data = response.data;
           List<dynamic> leadsData = data['results'] ?? [];
           //print("campaign leads $leadsData");
 
@@ -163,7 +163,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.data.body);
+          Map<String, dynamic> data = response.data;
 
           List<dynamic> leadsData = data['results'] ?? [];
           //print("And campaign lead $leadsData");
@@ -201,7 +201,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
           String errorMessage = 'Something went wrong';
 
           try {
-            data1 = json.decode(response.data.body);
+            data1 = response.data;
             errorMessage = data1['detail'] ?? errorMessage;
           } catch (_) {}
 
@@ -314,7 +314,6 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                                       1, // Add one extra item for the loader
                                   itemBuilder: (context, index) {
                                     if (index < leads.length) {
-                                      
                                       if (widget.is_and_campaign == "true") {
                                         return GestureDetector(
                                           onTap: () {
@@ -422,7 +421,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                                         return GestureDetector(
                                           onTap: () {
                                             String leadId = leads[index]['id']!;
-                                            
+
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -431,7 +430,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                                                   leadId: leadId,
                                                   campaign: widget.campaign,
                                                   pagemode: 'edit',
-                                                  dsrId: '', 
+                                                  dsrId: '',
                                                   CWTransactionID: '',
                                                 ),
                                               ),

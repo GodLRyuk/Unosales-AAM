@@ -136,7 +136,7 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data.body);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -195,7 +195,7 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data.body);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -252,7 +252,7 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
       final response =
           await ApiService.getWithHeaders(companyLeadsUrl, headers);
       if (response != null) {
-        final data = json.decode(response.data.body);
+        final data = response.data;
         String companyTypesUrl =
             '/api/leads/company-types/?id=${data['type_name']}/';
         final companyType =
@@ -337,7 +337,8 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
         final cityresponse =
             await ApiService.getWithHeaders(citiesUrl, headers);
         if (cityresponse != null) {
-          final Map<String, dynamic> data454 = json.decode(cityresponse.data.body);
+          final Map<String, dynamic> data454 =
+              json.decode(cityresponse.data.body);
           if (data454['results'] != null && data454['results'] is List) {
             List<dynamic> citydata = data454['results'];
             Map<String, String> fetchedData = {};
@@ -1013,7 +1014,7 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
       final response = await ApiService.getWithHeaders(citiesUrl, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data.body);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> citydata = data['results'];
             Map<String, String> fetchedData = {};
@@ -1067,7 +1068,7 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
           await ApiService.getWithHeaders(citiesSearchUrl, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data.body);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> cityData = data['results'];
 
@@ -1121,7 +1122,7 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
       final response = await ApiService.getWithHeaders(citiesUrl, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data.body);
+          final Map<String, dynamic> data = response.data;
           if (data['barangays'] != null && data['barangays'] is List) {
             List<dynamic> barangays = data['barangays'];
 
@@ -1265,8 +1266,8 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content:
-                      Text("Failed to submit lead. Error: ${response.data.body}"),
+                  content: Text(
+                      "Failed to submit lead. Error: ${response.data.body}"),
                 ),
               );
             }
@@ -1340,8 +1341,8 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content:
-                      Text("Failed to submit lead. Error: ${response.data.body}"),
+                  content: Text(
+                      "Failed to submit lead. Error: ${response.data.body}"),
                 ),
               );
             }

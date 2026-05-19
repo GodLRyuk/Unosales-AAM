@@ -47,7 +47,7 @@ class _FSASingleAssignedLeadState extends State<FSASingleAssignedLead> {
         if (response.statusCode == 200) {
           // Parse the response body as JSON
           setState(() {
-            leadDetails = json.decode(response.data);
+            leadDetails = response.data;
             _selectedStatusCode = leadDetails['contact_status'].toString();
             _loadDependentData(leadDetails['contact_status']);
             _loadSubSubData(leadDetails['disposition_status']);
@@ -102,7 +102,7 @@ class _FSASingleAssignedLeadState extends State<FSASingleAssignedLead> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data);
+          var decodedResponse = response.data;
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['results'] != null) {
             decodedResponse = decodedResponse['results'];
@@ -158,7 +158,7 @@ class _FSASingleAssignedLeadState extends State<FSASingleAssignedLead> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data);
+          var decodedResponse = response.data;
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['disposition_statuses'] != null) {
             decodedResponse = decodedResponse['disposition_statuses'];
@@ -238,7 +238,7 @@ class _FSASingleAssignedLeadState extends State<FSASingleAssignedLead> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.data);
+          var decodedResponse = response.data;
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['sub_dispositions'] != null) {
             decodedResponse = decodedResponse['sub_dispositions'];
@@ -1314,7 +1314,7 @@ class _FSASingleAssignedLeadState extends State<FSASingleAssignedLead> {
           await ApiService.patchWithHeaders(url, headers, mappedData);
       if (response != null) {
         if (response.statusCode == 200) {
-          json.decode(response.data);
+          response.data;
           showDialog(
             context: context,
             builder: (BuildContext context) {

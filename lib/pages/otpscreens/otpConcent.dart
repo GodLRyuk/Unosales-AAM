@@ -716,7 +716,7 @@ class OtpconcentState extends State<Otpconcent> {
         await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
 
     if (response != null && response.statusCode == 200) {
-      final appJson = json.decode(response.data);
+      final appJson = response.data;
       final List results = appJson['result'] ?? [];
 
       if (results.isNotEmpty) {

@@ -48,7 +48,7 @@ class _AgentRouteTraveledState extends State<AgentRouteTraveled> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data.body);
+          final Map<String, dynamic> data = response.data;
           leadDetails = data;
           setState(() {
             allleadsdetails = data['results'] ?? [];

@@ -6,9 +6,6 @@ import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/services/api_global_key.dart';
 import 'package:unosfa/pages/services/api_service.dart';
 
-
-
-
 Future<void> globalKeys() async {
   final endpoint = '/api/secrets/';
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -21,7 +18,7 @@ Future<void> globalKeys() async {
     });
 
     if (response!.statusCode == 200) {
-      final data = jsonDecode(response.data);
+      final data = response.data;
 
       // 1. Extract the 'results' list
       List<dynamic> resultsList = data['results'];
@@ -35,12 +32,14 @@ Future<void> globalKeys() async {
       Map<String, dynamic> finalOutput = {"result": mappedData};
 
       // 4. Assign values to global variables based on the current environment
-     ApiGlobalKeys.ssl_certificate =
+      ApiGlobalKeys.ssl_certificate =
           finalOutput['result']['ssl_certificate'][AppConfig.flavour];
-      ApiGlobalKeys.otp_client_id = finalOutput['result']['otp_client_id'][AppConfig.flavour];
+      ApiGlobalKeys.otp_client_id =
+          finalOutput['result']['otp_client_id'][AppConfig.flavour];
       ApiGlobalKeys.otp_client_secret =
           finalOutput['result']['otp_client_secret'][AppConfig.flavour];
-      ApiGlobalKeys.public_key = finalOutput['result']['public_key'][AppConfig.flavour];
+      ApiGlobalKeys.public_key =
+          finalOutput['result']['public_key'][AppConfig.flavour];
       ApiGlobalKeys.security_check =
           finalOutput['result']['security_check'][AppConfig.flavour];
       ApiGlobalKeys.openroute_apiKey =

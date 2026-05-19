@@ -152,14 +152,14 @@ class _LeadGenerateState extends State<LeadGenerate> {
     try {
       String url = "/api/leads/companies/?page_size=10";
       final headers = {
-      'Authorization': 'Bearer $token',
-      'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    };
+        'Authorization': 'Bearer $token',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -223,7 +223,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -280,7 +280,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> tenor = data['results'];
 
@@ -332,7 +332,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> docs = data['results'];
 
@@ -382,7 +382,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> citydata = data['results'];
             Map<String, String> fetchedData = {};
@@ -435,7 +435,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> cityData = data['results'];
 
@@ -484,7 +484,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.data);
+          final Map<String, dynamic> data = response.data;
           if (data['barangays'] != null && data['barangays'] is List) {
             List<dynamic> barangays = data['barangays'];
 
@@ -565,7 +565,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
-        final data = json.decode(response.data);
+        final data = response.data;
         String cityUrl = "/api/leads/cities/?search=${data['city_name']}";
         final cityresponse = await ApiService.getWithHeaders(cityUrl, headers);
         if (cityresponse != null) {
@@ -788,10 +788,10 @@ class _LeadGenerateState extends State<LeadGenerate> {
 
     try {
       final headers = {
-      'Authorization': 'Bearer $token',
-      'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    };
+        'Authorization': 'Bearer $token',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
       final response = await ApiService.getWithHeaders(imageUrl, headers);
       if (response != null) {
         if (response.statusCode == 200) {
@@ -828,7 +828,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
       final headers = {
         'Authorization': 'Bearer $token',
         'User-Agent':
-                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final response = await ApiService.getWithHeaders(imageUrl, headers);
       if (response != null) {
@@ -1599,7 +1599,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
           );
           if (response != null) {
             if (response.statusCode == 201) {
-              json.decode(response.data);
+              response.data;
               showDialog(
                 context: context,
                 barrierDismissible:
@@ -1642,9 +1642,9 @@ class _LeadGenerateState extends State<LeadGenerate> {
                 leadSubmit(); // Retry the submission
               }
             } else {
-              // final data = json.decode(response.data);
+              // final data = response.data;
               // Handle API errors
-              final Map<String, dynamic> bodyJson = json.decode(response.data);
+              final Map<String, dynamic> bodyJson = response.data;
               String errorMessage = "";
 
               if (bodyJson.containsKey("company") &&
@@ -1697,7 +1697,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
           );
           if (response != null) {
             if (response.statusCode == 200) {
-              json.decode(response.data);
+              response.data;
               showDialog(
                 context: context,
                 barrierDismissible:
@@ -2312,7 +2312,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
         _imageBytes = imageBytes;
         controller.text = image.path;
       });
-       final tempFile = File(image.path);
+      final tempFile = File(image.path);
       if (await tempFile.exists()) {
         await tempFile.delete(); // ✅ Secure cleanup
       }
