@@ -191,7 +191,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
           String url2 = "/api/users/token-refresh/";
           final response2 = await ApiService.post(url2, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             SharedPreferences prefs = await SharedPreferences.getInstance();
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
