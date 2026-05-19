@@ -119,9 +119,9 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
   }
 
   Future<void> _sendOtp() async {
-     String phone = widget.phoneNumber.toString();
+    String phone = widget.phoneNumber.toString();
     if (phone.length == 12 && phone.startsWith("63")) {
-      phone = phone.substring(2); 
+      phone = phone.substring(2);
     }
     print("phone number $phone");
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -139,38 +139,38 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
       'client_secret': clientSecret,
       'grant_type': 'client_credentials',
     };
-
-    final response = await http.post(
-      Uri.parse('${AppConfig.otpUrl}/oauth2/token'),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: body,
+    final headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+    final response = await ApiService.postWithHeadersUnoApi(
+      '/oauth2/token',
+      headers,
+      body,
     );
-    if (response.statusCode == 200) {
-      final data = json.decode(response.data.body);
+    if (response!.statusCode == 200) {
+      final data = json.decode(response.data);
       final accessToken = data['access_token'];
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      };
       // Step 2: Send SMS using the access token
-      final smsResponse = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-        },
-        body: json.encode({
-          "messages": [
-            {
-              "from": "UnoBank",
-              "destinations": [
-                {"to": "+63${phone}"}
-              ],
-              "text":
-                  """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
-            }
-          ]
-        }),
-      );
-      if (smsResponse.statusCode == 200) {
+      final smsResponse = await ApiService.postWithHeadersUnoApi(
+          '/fnf/api/v2/sms/sendSmsMessage',
+          {
+            "messages": [
+              {
+                "from": "UnoBank",
+                "destinations": [
+                  {"to": "+63${phone}"}
+                ],
+                "text":
+                    """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
+              }
+            ]
+          },
+          headers);
+      if (smsResponse!.statusCode == 200) {
         print('SMS sent successfully!');
         setState(() {
           recivedOtp = otp.toString();
@@ -178,7 +178,7 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
       } else {
         Map<String, dynamic> logmappedData = {
           "url": "${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'",
-          "request_body": json.encode({
+          "request_body": {
             "messages": [
               {
                 "from": "UnoBank",
@@ -189,23 +189,15 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
                     """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
               }
             ]
-          }),
+          },
           "status_code": smsResponse.statusCode,
-          "response_body": json.decode(smsresponse.data.body),
+          "response_body": json.decode(smsResponse.data),
         };
-        final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
-        final headers = {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Authorization": "Bearer $authToken",
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        };
+        final logUrl = "/api/logs/";
         // ignore: unused_local_variable
-        final LogResponse = await http.post(
+        final LogResponse = await ApiService.post(
           logUrl,
-          headers: headers,
-          body: json.encode(logmappedData),
+          logmappedData,
         );
       }
     } else {
@@ -253,8 +245,8 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
                   ? widget.kycDocument
                   : null,
             );
-            print(response?.body);
-            if (response != null && response.statusCode == 201) {
+            print(response!.data);
+            if (response.statusCode == 201) {
               showDialog(
                 context: context,
                 builder: (_) => AlertDialog(
@@ -262,7 +254,6 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
                   content: Text(
                       // "You have successfully registered.\nYou will receive your ID and Password in the registered Email ID."),
                       "Please contact your supervisor or administrator for further approval"),
-
                   actions: [
                     TextButton(
                       onPressed: () {
@@ -283,7 +274,7 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
                 ),
               );
             } else {
-              final body = response?.body;
+              final body = response.data;
               dynamic data;
               try {
                 data = json.decode(body ?? '{}');
