@@ -151,11 +151,13 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
   }
 
   Future<void> _fetchCurrentLocation() async {
+
   setState(() {
     _loadingCurrentLocation = true; // show loader
   });
 
   LocationPermission permission = await Geolocator.checkPermission();
+  print("Location Permission is $permission");
   if (permission == LocationPermission.denied) {
     permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied) {
@@ -567,6 +569,8 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
             : _currentAddress,
         index: index,
       );
+
+      print("Picked Location is $pickedLocation");
 
       if (pickedLocation != null) {
         setState(() {

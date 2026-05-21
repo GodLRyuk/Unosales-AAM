@@ -1,16 +1,15 @@
 {
   "version": "0.2.0",
   "configurations": [
-    
     {
       "name": "Flutter (Dev)",
       "request": "launch",
       "type": "dart",
       "program": "lib/main.dart",
       "args": [
-        "--flavor",
-        "dev",
-        "--dart-define=FLAVOR=dev"
+        "--flavor", "dev",
+        "--dart-define=FLAVOR=dev",
+        "--dart-define=GOOGLE_API_KEY=AIzaSyD6yi309bHrB_0gbBSDzIoMbN4diNXEurM"
       ]
     },
     {
@@ -19,9 +18,9 @@
       "type": "dart",
       "program": "lib/main.dart",
       "args": [
-        "--flavor",
-        "uat",
-        "--dart-define=FLAVOR=uat"
+        "--flavor", "uat",
+        "--dart-define=FLAVOR=uat",
+        "--dart-define=GOOGLE_API_KEY=AIzaSyD6yi309bHrB_0gbBSDzIoMbN4diNXEurM"
       ]
     },
     {
@@ -30,9 +29,9 @@
       "type": "dart",
       "program": "lib/main.dart",
       "args": [
-        "--flavor",
-        "prod",
-        "--dart-define=FLAVOR=prod"
+        "--flavor", "prod",
+        "--dart-define=FLAVOR=prod",
+        "--dart-define=GOOGLE_API_KEY=AIzaSyD6yi309bHrB_0gbBSDzIoMbN4diNXEurM"
       ]
     }
   ]
