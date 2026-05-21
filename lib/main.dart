@@ -28,7 +28,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await AppConfig.initSecurity();
-  
+  await enableSecurityChecks();
+
   AppConfig.certificateChecks = await setupSslKeys();
   if (AppConfig.isScreenshotDisabled) {
     print("Disabling screenshots...");
