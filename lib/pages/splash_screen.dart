@@ -8,10 +8,6 @@ import 'package:unosfa/pages/generalscreens/entrypage.dart';
 import 'package:unosfa/pages/services/secret_key.dart';
 import 'package:unosfa/widgetSupport/widgetstyle.dart';
 
-//final bool ENABLE_SECURITY_CHECKS = false;
-
-// final bool ENABLE_SECURITY_CHECKS = AppConfig.enableSecurityChecks;
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -27,43 +23,57 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<Offset> _salesAnimation;
   late Animation<double> _brandingOpacity;
 
+  // ── Same channel name must match CHANNEL in MainActivity.kt ──
   static const MethodChannel _channel = MethodChannel('com.UnoSales.unosfa');
 
   @override
   void initState() {
     super.initState();
 
-    // Setup animations
-    _controller =
-        AnimationController(duration: const Duration(seconds: 1), vsync: this);
-    _brandingcontroller =
-        AnimationController(duration: const Duration(seconds: 3), vsync: this);
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    );
+    _brandingcontroller = AnimationController(
+      duration: const Duration(seconds: 3),
+      vsync: this,
+    );
 
     _unoAnimation = Tween<Offset>(
       begin: const Offset(0.0, -8.0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
 
     _salesAnimation = Tween<Offset>(
       begin: const Offset(0.0, 8.0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
 
     _brandingOpacity = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(
-        CurvedAnimation(parent: _brandingcontroller, curve: Curves.easeInOut));
+    ).animate(CurvedAnimation(
+      parent: _brandingcontroller,
+      curve: Curves.easeInOut,
+    ));
 
     _controller.forward();
     _brandingcontroller.forward();
 
-    // ✅ Run app logic after first frame to safely use context
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _runAppLogic();
     });
   }
 
+  // ════════════════════════════════════════════════════
+  //  STEP 1 — Check if security is enabled via remote key
+  // ════════════════════════════════════════════════════
   Future<void> _runAppLogic() async {
     final String value = await enableSecurityChecks();
     final bool ENABLE_SECURITY_CHECKS = value == 'true';
@@ -76,43 +86,84 @@ class _SplashScreenState extends State<SplashScreen>
     }
   }
 
+  // ════════════════════════════════════════════════════
+  //  STEP 2 — Call each MethodChannel check from KT file
+  // ════════════════════════════════════════════════════
   Future<void> _runSecurityChecks() async {
     bool isRooted = false;
     bool isEmulator = false;
     bool isDevMode = false;
-    bool isDebug = kDebugMode;
     bool isMultiUser = false;
+    bool isDebug = kDebugMode; // checked in Dart directly
 
     try {
       if (Platform.isAndroid) {
-        isRooted = await _channel.invokeMethod('isRooted');
-        isEmulator = await _channel.invokeMethod('isEmulator');
-        isDevMode = await _channel.invokeMethod('isDevMode');
-        isMultiUser = await _channel.invokeMethod('isMultiUser');
+        // ── These map 1:1 to when() cases in MainActivity.kt ──
+        // Calls isRooted() in KT
+        isRooted = await _channel.invokeMethod<bool>('isRooted') ?? false;
+
+        // Calls isEmulator() in KT
+        isEmulator = await _channel.invokeMethod<bool>('isEmulator') ?? false;
+
+        // Calls isDevMode() in KT
+        isDevMode = await _channel.invokeMethod<bool>('isDevMode') ?? false;
+
+        // Calls isMultiUserEnabled() in KT
+        isMultiUser = await _channel.invokeMethod<bool>('isMultiUser') ?? false;
+
+        debugPrint("🔒 Security Results:");
+        debugPrint("   isRooted    : $isRooted");
+        debugPrint("   isEmulator  : $isEmulator");
+        debugPrint("   isDevMode   : $isDevMode");
+        debugPrint("   isMultiUser : $isMultiUser");
+        debugPrint("   isDebug     : $isDebug");
       }
+    } on PlatformException catch (e) {
+      // PlatformException = KT threw an error
+      debugPrint("❌ PlatformException in security check: ${e.message}");
+    } on MissingPluginException catch (e) {
+      // MissingPluginException = channel name mismatch
+      debugPrint("❌ MethodChannel not found: ${e.message}");
+      debugPrint("   Check CHANNEL name matches in MainActivity.kt");
     } catch (e) {
-      debugPrint("Security check error: $e");
+      debugPrint("❌ Security check error: $e");
     }
 
     if (!mounted) return;
 
-    if (isRooted || isDevMode || isDebug || isEmulator || isMultiUser) {
-      _showSecurityAlert(isRooted, isDevMode, isDebug, isEmulator, isMultiUser);
+    // ── If ANY check fails → show alert, else navigate ──
+    if (isRooted || isEmulator || isDevMode || isDebug || isMultiUser) {
+      _showSecurityAlert(
+        isRooted,
+        isDevMode,
+        isDebug,
+        isEmulator,
+        isMultiUser,
+      );
     } else {
       _navigateBasedOnLogin();
     }
   }
 
-  void _navigateBasedOnLogin() async {
+  // ════════════════════════════════════════════════════
+  //  STEP 3 — Navigate based on login state
+  // ════════════════════════════════════════════════════
+  Future<void> _navigateBasedOnLogin() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(MaterialPageRoute(
-      builder: (_) => isLoggedIn ? NavigationPage() : const EntryPage(),
-    ));
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => isLoggedIn ? NavigationPage() : const EntryPage(),
+      ),
+    );
   }
 
+  // ════════════════════════════════════════════════════
+  //  STEP 4 — Show security alert
+  // ════════════════════════════════════════════════════
   void _showSecurityAlert(
     bool rooted,
     bool devMode,
@@ -121,7 +172,7 @@ class _SplashScreenState extends State<SplashScreen>
     bool multiUser,
   ) {
     String issues = "";
-    if (rooted) issues += "• Rooted/Jailbroken\n";
+    if (rooted) issues += "• Rooted / Jailbroken device\n";
     if (devMode) issues += "• Developer Mode Enabled\n";
     if (debug) issues += "• App running in Debug mode\n";
     if (emulator) issues += "• Running on Emulator\n";
@@ -129,17 +180,17 @@ class _SplashScreenState extends State<SplashScreen>
 
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: false, 
       builder: (_) => WillPopScope(
-        onWillPop: () async => false,
+        onWillPop: () async => false, 
         child: AlertDialog(
           title: const Text("Security Alert"),
-          content: Text("Your device is not secure:\n\n$issues"),
+          content: Text(
+            "This app cannot run on your device:\n\n$issues",
+          ),
           actions: [
             TextButton(
-              onPressed: () {
-                SystemNavigator.pop();
-              },
+              onPressed: () => SystemNavigator.pop(),
               child: const Text("Exit"),
             ),
           ],
@@ -154,7 +205,6 @@ class _SplashScreenState extends State<SplashScreen>
     _brandingcontroller.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
