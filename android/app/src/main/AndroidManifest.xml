@@ -25,11 +25,6 @@
         android:allowBackup="false"
         android:fullBackupContent="false">
 
-        <!-- Google Maps API Key -->
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyA3Lmt_n8XGGQIVV9H9F32jNJJVc5CrM4M"/>
-
         <!-- ══ DISABLE Firebase auto-init — MUST be inside <application> not <activity> ══ -->
         <provider
             android:name="com.google.firebase.provider.FirebaseInitProvider"
