@@ -216,7 +216,7 @@ class _FsadashboardState extends State<Fsadashboard> {
               );
 
               if (checkInResponse != null) {
-                final data = json.decode(checkInResponse.data.body);
+                final data = checkInResponse.data;
 
                 if (data['data'] != null) {
                   final isCheckedIn = data['data']['is_checked_in'] ?? false;

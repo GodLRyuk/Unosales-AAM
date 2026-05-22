@@ -770,13 +770,13 @@ class _LosStatusChartState extends State<LosStatusChart>
       };
       final response =
           await ApiService.postJsonWithUNOApiHeaders(offerUrl, body, headers);
-      final data = json.decode(response!.data);
+      final data = response!.data;
       String offerStatus = data[0]['offerStatus'];
       String aamUrl = "/api/leads/los-details/?los_status__applicationNo=$cwId";
       final aamheader = {'Authorization': 'Bearer $token'};
 
       final res = await ApiService.getWithHeaders(aamUrl, aamheader);
-      final datares = json.decode(res!.data);
+      final datares = res!.data;
       final resresult = datares['results'][0]['los_status'];
 
       final applicationStatus = resresult['applicationStatus'];
