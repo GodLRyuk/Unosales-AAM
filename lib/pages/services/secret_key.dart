@@ -30,7 +30,7 @@ Future<void> globalKeys() async {
 
       // 3. Wrap the transformed data in the final "result"
       Map<String, dynamic> finalOutput = {"result": mappedData};
-
+     
       // 4. Assign values to global variables based on the current environment
       ApiGlobalKeys.ssl_certificate =
           finalOutput['result']['ssl_certificate'][AppConfig.flavour];
@@ -179,6 +179,7 @@ Future<String> getPublicKey() async {
   //   throw Exception("Public key not found in Remote Config");
   // }
   String publicKey = ApiGlobalKeys.public_key;
+  print("Public Key is this $publicKey");
   return publicKey;
 }
 

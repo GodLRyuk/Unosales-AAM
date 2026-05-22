@@ -254,11 +254,13 @@ class _LoginOtpState extends State<LoginOtp> {
                     await ApiService.getWithHeaders(checkInUserUrl, headers);
 
                 if (checkInUserResponse != null) {
-                  final data2 = response.data;
+                  final data2 = checkInUserResponse.data;
                   if (data2['data'] is List && data2['data'].isNotEmpty) {
                     final firstItem = data2['data'][0];
                     checkIndata =
                         firstItem['is_checked_in']; // this will be a bool
+                      
+                    //print("check in data is $checkIndata");
                     await prefs.setBool('checkInStatus', checkIndata);
                   }
                 }

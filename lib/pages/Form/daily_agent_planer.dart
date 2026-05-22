@@ -114,8 +114,8 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
     try {
       if (response != null) {
-        final data = json.decode(response.data);
-        final locationData = data['assigned_locations'];
+        final data = response.data;
+        final locationData = data['assigned_locations'];      
 
         plannedMeeting.text = data['meetings_planned']?.toString() ?? "";
         targetAplication.text = data['application_target']?.toString() ?? "";
@@ -1047,7 +1047,7 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
     final response = await ApiService.postJsonWithHeaders(url, mappedData, headers);
 
     if (response != null && response.statusCode == 201) {
-      final data = json.decode(response.data);
+      final data = response.data;
       setState(() {
         daily_activity = data['id'].toString();
       });
@@ -1136,7 +1136,7 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
     }
     else
     {
-      final data = json.decode(response!.data);
+      final data = response!.data;
       showDialog(
       context: context,
       builder: (_) => AlertDialog(

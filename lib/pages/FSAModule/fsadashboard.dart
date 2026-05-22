@@ -95,6 +95,7 @@ class _FsadashboardState extends State<Fsadashboard> {
   Future<void> _initPreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? checkInStatus = prefs.getBool('checkInStatus'); // ✅ use getBool
+    //print("Check in Status is $checkInStatus");
     if (checkInStatus != true) {
       _showCheckInOverlay();
     } else {
@@ -216,7 +217,8 @@ class _FsadashboardState extends State<Fsadashboard> {
               );
 
               if (checkInResponse != null) {
-                final data = json.decode(checkInResponse.data.body);
+                // final data = json.decode(checkInResponse.data);
+                final data = checkInResponse.data;
 
                 if (data['data'] != null) {
                   final isCheckedIn = data['data']['is_checked_in'] ?? false;

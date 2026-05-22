@@ -64,7 +64,8 @@ class _DailyActivityViewPageState extends State<DailyActivityViewPage> {
 
   try {
     if (response != null && response.statusCode == 200) {
-      final data = json.decode(response.data);
+      final data = response.data;
+      print("data is this $data");
       if (data != null && data.isNotEmpty) {
         final List<dynamic> locations = data['assigned_locations'] ?? [];
 

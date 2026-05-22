@@ -85,6 +85,13 @@ class TokenInterceptor extends Interceptor {
       return handler.next(options);
     }
 
+     // Added by papri
+     if (options.headers.containsKey('Authorization')) {
+      print("🔑 Authorization already set, skipping TokenInterceptor");
+      return handler.next(options);
+    }
+    // Done
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
     if (token != null && token.isNotEmpty) {

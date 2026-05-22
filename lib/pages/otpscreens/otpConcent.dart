@@ -454,7 +454,7 @@ class OtpconcentState extends State<Otpconcent> {
     if (userInfo![0] == null || userInfo![0].isEmpty) {
       throw Exception("Agent code not found in SharedPreferences");
     }
-
+   
     // Parse RSA Public Key
     String publicKeyP1 = await getPublicKey();
 
@@ -487,21 +487,22 @@ class OtpconcentState extends State<Otpconcent> {
     try {
       final payload = await buildPayload();
 
+      String token = "";
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('accessToken');
+      String? accessToken = prefs.getString('accessToken');
 
       try {
         String tokenUrl = "/api/leads/los-access-token/";
         final headers = {
-          'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $accessToken',
           'Content-Type': 'application/json',
-          //'User-Agent':
-          //   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.data);
+          final data = Tokenresponse.data;
           token = data['access_token'];
         }
       } catch (e) {
@@ -523,7 +524,7 @@ class OtpconcentState extends State<Otpconcent> {
         headers: headers,
         body: jsonEncode(payload),
       );
-
+       print("response of sso login is $response");
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final sostoken = data["token"];
@@ -565,7 +566,7 @@ class OtpconcentState extends State<Otpconcent> {
         final aamheader = {'Authorization': 'Bearer $token'};
 
         final response = await ApiService.getWithHeaders(aamUrl, aamheader);
-        final data = json.decode(response!.data);
+        final data = response!.data;
         final result2 = data['results'][0]['los_status'];
         final offerStatus = result2['offerStatus'];
         final applicationStatus = result2['applicationStatus'];
@@ -688,7 +689,7 @@ class OtpconcentState extends State<Otpconcent> {
       final tokenResponse = await ApiService.getWithHeaders(tokenUrl, headers);
 
       if (tokenResponse != null) {
-        final data = json.decode(tokenResponse.data);
+        final data = tokenResponse.data;
         token = data['access_token'];
       }
     } catch (e) {
@@ -1745,7 +1746,7 @@ class OtpconcentState extends State<Otpconcent> {
             label: Container(
                 padding: EdgeInsets.only(left: 20),
                 child: Text(
-                  widget.phoneNumber,
+                  "+63${widget.phoneNumber}",
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
                 )),
             hintStyle: TextStyle(color: Colors.grey),

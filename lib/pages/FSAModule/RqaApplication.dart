@@ -88,6 +88,7 @@ class _RQAApplicationState extends State<RQAApplication> {
 
       final tokenData = json.decode(tokenResponse.body);
       tokens = tokenData['access_token'];
+     
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
@@ -622,13 +623,14 @@ class _RQAApplicationState extends State<RQAApplication> {
       final headers = {
         'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
-        // 'User-Agent':
-        //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.data);
+        final data = Tokenresponse.data;
         token = data['access_token'];
+        print("token is $token");
       }
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -638,9 +640,9 @@ class _RQAApplicationState extends State<RQAApplication> {
         '/engine/v1/executions/loans-interface/1.x/rqa-check/rqa_check/RQA_Check';
     final headers = {
       'Authorization': 'Bearer $token',
-      // 'User-Agent':
-      //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      'Content-Type': 'application/json'
+      'User-Agent':
+          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      // 'Content-Type': 'application/json'
     };
 
     Map<String, dynamic> formData = {
@@ -667,9 +669,11 @@ class _RQAApplicationState extends State<RQAApplication> {
     try {
       final response =
           await ApiService.postJsonWithUNOApiHeaders(rqaUrl, formData, headers);
+       
+       print("response of RQA is $response");
 
       if (response != null && response.statusCode == 200) {
-        final data = jsonDecode(response.data);
+        final data = response.data;
         print("response body $data");
 
         String? status = data['output']['response']['status'];
@@ -789,7 +793,8 @@ class _RQAApplicationState extends State<RQAApplication> {
                 ],
               ),
               content: Text(
-                "Failed to connect with server.\nStatus Code: ${response!.statusCode}",
+                // "Failed to connect with server.\nStatus Code: ${response!.statusCode}",
+                "Failed to connect with server.\nStatus Code: ${response?.statusCode ?? 'Unknown'}",
                 style: const TextStyle(fontSize: 16),
               ),
               actionsPadding: const EdgeInsets.only(bottom: 10, right: 10),
