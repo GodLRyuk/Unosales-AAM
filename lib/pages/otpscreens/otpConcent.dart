@@ -99,6 +99,7 @@ class OtpconcentState extends State<Otpconcent> {
     callSosLogoin();
   }
 
+// No need to change as this is for public ip
   Future<void> getPublicIP() async {
     final response =
         await http.get(Uri.parse('https://api64.ipify.org?format=json'));
@@ -454,7 +455,7 @@ class OtpconcentState extends State<Otpconcent> {
     if (userInfo![0] == null || userInfo![0].isEmpty) {
       throw Exception("Agent code not found in SharedPreferences");
     }
-   
+
     // Parse RSA Public Key
     String publicKeyP1 = await getPublicKey();
 
@@ -497,7 +498,7 @@ class OtpconcentState extends State<Otpconcent> {
           'Authorization': 'Bearer $accessToken',
           'Content-Type': 'application/json',
           'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
@@ -510,23 +511,25 @@ class OtpconcentState extends State<Otpconcent> {
       }
 
       // Done
-      final url = Uri.parse("${AppConfig.otpUrl}/auth/sso-login");
+      // final url = Uri.parse("${AppConfig.otpUrl}/auth/sso-login");
       final headers = {
         "Authorization": 'Bearer $token',
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "User-Agent":
-            "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
       };
+      final url = "/auth/sso-login";
 
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(payload),
-      );
-       print("response of sso login is $response");
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      // final response = await http.post(
+      //   url,
+      //   headers: headers,
+      //   body: jsonEncode(payload),
+      // );
+
+      final response =
+          await ApiService.postWithHeadersUnoApi(url, payload, headers);
+
+      if (response != null && response.statusCode == 200) {
+        final data = response.data;
         final sostoken = data["token"];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -534,7 +537,7 @@ class OtpconcentState extends State<Otpconcent> {
 
         //return sostoken;
       } else {
-        print("Error happened here → Status: ${response.statusCode}");
+        print("Error happened here → Status: ${response!.statusCode}");
         // return null;
       }
     } catch (e) {
@@ -775,23 +778,33 @@ class OtpconcentState extends State<Otpconcent> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
-      final Tokenresponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
-      final data = json.decode(Tokenresponse.body);
-      tokens = data['access_token'];
+      // final Tokenresponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+      // final data = json.decode(Tokenresponse.body);
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
+      tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
 
-    final url = Uri.parse("${AppConfig.otpUrl}/pre-uw/save-payload");
+    // final url = Uri.parse("${AppConfig.otpUrl}/pre-uw/save-payload");
+    final url = "/pre-uw/save-payload";
     final cookies = await cookie();
 
     final headers = {
@@ -815,17 +828,22 @@ class OtpconcentState extends State<Otpconcent> {
     }
 
     try {
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: json.encode(requestData),
-      );
+      // final response = await http.post(
+      //   url,
+      //   headers: headers,
+      //   body: json.encode(requestData),
+      // );
+      final response =
+          await ApiService.postWithHeadersUnoApi(url, requestData, headers);
 
-      if (response.statusCode == 200) {
+      if (response != null && response.statusCode == 200) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? token = prefs.getString('accessToken');
-        final LosStatusUrl = Uri.parse(
-            '${AppConfig.dynamicBaseUrl}/api/campaigns/${widget.campaign}/leads/${widget.leadId}/');
+        // final LosStatusUrl = Uri.parse(
+        //     '${AppConfig.dynamicBaseUrl}/api/campaigns/${widget.campaign}/leads/${widget.leadId}/');
+
+        final LosStatusUrl =
+            '/api/campaigns/${widget.campaign}/leads/${widget.leadId}/';
 
         final headers2 = {
           "Content-Type": "application/json",
@@ -841,14 +859,19 @@ class OtpconcentState extends State<Otpconcent> {
         };
 
         if (widget.campaign.isNotEmpty) {
-          final responseLOS = await http.patch(
+          // final responseLOS = await http.patch(
+          //   LosStatusUrl,
+          //   headers: headers2,
+          //   body: json.encode(mappedLOsData),
+          // );
+          final responseLOS = await ApiService.patchWithHeaders(
             LosStatusUrl,
-            headers: headers2,
-            body: json.encode(mappedLOsData),
+            headers2,
+            mappedLOsData,
           );
         }
 
-        final LoSResponcedata = json.decode(response.body);
+        final LoSResponcedata = response.data;
         Map<String, dynamic> mappedData = {
           "mobileNo": "",
           "agentCode": "",
@@ -857,8 +880,11 @@ class OtpconcentState extends State<Otpconcent> {
           "source": ""
         };
 
-        final fetchStatusUrl =
-            Uri.parse("${AppConfig.otpUrl}/api/app/fetch/application/status");
+        // final fetchStatusUrl =
+        //     Uri.parse("${AppConfig.otpUrl}/api/app/fetch/application/status");
+
+        final fetchStatusUrl = "/api/app/fetch/application/status";
+
         final fetchStatusHeaders = {
           'Content-Type': 'application/json',
           "Idempotency-Key": "jbkjdbjkjk",
@@ -880,8 +906,11 @@ class OtpconcentState extends State<Otpconcent> {
 
           Navigator.of(context).pop(); // close loader
 
-          final LosbackendStatusUrl =
-              Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-details/');
+          // final LosbackendStatusUrl =
+          //     Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-details/');
+
+          final LosbackendStatusUrl = '/api/leads/los-details/';
+
           final headers3 = {
             "Content-Type": "application/json",
             "Accept": "application/json",
@@ -906,10 +935,16 @@ class OtpconcentState extends State<Otpconcent> {
               ..["workflow_status"] = "submit";
           }
 
-          final backendresponseLOS = await http.post(
+          // final backendresponseLOS = await http.post(
+          //   LosbackendStatusUrl,
+          //   headers: headers3,
+          //   body: json.encode(finalRequestData),
+          // );
+
+          final backendresponseLOS = await ApiService.postJsonWithHeaders(
             LosbackendStatusUrl,
-            headers: headers3,
-            body: json.encode(finalRequestData),
+            headers3,
+            finalRequestData,
           );
 
           //  print("LosbackendStatusUrl is $LosbackendStatusUrl");
@@ -922,8 +957,9 @@ class OtpconcentState extends State<Otpconcent> {
 
           String losId = "";
 
-          if (backendresponseLOS.statusCode == 201) {
-            final data = json.decode(backendresponseLOS.body);
+          if (backendresponseLOS != null &&
+              backendresponseLOS.statusCode == 201) {
+            final data = backendresponseLOS.data;
             losId = data['id'].toString();
 
             String ul = "/api/leads/los-details/${data['id']}/";
@@ -965,11 +1001,12 @@ class OtpconcentState extends State<Otpconcent> {
         Map<String, dynamic> logmappedData = {
           "url": "${AppConfig.otpUrl}/partner/loans/check",
           "request_body": requestData,
-          "status_code": response.statusCode,
-          "response_body": json.decode(response.body),
+          "status_code": response!.statusCode,
+          "response_body": response.data
         };
-        final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+        // final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
 
+        final logUrl = "/api/logs/";
         final headers = {
           "Content-Type": "application/json",
           "Accept": "application/json",
@@ -977,13 +1014,19 @@ class OtpconcentState extends State<Otpconcent> {
           'User-Agent':
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
-        final LogResponse = await http.post(
+        // final LogResponse = await http.post(
+        //   logUrl,
+        //   headers: headers,
+        //   body: json.encode(logmappedData),
+        // );
+
+        final LogResponse = await ApiService.postJsonWithHeaders(
           logUrl,
-          headers: headers,
-          body: json.encode(logmappedData),
+          logmappedData,
+          headers,
         );
-        if (LogResponse.statusCode == 201) {}
-        final data = json.decode(response.body);
+        if (LogResponse != null && LogResponse.statusCode == 201) {}
+        final data = LogResponse?.data;
         String message = data['message'] ?? "Validation Error";
         Map<String, dynamic> errors = data['errors'] ?? {};
         String errorMessages =
@@ -1043,16 +1086,26 @@ class OtpconcentState extends State<Otpconcent> {
     String tokens = "";
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
-    final Tokenresponse = await http.get(
-      Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      },
-    );
-    final data = json.decode(Tokenresponse.body);
-    tokens = data['access_token'];
+    // final Tokenresponse = await http.get(
+    //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+    //   headers: {
+    //     'Authorization': 'Bearer $token',
+    //     'User-Agent':
+    //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+    //   },
+    // );
+    // final data = json.decode(Tokenresponse.body);
+
+    final url = '/api/leads/los-access-token/';
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
+      'Content-Type': 'multipart/form-data',
+    };
+    final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+    final tokenData = tokenResponse!.data;
+    tokens = tokenData['access_token'];
     // String applicationN =application['applicationNo'];
     showDialog(
       barrierDismissible: false, // Prevent closing
@@ -1067,26 +1120,45 @@ class OtpconcentState extends State<Otpconcent> {
                 retryCount++;
 
                 // Refresh status via API
-                final refreshedResponse = await http.post(
-                  Uri.parse(
-                      '${AppConfig.dynamicBaseUrl}/api/app/fetch/application/status'),
-                  headers: {
-                    'Content-Type': 'application/json',
-                    "Idempotency-Key": "jbkjdbjkjk",
-                    "Authorization": "Bearer $tokens",
-                    'User-Agent':
-                        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-                  },
-                  body: json.encode({
+                // final refreshedResponse = await http.post(
+                //   Uri.parse(
+                //       '${AppConfig.dynamicBaseUrl}/api/app/fetch/application/status'),
+                //   headers: {
+                //     'Content-Type': 'application/json',
+                //     "Idempotency-Key": "jbkjdbjkjk",
+                //     "Authorization": "Bearer $tokens",
+                //     'User-Agent':
+                //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+                //   },
+                //   body: json.encode({
+                //     "mobileNo": "",
+                //     "agentCode": "",
+                //     "applicationNo": "${application['applicationNo']}",
+                //     "channel": "",
+                //     "source": ""
+                //   }),
+                // );
+                final url = '/api/app/fetch/application/status';
+                final headers = {
+                  'Content-Type': 'application/json',
+                  "Idempotency-Key": "jbkjdbjkjk",
+                  "Authorization": "Bearer $tokens",
+                };
+                final refreshedResponse = await ApiService.postJsonWithHeaders(
+                  url,
+                  {
                     "mobileNo": "",
                     "agentCode": "",
                     "applicationNo": "${application['applicationNo']}",
                     "channel": "",
                     "source": ""
-                  }),
+                  },
+                  headers,
                 );
-                if (refreshedResponse.statusCode == 200) {
-                  final refreshedData = json.decode(refreshedResponse.body);
+
+                if (refreshedResponse != null &&
+                    refreshedResponse.statusCode == 200) {
+                  final refreshedData = refreshedResponse.data;
                   if (refreshedData['result'] != null &&
                       refreshedData['result'].isNotEmpty) {
                     application = refreshedData['result'][0];
@@ -1248,42 +1320,75 @@ class OtpconcentState extends State<Otpconcent> {
       'grant_type': 'client_credentials',
     };
 
-    final response = await http.post(
-      Uri.parse('${AppConfig.otpUrl}/oauth2/token'),
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36'
-      },
-      body: body,
+    // final response = await http.post(
+    //   Uri.parse('${AppConfig.otpUrl}/oauth2/token'),
+    //   headers: {
+    //     'Content-Type': 'application/x-www-form-urlencoded',
+    //     'User-Agent':
+    //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36'
+    //   },
+    //   body: body,
+    // );
+    final headers = {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    };
+
+    final response = await ApiService.postFormUrlEncodedUnoApi(
+      '/oauth2/token',
+      body,
+      headers: headers,
     );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+    if (response != null && response.statusCode == 200) {
+      final data = response.data;
       final accessToken = data['access_token'];
+
       // Step 2: Send SMS using the access token
-      final smsResponse = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: json.encode({
-          "messages": [
-            {
-              "from": "UnoBank",
-              "destinations": [
-                {"to": "+63${phone}"}
-              ],
-              "text":
-                  """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
-            }
-          ]
-        }),
-      );
-      if (smsResponse.statusCode == 200) {
+      // final smsResponse = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'),
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': 'Bearer $accessToken',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: json.encode({
+      //     "messages": [
+      //       {
+      //         "from": "UnoBank",
+      //         "destinations": [
+      //           {"to": "+63${phone}"}
+      //         ],
+      //         "text":
+      //             """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
+      //       }
+      //     ]
+      //   }),
+      // );
+
+      final endpoint = '/fnf/api/v2/sms/sendSmsMessage';
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      };
+
+      final body = {
+        'messages': [
+          {
+            'from': 'UnoBank',
+            'destinations': [
+              {'to': "63${phone}"}
+            ],
+            'text':
+                'Your One-Time PIN is $otp. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us.'
+          }
+        ]
+      };
+      final smsResponse =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers);
+
+      if (smsResponse != null && smsResponse.statusCode == 200) {
         print('SMS sent successfully!');
         setState(() {
           recivedOtp = otp.toString();
@@ -1305,26 +1410,39 @@ class OtpconcentState extends State<Otpconcent> {
               }
             ]
           }),
-          "status_code": smsResponse.statusCode,
-          "response_body": json.decode(smsResponse.body),
+          "status_code": smsResponse!.statusCode,
+          "response_body": smsResponse.data,
         };
-        final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
-        final headers = {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Authorization": "Bearer $authToken",
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+
+        // final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+        // final headers = {
+        //   "Content-Type": "application/json",
+        //   "Accept": "application/json",
+        //   "Authorization": "Bearer $authToken",
+        //   'User-Agent':
+        //       'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        // };
+        // // ignore: unused_local_variable
+        // final LogResponse = await http.post(
+        //   logUrl,
+        //   headers: headers,
+        //   body: json.encode(logmappedData),
+        // );
+
+        final logEndpoint = '/api/logs/';
+        final logHeaders = {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $authToken',
         };
-        // ignore: unused_local_variable
-        final LogResponse = await http.post(
-          logUrl,
-          headers: headers,
-          body: json.encode(logmappedData),
+        await ApiService.postJsonWithHeaders(
+          logEndpoint,
+          logmappedData,
+          logHeaders,
         );
       }
     } else {
-      print('Failed to fetch token. Status: ${response.statusCode}');
+      print('Failed to fetch token. Status: ${response!.statusCode}');
     }
   }
 

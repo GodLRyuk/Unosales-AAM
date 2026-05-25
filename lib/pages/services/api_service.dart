@@ -351,6 +351,27 @@ class ApiService {
     }
   }
 
+// ── POST form-urlencoded with UNO API ─────────────────────────────────────────
+  static Future<Response?> postFormUrlEncodedUnoApi(
+  String endpoint,
+  Map<String, dynamic> body, {
+  Map<String, String>? headers,
+}) async {
+  try {
+    return await DioClient.otp.post(
+      endpoint,
+      data: body,
+      options: Options(
+        contentType: 'application/x-www-form-urlencoded',
+        headers: headers,
+      ),
+    );
+  } on DioException catch (e) {
+    _handleError(e);
+    return null;
+  }
+}
+
   // ── POST with OTP/UNO API (with headers) ────────────────────────────────────
 
   static Future<Response?> postWithHeadersUnoApi(

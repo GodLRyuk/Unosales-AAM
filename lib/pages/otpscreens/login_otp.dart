@@ -124,41 +124,76 @@ class _LoginOtpState extends State<LoginOtp> {
       'grant_type': 'client_credentials',
     };
 
-    final response = await http.post(
-      Uri.parse('${AppConfig.otpUrl}/oauth2/token'),
+    // final response = await http.post(
+    //   Uri.parse('${AppConfig.otpUrl}/oauth2/token'),
+    //   headers: {
+    //     'Content-Type': 'application/x-www-form-urlencoded',
+    //     'User-Agent':
+    //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
+    //   },
+    //   body: body,
+    // );
+
+     final response = await ApiService.postFormUrlEncodedUnoApi(
+      '/oauth2/token',
+      body,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
       },
-      body: body,
     );
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+
+    if (response != null && response.statusCode == 200) {
+      final data = response.data;
       final accessToken = data['access_token'];
+
+
       // Step 2: Send SMS using the access token
-      final smsResponse = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
-        },
-        body: json.encode({
-          "messages": [
-            {
-              "from": "UnoBank",
-              "destinations": [
-                {"to": "+63${phone}"}
-              ],
-              "text":
-                  """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
-            }
-          ]
-        }),
-      );
-      if (smsResponse.statusCode == 200) {
+      // final smsResponse = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'),
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': 'Bearer $accessToken',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
+      //   },
+      //   body: json.encode({
+      //     "messages": [
+      //       {
+      //         "from": "UnoBank",
+      //         "destinations": [
+      //           {"to": "+63${phone}"}
+      //         ],
+      //         "text":
+      //             """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
+      //       }
+      //     ]
+      //   }),
+      // );
+
+
+         final endpoint = '/fnf/api/v2/sms/sendSmsMessage';
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      };
+
+      final body = {
+        'messages': [
+          {
+            'from': 'UnoBank',
+            'destinations': [
+              {'to': "63${widget.phone_number}"}
+            ],
+            'text':
+                'Your One-Time PIN is $otp. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us.'
+          }
+        ]
+      };
+      final smsResponse =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers);
+
+      if (smsResponse != null && smsResponse.statusCode == 200) {
         print('SMS sent successfully!');
         setState(() {
           recivedOtp = otp.toString();
@@ -178,10 +213,11 @@ class _LoginOtpState extends State<LoginOtp> {
               }
             ]
           }),
-          "status_code": smsResponse.statusCode,
-          "response_body": json.decode(response.body),
+          "status_code": smsResponse!.statusCode,
+          "response_body": smsResponse.data,
         };
-        final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+        
+        // final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
         final headers = {
           "Content-Type": "application/json",
           "Accept": "application/json",
@@ -189,18 +225,25 @@ class _LoginOtpState extends State<LoginOtp> {
           'User-Agent':
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
+
         // ignore: unused_local_variable
-        final LogResponse = await http.post(
-          logUrl,
-          headers: headers,
-          body: json.encode(logmappedData),
-        );
+        // final LogResponse = await http.post(
+        //   logUrl,
+        //   headers: headers,
+        //   body: json.encode(logmappedData),
+        // );
+
+          final LogResponse = await ApiService.postJsonWithHeaders(
+            '/api/logs/',
+            logmappedData,
+            headers,
+          );
         print('Failed to send SMS. Status: ${smsResponse.statusCode}');
-        print('Response: ${response.body}');
+        print('Response: ${LogResponse!.data}');
       }
     } else {
-      print('Failed to fetch token. Status: ${response.statusCode}');
-      print('Response: ${response.body}');
+      print('Failed to fetch token. Status: ${response!.statusCode}');
+      print('Response: ${response.data}');
     }
   }
 // Function to check location access
