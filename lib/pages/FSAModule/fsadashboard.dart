@@ -143,7 +143,8 @@ class _FsadashboardState extends State<Fsadashboard> {
     if (permission == LocationPermission.deniedForever) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text("Enable location permission from settings")),
+          content: Text("Enable location permission from settings"),
+        ),
       );
       return;
     }
@@ -159,13 +160,14 @@ class _FsadashboardState extends State<Fsadashboard> {
     // Reverse geocode safely (with timeout + try/catch)
     String address = "";
     try {
-      final placemarks = await placemarkFromCoordinates(
-        _latitude!,
-        _longitude!,
-      ).timeout(const Duration(seconds: 5), onTimeout: () {
-        debugPrint("Geocoding timeout — returning empty address");
-        return <Placemark>[]; // fallback empty list
-      });
+      final placemarks = await placemarkFromCoordinates(_latitude!, _longitude!)
+          .timeout(
+            const Duration(seconds: 5),
+            onTimeout: () {
+              debugPrint("Geocoding timeout — returning empty address");
+              return <Placemark>[]; // fallback empty list
+            },
+          );
 
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
@@ -217,7 +219,6 @@ class _FsadashboardState extends State<Fsadashboard> {
               );
 
               if (checkInResponse != null) {
-                // final data = json.decode(checkInResponse.data);
                 final data = checkInResponse.data;
 
                 if (data['data'] != null) {
@@ -419,8 +420,11 @@ class _FsadashboardState extends State<Fsadashboard> {
               'User-Agent':
                   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
             };
-            final response2 =
-                await ApiService.postJsonWithHeaders(url2, mappedData, headers);
+            final response2 = await ApiService.postJsonWithHeaders(
+              url2,
+              mappedData,
+              headers,
+            );
             if (response2 != null) {
               if (response2.statusCode == 200) {
                 final data = response2.data;
@@ -460,9 +464,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                     constraints: BoxConstraints(
                       minHeight: MediaQuery.of(context).size.height * 0.94,
                     ),
-                    child: IntrinsicHeight(
-                      child: _buildColumn(),
-                    ),
+                    child: IntrinsicHeight(child: _buildColumn()),
                   ),
                 ),
               ),
@@ -494,131 +496,120 @@ class _FsadashboardState extends State<Fsadashboard> {
   }
 
   Widget _buildColumn() => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildTopContainer(),
-          SizedBox(
-            height: MediaQuery.of(context).size.width > 600
-                ? MediaQuery.of(context).size.height * 0.03
-                : MediaQuery.of(context).size.height * 0.02,
-          ),
-          _buildMidContainerWithButton(),
-          if (role != "Supervisor") ...[
-            _smallBoxLeadDetailsContainer(),
-            _smallBoxSecondContainer(),
-            _smallBoxThirdContainer(),
-          ],
-          if (role != "Supervisor")
-            _smallBoxFourthContainer()
-          else
-            _smallBoxFifthContainer(),
-          SizedBox(
-            height: MediaQuery.of(context).size.width > 600
-                ? MediaQuery.of(context).size.height * 0.03
-                : MediaQuery.of(context).size.height * 0.03,
-          ),
-          _perfomanceContainer(),
-        ],
-      );
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      _buildTopContainer(),
+      SizedBox(
+        height: MediaQuery.of(context).size.width > 600
+            ? MediaQuery.of(context).size.height * 0.03
+            : MediaQuery.of(context).size.height * 0.02,
+      ),
+      _buildMidContainerWithButton(),
+      if (role != "Supervisor") ...[
+        _smallBoxLeadDetailsContainer(),
+        _smallBoxSecondContainer(),
+        _smallBoxThirdContainer(),
+      ],
+      if (role != "Supervisor")
+        _smallBoxFourthContainer()
+      else
+        _smallBoxFifthContainer(),
+      SizedBox(
+        height: MediaQuery.of(context).size.width > 600
+            ? MediaQuery.of(context).size.height * 0.03
+            : MediaQuery.of(context).size.height * 0.03,
+      ),
+      _perfomanceContainer(),
+    ],
+  );
 
   Widget _buildTopContainer() => Flexible(
-        flex: 1,
-        child: SingleChildScrollView(
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: Column(
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.01,
-                ),
-                Image.asset(
-                  "images/logo.PNG",
-                  // width: MediaQuery.of(context).size.width > 600 ? 400 : 200,
-                  height: MediaQuery.of(context).size.width > 600 ? 70 : 40,
-                ),
-                SizedBox(
-                    height: MediaQuery.of(context).size.width > 600 ? 10 : 0),
-                Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: Text(
-                    '${capitalize(userInfo?[1] ?? 'No First Name')} ${capitalize(userInfo?[2] ?? 'No Last Name')} (${userInfo?[0] != null ? '${userInfo![0]}' : 'Guest ID'}) (${role})',
-                    style: TextStyle(
-                      fontSize:
-                          MediaQuery.of(context).size.width > 600 ? 20 : 17,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                    height: MediaQuery.of(context).size.width > 600 ? 30 : 0),
-                Padding(
-                  padding: const EdgeInsets.only(left: 15, right: 15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // TextField for phone number filter
-                      TextField(
-                        controller: _searchFilter,
-                        key: SearchFilterKey,
-                        decoration: InputDecoration(
-                          labelText:
-                              'Search By Name / Phone No / Application Id',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(0),
-                            borderSide: const BorderSide(
-                              color: Colors.grey,
-                              width: 1.0,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(0),
-                            borderSide: const BorderSide(
-                              color: Colors.grey,
-                              width: 1.0,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(0),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFac00d0),
-                              width: 1.0,
-                            ),
-                          ),
-                          suffixIcon: Container(
-                            color: const Color(0xFFac00d0),
-                            child: IconButton(
-                              onPressed: () {
-                                // ✅ Fixed Syntax
-                                final String searchData = _searchFilter.text;
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        LosStatusChart(searchQuery: searchData),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.search,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                        style: const TextStyle(height: 1),
-                        // onChanged: _filterLeads, // Uncomment if needed
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    flex: 1,
+    child: SingleChildScrollView(
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Column(
+          children: [
+            SizedBox(height: MediaQuery.of(context).size.height * 0.01),
+            Image.asset(
+              "images/logo.PNG",
+              // width: MediaQuery.of(context).size.width > 600 ? 400 : 200,
+              height: MediaQuery.of(context).size.width > 600 ? 70 : 40,
             ),
-          ),
+            SizedBox(height: MediaQuery.of(context).size.width > 600 ? 10 : 0),
+            Padding(
+              padding: const EdgeInsets.all(18.0),
+              child: Text(
+                '${capitalize(userInfo?[1] ?? 'No First Name')} ${capitalize(userInfo?[2] ?? 'No Last Name')} (${userInfo?[0] != null ? '${userInfo![0]}' : 'Guest ID'}) (${role})',
+                style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width > 600 ? 20 : 17,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            SizedBox(height: MediaQuery.of(context).size.width > 600 ? 30 : 0),
+            Padding(
+              padding: const EdgeInsets.only(left: 15, right: 15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // TextField for phone number filter
+                  TextField(
+                    controller: _searchFilter,
+                    key: SearchFilterKey,
+                    decoration: InputDecoration(
+                      labelText: 'Search By Name / Phone No / Application Id',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(0),
+                        borderSide: const BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(0),
+                        borderSide: const BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(0),
+                        borderSide: const BorderSide(
+                          color: Color(0xFFac00d0),
+                          width: 1.0,
+                        ),
+                      ),
+                      suffixIcon: Container(
+                        color: const Color(0xFFac00d0),
+                        child: IconButton(
+                          onPressed: () {
+                            // ✅ Fixed Syntax
+                            final String searchData = _searchFilter.text;
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    LosStatusChart(searchQuery: searchData),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.search, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    style: const TextStyle(height: 1),
+                    // onChanged: _filterLeads, // Uncomment if needed
+                  ),
+                  SizedBox(height: 10),
+                ],
+              ),
+            ),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 
   Widget _buildMidContainerWithButton() {
     const buttonHeight = 30.0;
@@ -628,34 +619,44 @@ class _FsadashboardState extends State<Fsadashboard> {
         MediaQuery.of(context).orientation == Orientation.landscape;
 
     double containerHeight = isLandscape
-        ? screenHeight * 0.40 // Adjusted height for landscape
+        ? screenHeight *
+              0.40 // Adjusted height for landscape
         : screenHeight > 600
-            ? screenHeight * 0.22 // Portrait - tablet
-            : screenHeight * 0.26; // Portrait - mobile
+        ? screenHeight *
+              0.22 // Portrait - tablet
+        : screenHeight * 0.26; // Portrait - mobile
 
     double containerHeight3 = isLandscape
-        ? screenHeight * 0.40 // Adjusted height for landscape
+        ? screenHeight *
+              0.40 // Adjusted height for landscape
         : screenHeight > 600
-            ? screenHeight * 0.25 // Portrait - tablet
-            : screenHeight * 0.26; // Portrait - mobile
+        ? screenHeight *
+              0.25 // Portrait - tablet
+        : screenHeight * 0.26; // Portrait - mobile
 
     double containerWidth = isLandscape
-        ? screenWidth * 0.99 // Adjusted width for landscape
+        ? screenWidth *
+              0.99 // Adjusted width for landscape
         : screenWidth > 600
-            ? screenWidth * 0.98 // Portrait - tablet
-            : screenWidth * 0.93; // Portrait - mobile
+        ? screenWidth *
+              0.98 // Portrait - tablet
+        : screenWidth * 0.93; // Portrait - mobile
 
     double containerHeight2 = isLandscape
-        ? screenHeight * 0.08 // Adjusted height for landscape
+        ? screenHeight *
+              0.08 // Adjusted height for landscape
         : screenHeight > 600
-            ? screenHeight * 0.04 // Portrait - tablet
-            : screenHeight * 0.03; // Portrait - mobile
+        ? screenHeight *
+              0.04 // Portrait - tablet
+        : screenHeight * 0.03; // Portrait - mobile
 
     double containerWidth2 = isLandscape
-        ? screenWidth * 0.06 // Adjusted width for landscape
+        ? screenWidth *
+              0.06 // Adjusted width for landscape
         : screenWidth > 600
-            ? screenWidth * 0.08 // Portrait - tablet
-            : screenWidth * 0.08; // Portrait - mobile;
+        ? screenWidth *
+              0.08 // Portrait - tablet
+        : screenWidth * 0.08; // Portrait - mobile;
     // Portrait - mobile
 
     return Padding(
@@ -668,17 +669,17 @@ class _FsadashboardState extends State<Fsadashboard> {
                 ? containerHeight
                 : containerHeight3,
             decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                  Color(0xFFb600da),
-                  Color(0xFF6c0481),
-                ])),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFFb600da), Color(0xFF6c0481)],
+              ),
+            ),
             child: Padding(
               padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).size.width > 600 ? 38 : 30,
-                  bottom: 1),
+                top: MediaQuery.of(context).size.width > 600 ? 38 : 30,
+                bottom: 1,
+              ),
               child: Column(
                 children: [
                   Padding(
@@ -701,9 +702,10 @@ class _FsadashboardState extends State<Fsadashboard> {
                                       children: [
                                         FaIcon(
                                           Icons.task,
-                                          size: MediaQuery.of(context)
-                                                      .size
-                                                      .width >
+                                          size:
+                                              MediaQuery.of(
+                                                    context,
+                                                  ).size.width >
                                                   600
                                               ? 50
                                               : 30,
@@ -712,13 +714,15 @@ class _FsadashboardState extends State<Fsadashboard> {
                                         GestureDetector(
                                           onTap: () {
                                             Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      LosStatusChart(
-                                                          initialTabTitle:
-                                                              'TOTAL ACCEPTED'),
-                                                ));
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LosStatusChart(
+                                                      initialTabTitle:
+                                                          'TOTAL ACCEPTED',
+                                                    ),
+                                              ),
+                                            );
                                           },
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment
@@ -726,45 +730,47 @@ class _FsadashboardState extends State<Fsadashboard> {
                                             children: [
                                               Text(
                                                 "Total\n Accepted",
-                                                style: MediaQuery.of(context)
-                                                            .size
-                                                            .width >
+                                                style:
+                                                    MediaQuery.of(
+                                                          context,
+                                                        ).size.width >
                                                         600
-                                                    ? WidgetSupport
-                                                        .normalTextTab()
-                                                    : WidgetSupport
-                                                        .normalText(),
+                                                    ? WidgetSupport.normalTextTab()
+                                                    : WidgetSupport.normalText(),
                                               ),
                                             ],
                                           ),
                                         ),
                                         SizedBox(
-                                          width: MediaQuery.of(context)
-                                                      .size
-                                                      .width >
+                                          width:
+                                              MediaQuery.of(
+                                                    context,
+                                                  ).size.width >
                                                   600 // Tablet detection
-                                              ? MediaQuery.of(context)
-                                                          .orientation ==
-                                                      Orientation.landscape
-                                                  ? MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.09 // Landscape for tablet
-                                                  : MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.09 // Portrait for tablet
-                                              : MediaQuery.of(context)
-                                                          .orientation ==
-                                                      Orientation.landscape
-                                                  ? MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.07 // Landscape for mobile
-                                                  : MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.09, // Portrait for mobile
+                                              ? MediaQuery.of(
+                                                          context,
+                                                        ).orientation ==
+                                                        Orientation.landscape
+                                                    ? MediaQuery.of(
+                                                            context,
+                                                          ).size.width *
+                                                          0.09 // Landscape for tablet
+                                                    : MediaQuery.of(
+                                                            context,
+                                                          ).size.width *
+                                                          0.09 // Portrait for tablet
+                                              : MediaQuery.of(
+                                                      context,
+                                                    ).orientation ==
+                                                    Orientation.landscape
+                                              ? MediaQuery.of(
+                                                      context,
+                                                    ).size.width *
+                                                    0.07 // Landscape for mobile
+                                              : MediaQuery.of(
+                                                      context,
+                                                    ).size.width *
+                                                    0.09, // Portrait for mobile
                                         ),
                                         Container(
                                           height: containerHeight2,
@@ -772,21 +778,22 @@ class _FsadashboardState extends State<Fsadashboard> {
                                               containerWidth2, // Set width as needed
                                           decoration: BoxDecoration(
                                             color: Color(
-                                                0xFF640D78), // Replace with your desired background color
+                                              0xFF640D78,
+                                            ), // Replace with your desired background color
                                             borderRadius: BorderRadius.circular(
-                                                5.0), // Optional: rounded corners
+                                              5.0,
+                                            ), // Optional: rounded corners
                                           ),
                                           child: Center(
                                             child: Text(
                                               '${accepted}', // Example percentage text
-                                              style: MediaQuery.of(context)
-                                                          .size
-                                                          .width >
+                                              style:
+                                                  MediaQuery.of(
+                                                        context,
+                                                      ).size.width >
                                                       600
-                                                  ? WidgetSupport
-                                                      .progressBarInnerTextTab() // Use a different style for tablets
-                                                  : WidgetSupport
-                                                      .progressBarInnerText(),
+                                                  ? WidgetSupport.progressBarInnerTextTab() // Use a different style for tablets
+                                                  : WidgetSupport.progressBarInnerText(),
                                             ),
                                           ),
                                         ),
@@ -798,9 +805,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                             ),
                           ],
                         ),
-                        SizedBox(
-                          width: 3,
-                        ),
+                        SizedBox(width: 3),
                         Column(
                           crossAxisAlignment:
                               CrossAxisAlignment.start, // Align column to start
@@ -817,9 +822,10 @@ class _FsadashboardState extends State<Fsadashboard> {
                                         // Container for the icon and text
                                         FaIcon(
                                           Icons.hourglass_empty,
-                                          size: MediaQuery.of(context)
-                                                      .size
-                                                      .width >
+                                          size:
+                                              MediaQuery.of(
+                                                    context,
+                                                  ).size.width >
                                                   600
                                               ? 50
                                               : 30,
@@ -829,12 +835,15 @@ class _FsadashboardState extends State<Fsadashboard> {
                                         GestureDetector(
                                           onTap: () {
                                             Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        LosStatusChart(
-                                                            initialTabTitle:
-                                                                'IN-PROGRESS')));
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LosStatusChart(
+                                                      initialTabTitle:
+                                                          'IN-PROGRESS',
+                                                    ),
+                                              ),
+                                            );
                                           },
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment
@@ -842,66 +851,69 @@ class _FsadashboardState extends State<Fsadashboard> {
                                             children: [
                                               Text(
                                                 " In-Progress",
-                                                style: MediaQuery.of(context)
-                                                            .size
-                                                            .width >
+                                                style:
+                                                    MediaQuery.of(
+                                                          context,
+                                                        ).size.width >
                                                         600
-                                                    ? WidgetSupport
-                                                        .normalTextTab()
-                                                    : WidgetSupport
-                                                        .normalText(),
+                                                    ? WidgetSupport.normalTextTab()
+                                                    : WidgetSupport.normalText(),
                                               ),
                                             ],
                                           ),
                                         ),
                                         SizedBox(
-                                          width: MediaQuery.of(context)
-                                                      .size
-                                                      .width >
+                                          width:
+                                              MediaQuery.of(
+                                                    context,
+                                                  ).size.width >
                                                   600 // Tablet detection
-                                              ? MediaQuery.of(context)
-                                                          .orientation ==
-                                                      Orientation.landscape
-                                                  ? MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.07 // Landscape for tablet
-                                                  : MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.07 // Portrait for tablet
-                                              : MediaQuery.of(context)
-                                                          .orientation ==
-                                                      Orientation.landscape
-                                                  ? MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.08 // Landscape for mobile
-                                                  : MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.05, // Portrait for mobile
+                                              ? MediaQuery.of(
+                                                          context,
+                                                        ).orientation ==
+                                                        Orientation.landscape
+                                                    ? MediaQuery.of(
+                                                            context,
+                                                          ).size.width *
+                                                          0.07 // Landscape for tablet
+                                                    : MediaQuery.of(
+                                                            context,
+                                                          ).size.width *
+                                                          0.07 // Portrait for tablet
+                                              : MediaQuery.of(
+                                                      context,
+                                                    ).orientation ==
+                                                    Orientation.landscape
+                                              ? MediaQuery.of(
+                                                      context,
+                                                    ).size.width *
+                                                    0.08 // Landscape for mobile
+                                              : MediaQuery.of(
+                                                      context,
+                                                    ).size.width *
+                                                    0.05, // Portrait for mobile
                                         ),
                                         Container(
                                           height: containerHeight2,
                                           width: containerWidth2,
                                           decoration: BoxDecoration(
                                             color: Color(
-                                                0xFF640D78), // Replace with your desired background color
+                                              0xFF640D78,
+                                            ), // Replace with your desired background color
                                             borderRadius: BorderRadius.circular(
-                                                5.0), // Optional: rounded corners
+                                              5.0,
+                                            ), // Optional: rounded corners
                                           ),
                                           child: Center(
                                             child: Text(
                                               '${inProgress}', // Example percentage text
-                                              style: MediaQuery.of(context)
-                                                          .size
-                                                          .width >
+                                              style:
+                                                  MediaQuery.of(
+                                                        context,
+                                                      ).size.width >
                                                       600
-                                                  ? WidgetSupport
-                                                      .progressBarInnerTextTab()
-                                                  : WidgetSupport
-                                                      .progressBarInnerText(),
+                                                  ? WidgetSupport.progressBarInnerTextTab()
+                                                  : WidgetSupport.progressBarInnerText(),
                                             ),
                                           ),
                                         ),
@@ -912,13 +924,11 @@ class _FsadashboardState extends State<Fsadashboard> {
                               ],
                             ),
                           ],
-                        )
+                        ),
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
+                  SizedBox(height: 15),
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Row(
@@ -939,9 +949,10 @@ class _FsadashboardState extends State<Fsadashboard> {
                                       children: [
                                         FaIcon(
                                           Icons.check_box,
-                                          size: MediaQuery.of(context)
-                                                      .size
-                                                      .width >
+                                          size:
+                                              MediaQuery.of(
+                                                    context,
+                                                  ).size.width >
                                                   600
                                               ? 50
                                               : 30,
@@ -950,12 +961,15 @@ class _FsadashboardState extends State<Fsadashboard> {
                                         GestureDetector(
                                           onTap: () {
                                             Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        LosStatusChart(
-                                                            initialTabTitle:
-                                                                'IN-PRINCIPLE APPROVED')));
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LosStatusChart(
+                                                      initialTabTitle:
+                                                          'IN-PRINCIPLE APPROVED',
+                                                    ),
+                                              ),
+                                            );
                                           },
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment
@@ -963,66 +977,69 @@ class _FsadashboardState extends State<Fsadashboard> {
                                             children: [
                                               Text(
                                                 "In-Principal \nApproved",
-                                                style: MediaQuery.of(context)
-                                                            .size
-                                                            .width >
+                                                style:
+                                                    MediaQuery.of(
+                                                          context,
+                                                        ).size.width >
                                                         600
-                                                    ? WidgetSupport
-                                                        .normalTextTab()
-                                                    : WidgetSupport
-                                                        .normalText(),
+                                                    ? WidgetSupport.normalTextTab()
+                                                    : WidgetSupport.normalText(),
                                               ),
                                             ],
                                           ),
                                         ),
                                         SizedBox(
-                                          width: MediaQuery.of(context)
-                                                      .size
-                                                      .width >
+                                          width:
+                                              MediaQuery.of(
+                                                    context,
+                                                  ).size.width >
                                                   600 // Tablet detection
-                                              ? MediaQuery.of(context)
-                                                          .orientation ==
-                                                      Orientation.landscape
-                                                  ? MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.08 // Landscape for tablet
-                                                  : MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.08 // Portrait for tablet
-                                              : MediaQuery.of(context)
-                                                          .orientation ==
-                                                      Orientation.landscape
-                                                  ? MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.0 // Landscape for mobile
-                                                  : MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.07, // Portrait for mobile
+                                              ? MediaQuery.of(
+                                                          context,
+                                                        ).orientation ==
+                                                        Orientation.landscape
+                                                    ? MediaQuery.of(
+                                                            context,
+                                                          ).size.width *
+                                                          0.08 // Landscape for tablet
+                                                    : MediaQuery.of(
+                                                            context,
+                                                          ).size.width *
+                                                          0.08 // Portrait for tablet
+                                              : MediaQuery.of(
+                                                      context,
+                                                    ).orientation ==
+                                                    Orientation.landscape
+                                              ? MediaQuery.of(
+                                                      context,
+                                                    ).size.width *
+                                                    0.0 // Landscape for mobile
+                                              : MediaQuery.of(
+                                                      context,
+                                                    ).size.width *
+                                                    0.07, // Portrait for mobile
                                         ),
                                         Container(
                                           height: containerHeight2,
                                           width: containerWidth2,
                                           decoration: BoxDecoration(
                                             color: Color(
-                                                0xFF640D78), // Replace with your desired background color
+                                              0xFF640D78,
+                                            ), // Replace with your desired background color
                                             borderRadius: BorderRadius.circular(
-                                                5.0), // Optional: rounded corners
+                                              5.0,
+                                            ), // Optional: rounded corners
                                           ),
                                           child: Center(
                                             child: Text(
                                               '${inPrincipalApproved}', // Example percentage text
-                                              style: MediaQuery.of(context)
-                                                          .size
-                                                          .width >
+                                              style:
+                                                  MediaQuery.of(
+                                                        context,
+                                                      ).size.width >
                                                       600
-                                                  ? WidgetSupport
-                                                      .progressBarInnerTextTab()
-                                                  : WidgetSupport
-                                                      .progressBarInnerText(),
+                                                  ? WidgetSupport.progressBarInnerTextTab()
+                                                  : WidgetSupport.progressBarInnerText(),
                                             ),
                                           ),
                                         ),
@@ -1034,9 +1051,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                             ),
                           ],
                         ),
-                        SizedBox(
-                          width: 3,
-                        ),
+                        SizedBox(width: 3),
                         Column(
                           crossAxisAlignment:
                               CrossAxisAlignment.start, // Align text to start
@@ -1052,9 +1067,10 @@ class _FsadashboardState extends State<Fsadashboard> {
                                       children: [
                                         FaIcon(
                                           Icons.verified,
-                                          size: MediaQuery.of(context)
-                                                      .size
-                                                      .width >
+                                          size:
+                                              MediaQuery.of(
+                                                    context,
+                                                  ).size.width >
                                                   600
                                               ? 50
                                               : 30,
@@ -1063,12 +1079,15 @@ class _FsadashboardState extends State<Fsadashboard> {
                                         GestureDetector(
                                           onTap: () {
                                             Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        LosStatusChart(
-                                                            initialTabTitle:
-                                                                'FINAL APPROVED')));
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LosStatusChart(
+                                                      initialTabTitle:
+                                                          'FINAL APPROVED',
+                                                    ),
+                                              ),
+                                            );
                                           },
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment
@@ -1076,43 +1095,45 @@ class _FsadashboardState extends State<Fsadashboard> {
                                             children: [
                                               Text(
                                                 " Final \n Approved",
-                                                style: MediaQuery.of(context)
-                                                            .size
-                                                            .width >
+                                                style:
+                                                    MediaQuery.of(
+                                                          context,
+                                                        ).size.width >
                                                         600
-                                                    ? WidgetSupport
-                                                        .normalTextTab()
-                                                    : WidgetSupport
-                                                        .normalText(),
+                                                    ? WidgetSupport.normalTextTab()
+                                                    : WidgetSupport.normalText(),
                                               ),
                                             ],
                                           ),
                                         ),
                                         SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.09),
+                                          width:
+                                              MediaQuery.of(
+                                                context,
+                                              ).size.width *
+                                              0.09,
+                                        ),
                                         Container(
                                           height: containerHeight2,
                                           width: containerWidth2,
                                           decoration: BoxDecoration(
                                             color: Color(
-                                                0xFF640D78), // Replace with your desired background color
+                                              0xFF640D78,
+                                            ), // Replace with your desired background color
                                             borderRadius: BorderRadius.circular(
-                                                5.0), // Optional: rounded corners
+                                              5.0,
+                                            ), // Optional: rounded corners
                                           ),
                                           child: Center(
                                             child: Text(
                                               '${finalApproved}', // Example percentage text
-                                              style: MediaQuery.of(context)
-                                                          .size
-                                                          .width >
+                                              style:
+                                                  MediaQuery.of(
+                                                        context,
+                                                      ).size.width >
                                                       600
-                                                  ? WidgetSupport
-                                                      .progressBarInnerTextTab()
-                                                  : WidgetSupport
-                                                      .progressBarInnerText(),
+                                                  ? WidgetSupport.progressBarInnerTextTab()
+                                                  : WidgetSupport.progressBarInnerText(),
                                             ),
                                           ),
                                         ),
@@ -1127,9 +1148,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
+                  SizedBox(height: 15),
                   Padding(
                     padding: const EdgeInsets.all(5.0),
                     child: Row(
@@ -1151,9 +1170,10 @@ class _FsadashboardState extends State<Fsadashboard> {
                                         // Container for the icon with centered content
                                         FaIcon(
                                           Icons.cancel,
-                                          size: MediaQuery.of(context)
-                                                      .size
-                                                      .width >
+                                          size:
+                                              MediaQuery.of(
+                                                    context,
+                                                  ).size.width >
                                                   600
                                               ? 50
                                               : 30,
@@ -1162,12 +1182,15 @@ class _FsadashboardState extends State<Fsadashboard> {
                                         GestureDetector(
                                           onTap: () {
                                             Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        LosStatusChart(
-                                                            initialTabTitle:
-                                                                'DECLINED')));
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LosStatusChart(
+                                                      initialTabTitle:
+                                                          'DECLINED',
+                                                    ),
+                                              ),
+                                            );
                                           },
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment
@@ -1175,67 +1198,70 @@ class _FsadashboardState extends State<Fsadashboard> {
                                             children: [
                                               Text(
                                                 "Declined",
-                                                style: MediaQuery.of(context)
-                                                            .size
-                                                            .width >
+                                                style:
+                                                    MediaQuery.of(
+                                                          context,
+                                                        ).size.width >
                                                         600
-                                                    ? WidgetSupport
-                                                        .normalTextTab()
-                                                    : WidgetSupport
-                                                        .normalText(),
+                                                    ? WidgetSupport.normalTextTab()
+                                                    : WidgetSupport.normalText(),
                                               ),
                                             ],
                                           ),
                                         ),
                                         SizedBox(
-                                          width: MediaQuery.of(context)
-                                                      .size
-                                                      .width >
+                                          width:
+                                              MediaQuery.of(
+                                                    context,
+                                                  ).size.width >
                                                   600 // Tablet detection
-                                              ? MediaQuery.of(context)
-                                                          .orientation ==
-                                                      Orientation.landscape
-                                                  ? MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.10 // Landscape for tablet
-                                                  : MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.11
+                                              ? MediaQuery.of(
+                                                          context,
+                                                        ).orientation ==
+                                                        Orientation.landscape
+                                                    ? MediaQuery.of(
+                                                            context,
+                                                          ).size.width *
+                                                          0.10 // Landscape for tablet
+                                                    : MediaQuery.of(
+                                                            context,
+                                                          ).size.width *
+                                                          0.11
                                               // Portrait for tablet
-                                              : MediaQuery.of(context)
-                                                          .orientation ==
-                                                      Orientation.landscape
-                                                  ? MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.08 // Landscape for mobile
-                                                  : MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.12, // Portrait for mobile
+                                              : MediaQuery.of(
+                                                      context,
+                                                    ).orientation ==
+                                                    Orientation.landscape
+                                              ? MediaQuery.of(
+                                                      context,
+                                                    ).size.width *
+                                                    0.08 // Landscape for mobile
+                                              : MediaQuery.of(
+                                                      context,
+                                                    ).size.width *
+                                                    0.12, // Portrait for mobile
                                         ),
                                         Container(
                                           height: containerHeight2,
                                           width: containerWidth2,
                                           decoration: BoxDecoration(
                                             color: Color(
-                                                0xFF640D78), // Desired background color
+                                              0xFF640D78,
+                                            ), // Desired background color
                                             borderRadius: BorderRadius.circular(
-                                                5.0), // Optional rounded corners
+                                              5.0,
+                                            ), // Optional rounded corners
                                           ),
                                           child: Center(
                                             child: Text(
                                               '${declined}', // Example percentage text
-                                              style: MediaQuery.of(context)
-                                                          .size
-                                                          .width >
+                                              style:
+                                                  MediaQuery.of(
+                                                        context,
+                                                      ).size.width >
                                                       600
-                                                  ? WidgetSupport
-                                                      .progressBarInnerTextTab()
-                                                  : WidgetSupport
-                                                      .progressBarInnerText(),
+                                                  ? WidgetSupport.progressBarInnerTextTab()
+                                                  : WidgetSupport.progressBarInnerText(),
                                             ),
                                           ),
                                         ),
@@ -1247,9 +1273,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                             ),
                           ],
                         ),
-                        SizedBox(
-                          width: 3,
-                        ),
+                        SizedBox(width: 3),
                         Column(
                           crossAxisAlignment:
                               CrossAxisAlignment.start, // Align column to start
@@ -1266,9 +1290,10 @@ class _FsadashboardState extends State<Fsadashboard> {
                                         // Container for the icon with centered content
                                         FaIcon(
                                           Icons.done_all,
-                                          size: MediaQuery.of(context)
-                                                      .size
-                                                      .width >
+                                          size:
+                                              MediaQuery.of(
+                                                    context,
+                                                  ).size.width >
                                                   600
                                               ? 50
                                               : 30,
@@ -1278,12 +1303,15 @@ class _FsadashboardState extends State<Fsadashboard> {
                                         GestureDetector(
                                           onTap: () {
                                             Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        LosStatusChart(
-                                                            initialTabTitle:
-                                                                'DISBURSED')));
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    LosStatusChart(
+                                                      initialTabTitle:
+                                                          'DISBURSED',
+                                                    ),
+                                              ),
+                                            );
                                           },
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment
@@ -1291,23 +1319,23 @@ class _FsadashboardState extends State<Fsadashboard> {
                                             children: [
                                               Text(
                                                 " Disbursed",
-                                                style: MediaQuery.of(context)
-                                                            .size
-                                                            .width >
+                                                style:
+                                                    MediaQuery.of(
+                                                          context,
+                                                        ).size.width >
                                                         600
-                                                    ? WidgetSupport
-                                                        .normalTextTab()
-                                                    : WidgetSupport
-                                                        .normalText(),
+                                                    ? WidgetSupport.normalTextTab()
+                                                    : WidgetSupport.normalText(),
                                               ),
                                             ],
                                           ),
                                         ),
                                         // SizedBox for spacing between the text and the next container
                                         SizedBox(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width *
+                                          width:
+                                              MediaQuery.of(
+                                                context,
+                                              ).size.width *
                                               0.08,
                                         ),
                                         // Container for the percentage text with background
@@ -1316,21 +1344,22 @@ class _FsadashboardState extends State<Fsadashboard> {
                                           width: containerWidth2,
                                           decoration: BoxDecoration(
                                             color: Color(
-                                                0xFF640D78), // Replace with your desired background color
+                                              0xFF640D78,
+                                            ), // Replace with your desired background color
                                             borderRadius: BorderRadius.circular(
-                                                5.0), // Optional: rounded corners
+                                              5.0,
+                                            ), // Optional: rounded corners
                                           ),
                                           child: Center(
                                             child: Text(
                                               '${disbursed}', // Example percentage text
-                                              style: MediaQuery.of(context)
-                                                          .size
-                                                          .width >
+                                              style:
+                                                  MediaQuery.of(
+                                                        context,
+                                                      ).size.width >
                                                       600
-                                                  ? WidgetSupport
-                                                      .progressBarInnerTextTab()
-                                                  : WidgetSupport
-                                                      .progressBarInnerText(),
+                                                  ? WidgetSupport.progressBarInnerTextTab()
+                                                  : WidgetSupport.progressBarInnerText(),
                                             ),
                                           ),
                                         ),
@@ -1353,7 +1382,9 @@ class _FsadashboardState extends State<Fsadashboard> {
             offset: const Offset(0.0, -buttonHeight / 1.50),
             child: Center(
               child: GestureDetector(
-                onTap: () {/* do stuff */},
+                onTap: () {
+                  /* do stuff */
+                },
                 child: Container(
                   height: MediaQuery.of(context).size.width > 600 ? 40 : 33,
                   width: MediaQuery.of(context).size.width > 600 ? 350 : 220,
@@ -1417,11 +1448,11 @@ class _FsadashboardState extends State<Fsadashboard> {
           GestureDetector(
             onTap: () async {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => FsaLeadDashBoard(
-                            searchQuery: '',
-                          )));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => FsaLeadDashBoard(searchQuery: ''),
+                ),
+              );
             },
             child: Column(
               children: [
@@ -1439,13 +1470,12 @@ class _FsadashboardState extends State<Fsadashboard> {
                       children: [
                         FaIcon(
                           Icons.handshake,
-                          size:
-                              MediaQuery.of(context).size.width > 600 ? 40 : 20,
+                          size: MediaQuery.of(context).size.width > 600
+                              ? 40
+                              : 20,
                           color: Colors.purple,
                         ),
-                        const SizedBox(
-                          width: 5,
-                        ),
+                        const SizedBox(width: 5),
                         Text(
                           "Create New Lead",
                           style: MediaQuery.of(context).size.width > 600
@@ -1509,11 +1539,11 @@ class _FsadashboardState extends State<Fsadashboard> {
           GestureDetector(
             onTap: () async {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => AssignedLeads(
-                            searchQuery: '',
-                          )));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => AssignedLeads(searchQuery: ''),
+                ),
+              );
             },
             child: Column(
               children: [
@@ -1531,18 +1561,15 @@ class _FsadashboardState extends State<Fsadashboard> {
                       crossAxisAlignment:
                           CrossAxisAlignment.center, // Center vertically
                       children: [
-                        const Padding(
-                          padding: EdgeInsets.only(top: 10),
-                        ),
+                        const Padding(padding: EdgeInsets.only(top: 10)),
                         FaIcon(
                           FontAwesomeIcons.handshake,
-                          size:
-                              MediaQuery.of(context).size.width > 600 ? 40 : 20,
+                          size: MediaQuery.of(context).size.width > 600
+                              ? 40
+                              : 20,
                           color: Colors.orange,
                         ),
-                        const SizedBox(
-                          width: 5,
-                        ),
+                        const SizedBox(width: 5),
                         Text(
                           "Assigned Leads",
                           style: MediaQuery.of(context).size.width > 600
@@ -1579,9 +1606,11 @@ class _FsadashboardState extends State<Fsadashboard> {
               message: 'Coming Soon',
               decoration: BoxDecoration(
                 color: Color(
-                    0xFFa604ad), // Set the background color of the tooltip
-                borderRadius:
-                    BorderRadius.circular(5), // Optional: rounded corners
+                  0xFFa604ad,
+                ), // Set the background color of the tooltip
+                borderRadius: BorderRadius.circular(
+                  5,
+                ), // Optional: rounded corners
               ),
               child: Column(
                 children: [
@@ -1604,9 +1633,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                 : 20,
                             color: Colors.blue,
                           ),
-                          const SizedBox(
-                            width: 5,
-                          ),
+                          const SizedBox(width: 5),
                           Text(
                             "Rewards",
                             style: MediaQuery.of(context).size.width > 600
@@ -1633,7 +1660,9 @@ class _FsadashboardState extends State<Fsadashboard> {
               //               )));
               // },
               Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => TodoPage()));
+                context,
+                MaterialPageRoute(builder: (context) => TodoPage()),
+              );
             },
 
             // onTap: () {
@@ -1644,9 +1673,11 @@ class _FsadashboardState extends State<Fsadashboard> {
               message: 'Coming Soon',
               decoration: BoxDecoration(
                 color: Color(
-                    0xFFa604ad), // Set the background color of the tooltip
-                borderRadius:
-                    BorderRadius.circular(5), // Optional: rounded corners
+                  0xFFa604ad,
+                ), // Set the background color of the tooltip
+                borderRadius: BorderRadius.circular(
+                  5,
+                ), // Optional: rounded corners
               ),
               child: Column(
                 children: [
@@ -1672,9 +1703,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                         crossAxisAlignment:
                             CrossAxisAlignment.center, // Center vertically
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.only(top: 10),
-                          ),
+                          const Padding(padding: EdgeInsets.only(top: 10)),
                           FaIcon(
                             FontAwesomeIcons.listCheck,
                             size: MediaQuery.of(context).size.width > 600
@@ -1682,9 +1711,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                 : 20,
                             color: Colors.green,
                           ),
-                          const SizedBox(
-                            width: 5,
-                          ),
+                          const SizedBox(width: 5),
                           Text(
                             "My To-Do List",
                             style: MediaQuery.of(context).size.width > 600
@@ -1731,9 +1758,11 @@ class _FsadashboardState extends State<Fsadashboard> {
               message: 'Coming Soon',
               decoration: BoxDecoration(
                 color: Color(
-                    0xFFa604ad), // Set the background color of the tooltip
-                borderRadius:
-                    BorderRadius.circular(5), // Optional: rounded corners
+                  0xFFa604ad,
+                ), // Set the background color of the tooltip
+                borderRadius: BorderRadius.circular(
+                  5,
+                ), // Optional: rounded corners
               ),
               child: Column(
                 children: [
@@ -1764,9 +1793,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                 : 20,
                             color: Colors.blue,
                           ),
-                          const SizedBox(
-                            width: 5,
-                          ),
+                          const SizedBox(width: 5),
                           Text(
                             "Training",
                             style: MediaQuery.of(context).size.width > 600
@@ -1785,8 +1812,10 @@ class _FsadashboardState extends State<Fsadashboard> {
           // My Leads Box - triggers Tooltip for Training
           GestureDetector(
             onTap: () async {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => Campaignlist()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => Campaignlist()),
+              );
             },
             // onTap: () async {
             //   _CampaigntooltipKey.currentState?.ensureTooltipVisible();
@@ -1796,9 +1825,11 @@ class _FsadashboardState extends State<Fsadashboard> {
               message: 'Coming Soon',
               decoration: BoxDecoration(
                 color: Color(
-                    0xFFa604ad), // Set the background color of the tooltip
-                borderRadius:
-                    BorderRadius.circular(5), // Optional: rounded corners
+                  0xFFa604ad,
+                ), // Set the background color of the tooltip
+                borderRadius: BorderRadius.circular(
+                  5,
+                ), // Optional: rounded corners
               ),
               child: Column(
                 children: [
@@ -1824,9 +1855,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                         crossAxisAlignment:
                             CrossAxisAlignment.center, // Center vertically
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.only(top: 10),
-                          ),
+                          const Padding(padding: EdgeInsets.only(top: 10)),
                           FaIcon(
                             FontAwesomeIcons.bullhorn,
                             size: MediaQuery.of(context).size.width > 600
@@ -1834,9 +1863,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                 : 20,
                             color: Colors.green,
                           ),
-                          const SizedBox(
-                            width: 5,
-                          ),
+                          const SizedBox(width: 5),
                           Text(
                             "Campaign",
                             style: MediaQuery.of(context).size.width > 600
@@ -1875,8 +1902,10 @@ class _FsadashboardState extends State<Fsadashboard> {
         children: [
           GestureDetector(
             onTap: () async {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => DailyActivityList()));
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DailyActivityList()),
+              );
               // _ActivitytooltipKey.currentState?.ensureTooltipVisible();
             },
             child: Tooltip(
@@ -1884,9 +1913,11 @@ class _FsadashboardState extends State<Fsadashboard> {
               message: 'Coming Soon',
               decoration: BoxDecoration(
                 color: Color(
-                    0xFFa604ad), // Set the background color of the tooltip
-                borderRadius:
-                    BorderRadius.circular(5), // Optional: rounded corners
+                  0xFFa604ad,
+                ), // Set the background color of the tooltip
+                borderRadius: BorderRadius.circular(
+                  5,
+                ), // Optional: rounded corners
               ),
               child: Column(
                 children: [
@@ -1917,9 +1948,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                 : 20,
                             color: Colors.blue,
                           ),
-                          const SizedBox(
-                            width: 5,
-                          ),
+                          const SizedBox(width: 5),
                           Text(
                             "Activity Planner",
                             style: MediaQuery.of(context).size.width > 600
@@ -1938,20 +1967,22 @@ class _FsadashboardState extends State<Fsadashboard> {
           GestureDetector(
             onTap: () async {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => DailySalesReportList(
-                            searchQuery: '',
-                          )));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DailySalesReportList(searchQuery: ''),
+                ),
+              );
             },
             child: Tooltip(
               key: _SalesReporttooltipKey,
               message: 'Coming Soon',
               decoration: BoxDecoration(
                 color: Color(
-                    0xFFa604ad), // Set the background color of the tooltip
-                borderRadius:
-                    BorderRadius.circular(5), // Optional: rounded corners
+                  0xFFa604ad,
+                ), // Set the background color of the tooltip
+                borderRadius: BorderRadius.circular(
+                  5,
+                ), // Optional: rounded corners
               ),
               child: Column(
                 children: [
@@ -1977,9 +2008,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                         crossAxisAlignment:
                             CrossAxisAlignment.center, // Center vertically
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.only(top: 10),
-                          ),
+                          const Padding(padding: EdgeInsets.only(top: 10)),
                           FaIcon(
                             FontAwesomeIcons.fileLines,
                             size: MediaQuery.of(context).size.width > 600
@@ -1987,9 +2016,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                 : 20,
                             color: Colors.green,
                           ),
-                          const SizedBox(
-                            width: 5,
-                          ),
+                          const SizedBox(width: 5),
                           Text(
                             "Daily Sales Report",
                             style: MediaQuery.of(context).size.width > 600
@@ -2032,18 +2059,22 @@ class _FsadashboardState extends State<Fsadashboard> {
           GestureDetector(
             onTap: () async {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => SuppervisorHuddleList()));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SuppervisorHuddleList(),
+                ),
+              );
             },
             child: Tooltip(
               key: _SuppervisorHuddletooltipKey,
               message: 'Coming Soon',
               decoration: BoxDecoration(
                 color: Color(
-                    0xFFa604ad), // Set the background color of the tooltip
-                borderRadius:
-                    BorderRadius.circular(5), // Optional: rounded corners
+                  0xFFa604ad,
+                ), // Set the background color of the tooltip
+                borderRadius: BorderRadius.circular(
+                  5,
+                ), // Optional: rounded corners
               ),
               child: Column(
                 children: [
@@ -2074,9 +2105,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                 : 20,
                             color: Colors.blue,
                           ),
-                          const SizedBox(
-                            width: 5,
-                          ),
+                          const SizedBox(width: 5),
                           Text(
                             "Team Huddle",
                             style: MediaQuery.of(context).size.width > 600
@@ -2096,9 +2125,11 @@ class _FsadashboardState extends State<Fsadashboard> {
           GestureDetector(
             onTap: () async {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => SuppervisorIntraDayList()));
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SuppervisorIntraDayList(),
+                ),
+              );
             },
             // onTap: () async {
             //   _CampaigntooltipKey.currentState?.ensureTooltipVisible();
@@ -2108,9 +2139,11 @@ class _FsadashboardState extends State<Fsadashboard> {
               message: 'Coming Soon',
               decoration: BoxDecoration(
                 color: Color(
-                    0xFFa604ad), // Set the background color of the tooltip
-                borderRadius:
-                    BorderRadius.circular(5), // Optional: rounded corners
+                  0xFFa604ad,
+                ), // Set the background color of the tooltip
+                borderRadius: BorderRadius.circular(
+                  5,
+                ), // Optional: rounded corners
               ),
               child: Column(
                 children: [
@@ -2136,9 +2169,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                         crossAxisAlignment:
                             CrossAxisAlignment.center, // Center vertically
                         children: [
-                          const Padding(
-                            padding: EdgeInsets.only(top: 10),
-                          ),
+                          const Padding(padding: EdgeInsets.only(top: 10)),
                           FaIcon(
                             FontAwesomeIcons.fileLines,
                             size: MediaQuery.of(context).size.width > 600
@@ -2146,9 +2177,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                 : 20,
                             color: Colors.green,
                           ),
-                          const SizedBox(
-                            width: 5,
-                          ),
+                          const SizedBox(width: 5),
                           Text(
                             "Intraday Call",
                             style: MediaQuery.of(context).size.width > 600
@@ -2168,9 +2197,7 @@ class _FsadashboardState extends State<Fsadashboard> {
             onTap: () async {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => FormReport(),
-                ),
+                MaterialPageRoute(builder: (context) => FormReport()),
               );
             },
             child: Tooltip(
@@ -2235,37 +2262,44 @@ class _FsadashboardState extends State<Fsadashboard> {
     // Adjust container width and height for tablet/mobile based on orientation
     double containerWidth = isTablet
         ? (orientation == Orientation.portrait
-            ? screenWidth * 0.99
-            // Tablet Portrait
-            : screenWidth * 0.99) // Tablet Landscape
+              ? screenWidth * 0.99
+              // Tablet Portrait
+              : screenWidth * 0.99) // Tablet Landscape
         : (orientation == Orientation.portrait
-            ? screenWidth * 0.95 // Mobile Portrait
-            : screenWidth * 0.90); // Mobile Landscape
+              ? screenWidth *
+                    0.95 // Mobile Portrait
+              : screenWidth * 0.90); // Mobile Landscape
 
     double containerHeight = isTablet
         ? (orientation == Orientation.portrait
-            ? screenHeight * 0.30 // Tablet Portrait
-            : screenHeight * 0.4) // Tablet Landscape
+              ? screenHeight *
+                    0.30 // Tablet Portrait
+              : screenHeight * 0.4) // Tablet Landscape
         : (orientation == Orientation.portrait
-            ? screenHeight * 0.20 // Mobile Portrait
-            : screenHeight * 0.25); // Mobile Landscape
+              ? screenHeight *
+                    0.20 // Mobile Portrait
+              : screenHeight * 0.25); // Mobile Landscape
 
     // Adjust performance meter dimensions for tablet/mobile based on orientation
     double perfomanceMeaterHeight = isTablet
         ? (orientation == Orientation.portrait
-            ? screenHeight * 0.3 // Tablet Portrait
-            : screenHeight * 0.3) // Tablet Landscape
+              ? screenHeight *
+                    0.3 // Tablet Portrait
+              : screenHeight * 0.3) // Tablet Landscape
         : (orientation == Orientation.portrait
-            ? screenHeight * 0.15 // Mobile Portrait
-            : screenHeight * 0.2); // Mobile Landscape
+              ? screenHeight *
+                    0.15 // Mobile Portrait
+              : screenHeight * 0.2); // Mobile Landscape
 
     double perfomanceMeaterWidth = isTablet
         ? (orientation == Orientation.portrait
-            ? screenWidth * 0.35 // Tablet Portrait
-            : screenWidth * 0.3) // Tablet Landscape
+              ? screenWidth *
+                    0.35 // Tablet Portrait
+              : screenWidth * 0.3) // Tablet Landscape
         : (orientation == Orientation.portrait
-            ? screenWidth * 0.4 // Mobile Portrait
-            : screenWidth * 0.5); // Mobile Landscape
+              ? screenWidth *
+                    0.4 // Mobile Portrait
+              : screenWidth * 0.5); // Mobile Landscape
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 15),
@@ -2278,10 +2312,7 @@ class _FsadashboardState extends State<Fsadashboard> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xFF720487),
-                  Color(0xFF462eaa),
-                ],
+                colors: [Color(0xFF720487), Color(0xFF462eaa)],
               ),
             ),
             child: Padding(
@@ -2302,26 +2333,28 @@ class _FsadashboardState extends State<Fsadashboard> {
                             color: Colors.green,
                           ),
                           const SizedBox(
-                              width: 5), // Space between box and text
+                            width: 5,
+                          ), // Space between box and text
                           Text(
                             "SALES PERFOMANCE",
                             style: WidgetSupport.normalText(),
                           ),
                           SizedBox(
-                            width: MediaQuery.of(context).size.width >
+                            width:
+                                MediaQuery.of(context).size.width >
                                     600 // Tablet detection
                                 ? MediaQuery.of(context).orientation ==
-                                        Orientation.landscape
-                                    ? MediaQuery.of(context).size.width *
-                                        0.76 // Landscape for tablet
-                                    : MediaQuery.of(context).size.width *
-                                        0.60 // Portrait for tablet
+                                          Orientation.landscape
+                                      ? MediaQuery.of(context).size.width *
+                                            0.76 // Landscape for tablet
+                                      : MediaQuery.of(context).size.width *
+                                            0.60 // Portrait for tablet
                                 : MediaQuery.of(context).orientation ==
-                                        Orientation.landscape
-                                    ? MediaQuery.of(context).size.width *
-                                        0.08 // Landscape for mobile
-                                    : MediaQuery.of(context).size.width *
-                                        0.23, // Portrait for mobile
+                                      Orientation.landscape
+                                ? MediaQuery.of(context).size.width *
+                                      0.08 // Landscape for mobile
+                                : MediaQuery.of(context).size.width *
+                                      0.23, // Portrait for mobile
                           ),
                           Container(
                             width: 10.0, // Small green box width
@@ -2329,11 +2362,9 @@ class _FsadashboardState extends State<Fsadashboard> {
                             color: Colors.white,
                           ),
                           const SizedBox(
-                              width: 5), // Space between box and text
-                          Text(
-                            "MILESTONE",
-                            style: WidgetSupport.normalText(),
-                          ),
+                            width: 5,
+                          ), // Space between box and text
+                          Text("MILESTONE", style: WidgetSupport.normalText()),
                         ],
                       ),
                     ),
@@ -2366,7 +2397,9 @@ class _FsadashboardState extends State<Fsadashboard> {
             offset: const Offset(0.0, -buttonHeight / 1.50),
             child: Center(
               child: GestureDetector(
-                onTap: () {/* do stuff */},
+                onTap: () {
+                  /* do stuff */
+                },
                 child: Container(
                   height: MediaQuery.of(context).size.width > 600 ? 40 : 33,
                   width: MediaQuery.of(context).size.width > 600 ? 300 : 200,
@@ -2382,8 +2415,8 @@ class _FsadashboardState extends State<Fsadashboard> {
                     ],
                   ),
                   padding: EdgeInsets.only(
-                      left:
-                          MediaQuery.of(context).size.width > 600 ? 80.0 : 40),
+                    left: MediaQuery.of(context).size.width > 600 ? 80.0 : 40,
+                  ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
