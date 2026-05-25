@@ -120,15 +120,23 @@ Future<String> _getLocationTypeDescription(dynamic locid) async {
   String? token = prefs.getString('accessToken');
 
   try {
-    final response = await http.get(
-      Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/location-types/$locid/'),
-      headers: {
+    String url = "/api/leads/location-types/$locid/";
+     final headers = {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
-      },
-    );
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> body = jsonDecode(response.body);
+        
+      };
+
+   final response = await ApiService.getWithHeaders(url, headers);
+    // final response = await http.get(
+    //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/location-types/$locid/'),
+    //   headers: {
+    //     'Authorization': 'Bearer $token',
+    //     'Content-Type': 'application/json',
+    //   },
+    // );
+    if (response!.statusCode == 200) {
+      final Map<String, dynamic> body = response.data;
       return body['description'] ?? 'N/A';
     }
   } catch (e) {
@@ -143,15 +151,23 @@ Future<String> _getActivityTypeDescription(dynamic actid) async {
   String? token = prefs.getString('accessToken');
 
   try {
-    final response = await http.get(
-      Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/activities/$actid/'),
-      headers: {
+     String url = "/api/leads/activities/$actid/";
+     final headers = {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
-      },
-    );
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> body = jsonDecode(response.body);
+        
+      };
+
+   final response = await ApiService.getWithHeaders(url, headers);
+    // final response = await http.get(
+    //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/activities/$actid/'),
+    //   headers: {
+    //     'Authorization': 'Bearer $token',
+    //     'Content-Type': 'application/json',
+    //   },
+    // );
+    if (response!.statusCode == 200) {
+      final Map<String, dynamic> body = response.data;
       return body['description'] ?? 'N/A';
     }
   } catch (e) {

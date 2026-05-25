@@ -2154,7 +2154,7 @@ class _FRCampaignSingleLeadState extends State<FRCampaignSingleLead> {
       };
       final Tokenresponse = await ApiService.getWithHeaders(url, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.data);
+        final data = Tokenresponse.data;
         tokens = data['access_token'];
       }
     } catch (e) {

@@ -678,8 +678,8 @@ class _LosStatusChartState extends State<LosStatusChart>
         final headers = {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
-          //'User-Agent':
-          //   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
@@ -692,7 +692,7 @@ class _LosStatusChartState extends State<LosStatusChart>
       }
 
       // Done
-      final url = Uri.parse("${AppConfig.otpUrl}/auth/sso-login");
+      final url = "/auth/sso-login";
       final headers = {
         "Authorization": 'Bearer $token',
         "Content-Type": "application/json",
@@ -701,13 +701,17 @@ class _LosStatusChartState extends State<LosStatusChart>
             "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
       };
 
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(payload),
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      final body = payload;
+
+      final response = await ApiService.postWithHeadersUnoApi(url, body, headers);
+
+      // final response = await http.post(
+      //   url,
+      //   headers: headers,
+      //   body: jsonEncode(payload),
+      // );
+      if (response!.statusCode == 200) {
+        final data = response.data;
         final sostoken = data["token"];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();

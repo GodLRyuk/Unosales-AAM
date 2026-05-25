@@ -227,15 +227,23 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
     try {
-      final response = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/activities/'),
-        headers: {
+      String url = "/api/leads/activities/";
+      final headers = { 
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
-        },
-      );
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+          };
+      
+       final response = await ApiService.getWithHeaders(url, headers);
+
+      // final response = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/activities/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Content-Type': 'application/json',
+      //   },
+      // );
+      if (response!.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
         if (responseBody['results'] is List) {
           final List<dynamic> results = responseBody['results'];
           setState(() {
@@ -257,15 +265,23 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
     try {
-      final response = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/location-types/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+      String url = "/api/leads/location-types/";
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      };
+
+      final response = await ApiService.getWithHeaders(url, headers);
+      // final response = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/location-types/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Content-Type': 'application/json',
+      //   },
+      // );
+      if (response!.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
         if (responseBody['results'] is List) {
           final List<dynamic> results = responseBody['results'];
           setState(() {

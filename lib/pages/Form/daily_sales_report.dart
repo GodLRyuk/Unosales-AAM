@@ -107,30 +107,60 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
   // ******************** Function for Image ********************
   Uint8List? _imageBytes;
 
-  Future<void> loadImage(String fullUrl) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('accessToken');
+  // Future<void> loadImage(String fullUrl) async {
+  //   print("full url is $fullUrl");
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? token = prefs.getString('accessToken');
 
-    final response = await http.get(
-      Uri.parse(fullUrl),
-      headers: {
-        "Authorization": "Bearer $token",
-      },
-    );
+  //   final response = await http.get(
+  //     Uri.parse(fullUrl),
+  //     headers: {
+  //       "Authorization": "Bearer $token",
+  //     },
+  //   );
 
-    if (response.statusCode == 200) {
-      setState(() {
-        _imageBytes = response.bodyBytes;
-        _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
+  //   if (response.statusCode == 200) {
+  //     setState(() {
+  //       _imageBytes = response.bodyBytes;
+  //       _isLoading = false;
+  //     });
+  //   } else {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   }
+  // }
+  // correct code
   //************************************************* */
+
+  Future<void> loadImage(String fullUrl) async {
+ 
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? token = prefs.getString('accessToken');
+
+  final path = '/' + fullUrl.split('/unosales/').last;
+  // path = "/media/uploads/images/xxx.jpg"
+
+  final headers = {
+    'Authorization': 'Bearer $token',
+    'User-Agent':
+        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+  };
+
+  final response = await ApiService.getImageWithHeaders(path, headers);
+
+  if (response != null && response.statusCode == 200) {
+    setState(() {
+      _imageBytes = Uint8List.fromList(response.data);
+      _isLoading = false;
+    });
+  } else {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
+  //************************************************** */
 
   @override
   void initState() {
@@ -162,20 +192,29 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
     String? token = prefs.getString('accessToken');
     String? refresh = prefs.getString('refreshToken');
     try {
-      final response = await http.get(
-        Uri.parse(
-            '${AppConfig.dynamicBaseUrl}/api/timesheet/agent-daily-sales/${widget.dsrId}/'), // Using leadId in the API URL
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
-      if (response.statusCode == 200) {
+      String url = "/api/timesheet/agent-daily-sales/${widget.dsrId}/";
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+      final response = await ApiService.getWithHeaders(url, headers);
+      // final response = await http.get(
+      //   Uri.parse(
+      //       '${AppConfig.dynamicBaseUrl}/api/timesheet/agent-daily-sales/${widget.dsrId}/'), // Using leadId in the API URL
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'application/json',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+      if (response!.statusCode == 200) {
         setState(() {
-          leadDetails = json.decode(response.body);
+          leadDetails = response.data;
 
           firstName.text = leadDetails['first_name'] ?? "";
           lastName.text = leadDetails['last_name'] ?? "";
@@ -270,20 +309,25 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
           // For image
 
-          _networkImageUrl1 = leadDetails['upload_selfie'];
-
-          if (_networkImageUrl1 != null && _networkImageUrl1!.isNotEmpty) {
-            if (AppConfig.isDev != true) {
-              _networkImageUrl = _networkImageUrl1!.replaceFirst(
-                "http://salesapp.${AppConfig.flavour}.ph.unobank.asia",
-                "https://unoapi.${AppConfig.flavour}.ph.unobank.asia",
-              );
-            } else {
-              _networkImageUrl = _networkImageUrl1;
-            }
-
+          _networkImageUrl = leadDetails['upload_selfie'];
+          if (_networkImageUrl != null && _networkImageUrl!.isNotEmpty) {
             loadImage(_networkImageUrl!);
           }
+
+          // Correct code ************************
+          // if (_networkImageUrl1 != null && _networkImageUrl1!.isNotEmpty) {
+          //   if (AppConfig.isDev != true) {
+          //     _networkImageUrl = _networkImageUrl1!.replaceFirst(
+          //       "http://salesapp.${AppConfig.flavour}.ph.unobank.asia",
+          //       "https://unoapi.${AppConfig.flavour}.ph.unobank.asia",
+          //     );
+          //   } else {
+          //     _networkImageUrl = _networkImageUrl1;
+          //   }
+
+          //   loadImage(_networkImageUrl!);
+          // }
+          // done***************************************
 
           Future.delayed(Duration(seconds: 10), () {
             setState(() {
@@ -292,15 +336,22 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
           });
         });
       } else if (response.statusCode == 401) {
-        Map<String, dynamic> mappedData = {
+        // Map<String, dynamic> mappedData = {
+        //   'refresh': refresh,
+        // };
+        // final response2 = await http.post(
+        //   Uri.parse(
+        //       '${AppConfig.dynamicBaseUrl}/api/users/token-refresh/'), // Using leadId in the API URL
+        //   body: mappedData,
+        // );
+
+        String url = "/api/users/token-refresh/";
+        final body = {
           'refresh': refresh,
         };
-        final response2 = await http.post(
-          Uri.parse(
-              '${AppConfig.dynamicBaseUrl}/api/users/token-refresh/'), // Using leadId in the API URL
-          body: mappedData,
-        );
-        final data = json.decode(response2.body);
+        final response2 = await ApiService.post(url, body);
+
+        final data = response2!.data;
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('accessToken', data['access']);
         await prefs.setString('refreshToken', data['refresh']);
@@ -322,42 +373,65 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      String url = "/api/leads/los-access-token/";
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
 
-      final tokenData = json.decode(tokenResponse.body);
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
 
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/address'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-        },
-        body: jsonEncode({"zipcode": "$zipCode"}),
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      String url = "/api/app/address";
+      final headers = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+
+      final body = {
+        "zipcode": "$zipCode",
+      };
+
+      final response =
+          await ApiService.postWithHeadersUnoApi(url, body, headers);
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/address'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //   },
+      //   body: jsonEncode({"zipcode": "$zipCode"}),
+      // );
+      if (response!.statusCode == 200) {
+        final data = response.data;
         setState(() {
           perm_Region.text = data['region'];
           perm_State.text = data['province'];
           perm_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = response.data;
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
           final barangays = responseBody['barangays'];
@@ -642,43 +716,69 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      String url = "/api/leads/los-access-token/";
+      final header = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, header);
 
-      final tokenData = json.decode(tokenResponse.body);
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/address'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({"zipcode": "$zipCode"}),
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      String url = "/api/app/address";
+      final headers = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+
+      final body = {
+        "zipcode": "$zipCode",
+      };
+
+      final response =
+          await ApiService.postWithHeadersUnoApi(url, body, headers);
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/address'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({"zipcode": "$zipCode"}),
+      // );
+
+      if (response!.statusCode == 200) {
+        final data = response.data;
         setState(() {
           perm_Region.text = data['region'];
           perm_State.text = data['province'];
           perm_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
@@ -706,17 +806,26 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
     String? token = prefs.getString('accessToken');
 
     try {
-      final response = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/document-types/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      String url = "/api/leads/document-types/";
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+      // final response = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/document-types/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Content-Type': 'application/json',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+
+      final response = await ApiService.getWithHeaders(url, headers);
+      if (response!.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['results'] is List) {
           final List<dynamic> results = responseBody['results'];
@@ -813,41 +922,70 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      String url = "/api/leads/los-access-token/";
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "22"}
-          ]
-        }),
-      );
+      String url = "/api/app/fetch/LOV/details";
+      final headers = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      final body = {
+        "filters": [
+          {"id": "22"}
+        ]
+      };
+
+      final response =
+          await ApiService.postWithHeadersUnoApi(url, body, headers);
+
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "22"}
+      //     ]
+      //   }),
+      // );
+
+      if (response!.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -883,18 +1021,26 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
     String? token = prefs.getString('accessToken');
 
     try {
-      final response = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/activities/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      String url = "/api/leads/activities/";
+      final header = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+      final response = await ApiService.getWithHeaders(url, header);
+      // final response = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/activities/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Content-Type': 'application/json',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      if (response!.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
         if (responseBody['results'] is List) {
           final List<dynamic> results = responseBody['results'];
           // print(results);
@@ -931,14 +1077,21 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.getString('accessToken');
     String? refresh = prefs.getString('refreshToken');
-    Map<String, dynamic> mappedData = {
+    // Map<String, dynamic> mappedData = {
+    //   'refresh': refresh,
+    // };
+    // final response2 = await http.post(
+    //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/users/token-refresh/'),
+    //   body: mappedData,
+    // );
+
+    String url = "/api/users/token-refresh/";
+    final body = {
       'refresh': refresh,
     };
-    final response2 = await http.post(
-      Uri.parse('${AppConfig.dynamicBaseUrl}/api/users/token-refresh/'),
-      body: mappedData,
-    );
-    final data = json.decode(response2.body);
+    final response2 = await ApiService.post(url, body);
+
+    final data = response2!.data;
     await prefs.setBool('isLoggedIn', true);
     await prefs.setString('accessToken', data['access']);
     await prefs.setString('refreshToken', data['refresh']);
