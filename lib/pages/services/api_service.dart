@@ -85,8 +85,8 @@ class TokenInterceptor extends Interceptor {
       return handler.next(options);
     }
 
-     // Added by papri
-     if (options.headers.containsKey('Authorization')) {
+    // Added by papri
+    if (options.headers.containsKey('Authorization')) {
       print("🔑 Authorization already set, skipping TokenInterceptor");
       return handler.next(options);
     }
@@ -519,6 +519,27 @@ class ApiService {
       print("❌ SSL pinning failed");
     } else {
       print("🔴 Request failed: ${e.message}");
+    }
+  }
+
+  // by papri
+  static Future<Response?> getImageWithHeaders(
+    String endpoint,
+    Map<String, String> headers,
+  ) async {
+    try {
+      print("getImageWithHeaders url is ${AppConfig.dynamicBaseUrl}$endpoint");
+      print("getImageWithHeaders headers are $headers");
+      return await DioClient.dynamic.get(
+        endpoint,
+        options: Options(
+          headers: headers,
+          responseType: ResponseType.bytes, // ✅ bytes for image
+        ),
+      );
+    } on DioException catch (e) {
+      _handleError(e);
+      return null;
     }
   }
 }
