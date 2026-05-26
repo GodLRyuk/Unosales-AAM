@@ -853,7 +853,12 @@ class OtpconcentState extends State<Otpconcent> {
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
 
-        Map<String, String> mappedLOsData = {
+        // Map<String, String> mappedLOsData = {
+        //   "cwtransection_id": "${requestData['CWTransactionID']}",
+        //   "los_status": "submitted",
+        // };
+
+         final mappedLOsData = {
           "cwtransection_id": "${requestData['CWTransactionID']}",
           "los_status": "submitted",
         };
@@ -943,8 +948,9 @@ class OtpconcentState extends State<Otpconcent> {
 
           final backendresponseLOS = await ApiService.postJsonWithHeaders(
             LosbackendStatusUrl,
-            headers3,
             finalRequestData,
+            headers3
+           
           );
 
           //  print("LosbackendStatusUrl is $LosbackendStatusUrl");

@@ -134,7 +134,7 @@ class _LoginOtpState extends State<LoginOtp> {
     //   body: body,
     // );
 
-     final response = await ApiService.postFormUrlEncodedUnoApi(
+    final response = await ApiService.postFormUrlEncodedUnoApi(
       '/oauth2/token',
       body,
       headers: {
@@ -145,7 +145,6 @@ class _LoginOtpState extends State<LoginOtp> {
     if (response != null && response.statusCode == 200) {
       final data = response.data;
       final accessToken = data['access_token'];
-
 
       // Step 2: Send SMS using the access token
       // final smsResponse = await http.post(
@@ -170,26 +169,28 @@ class _LoginOtpState extends State<LoginOtp> {
       //   }),
       // );
 
-
-         final endpoint = '/fnf/api/v2/sms/sendSmsMessage';
+      String endpoint = '/fnf/api/v2/sms/sendSmsMessage';
 
       final headers = {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $accessToken',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
 
       final body = {
-        'messages': [
+        "messages": [
           {
-            'from': 'UnoBank',
-            'destinations': [
-              {'to': "63${widget.phone_number}"}
+            "from": "UnoBank",
+            "destinations": [
+              {"to": "+63${phone}"}
             ],
-            'text':
-                'Your One-Time PIN is $otp. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us.'
+            "text":
+                """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
           }
         ]
       };
+
       final smsResponse =
           await ApiService.postWithHeadersUnoApi(endpoint, body, headers);
 
@@ -200,7 +201,7 @@ class _LoginOtpState extends State<LoginOtp> {
         });
       } else {
         Map<String, dynamic> logmappedData = {
-          "url": "${AppConfig.dynamicBaseUrl}/fnf/api/v2/sms/sendSmsMessage'",
+          "url": "${AppConfig.dynamicBaseUrl}/fnf/api/v2/sms/sendSmsMessage",
           "request_body": json.encode({
             "messages": [
               {
@@ -216,7 +217,7 @@ class _LoginOtpState extends State<LoginOtp> {
           "status_code": smsResponse!.statusCode,
           "response_body": smsResponse.data,
         };
-        
+
         // final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
         final headers = {
           "Content-Type": "application/json",
@@ -233,13 +234,13 @@ class _LoginOtpState extends State<LoginOtp> {
         //   body: json.encode(logmappedData),
         // );
 
-          final LogResponse = await ApiService.postJsonWithHeaders(
-            '/api/logs/',
-            logmappedData,
-            headers,
-          );
+        final LogResponse = await ApiService.postJsonWithHeaders(
+          '/api/logs/',
+          logmappedData,
+          headers,
+        );
         print('Failed to send SMS. Status: ${smsResponse.statusCode}');
-        print('Response: ${LogResponse!.data}');
+        // print('Response: ${LogResponse!.data}');
       }
     } else {
       print('Failed to fetch token. Status: ${response!.statusCode}');
@@ -303,7 +304,7 @@ class _LoginOtpState extends State<LoginOtp> {
                     final firstItem = data2['data'][0];
                     checkIndata =
                         firstItem['is_checked_in']; // this will be a bool
-                      
+
                     //print("check in data is $checkIndata");
                     await prefs.setBool('checkInStatus', checkIndata);
                   }

@@ -582,17 +582,20 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       final url = '/api/campaigns/${widget.campaign}/leads/${widget.leadId}/';
 
       final response = await ApiService.getWithHeaders(url, headers);
+      
 
       if (response!.statusCode == 200) {
         setState(() {
           leadDetails = response.data;
-          // print("lead details is this........");
+
+          // print("lead details is this for campaign........");
           // String jsonString = jsonEncode(leadDetails);
           // for (int i = 0; i < jsonString.length; i += 1000) {
           //   print(jsonString.substring(i,
           //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
 
           // }
+
           //****************************************************** */
           firstName.text = leadDetails['first_name'] ?? "";
           lastName.text = leadDetails['last_name'] ?? "";
@@ -741,6 +744,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       };
       final url = '/api/timesheet/agent-daily-sales/${widget.dsrId}/';
       final response = await ApiService.getWithHeaders(url, headers);
+      
 
       if (response!.statusCode == 200) {
         setState(() {
@@ -871,6 +875,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     final url = '/api/users/token-refresh/';
     final response2 = await ApiService.post(url, mappedData);
     final data = response2!.data;
+    
     await prefs.setBool('isLoggedIn', true);
     await prefs.setString('accessToken', data['access']);
     await prefs.setString('refreshToken', data['refresh']);

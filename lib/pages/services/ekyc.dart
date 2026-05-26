@@ -40,7 +40,7 @@ class EkycService {
       },
     );
 
-    token = json.decode(tokenResponse!.data)["access_token"];
+    token = tokenResponse!.data["access_token"];
 
     /// Step 2 → Fetch Hyperverge Token
     final hvResponse = await ApiService.getWithHeadersOnlyUnoApi(
@@ -53,7 +53,7 @@ class EkycService {
         "Correlation-ID": "Correlation-Id-3b2d2c13-4e48-4c6d-8b5d-dbdba6c3c0a8",
       },
     );
-    finalToken = json.decode(hvResponse!.data)['token'];
+    finalToken = hvResponse!.data['token'];
 
     /// Step 3 → Build HyperKYC Config
     var config = HyperKycConfig.fromAccessToken(

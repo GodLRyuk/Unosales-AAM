@@ -179,11 +179,13 @@ class ApiService {
     String endpoint,
     Map<String, dynamic> body,
   ) async {
+    print('🌐 URL: ${DioClient.dynamic.options.baseUrl}$endpoint | HEADERS: ${DioClient.dynamic.options.headers} | BODY: $body');
     try {
+      
       return await DioClient.dynamic.post(
         endpoint,
         data: body,
-        options: Options(contentType: 'application/x-www-form-urlencoded'),
+        // options: Options(contentType: 'application/x-www-form-urlencoded'),
       );
     } on DioException catch (e) {
       _handleError(e);
@@ -266,6 +268,7 @@ class ApiService {
     String endpoint,
     Map<String, dynamic> body,
     Map<String, String> headers,
+    
   ) async {
     try {
       return await DioClient.dynamic.post(
@@ -389,6 +392,10 @@ class ApiService {
         ),
       );
     } on DioException catch (e) {
+      if (e.response?.statusCode == 400)
+      {
+        return e.response;
+      }
       _handleError(e);
       return null;
     }
@@ -522,7 +529,7 @@ class ApiService {
     }
   }
 
-  // by papri
+  // For Image
   static Future<Response?> getImageWithHeaders(
     String endpoint,
     Map<String, String> headers,
