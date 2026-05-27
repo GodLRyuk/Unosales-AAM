@@ -60,20 +60,48 @@ class _Campaign_formState extends State<Campaign_form> {
   // ******************** Function for Image ********************
   Uint8List? _imageBytes;
 
+  // Future<void> loadImage(String fullUrl) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? token = prefs.getString('accessToken');
+
+  //   final response = await http.get(
+  //     Uri.parse(fullUrl),
+  //     headers: {
+  //       "Authorization": "Bearer $token",
+  //     },
+  //   );
+
+  //   if (response.statusCode == 200) {
+  //     setState(() {
+  //       _imageBytes = response.bodyBytes;
+  //       _isLoading = false;
+  //     });
+  //   } else {
+  //     setState(() {
+  //       _isLoading = false;
+  //     });
+  //   }
+  // }
+
   Future<void> loadImage(String fullUrl) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
 
-    final response = await http.get(
-      Uri.parse(fullUrl),
-      headers: {
-        "Authorization": "Bearer $token",
-      },
-    );
+    // Extract path: "/media/uploads/images/xxx.jpg"
+    final path = '/' + fullUrl.split('/unosales/').last;
 
-    if (response.statusCode == 200) {
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'User-Agent':
+          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+    };
+
+    final response = await ApiService.getImageWithHeaders(path, headers);
+
+    if (response != null && response.statusCode == 200) {
       setState(() {
-        _imageBytes = response.bodyBytes;
+        _imageBytes =
+            Uint8List.fromList(response.data); 
         _isLoading = false;
       });
     } else {
@@ -103,7 +131,7 @@ class _Campaign_formState extends State<Campaign_form> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          data = json.decode(response.body);
+          data = response.data;
 
           setState(() {
             _customerName.text = data['full_name'] ?? '';
@@ -117,40 +145,34 @@ class _Campaign_formState extends State<Campaign_form> {
             //_feedback.text = data['customer_feedback'].toString() ?? '';
             _feedback.text = data['customer_feedback']?.toString() ?? '';
 
-            // _networkImageUrl1 = data['upload_selfie'];
+            _networkImageUrl = data['upload_selfie']?.toString();
 
-            // if (AppConfig.isDev != true) {
-            //   _networkImageUrl = _networkImageUrl1!.replaceFirst(
-            //       "http://salesapp.${AppConfig.flavour}.ph.unobank.asia",
-            //       "https://unoapi.${AppConfig.flavour}.ph.unobank.asia");
-            //   loadImage(_networkImageUrl!);
-            // } else {
-            //   _networkImageUrl = _networkImageUrl1;
-            //   loadImage(_networkImageUrl!);
-            // }
-
-            // ***************************************************
-
-            _networkImageUrl1 = data['upload_selfie']?.toString();
-
-            if (_networkImageUrl1 != null && _networkImageUrl1!.isNotEmpty) {
-              if (AppConfig.isDev != true) {
-                _networkImageUrl = _networkImageUrl1!.replaceFirst(
-                  "http://salesapp.${AppConfig.flavour}.ph.unobank.asia",
-                  "https://unoapi.${AppConfig.flavour}.ph.unobank.asia",
-                );
-              } else {
-                _networkImageUrl = _networkImageUrl1;
-              }
-
+            if (_networkImageUrl != null && _networkImageUrl!.isNotEmpty) {
               loadImage(_networkImageUrl!);
             } else {
-              
               _networkImageUrl = null;
               _imageBytes = null;
-
               print("No image from API");
             }
+
+            // if (_networkImageUrl1 != null && _networkImageUrl1!.isNotEmpty) {
+            //   if (AppConfig.isDev != true) {
+            //     _networkImageUrl = _networkImageUrl1!.replaceFirst(
+            //       "http://salesapp.${AppConfig.flavour}.ph.unobank.asia",
+            //       "https://unoapi.${AppConfig.flavour}.ph.unobank.asia",
+            //     );
+            //   } else {
+            //     _networkImageUrl = _networkImageUrl1;
+            //   }
+            //   print("image url for load image $_networkImageUrl! ");
+            //   loadImage(_networkImageUrl!);
+            // } else {
+
+            //   _networkImageUrl = null;
+            //   _imageBytes = null;
+
+            //   print("No image from API");
+            // }
 
             //************************************************** */
 
@@ -239,7 +261,7 @@ class _Campaign_formState extends State<Campaign_form> {
 
   Future<void> submitAndData() async {
     if (_captureImageField1 == null && _networkImageUrl == null) {
-      _showAlert("Please take a selfie."); // alert if no image
+      _showAlert("Please upload Image."); // alert if no image
       return;
     }
 
@@ -326,7 +348,7 @@ class _Campaign_formState extends State<Campaign_form> {
             context: context,
             builder: (_) => AlertDialog(
               title: Text("Error"),
-              content: Text(response.body),
+              content: Text(response.data),
               actions: [
                 TextButton(
                   child: const Text("OK"),
@@ -364,8 +386,8 @@ class _Campaign_formState extends State<Campaign_form> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          //var decodedResponse = json.decode(response.body);
-          var decodedResponse = json.decode(utf8.decode(response.bodyBytes));
+          //var decodedResponse = json.decode(response.data);
+          var decodedResponse = response.data;
 
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['results'] != null) {
@@ -397,7 +419,7 @@ class _Campaign_formState extends State<Campaign_form> {
           String url2 = "/api/users/token-refresh/";
           final response2 = await ApiService.post(url2, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = response2.data;
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -436,7 +458,7 @@ class _Campaign_formState extends State<Campaign_form> {
       if (response == null) return;
 
       if (response.statusCode == 200) {
-        final decodedResponse = json.decode(response.body);
+        final decodedResponse = response.data;
 
         final Map<String, String> fetchedData = {};
         String? matchedStatusCode;
@@ -481,7 +503,7 @@ class _Campaign_formState extends State<Campaign_form> {
         );
 
         if (response2 != null && response2.statusCode == 200) {
-          final tokenData = json.decode(response2.body);
+          final tokenData = response2.data;
           await prefs.setString('accessToken', tokenData['access']);
           await prefs.setString('refreshToken', tokenData['refresh']);
         }

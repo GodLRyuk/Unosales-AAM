@@ -121,13 +121,14 @@ class _DailyAgentPlanerState extends State<SuppervisorIntraDayCall> {
 
     final response = await ApiService.getWithHeaders(apiUrl1, headers);
     if (response != null && response.statusCode == 200) {
-      final decoded = json.decode(response.body);
+      final decoded = response.data;
 
       // print(decoded['live_agents_count']);
       setState(() {
         inputAgentCode.text = decoded['agent_code'].toString();
         mettingCompleted.text = decoded['meetings_conducted'].toString();
-        applicationSubmitted.text = decoded['applications_submitted'].toString();
+        applicationSubmitted.text =
+            decoded['applications_submitted'].toString();
         issueFaced.text = decoded['issues_faced'].toString();
         trainingRecomendation.text = decoded['training_recommendation'] ?? '';
       });
@@ -190,9 +191,14 @@ class _DailyAgentPlanerState extends State<SuppervisorIntraDayCall> {
                     "Agent's code for intraday call",
                     style: WidgetSupport.Questionblack(),
                   ),
-                  _buildTextField(inputAgentCode, "",
-                      "Please Enter Your Agent Code", "inputAgentCode",
-                      isNumeric: false, readOnly: widget.isView,),
+                  _buildTextField(
+                    inputAgentCode,
+                    "",
+                    "Please Enter Your Agent Code",
+                    "inputAgentCode",
+                    isNumeric: false,
+                    readOnly: widget.isView,
+                  ),
                   const SizedBox(height: 15),
                   Text(
                     "Meeting completed by the agent so far?",
@@ -237,36 +243,38 @@ class _DailyAgentPlanerState extends State<SuppervisorIntraDayCall> {
                       "trainingRecomendation",
                       readOnly: widget.isView),
                   const SizedBox(height: 10),
-                  widget.isView!=true?
-                  Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            leadSubmit();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.transparent,
-                            shadowColor: Colors.transparent,
-                            padding: EdgeInsets.symmetric(
-                              horizontal:
-                                  MediaQuery.of(context).size.width * 0.1,
-                              vertical:
-                                  MediaQuery.of(context).size.height * 0.01,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
+                  widget.isView != true
+                      ? Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () {
+                                  leadSubmit();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  shadowColor: Colors.transparent,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal:
+                                        MediaQuery.of(context).size.width * 0.1,
+                                    vertical:
+                                        MediaQuery.of(context).size.height *
+                                            0.01,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Submit".toUpperCase(),
+                                  style: WidgetSupport.LoginButtonTextColor(),
+                                ),
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            "Submit".toUpperCase(),
-                            style: WidgetSupport.LoginButtonTextColor(),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ):SizedBox.shrink(),
+                        )
+                      : SizedBox.shrink(),
                 ],
               ),
             ),

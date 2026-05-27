@@ -309,7 +309,7 @@ class _FRCampaignSingleLeadState extends State<FRCampaignSingleLead> {
         if (response.statusCode == 200) {
           // Parse the response body as JSON
           setState(() {
-            leadDetails = json.decode(response.body);
+            leadDetails = response.data;
             // String jsonString = jsonEncode(leadDetails);
             // for (int i = 0; i < jsonString.length; i += 1000) {
             //   print(jsonString.substring(i,
@@ -430,7 +430,7 @@ class _FRCampaignSingleLeadState extends State<FRCampaignSingleLead> {
           String url = "/api/users/token-refresh/";
           final response2 = await ApiService.post(url, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -2150,11 +2150,11 @@ class _FRCampaignSingleLeadState extends State<FRCampaignSingleLead> {
       final headers = {
         'Authorization': 'Bearer $token',
         //'User-Agent':
-          //  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        //  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final Tokenresponse = await ApiService.getWithHeaders(url, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
+        final data = Tokenresponse.data;
         tokens = data['access_token'];
       }
     } catch (e) {
@@ -2194,7 +2194,7 @@ class _FRCampaignSingleLeadState extends State<FRCampaignSingleLead> {
           // ignore: unused_local_variable
           final responseLOS = await ApiService.patchWithHeaders(
               LosStatusUrl, headers2, mappedLOsData);
-          final LoSResponcedata = json.decode(response.body);
+          final LoSResponcedata = response.data;
 
           //LOS Application Status Check
           Map<String, dynamic> mappedData = {
@@ -2233,7 +2233,7 @@ class _FRCampaignSingleLeadState extends State<FRCampaignSingleLead> {
             Navigator.of(context).pop();
             if (Statusresponse != null) {
               if (Statusresponse.statusCode == 200) {
-                final data = json.decode(Statusresponse.body);
+                final data = json.decode(Statusresponse.data);
                 var result = data['result'];
 
                 if (result != null && result.isNotEmpty) {
@@ -2283,7 +2283,7 @@ class _FRCampaignSingleLeadState extends State<FRCampaignSingleLead> {
             "url": "${AppConfig.unoApiurluat}/partner/loans/check",
             "request_body": requestData,
             "status_code": response.statusCode,
-            "response_body": json.decode(response.body),
+            "response_body": json.decode(response.data),
           };
           final logUrl = "/api/logs/";
 
@@ -2300,7 +2300,7 @@ class _FRCampaignSingleLeadState extends State<FRCampaignSingleLead> {
             if (LogResponse.statusCode == 201) {
               print("Log Created");
             }
-            final data = json.decode(response.body);
+            final data = response.data;
 
             // Extracting the message
             String message = data['message'] ?? "Validation Error";

@@ -180,7 +180,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = response.data;
           setState(() {
             leadDetails = data['count'];
           });
@@ -191,7 +191,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
           String url2 = "/api/users/token-refresh/";
           final response2 = await ApiService.post(url2, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             SharedPreferences prefs = await SharedPreferences.getInstance();
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
@@ -217,11 +217,11 @@ class _SalesdashboardState extends State<Salesdashboard> {
         'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
         //'User-Agent':
-           // 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        // 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
+        final data = json.decode(Tokenresponse.data);
         token = data['access_token'];
       }
     } catch (e) {
@@ -249,7 +249,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
           await ApiService.postWithHeadersUnoApi(url, mappedData, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final data = json.decode(response.body);
+          final data = json.decode(response.data);
           List<dynamic> losData = data['result'] ?? [];
           setState(() {
             accepted = losData

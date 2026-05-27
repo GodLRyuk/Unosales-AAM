@@ -75,41 +75,64 @@ class _RQAApplicationState extends State<RQAApplication> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
 
-      final tokenData = json.decode(tokenResponse.body);
+      // final tokenData = json.decode(tokenResponse.body);
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "8"}
-          ]
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "8"}
+      //     ]
+      //   }),
+      // );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      final endpoint = '/api/app/fetch/LOV/details';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "filters": [
+          {"id": "8"}
+        ]
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
+
+      if (response != null && response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -148,41 +171,66 @@ class _RQAApplicationState extends State<RQAApplication> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
 
-      final tokenData = json.decode(tokenResponse.body);
+      // final tokenData = json.decode(tokenResponse.body);
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "22"}
-          ]
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "22"}
+      //     ]
+      //   }),
+      // );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      // if (response.statusCode == 200) {
+
+      final endpoint = '/api/app/fetch/LOV/details';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "filters": [
+          {"id": "22"}
+        ]
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
+
+      if (response != null && response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -221,41 +269,67 @@ class _RQAApplicationState extends State<RQAApplication> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
 
-      final tokenData = json.decode(tokenResponse.body);
+      // final tokenData = json.decode(tokenResponse.body);
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "1"}
-          ]
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "1"}
+      //     ]
+      //   }),
+      // );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      // if (response.statusCode == 200) {
+
+      final endpoint = '/api/app/fetch/LOV/details';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "filters": [
+         {"id": "1"}
+        ]
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
+
+      if (response != null && response.statusCode == 200) {
+
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -314,7 +388,7 @@ class _RQAApplicationState extends State<RQAApplication> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
             if (!mounted) return;
@@ -340,7 +414,7 @@ class _RQAApplicationState extends State<RQAApplication> {
           String refressToken = '/api/users/token-refresh/';
           final response2 = await ApiService.post(refressToken, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -361,41 +435,67 @@ class _RQAApplicationState extends State<RQAApplication> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
 
-      final tokenData = json.decode(tokenResponse.body);
+      // final tokenData = json.decode(tokenResponse.body);
+         final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "9"}
-          ]
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "9"}
+      //     ]
+      //   }),
+      // );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      // if (response.statusCode == 200) {
+
+      final endpoint = '/api/app/fetch/LOV/details';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "filters": [
+          {"id": "9"}
+        ]
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
+
+      if (response != null && response.statusCode == 200) {
+
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -440,7 +540,7 @@ class _RQAApplicationState extends State<RQAApplication> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -470,7 +570,7 @@ class _RQAApplicationState extends State<RQAApplication> {
           String refressToken = '/api/users/token-refresh/';
           final response2 = await ApiService.post(refressToken, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -498,7 +598,7 @@ class _RQAApplicationState extends State<RQAApplication> {
     return "FSA_$randomNumber$dateTime";
   }
 
-   bool databaseUpdate_value = false; 
+  bool databaseUpdate_value = false;
   // Store data in UNO Data Base
   Future<bool> submitDataUnoDB(String lostoken,
       Map<String, dynamic> responseData, String CWTransactionID) async {
@@ -543,11 +643,9 @@ class _RQAApplicationState extends State<RQAApplication> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          databaseUpdate_value=true;
-          print("Data submitted successfully in UNO DB");          
-           
-        } 
-        else {
+          databaseUpdate_value = true;
+          print("Data submitted successfully in UNO DB");
+        } else {
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -599,15 +697,13 @@ class _RQAApplicationState extends State<RQAApplication> {
               );
             },
           );
-          databaseUpdate_value=false;
+          databaseUpdate_value = false;
         }
       }
     } catch (e) {
       print("error is $e");
-     
     }
     return databaseUpdate_value;
-   
   }
 
   //******************************************* */
@@ -626,13 +722,14 @@ class _RQAApplicationState extends State<RQAApplication> {
       final headers = {
         'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
-        // 'User-Agent':
-        //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
+        final data = Tokenresponse.data;
         token = data['access_token'];
+        print("token is $token");
       }
     } catch (e) {
       print("HTTP Request Failed: $e");
@@ -642,9 +739,9 @@ class _RQAApplicationState extends State<RQAApplication> {
         '/engine/v1/executions/loans-interface/1.x/rqa-check/rqa_check/RQA_Check';
     final headers = {
       'Authorization': 'Bearer $token',
-      // 'User-Agent':
-      //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      'Content-Type': 'application/json'
+      'User-Agent':
+          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      // 'Content-Type': 'application/json'
     };
 
     Map<String, dynamic> formData = {
@@ -672,8 +769,10 @@ class _RQAApplicationState extends State<RQAApplication> {
       final response =
           await ApiService.postJsonWithUNOApiHeaders(rqaUrl, formData, headers);
 
+      print("response of RQA is $response");
+
       if (response != null && response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = response.data;
         print("response body $data");
 
         String? status = data['output']['response']['status'];
@@ -681,9 +780,12 @@ class _RQAApplicationState extends State<RQAApplication> {
 
         //  ****************************************************
         print("status is $status");
-        bool dataUpdatedValue = await submitDataUnoDB(token, data, CWTransactionID);
+        bool dataUpdatedValue =
+            await submitDataUnoDB(token, data, CWTransactionID);
         // ***************************************************
-        if (status != null && status.toLowerCase() == "pass" && dataUpdatedValue == true) {
+        if (status != null &&
+            status.toLowerCase() == "pass" &&
+            dataUpdatedValue == true) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -790,7 +892,8 @@ class _RQAApplicationState extends State<RQAApplication> {
                 ],
               ),
               content: Text(
-                "Failed to connect with server.\nStatus Code: ${response!.statusCode}",
+                // "Failed to connect with server.\nStatus Code: ${response!.statusCode}",
+                "Failed to connect with server.\nStatus Code: ${response?.statusCode ?? 'Unknown'}",
                 style: const TextStyle(fontSize: 16),
               ),
               actionsPadding: const EdgeInsets.only(bottom: 10, right: 10),

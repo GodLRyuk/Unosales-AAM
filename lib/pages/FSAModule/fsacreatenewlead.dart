@@ -135,14 +135,14 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
     try {
       String url = '/api/leads/companies/?page_size=10';
       final headers = {
-      'Authorization': 'Bearer $token',
-      'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    };
+        'Authorization': 'Bearer $token',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -171,7 +171,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
           String refressToken = '/api/users/token-refresh/';
           final response2 = await ApiService.post(refressToken, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -206,7 +206,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -231,7 +231,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
           String refressToken = '/api/users/token-refresh/';
           final response2 = await ApiService.post(refressToken, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -268,7 +268,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
 
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> data = response.data;
         if (data['results'] != null && data['results'] is List) {
           List<dynamic> location = data['results'];
 
@@ -292,7 +292,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
           await prefs.setString('refreshToken', data['refresh']);
@@ -316,7 +316,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> data = response.data;
         if (data['results'] != null && data['results'] is List) {
           List<dynamic> location = data['results'];
 
@@ -340,7 +340,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
@@ -365,7 +365,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> data = response.data;
         if (data['results'] != null && data['results'] is List) {
           List<dynamic> tenor = data['results'];
 
@@ -389,7 +389,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
           await prefs.setString('refreshToken', data['refresh']);
@@ -414,7 +414,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> data = response.data;
         if (data['results'] != null && data['results'] is List) {
           List<dynamic> docs = data['results'];
 
@@ -438,7 +438,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
           await prefs.setString('refreshToken', data['refresh']);
@@ -464,7 +464,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> data = response.data;
         if (data['results'] != null && data['results'] is List) {
           List<dynamic> citydata = data['results'];
           Map<String, String> fetchedData = {};
@@ -486,7 +486,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
           await prefs.setString('refreshToken', data['refresh']);
@@ -517,7 +517,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> data = response.data;
         if (data['results'] != null && data['results'] is List) {
           List<dynamic> cityData = data['results'];
 
@@ -539,7 +539,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
           await prefs.setString('refreshToken', data['refresh']);
@@ -563,7 +563,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) if (response.statusCode == 200) {
-        final Map<String, dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> data = response.data;
         if (data['barangays'] != null && data['barangays'] is List) {
           List<dynamic> barangays = data['barangays'];
 
@@ -588,7 +588,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         String refressToken = '/api/users/token-refresh/';
         final response2 = await ApiService.post(refressToken, mappedData);
         if (response2 != null) {
-          final data = json.decode(response2.body);
+          final data = json.decode(response2.data);
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('accessToken', data['access']);
           await prefs.setString('refreshToken', data['refresh']);
@@ -633,12 +633,13 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final headers = await _getAuthHeader();
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
-        final data = json.decode(response.body);
+        final data = response.data;
         String citiesUrl = '/api/leads/cities/?id=${data['city_name']}/';
         final cityresponse =
             await ApiService.getWithHeaders(citiesUrl, headers);
         if (cityresponse != null) {
-          final Map<String, dynamic> cityData = json.decode(cityresponse.body);
+          final Map<String, dynamic> cityData =
+              json.decode(cityresponse.data.body);
           if (cityData['results'] != null && cityData['results'] is List) {
             List<dynamic> cityList = cityData['results'];
             Map<String, String> fetchedCities = {
@@ -664,7 +665,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
             await ApiService.getWithHeaders(locationUrl, headers);
         if (locationresponse != null) {
           final Map<String, dynamic> locationData =
-              json.decode(locationresponse.body);
+              json.decode(locationresponse.data.body);
           if (locationData['results'] != null &&
               locationData['results'] is List) {
             Map<String, String> locationMap = {
@@ -680,7 +681,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
             await ApiService.getWithHeaders(activityUrl, headers);
         if (activityresponse != null) {
           final Map<String, dynamic> activityData =
-              json.decode(activityresponse.body);
+              json.decode(activityresponse.data.body);
           if (activityData['results'] != null &&
               activityData['results'] is List) {
             _ActivityIdOptions = {
@@ -696,7 +697,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
             await ApiService.getWithHeaders(tenorsUrl, headers);
         if (tenorsresponse != null) {
           final Map<String, dynamic> tenorData =
-              json.decode(tenorsresponse.body);
+              json.decode(tenorsresponse.data.body);
           if (tenorData['results'] != null && tenorData['results'] is List) {
             _TenorIdOptions = {
               for (var item in tenorData['results'])
@@ -711,7 +712,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
             await ApiService.getWithHeaders(documentUrl, headers);
         if (documentresponse != null) {
           final Map<String, dynamic> docData =
-              json.decode(documentresponse.body);
+              json.decode(documentresponse.data.body);
           if (docData['results'] != null && docData['results'] is List) {
             _DocumentIdOptions = {
               for (var item in docData['results'])
@@ -726,7 +727,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
             await ApiService.getWithHeaders(citiesUrl2, headers);
         if (barangayresponse != null) {
           final Map<String, dynamic> barangayData =
-              json.decode(barangayresponse.body);
+              json.decode(barangayresponse.data.body);
           if (barangayData['results'] != null &&
               barangayData['results'] is List &&
               barangayData['results'].isNotEmpty &&
@@ -752,7 +753,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
             await ApiService.getWithHeaders(companyUrl, headers);
         if (companyResponse != null) {
           final Map<String, dynamic> compData =
-              json.decode(companyResponse.body);
+              json.decode(companyResponse.data);
           if (compData['results'] != null && compData['results'] is List) {
             _ComIdOptions = {
               for (var item in compData['results'])
@@ -860,7 +861,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
       final response = await ApiService.getWithHeaders(imageUrl, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Uint8List imageBytes = response.bodyBytes;
+          Uint8List imageBytes = response.data.bodyBytes;
           if (imageBytes.isNotEmpty) {
             setState(() {
               _imageBytes = imageBytes;
@@ -899,7 +900,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
           final fileName = Uri.parse(imageUrl).pathSegments.last;
           final filePath = '${tempDir.path}/$fileName';
           final _image = File(filePath);
-          await _image.writeAsBytes(response.bodyBytes);
+          await _image.writeAsBytes(response.data.bodyBytes);
 
           return _image;
         } else {
@@ -1601,7 +1602,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
 
         if (response != null &&
             (response.statusCode == 201 || response.statusCode == 200)) {
-          final data = json.decode(response.body);
+          final data = response.data;
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -1621,7 +1622,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
           final refreshResponse = await ApiService.post(url2, mappedData);
           if (refreshResponse != null) {
             if (refreshResponse.statusCode == 200) {
-              final data = json.decode(refreshResponse.body);
+              final data = json.decode(refreshResponse.data);
               await prefs.setString('accessToken', data['access']);
               await prefs.setString('refreshToken', data['refresh']);
               leadSubmit(); // retry
@@ -1644,7 +1645,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
             builder: (BuildContext context) {
               return AlertDialog(
                 title: const Text("Submission Failed"),
-                content: Text("Error: ${response?.body ?? 'Unknown error'}"),
+                content: Text("Error: ${response?.data ?? 'Unknown error'}"),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),

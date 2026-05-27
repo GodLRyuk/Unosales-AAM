@@ -114,8 +114,8 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
     try {
       if (response != null) {
-        final data = json.decode(response.body);
-        final locationData = data['assigned_locations'];
+        final data = response.data;
+        final locationData = data['assigned_locations'];      
 
         plannedMeeting.text = data['meetings_planned']?.toString() ?? "";
         targetAplication.text = data['application_target']?.toString() ?? "";
@@ -229,15 +229,23 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
     try {
-      final response = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/activities/'),
-        headers: {
+      String url = "/api/leads/activities/";
+      final headers = { 
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
-        },
-      );
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+          };
+      
+       final response = await ApiService.getWithHeaders(url, headers);
+
+      // final response = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/activities/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Content-Type': 'application/json',
+      //   },
+      // );
+      if (response!.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
         if (responseBody['results'] is List) {
           final List<dynamic> results = responseBody['results'];
           setState(() {
@@ -259,15 +267,23 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
     try {
-      final response = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/location-types/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+
+      String url = "/api/leads/location-types/";
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      };
+
+      final response = await ApiService.getWithHeaders(url, headers);
+      // final response = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/location-types/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Content-Type': 'application/json',
+      //   },
+      // );
+      if (response!.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
         if (responseBody['results'] is List) {
           final List<dynamic> results = responseBody['results'];
           setState(() {
@@ -1051,7 +1067,7 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
     final response = await ApiService.postJsonWithHeaders(url, mappedData, headers);
 
     if (response != null && response.statusCode == 201) {
-      final data = json.decode(response.body);
+      final data = response.data;
       setState(() {
         daily_activity = data['id'].toString();
       });
@@ -1140,7 +1156,7 @@ class _DailyAgentPlanerState extends State<DailyAgentPlaner> {
     }
     else
     {
-      final data = json.decode(response!.body);
+      final data = response!.data;
       showDialog(
       context: context,
       builder: (_) => AlertDialog(

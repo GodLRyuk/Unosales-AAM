@@ -66,7 +66,7 @@ class _DailyAgentPlanerState extends State<SuppervisorHuddle> {
 
     final response = await ApiService.getWithHeaders(apiUrl1, headers);
     if (response != null && response.statusCode == 200) {
-      final decoded = json.decode(response.body);
+      final decoded = response.data;
 
       // print(decoded);
       // print(decoded['live_agents_count']);
@@ -300,7 +300,7 @@ class _DailyAgentPlanerState extends State<SuppervisorHuddle> {
 
   Future<void> leadSubmit() async {
     setState(() {
-      _loadingCurrentLocation=true;
+      _loadingCurrentLocation = true;
     });
     // Trim all text fields
     String total_agent = totalAgent.text.trim();
@@ -381,11 +381,11 @@ class _DailyAgentPlanerState extends State<SuppervisorHuddle> {
                 TextButton(
                   onPressed: () {
                     Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SuppervisorHuddleList(),
-                    ),
-                  );
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SuppervisorHuddleList(),
+                      ),
+                    );
                   },
                   child: const Text("OK"),
                 ),

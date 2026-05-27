@@ -247,6 +247,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   String? _selectedCompany;
   bool _showOtherCompanyField = false;
   final _otherCompanyController = TextEditingController();
+
+  // Using this api we are getting public Ip. so no need to change the fuction
   Future<void> getPublicIP() async {
     final response =
         await http.get(Uri.parse('https://api64.ipify.org?format=json'));
@@ -274,7 +276,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -304,7 +306,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           String refressToken = '/api/users/token-refresh/';
           final response2 = await ApiService.post(refressToken, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -410,7 +412,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       if (response != null) {
         if (response.statusCode == 200) {
           // Your API is returning a single company object, not a list
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = response.data;
 
           // Directly use the API response instead of _ComIdOptions
           if (data.containsKey('id')) {
@@ -448,7 +450,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           String refressToken = '/api/users/token-refresh/';
           final response2 = await ApiService.post(refressToken, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -486,8 +488,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          //print("response is ${response.body}");
-          final Map<String, dynamic> data = json.decode(response.body);
+          //print("response is ${response.data.body}");
+          final Map<String, dynamic> data = response.data;
           if (data['results'] != null && data['results'] is List) {
             List<dynamic> companies = data['results'];
 
@@ -512,7 +514,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           String refressToken = '/api/users/token-refresh/';
           final response2 = await ApiService.post(refressToken, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -561,27 +563,39 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     String? refresh = prefs.getString('refreshToken');
     userInfo = prefs.getStringList('userInfo');
     try {
-      final response = await http.get(
-        Uri.parse(
-            '${AppConfig.dynamicBaseUrl}/api/campaigns/${widget.campaign}/leads/${widget.leadId}/'), // Using leadId in the API URL
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
-      if (response.statusCode == 200) {
+      // final response = await http.get(
+      //   Uri.parse(
+      //       '${AppConfig.dynamicBaseUrl}/api/campaigns/${widget.campaign}/leads/${widget.leadId}/'), // Using leadId in the API URL
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      };
+      final url = '/api/campaigns/${widget.campaign}/leads/${widget.leadId}/';
+
+      final response = await ApiService.getWithHeaders(url, headers);
+      
+
+      if (response!.statusCode == 200) {
         setState(() {
-          leadDetails = json.decode(response.body);
-          // print("lead details is this........");
+          leadDetails = response.data;
+
+          // print("lead details is this for campaign........");
           // String jsonString = jsonEncode(leadDetails);
           // for (int i = 0; i < jsonString.length; i += 1000) {
           //   print(jsonString.substring(i,
           //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
 
           // }
+
           //****************************************************** */
           firstName.text = leadDetails['first_name'] ?? "";
           lastName.text = leadDetails['last_name'] ?? "";
@@ -674,12 +688,17 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         Map<String, dynamic> mappedData = {
           'refresh': refresh,
         };
-        final response2 = await http.post(
-          Uri.parse(
-              '${AppConfig.dynamicBaseUrl}/api/users/token-refresh/'), // Using leadId in the API URL
-          body: mappedData,
-        );
-        final data = json.decode(response2.body);
+
+        // final response2 = await http.post(
+        //   Uri.parse(
+        //       '${AppConfig.dynamicBaseUrl}/api/users/token-refresh/'), // Using leadId in the API URL
+        //   body: mappedData,
+        // );
+        final url = '/api/users/token-refresh/';
+
+        final response2 = await ApiService.post(url, mappedData);
+
+        final data = response2!.data;
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('accessToken', data['access']);
         await prefs.setString('refreshToken', data['refresh']);
@@ -707,20 +726,29 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     String? refresh = prefs.getString('refreshToken');
     userInfo = prefs.getStringList('userInfo');
     try {
-      final response = await http.get(
-        Uri.parse(
-            '${AppConfig.dynamicBaseUrl}/api/timesheet/agent-daily-sales/${widget.dsrId}/'), // Using leadId in the API URL
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
-      if (response.statusCode == 200) {
+      // final response = await http.get(
+      //   Uri.parse(
+      //       '${AppConfig.dynamicBaseUrl}/api/timesheet/agent-daily-sales/${widget.dsrId}/'), // Using leadId in the API URL
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'application/json',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      };
+      final url = '/api/timesheet/agent-daily-sales/${widget.dsrId}/';
+      final response = await ApiService.getWithHeaders(url, headers);
+      
+
+      if (response!.statusCode == 200) {
         setState(() {
-          leadDetails = json.decode(response.body);
+          leadDetails = response.data;
 
           // print("lead details is $leadDetails");
           // String jsonString = jsonEncode(leadDetails);
@@ -809,12 +837,14 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         Map<String, dynamic> mappedData = {
           'refresh': refresh,
         };
-        final response2 = await http.post(
-          Uri.parse(
-              '${AppConfig.dynamicBaseUrl}/api/users/token-refresh/'), // Using leadId in the API URL
-          body: mappedData,
-        );
-        final data = json.decode(response2.body);
+        // final response2 = await http.post(
+        //   Uri.parse(
+        //       '${AppConfig.dynamicBaseUrl}/api/users/token-refresh/'), // Using leadId in the API URL
+        //   body: mappedData,
+        // );
+        final url = '/api/users/token-refresh/';
+        final response2 = await ApiService.post(url, mappedData);
+        final data = response2!.data;
         await prefs.setBool('isLoggedIn', true);
         await prefs.setString('accessToken', data['access']);
         await prefs.setString('refreshToken', data['refresh']);
@@ -837,11 +867,15 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     Map<String, dynamic> mappedData = {
       'refresh': refresh,
     };
-    final response2 = await http.post(
-      Uri.parse('${AppConfig.dynamicBaseUrl}/api/users/token-refresh/'),
-      body: mappedData,
-    );
-    final data = json.decode(response2.body);
+    // final response2 = await http.post(
+    //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/users/token-refresh/'),
+    //   body: mappedData,
+    // );
+
+    final url = '/api/users/token-refresh/';
+    final response2 = await ApiService.post(url, mappedData);
+    final data = response2!.data;
+    
     await prefs.setBool('isLoggedIn', true);
     await prefs.setString('accessToken', data['access']);
     await prefs.setString('refreshToken', data['refresh']);
@@ -862,44 +896,65 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
-
-      final tokenData = json.decode(tokenResponse.body);
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
 
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/address'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({"zipcode": "$zipCode"}),
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/address'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({"zipcode": "$zipCode"}),
+      // );
+      final endpoint = '/api/app/address';
+
+      final headers = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+
+      final body = {
+        'zipcode': zipCode,
+      };
+
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers);
+
+      if (response != null) {
+        final data = response.data;
         setState(() {
           perm_Region.text = data['region'];
           perm_State.text = data['province'];
           perm_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = response.data;
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
           final barangays = responseBody['barangays'];
@@ -934,42 +989,63 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
 
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/address'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-        },
-        body: jsonEncode({"zipcode": "$zipCode"}),
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/address'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //   },
+      //   body: jsonEncode({"zipcode": "$zipCode"}),
+      // );
+      // if (response.statusCode == 200) {
+
+      final endpoint = '/api/app/address';
+      final headers = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        'zipcode': zipCode,
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers);
+
+      if (response != null) {
+        final data = response.data;
         setState(() {
           perm_Region.text = data['region'];
           perm_State.text = data['province'];
           perm_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = response.data;
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
           final barangays = responseBody['barangays'];
@@ -1000,42 +1076,61 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
-
-      final tokenData = json.decode(tokenResponse.body);
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
 
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/address'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-        },
-        body: jsonEncode({"zipcode": "$zipCode"}),
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/address'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //   },
+      //   body: jsonEncode({"zipcode": "$zipCode"}),
+      // );
+      // if (response.statusCode == 200) {
+
+      final endpoint = '/api/app/address';
+      final headers = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        'zipcode': zipCode,
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers);
+      if (response != null) {
+        final data = response.data;
         setState(() {
           perm_Region.text = data['region'];
           perm_State.text = data['province'];
           perm_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = response.data;
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
           final barangays = responseBody['barangays'];
@@ -1074,36 +1169,56 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/address'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({"zipcode": "$zipCode"}),
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/address'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({"zipcode": "$zipCode"}),
+      // );
+      // if (response.statusCode == 200) {
+      final endpoint = '/api/app/address';
+      final headers = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        'zipcode': zipCode,
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers);
+      if (response != null) {
+        final data = response.data;
 
         setState(() {
           emp_Region.text = data['region'];
@@ -1111,7 +1226,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           emp_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
@@ -1148,35 +1263,54 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
 
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/address'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-        },
-        body: jsonEncode({"zipcode": "$zipCode"}),
-      );
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/address'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //   },
+      //   body: jsonEncode({"zipcode": "$zipCode"}),
+      // );
+      // if (response.statusCode == 200) {
+      final endpoint = '/api/app/address';
+      final headers = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        'zipcode': zipCode,
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers);
+      if (response != null) {
+        final data = response.data;
 
         setState(() {
           emp_Region.text = data['region'];
@@ -1184,7 +1318,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           emp_City.text = data['cityMunicipality'];
         });
 
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['barangays'] is List &&
             responseBody['barangays'].isNotEmpty) {
@@ -1224,42 +1358,62 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
 
-      if (tokenResponse.statusCode != 200) {
+      if (tokenResponse!.statusCode != 200) {
         throw Exception('Failed to fetch LOS access token');
       }
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = tokenResponse.data;
       tokens = tokenData['access_token'];
 
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "3"}
-          ]
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "3"}
+      //     ]
+      //   }),
+      // );
+      final endpoint = '/api/app/fetch/LOV/details';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "filters": [
+          {"id": "3"}
+        ]
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      if (response!.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem = responseBody['data'][0];
@@ -1296,41 +1450,62 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
-    final response = await http.post(
-      Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      headers: {
-        'Authorization': 'Bearer $tokens',
-        'Content-Type': 'application/json',
-        'Idempotency-Key': 'sfsggdhsdgdgdg',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      },
-      body: jsonEncode({
-        "filters": [
-          {"id": "20"}
-        ]
-      }),
-    );
+    // final response = await http.post(
+    //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+    //   headers: {
+    //     'Authorization': 'Bearer $tokens',
+    //     'Content-Type': 'application/json',
+    //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+    //     'User-Agent':
+    //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+    //   },
+    //   body: jsonEncode({
+    //     "filters": [
+    //       {"id": "20"}
+    //     ]
+    //   }),
+    // );
+    final endpoint = '/api/app/fetch/LOV/details';
+    final headers2 = {
+      'Authorization': 'Bearer $tokens',
+      'Content-Type': 'application/json',
+      'Idempotency-Key': 'sfsggdhsdgdgdg',
+    };
+    final body = {
+      "filters": [
+        {"id": "20"}
+      ]
+    };
+    final response =
+        await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
 
     try {
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      if (response != null && response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1367,41 +1542,62 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "9"}
-          ]
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "9"}
+      //     ]
+      //   }),
+      // );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      final endpoint = '/api/app/fetch/LOV/details';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "filters": [
+          {"id": "9"}
+        ]
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
+
+      if (response != null && response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1438,42 +1634,62 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "8"}
-          ]
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "8"}
+      //     ]
+      //   }),
+      // );
+      final endpoint = '/api/app/fetch/LOV/details';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "filters": [
+          {"id": "8"}
+        ]
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
-
+      if (response != null && response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
               responseBody['data'][0]; // The first map in the list
@@ -1509,41 +1725,62 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
 
-      final tokenData = json.decode(tokenResponse.body);
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "1"}
-          ]
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "1"}
+      //     ]
+      //   }),
+      // );
+      final endpoint = '/api/app/fetch/LOV/details';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "filters": [
+          {"id": "1"}
+        ]
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      if (response != null && response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1580,41 +1817,63 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
 
-      final tokenData = json.decode(tokenResponse.body);
+      final tokenData = tokenResponse!.data;
+
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "22"}
-          ]
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "22"}
+      //     ]
+      //   }),
+      // );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      final endpoint = '/api/app/fetch/LOV/details';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "filters": [
+          {"id": "22"}
+        ]
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
+
+      if (response != null && response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1651,41 +1910,63 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
 
-      final tokenData = json.decode(tokenResponse.body);
+      // final tokenData = json.decode(tokenResponse.body);
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "11"}
-          ]
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "11"}
+      //     ]
+      //   }),
+      // );
+      final endpoint = '/api/app/fetch/LOV/details';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "filters": [
+          {"id": "11"}
+        ]
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      if (response != null && response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1722,41 +2003,67 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
 
-      final tokenData = json.decode(tokenResponse.body);
+      // final tokenData = json.decode(tokenResponse.body);
+
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "15"}
-          ]
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "15"}
+      //     ]
+      //   }),
+      // );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      // if (response.statusCode == 200) {
+
+      final endpoint = '/api/app/fetch/LOV/details';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "filters": [
+          {"id": "15"}
+        ]
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
+
+      if (response != null && response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1793,41 +2100,67 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
 
-      final tokenData = json.decode(tokenResponse.body);
+      // final tokenData = json.decode(tokenResponse.body);
+
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "15"}
-          ]
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "15"}
+      //     ]
+      //   }),
+      // );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      // if (response.statusCode == 200) {
+
+      final endpoint = '/api/app/fetch/LOV/details';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "filters": [
+          {"id": "15"}
+        ]
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
+
+      if (response != null && response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1864,41 +2197,66 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
 
-      final tokenData = json.decode(tokenResponse.body);
+      // final tokenData = json.decode(tokenResponse.body);
+
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "filters": [
-            {"id": "4"}
-          ]
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "filters": [
+      //       {"id": "4"}
+      //     ]
+      //   }),
+      // );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      // if (response.statusCode == 200) {
+      final endpoint = '/api/app/fetch/LOV/details';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "filters": [
+          {"id": "4"}
+        ]
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
+
+      if (response != null && response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final firstItem =
@@ -1935,42 +2293,67 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final tokenResponse = await http.get(
-        Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Accept': 'application/json',
-          'Content-Type': 'multipart/form-data',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-      );
+      // final tokenResponse = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Accept': 'application/json',
+      //     'Content-Type': 'multipart/form-data',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      // );
 
-      final tokenData = json.decode(tokenResponse.body);
+      // final tokenData = json.decode(tokenResponse.body);
+
+      final url = '/api/leads/los-access-token/';
+      final headers = {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'multipart/form-data',
+      };
+      final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+      final tokenData = tokenResponse!.data;
       tokens = tokenData['access_token'];
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
     try {
-      final response = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/api/lov/mapping/sequence'),
-        headers: {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        },
-        body: jsonEncode({
-          "category": "Source_of_Fund",
-          "empStatusId": emp_Status_Code.text.replaceFirst(RegExp(r'^0+'), ''),
-          "nowId": emp_Work_Nature_Code.text.replaceFirst(RegExp(r'^0+'), ''),
-          "positionId": emp_position.text.replaceFirst(RegExp(r'^0+'), ''),
-        }),
-      );
+      // final response = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/api/lov/mapping/sequence'),
+      //   headers: {
+      //     'Authorization': 'Bearer $tokens',
+      //     'Content-Type': 'application/json',
+      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      //   },
+      //   body: jsonEncode({
+      //     "category": "Source_of_Fund",
+      //     "empStatusId": emp_Status_Code.text.replaceFirst(RegExp(r'^0+'), ''),
+      //     "nowId": emp_Work_Nature_Code.text.replaceFirst(RegExp(r'^0+'), ''),
+      //     "positionId": emp_position.text.replaceFirst(RegExp(r'^0+'), ''),
+      //   }),
+      // );
 
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> responseBody = jsonDecode(response.body);
+      final endpoint = '/api/lov/mapping/sequence';
+      final headers2 = {
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+      };
+      final body = {
+        "category": "Source_of_Fund",
+        "empStatusId": emp_Status_Code.text.replaceFirst(RegExp(r'^0+'), ''),
+        "nowId": emp_Work_Nature_Code.text.replaceFirst(RegExp(r'^0+'), ''),
+        "positionId": emp_position.text.replaceFirst(RegExp(r'^0+'), ''),
+      };
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
+
+      if (response != null && response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
           final dataList = responseBody['data'];
@@ -2140,7 +2523,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           birthDate.text = (customer['birthDate']?.trim().isNotEmpty ?? false)
               ? customer['birthDate']?.trim()
               : (widget.dateofbirth ?? '');
-         
 
           fin_Mthly_Income.text = (empMonthlyIncome?['fin_Mthly_Income']
                       ?.toString()
@@ -2150,9 +2532,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
               ? empMonthlyIncome['fin_Mthly_Income'].toString().trim()
               : (widget.monthlyIncome ?? "");
 
-          perm_ZipCode.text = (address?['postcode']?.toString().trim().isNotEmpty ?? false)
-        ? address['postcode'].toString().trim()
-        : (widget.zipCode ?? "");
+          perm_ZipCode.text =
+              (address?['postcode']?.toString().trim().isNotEmpty ?? false)
+                  ? address['postcode'].toString().trim()
+                  : (widget.zipCode ?? "");
 
           // lastName.text = customer['lastName']?.trim() ?? '';
           // middlename.text = customer['middleName'] ?? "";
@@ -2169,7 +2552,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           }
 
           // address
-          //perm_ZipCode.text = address?['postcode'] ?? ""; 
+          //perm_ZipCode.text = address?['postcode'] ?? "";
           perm_Street.text = address?['line1'] ?? "";
 
           // document
@@ -2197,8 +2580,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         }
 
         // zip for employee
-        // emp_ZipCode.text = empAddress['emp_ZipCode'] ?? ""; 
-        // if (empAddress != null && empAddress['emp_ZipCode'] != null) {  
+        // emp_ZipCode.text = empAddress['emp_ZipCode'] ?? "";
+        // if (empAddress != null && empAddress['emp_ZipCode'] != null) {
         //   await onEmpZipCodeEntered(address['emp_ZipCode']);
         // }
 
@@ -2216,9 +2599,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
             emp_Work_Nature_Code.text = code;
             emp_Work_Nature.text = selectedItem['value'] ?? '';
           });
-        }
-
-        else if (widget.natureOfBusiness != null) {
+        } else if (widget.natureOfBusiness != null) {
           String code = widget.natureOfBusiness.toString();
 
           final selectedItem = empWorkNatureList.firstWhere(
@@ -2232,8 +2613,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
             emp_Work_Nature.text = selectedItem['value'] ?? '';
           });
         }
-
-
       }
 
       // Fetch data from RQA
@@ -2373,9 +2752,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "firstName",
                                 isRequired: true,
                                 readOnly: ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode ==
-                                            "fromHYPERVERSER" ||
-                                        widget.pagemode == "fromETBStartFresh") && firstName.text.isNotEmpty) 
+                                            widget.pagemode ==
+                                                "fromHYPERVERSER" ||
+                                            widget.pagemode ==
+                                                "fromETBStartFresh") &&
+                                        firstName.text.isNotEmpty)
                                     ? true
                                     : false,
                               ),
@@ -2386,10 +2767,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "Please Enter Middle Name",
                                 "middlename",
                                 isRequired: false,
-                                readOnly:  ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode ==
-                                            "fromHYPERVERSER" ||
-                                        widget.pagemode == "fromETBStartFresh") && middlename.text.isNotEmpty) 
+                                readOnly: ((widget.pagemode == "fromDSR" ||
+                                            widget.pagemode ==
+                                                "fromHYPERVERSER" ||
+                                            widget.pagemode ==
+                                                "fromETBStartFresh") &&
+                                        middlename.text.isNotEmpty)
                                     ? true
                                     : false,
                               ),
@@ -2400,10 +2783,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "Please Enter Last Name",
                                 "lastName",
                                 isRequired: true,
-                                readOnly:  ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode ==
-                                            "fromHYPERVERSER" ||
-                                        widget.pagemode == "fromETBStartFresh") && lastName.text.isNotEmpty) 
+                                readOnly: ((widget.pagemode == "fromDSR" ||
+                                            widget.pagemode ==
+                                                "fromHYPERVERSER" ||
+                                            widget.pagemode ==
+                                                "fromETBStartFresh") &&
+                                        lastName.text.isNotEmpty)
                                     ? true
                                     : false,
                               ),
@@ -2411,10 +2796,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                               _buildMobileTextField(
                                 controller: mobilePhone,
                                 isPhoneNumber: true,
-                                readOnly:  ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode ==
-                                            "fromHYPERVERSER" ||
-                                        widget.pagemode == "fromETBStartFresh") && mobilePhone.text.isNotEmpty) 
+                                readOnly: ((widget.pagemode == "fromDSR" ||
+                                            widget.pagemode ==
+                                                "fromHYPERVERSER" ||
+                                            widget.pagemode ==
+                                                "fromETBStartFresh") &&
+                                        mobilePhone.text.isNotEmpty)
                                     ? true
                                     : false,
                               ),
@@ -2424,8 +2811,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                   label: "Birth Date",
                                   readOnly:
                                       ((widget.pagemode == "fromHYPERVERSER" ||
-                                              widget.pagemode ==
-                                                  "fromETBStartFresh") && birthDate.text.isNotEmpty)
+                                                  widget.pagemode ==
+                                                      "fromETBStartFresh") &&
+                                              birthDate.text.isNotEmpty)
                                           ? true
                                           : false),
                               SizedBox(height: 6),
@@ -2447,7 +2835,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "email",
                                 isRequired: true,
                                 readOnly: ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode == "fromETBStartFresh") && email.text.isNotEmpty)
+                                            widget.pagemode ==
+                                                "fromETBStartFresh") &&
+                                        email.text.isNotEmpty)
                                     ? true
                                     : false,
                               ),
@@ -2514,9 +2904,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 isRequired: true,
                                 isZip: true,
                                 readOnly: ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode ==
-                                            "fromETBStartFresh" ||
-                                        widget.pagemode == "fromHYPERVERSER") && perm_ZipCode.text.isNotEmpty)
+                                            widget.pagemode ==
+                                                "fromETBStartFresh" ||
+                                            widget.pagemode ==
+                                                "fromHYPERVERSER") &&
+                                        perm_ZipCode.text.isNotEmpty)
                                     ? true
                                     : false,
                                 onChanged: (value) async {
@@ -2884,9 +3276,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "fin_Mthly_Income",
                                 isRequired: true,
                                 readOnly: ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode ==
-                                            "fromETBStartFresh" ||
-                                        widget.pagemode == "fromHYPERVERSER") && fin_Mthly_Income.text.isNotEmpty)
+                                            widget.pagemode ==
+                                                "fromETBStartFresh" ||
+                                            widget.pagemode ==
+                                                "fromHYPERVERSER") &&
+                                        fin_Mthly_Income.text.isNotEmpty)
                                     ? true
                                     : false,
                               ),
@@ -3046,7 +3440,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _buildZipTextField(
-                                emp_ZipCode, 
+                                emp_ZipCode,
                                 "Zip Code",
                                 "Please Enter Zip Code",
                                 "emp_ZipCode",
@@ -3357,7 +3751,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     // Define a regex to detect special characters
     String middleName = middlename.text.trim();
     // Check if middle name is not empty and contains any special characters
-    
+
     // if (middleName.isNotEmpty && specialCharRegex.hasMatch(middleName)) {
     //   _showValidationDialog("Middle Name must not contain special characters.");
     //   return false;
@@ -3631,16 +4025,25 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     String tokens = "";
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
-    final Tokenresponse = await http.get(
-      Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      },
-    );
-    final data = json.decode(Tokenresponse.body);
-    tokens = data['access_token'];
+    // final Tokenresponse = await http.get(
+    //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
+    //   headers: {
+    //     'Authorization': 'Bearer $token',
+    //     'User-Agent':
+    //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+    //   },
+    // );
+    // final data = json.decode(Tokenresponse.body);
+    final url = '/api/leads/los-access-token/';
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
+      'Content-Type': 'multipart/form-data',
+    };
+    final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+    final tokenData = tokenResponse!.data;
+    tokens = tokenData['access_token'];
     // String applicationN =application['applicationNo'];
     showDialog(
       barrierDismissible: false, // Prevent closing
@@ -3655,26 +4058,47 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                 retryCount++;
 
                 // Refresh status via API
-                final refreshedResponse = await http.post(
-                  Uri.parse(
-                      '${AppConfig.dynamicBaseUrl}/api/app/fetch/application/status'),
-                  headers: {
-                    'Content-Type': 'application/json',
-                    "Idempotency-Key": "jbkjdbjkjk",
-                    "Authorization": "Bearer $tokens",
-                    'User-Agent':
-                        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-                  },
-                  body: json.encode({
-                    "mobileNo": "",
-                    "agentCode": "",
-                    "applicationNo": "${application['applicationNo']}",
-                    "channel": "",
-                    "source": ""
-                  }),
-                );
-                if (refreshedResponse.statusCode == 200) {
-                  final refreshedData = json.decode(refreshedResponse.body);
+                // final refreshedResponse = await http.post(
+                //   Uri.parse(
+                //       '${AppConfig.dynamicBaseUrl}/api/app/fetch/application/status'),
+                //   headers: {
+                //     'Content-Type': 'application/json',
+                //     "Idempotency-Key": "jbkjdbjkjk",
+                //     "Authorization": "Bearer $tokens",
+                //     'User-Agent':
+                //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+                //   },
+                //   body: json.encode({
+                //     "mobileNo": "",
+                //     "agentCode": "",
+                //     "applicationNo": "${application['applicationNo']}",
+                //     "channel": "",
+                //     "source": ""
+                //   }),
+                // );
+
+                final url = '/api/app/fetch/application/status';
+                final headers = {
+                      'Content-Type': 'application/json',
+                      "Idempotency-Key": "jbkjdbjkjk",
+                      "Authorization": "Bearer $tokens",
+                    };
+                    final body = {
+                      "mobileNo": "",
+                      "agentCode": "",
+                      "applicationNo": "${application['applicationNo']}",
+                      "channel": "",
+                      "source": ""
+                    };
+
+                  final refreshedResponse = await ApiService.postJsonWithHeaders(
+                    url,
+                    body,
+                   headers,
+                  );
+
+                if (refreshedResponse !=null && refreshedResponse.statusCode == 200) {
+                  final refreshedData = refreshedResponse.data;
                   if (refreshedData['result'] != null &&
                       refreshedData['result'].isNotEmpty) {
                     application = refreshedData['result'][0];
@@ -3835,7 +4259,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   //             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
   //       },
   //     );
-  //     final data = json.decode(Tokenresponse.body);
+  //     final data = response.data;
   //     tokens = data['access_token'];
   //   } catch (e) {
   //     print("HTTP Request Failed: $e");
@@ -3861,7 +4285,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   //       body: json.encode(requestData),
   //     );
   //     print("los respose ${response.statusCode}");
-  //     print("Response body ${response.body}");
+  //     print("Response body ${response.data.body}");
   //     if (response.statusCode == 201) {
   //       SharedPreferences prefs = await SharedPreferences.getInstance();
   //       String? token = prefs.getString('accessToken');
@@ -3886,7 +4310,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   //         body: json.encode(mappedLOsData),
   //       );
 
-  //       final LoSResponcedata = json.decode(response.body);
+  //       final LoSResponcedata = response.data;
   //       Map<String, dynamic> mappedData = {
   //         "mobileNo": "",
   //         "agentCode": "",
@@ -3932,7 +4356,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   //           await Future.delayed(const Duration(seconds: 2)); // 2-second delay
 
   //           if (Statusresponse.statusCode == 200) {
-  //             data = json.decode(Statusresponse.body);
+  //             data = json.decode(Statusresponse.data.body);
   //             result = data?['result'];
   //             if (result != null && result.isNotEmpty) {
   //               break; // Success, exit retry loop
@@ -4075,7 +4499,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   //         "url": "${AppConfig.otpUrl}/partner/loans/check",
   //         "request_body": requestData,
   //         "status_code": response.statusCode,
-  //         "response_body": json.decode(response.body),
+  //         "response_body": json.decode(response.data.body),
   //       };
   //       final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
 
@@ -4097,11 +4521,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   //       );
 
   //       print(LogResponse.statusCode);
-  //       print(LogResponse.body);
+  //       print(Logresponse.data.body);
   //       if (LogResponse.statusCode == 201) {
   //         print("Log Created");
   //       }
-  //       final data = json.decode(response.body);
+  //       final data = response.data;
   //       String message = data['message'] ?? "Validation Error";
   //       Map<String, dynamic> errors = data['errors'] ?? {};
   //       String errorMessages =

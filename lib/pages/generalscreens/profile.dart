@@ -71,7 +71,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (response != null && response.statusCode == 200) {
         setState(() {
-          userData = json.decode(response.body);
+          userData = response.data;
         });
       } else {
         print("Profile load failed: ${response?.statusCode}");
@@ -252,7 +252,7 @@ class _ProfilePageState extends State<ProfilePage> {
         'Accept': 'application/json',
         "Content-Type": "application/json",
         'User-Agent':
-          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
 
       final response =
