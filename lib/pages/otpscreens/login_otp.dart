@@ -100,9 +100,9 @@ class _LoginOtpState extends State<LoginOtp> {
   }
 
   Future<void> _sendOtp() async {
-     String phone = widget.phone_number.toString();
+    String phone = widget.phone_number.toString();
     if (phone.length == 12 && phone.startsWith("63")) {
-      phone = phone.substring(2); 
+      phone = phone.substring(2);
     }
     print("phone number $phone");
 
