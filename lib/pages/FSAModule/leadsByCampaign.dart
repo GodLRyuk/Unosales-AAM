@@ -136,7 +136,8 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
 
   // 16.01.2026
 
-  Future<void> fetchAndLeads({bool isLoadMore = false}) async {
+  Future<void> fetchAndLeads(
+      {bool isLoadMore = false, int? currentPage}) async {
     if (isLoadMore) {
       setState(() {
         isFetchingMore = true;
@@ -149,7 +150,8 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
-    String apiUrl = "/api/campaigns/${widget.campaign}/and-leads/";
+    String apiUrl =
+        "/api/campaigns/${widget.campaign}/and-leads/?page=${currentPage ?? 1}";
     final headers = {
       'Authorization': 'Bearer $token',
       'User-Agent':
@@ -291,10 +293,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                 children: [
                   Expanded(
                     child: Container(
-                      margin: const EdgeInsets.all(
-                        10,
-                      ), // Adding some margin around the container
-
+                      margin: const EdgeInsets.all(10),
                       child: isLoading
                           ? const Center(child: CircularProgressIndicator())
                           : leads.isEmpty
@@ -308,10 +307,8 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                                   ),
                                 )
                               : ListView.builder(
-                                  controller:
-                                      _scrollController, // Attach ScrollController
-                                  itemCount: leads.length +
-                                      1, // Add one extra item for the loader
+                                  controller: _scrollController,
+                                  itemCount: leads.length + 1,
                                   itemBuilder: (context, index) {
                                     if (index < leads.length) {
                                       if (widget.is_and_campaign == "true") {
@@ -319,8 +316,6 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                                           onTap: () {
                                             String leadId1 =
                                                 leads[index]['id']!;
-                                            //print("leads1 id is $leadId1");
-                                            //print("campaign id is ${widget.campaign}");
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -334,38 +329,30 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                                           },
                                           child: Container(
                                             margin: const EdgeInsets.symmetric(
-                                              vertical: 10,
-                                            ),
+                                                vertical: 10),
                                             decoration: BoxDecoration(
                                               color: Colors.white,
                                               borderRadius:
-                                                  BorderRadius.circular(
-                                                8,
-                                              ),
+                                                  BorderRadius.circular(8),
                                               border: Border(
                                                 top: BorderSide(
-                                                  color: Color(0xFF640D78),
-                                                  width: 1.0,
-                                                ),
+                                                    color: Color(0xFF640D78),
+                                                    width: 1.0),
                                                 bottom: BorderSide(
-                                                  color: Color(0xFF640D78),
-                                                  width: 1.0,
-                                                ),
+                                                    color: Color(0xFF640D78),
+                                                    width: 1.0),
                                                 left: BorderSide(
-                                                  color: Color(0xFF640D78),
-                                                  width: 5.0,
-                                                ),
+                                                    color: Color(0xFF640D78),
+                                                    width: 5.0),
                                                 right: BorderSide(
-                                                  color: Color(0xFF640D78),
-                                                  width: 1.0,
-                                                ),
+                                                    color: Color(0xFF640D78),
+                                                    width: 1.0),
                                               ),
                                             ),
                                             child: ListTile(
                                               contentPadding:
                                                   const EdgeInsets.symmetric(
-                                                horizontal: 0,
-                                              ),
+                                                      horizontal: 0),
                                               leading: Column(
                                                 children: [
                                                   Image.asset(
@@ -375,45 +362,53 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                                                   ),
                                                 ],
                                               ),
-                                              title: Container(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        Text(
+                                              title: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        // ✅ FIXED
+                                                        child: Text(
                                                           leads[index]['name']!
                                                               .toUpperCase(),
                                                           style: WidgetSupport
                                                               .CampaignName(),
+                                                          overflow: TextOverflow
+                                                              .ellipsis, // ✅ FIXED
+                                                          softWrap: true,
                                                         ),
-                                                      ],
-                                                    ),
-                                                    const SizedBox(height: 4),
-                                                    Row(
-                                                      children: [
-                                                        Icon(
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Row(
+                                                    children: [
+                                                      Icon(
                                                           Icons.mobile_friendly,
-                                                          color:
-                                                              Color(0xFF640D78),
                                                           size: 17,
-                                                        ),
-                                                        Text(
+                                                          color: Color(
+                                                              0xFF640D78)),
+                                                      SizedBox(width: 5),
+                                                      Expanded(
+                                                        // ✅ FIXED
+                                                        child: Text(
                                                           leads[index]['phone']!
                                                               .toUpperCase(),
                                                           style: WidgetSupport
                                                               .campainDescription(),
+                                                          overflow: TextOverflow
+                                                              .ellipsis, // ✅ FIXED
                                                         ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
                                               ),
                                               trailing: Icon(
-                                                Icons.chevron_right,
-                                                color: Color(0xFF640D78),
-                                              ),
+                                                  Icons.chevron_right,
+                                                  color: Color(0xFF640D78)),
                                             ),
                                           ),
                                         );
@@ -421,7 +416,6 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                                         return GestureDetector(
                                           onTap: () {
                                             String leadId = leads[index]['id']!;
-
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
@@ -438,38 +432,30 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                                           },
                                           child: Container(
                                             margin: const EdgeInsets.symmetric(
-                                              vertical: 10,
-                                            ),
+                                                vertical: 10),
                                             decoration: BoxDecoration(
                                               color: Colors.white,
                                               borderRadius:
-                                                  BorderRadius.circular(
-                                                8,
-                                              ),
+                                                  BorderRadius.circular(8),
                                               border: Border(
                                                 top: BorderSide(
-                                                  color: Color(0xFF640D78),
-                                                  width: 1.0,
-                                                ),
+                                                    color: Color(0xFF640D78),
+                                                    width: 1.0),
                                                 bottom: BorderSide(
-                                                  color: Color(0xFF640D78),
-                                                  width: 1.0,
-                                                ),
+                                                    color: Color(0xFF640D78),
+                                                    width: 1.0),
                                                 left: BorderSide(
-                                                  color: Color(0xFF640D78),
-                                                  width: 5.0,
-                                                ),
+                                                    color: Color(0xFF640D78),
+                                                    width: 5.0),
                                                 right: BorderSide(
-                                                  color: Color(0xFF640D78),
-                                                  width: 1.0,
-                                                ),
+                                                    color: Color(0xFF640D78),
+                                                    width: 1.0),
                                               ),
                                             ),
                                             child: ListTile(
                                               contentPadding:
                                                   const EdgeInsets.symmetric(
-                                                horizontal: 0,
-                                              ),
+                                                      horizontal: 0),
                                               leading: Column(
                                                 children: [
                                                   Image.asset(
@@ -479,56 +465,62 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
                                                   ),
                                                 ],
                                               ),
-                                              title: Container(
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
-                                                      children: [
-                                                        Text(
+                                              title: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Expanded(
+                                                        // ✅ FIXED
+                                                        child: Text(
                                                           leads[index]['name']!
                                                               .toUpperCase(),
                                                           style: WidgetSupport
                                                               .CampaignName(),
+                                                          overflow: TextOverflow
+                                                              .ellipsis, // ✅ FIXED
+                                                          softWrap: true,
                                                         ),
-                                                      ],
-                                                    ),
-                                                    const SizedBox(height: 4),
-                                                    Row(
-                                                      children: [
-                                                        Icon(
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 4),
+                                                  Row(
+                                                    children: [
+                                                      Icon(
                                                           Icons.mobile_friendly,
-                                                          color:
-                                                              Color(0xFF640D78),
                                                           size: 17,
-                                                        ),
-                                                        Text(
+                                                          color: Color(
+                                                              0xFF640D78)),
+                                                      SizedBox(width: 5),
+                                                      Expanded(
+                                                        // ✅ FIXED
+                                                        child: Text(
                                                           leads[index]['phone']!
                                                               .toUpperCase(),
                                                           style: WidgetSupport
                                                               .campainDescription(),
+                                                          overflow: TextOverflow
+                                                              .ellipsis, // ✅ FIXED
                                                         ),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
                                               ),
                                               trailing: Icon(
-                                                Icons.chevron_right,
-                                                color: Color(0xFF640D78),
-                                              ),
+                                                  Icons.chevron_right,
+                                                  color: Color(0xFF640D78)),
                                             ),
                                           ),
                                         );
                                       }
                                     } else {
-                                      // Loader at the bottom
                                       return hasMoreData
                                           ? Center(
                                               child:
-                                                  CircularProgressIndicator(),
-                                            )
+                                                  CircularProgressIndicator())
                                           : Center(child: Text('No more data'));
                                     }
                                   },
