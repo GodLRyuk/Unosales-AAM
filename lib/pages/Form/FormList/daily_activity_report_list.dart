@@ -22,6 +22,7 @@ class _CampaignlistState extends State<DailyActivityList> {
   String? nextPageUrl;
   Timer? countdownTimer;
   Duration timeLeft = Duration.zero;
+  int currentPage = 1;
 
   late Map<String, String> DispositionCode = {}; // stores id -> description
   late Map<String, String> SubDispositionCode = {}; // for sub codes
@@ -41,7 +42,7 @@ class _CampaignlistState extends State<DailyActivityList> {
   }
 
   // ===================== FETCH LEADS =======================
-  Future<void> fetchLeads({bool isLoadMore = false, String? url}) async {
+  Future<void> fetchLeads({bool isLoadMore = false, int? currentPage}) async {
     if (isLoadMore) {
       setState(() => isFetchingMore = true);
     } else {
@@ -57,7 +58,7 @@ class _CampaignlistState extends State<DailyActivityList> {
           'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
     };
 
-    String apiUrl = url ?? '/api/timesheet/agent-daily-activities/';
+    String apiUrl = '/api/timesheet/agent-daily-activities/?page=${currentPage ?? 1}';
 
     try {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
@@ -99,7 +100,8 @@ class _CampaignlistState extends State<DailyActivityList> {
             _scrollController.position.maxScrollExtent &&
         !isFetchingMore &&
         nextPageUrl != null) {
-      fetchLeads(isLoadMore: true, url: nextPageUrl);
+       currentPage++;
+      fetchLeads(isLoadMore: true, currentPage: currentPage );
     }
   }
 

@@ -60,6 +60,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
         isFetchingMore = true;
       });
     } else {
+      
       setState(() {
         isLoading = true;
       });
