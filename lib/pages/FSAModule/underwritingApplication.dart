@@ -27,12 +27,47 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
   bool isLoading = false;
   List<String>? userInfo;
 
+  // Pagination variables
+  int _currentPage = 1;
+  bool _isFetchingMore = false;
+  bool _hasMoreData = true;
+  final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(_onScroll);
     loadInitialLeads();
   }
 
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients || _isFetchingMore || !_hasMoreData) return;
+
+    final threshold = 200.0;
+    // Trigger pagination when reaching near the bottom
+    if (_scrollController.position.extentAfter < threshold) {
+      setState(() {
+        _isFetchingMore = true;
+      });
+
+      _currentPage++;
+
+      final searchData = _searchFilter.text.trim();
+      if (searchData.isNotEmpty) {
+        underWritingStatus(searchData, isLoadMore: true);
+      } else {
+        loadInitialLeads(isLoadMore: true);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
@@ -68,8 +103,8 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => LosStatusChart(
-                                                          initialTabTitle:
-                                                              'IN-PROGRESS'),),
+                                                      initialTabTitle:
+                                                          'IN-PROGRESS'),),
                 );
               },
             ),
@@ -112,7 +147,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
             Expanded(
               child: isLoading
                   ? const Center(
-                      child: CircularProgressIndicator(),
+                      child: CircularProgressIndicator(color: Colors.purple),
                     )
                   : results.isEmpty
                       ? ListView(
@@ -128,8 +163,20 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
                         ]
                       )
                       : ListView.builder(
-                          itemCount: results.length,
+                          controller: _scrollController, // Added ScrollController for pagination
+                          itemCount: results.length + (_isFetchingMore ? 1 : 0),
                           itemBuilder: (context, index) {
+                            
+                            // Bottom loader
+                            if (index == results.length) {
+                              return const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                                  child: CircularProgressIndicator(color: Colors.purple),
+                                ),
+                              );
+                            }
+
                             final leadData = results[index];
                             final client = leadData["clientDetails"] ?? {};
                             final losStatus = leadData["los_status"] ?? {};
@@ -220,23 +267,27 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
   }
 
    Future<void> _handleRefresh() async {
-   
     _searchFilter.clear();
     await loadInitialLeads();
     await Future.delayed(Duration(seconds: 2)); // Simulate a delay
   }
 
 
-  Future<void> loadInitialLeads() async {
+  Future<void> loadInitialLeads({bool isLoadMore = false}) async {
     try {
-      setState(() {
-        isLoading = true;
-      });
+      if (!isLoadMore) {
+        setState(() {
+          isLoading = true;
+          _currentPage = 1;
+          _hasMoreData = true;
+        });
+      }
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final url = "/api/leads/los-details/";
+      // Append page parameter to URL
+      final url = "/api/leads/los-details/?page=$_currentPage";
 
       final headers = {
         'Authorization': 'Bearer $token',
@@ -250,38 +301,54 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         final data = jsonDecode(response.body);
 
         List allResults = data["results"] ?? [];
+        
+        if (allResults.isEmpty) {
+          _hasMoreData = false;
+        }
 
         List filteredResults = allResults
             .where((item) => item["workflow_status"] == "SW_PW")
             .toList();
 
         setState(() {
-          results = filteredResults;
-          isLoading = false;
+          if (isLoadMore) {
+            results.addAll(filteredResults);
+            _isFetchingMore = false;
+          } else {
+            results = filteredResults;
+            isLoading = false;
+          }
         });
       } else {
         setState(() {
           isLoading = false;
+          _isFetchingMore = false;
         });
       }
     } catch (e) {
       setState(() {
         isLoading = false;
+        _isFetchingMore = false;
       });
       print("Exception: $e");
     }
   }
 
-  Future<void> underWritingStatus(String searchValue) async {
+  Future<void> underWritingStatus(String searchValue, {bool isLoadMore = false}) async {
     try {
-      setState(() {
-        isLoading = true;
-      });
+      if (!isLoadMore) {
+        setState(() {
+          isLoading = true;
+          _currentPage = 1;
+          _hasMoreData = true;
+        });
+      }
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      final url = "/api/leads/los-details/?search=$searchValue";
+      // Append page parameter to search URL
+      final url = "/api/leads/los-details/?search=$searchValue&page=$_currentPage";
 
       final headers = {
         'Authorization': 'Bearer $token',
@@ -296,23 +363,34 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
 
         List allResults = data["results"] ?? [];
 
+        if (allResults.isEmpty) {
+          _hasMoreData = false;
+        }
+
         List filteredResults = allResults
             .where((item) => item["workflow_status"] == "SW_PW")
             .toList();
 
         setState(() {
-          results = filteredResults;
-          isLoading = false;
+          if (isLoadMore) {
+            results.addAll(filteredResults);
+            _isFetchingMore = false;
+          } else {
+            results = filteredResults;
+            isLoading = false;
+          }
         });
       } else {
         setState(() {
           isLoading = false;
+          _isFetchingMore = false;
         });
         print("Error: ${response?.body}");
       }
     } catch (e) {
       setState(() {
         isLoading = false;
+        _isFetchingMore = false;
       });
       print("Exception: $e");
     }

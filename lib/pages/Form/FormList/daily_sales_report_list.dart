@@ -21,7 +21,8 @@ class _CampaignlistState extends State<DailySalesReportList> {
   bool isLoading = true;
   final _scrollController = ScrollController();
   bool isFetchingMore = false;
-  String? nextPageUrl;
+  int currentPage = 1;
+  bool hasMore = true;
   Timer? countdownTimer;
   Duration timeLeft = Duration.zero;
 
@@ -44,11 +45,15 @@ class _CampaignlistState extends State<DailySalesReportList> {
   }
 
   // ===================== FETCH LEADS =======================
-  Future<void> fetchLeads({bool isLoadMore = false, String? url}) async {
+  Future<void> fetchLeads({bool isLoadMore = false}) async {
     if (isLoadMore) {
       setState(() => isFetchingMore = true);
     } else {
-      setState(() => isLoading = true);
+      setState(() {
+        isLoading = true;
+        currentPage = 1;
+        hasMore = true;
+      });
     }
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -59,15 +64,16 @@ class _CampaignlistState extends State<DailySalesReportList> {
       'User-Agent':
           'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
     };
+
     String date = widget.searchQuery;
     String apiUrl = "";
-    if (date!="") { 
-    apiUrl= url ?? '/api/timesheet/agent-daily-sales/?follow_up_date__gte=${date}T00:00:00&follow_up_date__lte=${date}T23:59:59';
+    if (date != "") {
+      apiUrl =
+          '/api/timesheet/agent-daily-sales/?follow_up_date__gte=${date}T00:00:00&follow_up_date__lte=${date}T23:59:59&page=$currentPage';
+    } else {
+      apiUrl = '/api/timesheet/agent-daily-sales/?page=$currentPage';
     }
-    else
-    {
-    apiUrl= url ?? '/api/timesheet/agent-daily-sales/';
-    }
+
     try {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
       if (response != null && response.statusCode == 200) {
@@ -81,7 +87,8 @@ class _CampaignlistState extends State<DailySalesReportList> {
           } else {
             leads = newLeads;
           }
-          nextPageUrl = data['next'];
+          hasMore = data['next'] != null;
+          currentPage++;
           isLoading = false;
           isFetchingMore = false;
         });
@@ -140,24 +147,26 @@ class _CampaignlistState extends State<DailySalesReportList> {
     if (_scrollController.position.pixels ==
             _scrollController.position.maxScrollExtent &&
         !isFetchingMore &&
-        nextPageUrl != null) {
-      fetchLeads(isLoadMore: true, url: nextPageUrl);
+        hasMore) {
+      fetchLeads(isLoadMore: true);
     }
   }
 
   // ======================= UI ==============================
   Future<void> fetchFilteredLeads({bool isLoadMore = false}) async {
-    // if (_searchFilter.text.isEmpty) {
-    //   fetchLeads();
-    //   return;
-    // }
+    if (!isLoadMore) {
+      setState(() {
+        currentPage = 1;
+        hasMore = true;
+      });
+    }
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
 
     String date = _searchFilter.text;
     String url =
-        '/api/timesheet/agent-daily-sales/?created_at__gte=${date}T00:00:00&created_at__lte=${date}T23:59:59';
+        '/api/timesheet/agent-daily-sales/?created_at__gte=${date}T00:00:00&created_at__lte=${date}T23:59:59&page=$currentPage';
     final headers = {
       'Authorization': 'Bearer $token',
       'User-Agent':
@@ -166,8 +175,7 @@ class _CampaignlistState extends State<DailySalesReportList> {
     try {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null && response.statusCode == 200) {
-                final data = json.decode(response.body);
-
+        final data = json.decode(response.body);
         final leadsData = data['results'];
         List<Map<String, dynamic>> newLeads =
             List<Map<String, dynamic>>.from(leadsData);
@@ -177,7 +185,8 @@ class _CampaignlistState extends State<DailySalesReportList> {
           } else {
             leads = newLeads;
           }
-          nextPageUrl = data['next'];
+          hasMore = data['next'] != null;
+          currentPage++;
           isLoading = false;
           isFetchingMore = false;
         });
@@ -329,8 +338,8 @@ class _CampaignlistState extends State<DailySalesReportList> {
                                     margin:
                                         const EdgeInsets.symmetric(vertical: 5),
                                     decoration: BoxDecoration(
-                                      color:
-                                          const Color.fromARGB(255, 255, 255, 255),
+                                      color: const Color.fromARGB(
+                                          255, 255, 255, 255),
                                       borderRadius: BorderRadius.circular(8),
                                       border: const Border(
                                         left: BorderSide(
@@ -467,7 +476,7 @@ class _CampaignlistState extends State<DailySalesReportList> {
                                   ),
                                 );
                               } else {
-                                return nextPageUrl != null
+                                return hasMore
                                     ? Center(child: CircularProgressIndicator())
                                     : Center(child: Text('No more data'));
                               }
