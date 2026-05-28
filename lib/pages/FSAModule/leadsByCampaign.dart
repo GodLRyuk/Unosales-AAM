@@ -68,7 +68,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
     String apiUrl =
-        "/api/campaigns/${widget.campaign}/leads/?los_status=not_yet_submitted&page=${currentPage}";
+        "/api/campaigns/${widget.campaign}/leads/?los_status=not_yet_submitted&page=${currentPage ?? 1}";
     final headers = {
       'Authorization': 'Bearer $token',
       'User-Agent':
