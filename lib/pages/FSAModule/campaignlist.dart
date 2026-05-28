@@ -52,7 +52,7 @@ class _CampaignlistState extends State<Campaignlist> {
   }
 
   // Method to fetch leads
-  Future<void> fetchLeads({bool isLoadMore = false}) async {
+  Future<void> fetchLeads({bool isLoadMore = false, int? currentPage}) async {
     if (isLoadMore) {
       setState(() {
         isFetchingMore = true;
@@ -65,7 +65,7 @@ class _CampaignlistState extends State<Campaignlist> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
-    String apiUrl = '/api/campaigns/';
+    String apiUrl = '/api/campaigns/?page=${currentPage ?? 1}';
     final headers = {
       'Authorization': 'Bearer $token',
       'User-Agent':
@@ -141,7 +141,7 @@ class _CampaignlistState extends State<Campaignlist> {
         !isFetchingMore &&
         hasMoreData) {
       currentPage++;
-      fetchLeads(isLoadMore: true); // Fetch more data
+      fetchLeads(isLoadMore: true,currentPage: currentPage); // Fetch more data
     }
   }
 

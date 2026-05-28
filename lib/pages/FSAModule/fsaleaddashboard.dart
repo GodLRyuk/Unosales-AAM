@@ -132,7 +132,7 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
     });
   }
 
-  Future<void> fetchLeads({bool isLoadMore = false}) async {
+  Future<void> fetchLeads({bool isLoadMore = false,int? currentPage}) async {
     if (isLoadMore) {
       setState(() => isFetchingMore = true);
     } else {
@@ -143,9 +143,9 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
     String? token = prefs.getString('accessToken');
 
     String apiUrl1 =
-        "/api/leads/los-details/?search=${widget.searchQuery}&page=$currentPage";
+        "/api/leads/los-details/?search=${widget.searchQuery}&page=${currentPage ?? 1}";
     String apiUrl2 =
-        "/api/leads/company-leads/?search=${widget.searchQuery}&ordering=-created_at&page=$currentPage";
+        "/api/leads/company-leads/?search=${widget.searchQuery}&ordering=-created_at&page=${currentPage ?? 1}";
     final headers = {
       'Authorization': 'Bearer $token',
       'User-Agent':
@@ -223,7 +223,7 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
         !isFetchingMore &&
         hasMoreData) {
       currentPage++;
-      fetchLeads(isLoadMore: true);
+      fetchLeads(isLoadMore: true, currentPage: currentPage);
     }
   }
 
@@ -337,7 +337,8 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
 
     return ListView.builder(
       controller: _scrollController,
-      itemCount: leads.length + 1, // Extra item for loader or no more data
+      itemCount: leads.length + 1, // Extra item for loader or no more 
+      
       itemBuilder: (context, index) {
         if (index < leads.length) {
           return _buildLeadTile(leads[index], index);

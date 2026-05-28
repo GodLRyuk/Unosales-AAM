@@ -44,7 +44,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
   }
 
 // Fetch leads from API
-  Future<void> fetchLeads({bool isLoadMore = false}) async {
+  Future<void> fetchLeads({bool isLoadMore = false,int? currentPage}) async {
     if (isLoadMore) {
       setState(() {
         isFetchingMore = true;
@@ -57,7 +57,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
-    String apiUrl ='/api/agents/assigned-leads/?search=${widget.searchQuery}&ordering=-created_at';
+    String apiUrl ='/api/agents/assigned-leads/?search=${widget.searchQuery}&ordering=-created_at&page=${currentPage ?? 1}';
     final headers = {
       'Authorization': 'Bearer $token',
       'User-Agent':
@@ -127,7 +127,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
         !isFetchingMore &&
         hasMoreData) {
       currentPage++;
-      fetchLeads(isLoadMore: true); // Fetch more data
+      fetchLeads(isLoadMore: true,currentPage: currentPage); // Fetch more data
     }
   }
 
