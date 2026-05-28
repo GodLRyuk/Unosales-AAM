@@ -102,15 +102,6 @@ class _LosStatusChartState extends State<LosStatusChart>
       _resetAndLoad();
     });
 
-    // _tabController.addListener(() {
-    //   setState(() {
-    //     searchValue = "";
-    //     print("search value is null");
-    //   });
-    //   // if (_tabController.indexIsChanging) return;
-    //   _resetAndLoad();
-    // });
-
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) return;
 
@@ -133,15 +124,10 @@ class _LosStatusChartState extends State<LosStatusChart>
 
     _scrollController.addListener(_onScroll);
 
-    // Load LOS data
-    //_loadLOSData();
     callSosLogoin();
   }
 
   void _resetAndLoad() async {
-    final selectedTab = tabTitles[_tabController.index];
-    final status = _tabStatusMap[selectedTab];
-
     setState(() {
       _currentPage = 1;
       _hasMoreData = true;
@@ -155,7 +141,7 @@ class _LosStatusChartState extends State<LosStatusChart>
       );
     } else {
       print("No search value");
-      await _loadLOSData();
+      await _loadLOSData(isLoadMore: false);
     }
   }
 
@@ -165,25 +151,26 @@ class _LosStatusChartState extends State<LosStatusChart>
 
     final threshold = 200.0;
 
-    // if (_scrollController.position.extentAfter < threshold) {
-    _isFetchingMore = true;
-
-    Future.delayed(const Duration(seconds: 0), () {
-      if (!_hasMoreData) return;
+    // Trigger pagination when reaching near the bottom
+    if (_scrollController.position.extentAfter < threshold) {
+      setState(() {
+        _isFetchingMore = true;
+      });
 
       _currentPage++;
 
-      final selectedTab = tabTitles[_tabController.index];
-      final status = _tabStatusMap[selectedTab];
-
-      _loadLOSData();
-    });
-    // }
+      if (searchValue.trim().isNotEmpty) {
+        _searchLOSData(searchQuery: searchValue, isLoadMore: true);
+      } else {
+        _loadLOSData(isLoadMore: true);
+      }
+    }
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -199,16 +186,21 @@ class _LosStatusChartState extends State<LosStatusChart>
 
   // Work 25.2.2026
 
-  Future<void> _loadLOSData() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadLOSData({bool isLoadMore = false}) async {
+    if (!isLoadMore) {
+      setState(() => _isLoading = true);
+    }
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? userInfo = prefs.getStringList('userInfo');
-    String userId = userInfo![0];
     String? accessToken = prefs.getString('accessToken');
 
     if (userInfo == null || accessToken == null) {
       print("User info or access token not found.");
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+        _isFetchingMore = false;
+      });
       return;
     }
 
@@ -216,7 +208,7 @@ class _LosStatusChartState extends State<LosStatusChart>
 
     List<String> statusList = statusValue?.split(',') ?? [];
 
-    List<Map<String, dynamic>> mergedLeads = [];
+    List<Map<String, dynamic>> newMergedLeads = [];
 
     final headers = {
       'Authorization': 'Bearer $accessToken',
@@ -225,9 +217,10 @@ class _LosStatusChartState extends State<LosStatusChart>
     };
 
     for (String status in statusList) {
-      String endPointUrl = "los_status__offerStatus=$status";
+      // Append page parameter to URL
+      String endPointUrl = "los_status__offerStatus=$status&page=$_currentPage";
       if (status == "UNDERWRITING STATUS") {
-        endPointUrl = "workflow_status=SW_PW";
+        endPointUrl = "workflow_status=SW_PW&page=$_currentPage";
       }
       String url = "/api/leads/los-details/?$endPointUrl";
 
@@ -241,7 +234,7 @@ class _LosStatusChartState extends State<LosStatusChart>
 
           final losStatus = item['los_status'];
 
-          mergedLeads.add({
+          newMergedLeads.add({
             'id': item['id']?.toString() ?? '',
             'firstName': clientDetails?['firstName']?.toString() ?? '',
             'middleName': clientDetails?['middleName']?.toString() ?? '',
@@ -258,9 +251,19 @@ class _LosStatusChartState extends State<LosStatusChart>
     }
 
     setState(() {
-      _mergedLeads = mergedLeads;
+      if (isLoadMore) {
+        _mergedLeads.addAll(newMergedLeads);
+        _isFetchingMore = false;
+      } else {
+        _mergedLeads = newMergedLeads;
+        _isLoading = false;
+      }
+
+      if (newMergedLeads.isEmpty) {
+        _hasMoreData = false;
+      }
+
       _categorizeLeads();
-      _isLoading = false;
     });
   }
 
@@ -279,7 +282,9 @@ class _LosStatusChartState extends State<LosStatusChart>
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? accessToken = prefs.getString('accessToken');
 
-      String url = "/api/leads/los-details/?search=$searchQuery";
+      // Append page parameter to search URL
+      String url =
+          "/api/leads/los-details/?search=$searchQuery&page=$_currentPage";
       final headers = {
         'Authorization': 'Bearer $accessToken',
         'User-Agent':
@@ -299,17 +304,17 @@ class _LosStatusChartState extends State<LosStatusChart>
       final appJson = json.decode(response.body);
       final List results = appJson['results'] ?? [];
 
-      final uniqueStatuses = results
-          .map((item) => item['los_status']?['offerStatus']?.toString() ?? '')
-          .toSet()
-          .toList();
+      if (results.isEmpty) {
+        _hasMoreData = false;
+      }
 
-      List<Map<String, dynamic>> mergedLeads =
+      List<Map<String, dynamic>> newMergedLeads =
           results.map<Map<String, dynamic>>(
         (appLead) {
           final client = appLead['clientDetails'] ?? {};
           final losStatus = appLead['los_status'] ?? {};
           return {
+            'id': appLead['id']?.toString() ?? '', // Included for waybook implement stability
             'firstName': client['firstName'] ?? '',
             'middleName': client['middleName'] ?? '',
             'lastName': client['lastName'] ?? '',
@@ -317,28 +322,37 @@ class _LosStatusChartState extends State<LosStatusChart>
             'CWTransactionID': appLead['CWTransactionID'] ?? '',
             'applicationNo': appLead['CWTransactionID'] ?? '',
             'offerStatus': losStatus['offerStatus'] ?? '',
+            'workflow_status': appLead['workflow_status'] ?? '', 
           };
         },
       ).toList();
 
       setState(() {
-        _mergedLeads = mergedLeads;
+        if (isLoadMore) {
+          _mergedLeads.addAll(newMergedLeads);
+          _isFetchingMore = false;
+        } else {
+          _mergedLeads = newMergedLeads;
+          _isLoading = false;
+        }
         _categorizeLeads();
-        _isLoading = false;
       });
 
-      if (_mergedLeads.isNotEmpty) {
-        final matchedStatus = _mergedLeads.first['offerStatus'];
-        final statusTab = _getTabTitleForStatus(matchedStatus);
+      // Avoid automatic tab shifting if we are just loading more data
+      if (!isLoadMore) {
+        if (_mergedLeads.isNotEmpty) {
+          final matchedStatus = _mergedLeads.first['offerStatus'];
+          final statusTab = _getTabTitleForStatus(matchedStatus);
 
-        if (statusTab != null && tabTitles.contains(statusTab)) {
-          final index = tabTitles.indexOf(statusTab);
-          _isSearchCompleted = true;
-          _isAutoTabChange = true;
-          _tabController.animateTo(index);
+          if (statusTab != null && tabTitles.contains(statusTab)) {
+            final index = tabTitles.indexOf(statusTab);
+            _isSearchCompleted = true;
+            _isAutoTabChange = true;
+            _tabController.animateTo(index);
+          }
+        } else {
+          print("No matching results for: ${widget.searchQuery}");
         }
-      } else {
-        print("No matching results for: ${widget.searchQuery}");
       }
     } catch (e) {
       debugPrint("LOS API error: $e");
@@ -510,22 +524,37 @@ class _LosStatusChartState extends State<LosStatusChart>
                     return Center(
                         child: CircularProgressIndicator(color: Colors.purple));
                   }
-        
+
                   final currentTabLeads =
                       categorizedData[tabTitles[_tabController.index]]!;
-        
+
                   if (currentTabLeads.isEmpty) {
                     return ListView(
                       physics: AlwaysScrollableScrollPhysics(),
                       children: [
-                        SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                        SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.3),
                         Center(child: Text("No Data Found"))
-                        ]);
+                      ],
+                    );
                   }
-        
+
                   return ListView.builder(
-                    itemCount: currentTabLeads.length,
+                    controller: _scrollController, // Connected scroll controller for pagination
+                    physics: AlwaysScrollableScrollPhysics(),
+                    itemCount: currentTabLeads.length + (_isFetchingMore ? 1 : 0),
                     itemBuilder: (context, index) {
+                      
+                      // Loader at the bottom while fetching more data
+                      if (index == currentTabLeads.length) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 16.0),
+                            child: CircularProgressIndicator(color: Colors.purple),
+                          ),
+                        );
+                      }
+
                       final lead = currentTabLeads[index];
                       final selectedTab = tabTitles[_tabController.index];
                       return Container(
@@ -535,18 +564,19 @@ class _LosStatusChartState extends State<LosStatusChart>
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border(
-                            top: BorderSide(color: Color(0xFF640D78), width: 1.0),
-                            bottom:
-                                BorderSide(color: Color(0xFF640D78), width: 1.0),
-                            left:
-                                BorderSide(color: Color(0xFF640D78), width: 5.0),
-                            right:
-                                BorderSide(color: Color(0xFF640D78), width: 1.0),
+                            top: BorderSide(
+                                color: Color(0xFF640D78), width: 1.0),
+                            bottom: BorderSide(
+                                color: Color(0xFF640D78), width: 1.0),
+                            left: BorderSide(
+                                color: Color(0xFF640D78), width: 5.0),
+                            right: BorderSide(
+                                color: Color(0xFF640D78), width: 1.0),
                           ),
                         ),
                         child: ListTile(
-                          leading:
-                              Icon(Icons.person, color: Colors.purple, size: 30),
+                          leading: Icon(Icons.person,
+                              color: Colors.purple, size: 30),
                           title: Text(
                             "${lead['firstName']} ${lead['middleName']} ${lead['lastName']}"
                                 .trim(),
@@ -561,7 +591,8 @@ class _LosStatusChartState extends State<LosStatusChart>
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text("Mobile: ${lead['mobilePhone']}"),
+                                          Text(
+                                              "Mobile: ${lead['mobilePhone']}"),
                                           Text(
                                               "CWTransactionID: ${lead['CWTransactionID']}"),
                                           Text(
@@ -573,7 +604,8 @@ class _LosStatusChartState extends State<LosStatusChart>
                                               Expanded(
                                                 child: Text(
                                                   "OfferStatus: ${lead['offerStatus']}",
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                 ),
                                               ),
                                               GestureDetector(
@@ -621,11 +653,10 @@ class _LosStatusChartState extends State<LosStatusChart>
   }
 
   Future<void> _handleRefresh() async {
-     _searchFilter.clear();
-   _resetAndLoad();  
+    _searchFilter.clear();
+    _resetAndLoad();
     await Future.delayed(Duration(seconds: 2)); // Simulate a delay
   }
-
 
   Future<Map<String, dynamic>> buildPayload() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -676,7 +707,7 @@ class _LosStatusChartState extends State<LosStatusChart>
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
           //'User-Agent':
-           //   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          //   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
@@ -737,7 +768,7 @@ class _LosStatusChartState extends State<LosStatusChart>
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
           //'User-Agent':
-            //  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          //  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
@@ -828,7 +859,9 @@ class _LosStatusChartState extends State<LosStatusChart>
         };
         final body = {
           "workflow_status": "Prelim UW Failed",
-           "los_status":{"offerStatus": "Fail",}
+          "los_status": {
+            "offerStatus": "Fail",
+          }
         };
 
         final responsefromLOS =
@@ -872,7 +905,9 @@ class _LosStatusChartState extends State<LosStatusChart>
         };
         final body = {
           "workflow_status": "Prelim UW Failed",
-           "los_status":{"offerStatus": "Fail",}
+          "los_status": {
+            "offerStatus": "Fail",
+          }
         };
 
         final responsefromLOS =
