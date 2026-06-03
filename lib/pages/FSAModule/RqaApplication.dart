@@ -642,8 +642,6 @@ class _RQAApplicationState extends State<RQAApplication> {
         '/engine/v1/executions/loans-interface/1.x/rqa-check/rqa_check/RQA_Check';
     final headers = {
       'Authorization': 'Bearer $token',
-      // 'User-Agent':
-      //     'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       'Content-Type': 'application/json'
     };
 
@@ -765,6 +763,29 @@ class _RQAApplicationState extends State<RQAApplication> {
           );
         }
       } else {
+         Map<String, dynamic> logmappedData = {
+          "url": "${AppConfig.unoBaseApiUrl}/engine/v1/executions/loans-interface/1.x/rqa-check/rqa_check/RQA_Check",
+          "request_body": json.encode(formData),
+          "status_code": response!.statusCode,
+          "response_body": json.decode(response.body),
+        };
+
+        final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+        final headers = {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer $accessToken",
+          'User-Agent':
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        };
+        // ignore: unused_local_variable
+        final LogResponse = await http.post(
+          logUrl,
+          headers: headers,
+          body: json.encode(logmappedData),
+        );
+        
+  // Exist Code **********************************
         showDialog(
           context: context,
           builder: (BuildContext context) {

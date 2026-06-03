@@ -699,6 +699,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     setState(() {
       _isLoading = true;
     });
+
     // getCurrentLocation(context);
     // getPublicIP();\
     // _initializeSourceFundList();
@@ -706,6 +707,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     String? token = prefs.getString('accessToken');
     String? refresh = prefs.getString('refreshToken');
     userInfo = prefs.getStringList('userInfo');
+
     try {
       final response = await http.get(
         Uri.parse(

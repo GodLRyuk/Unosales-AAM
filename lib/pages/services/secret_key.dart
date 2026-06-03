@@ -20,6 +20,8 @@ Future<void> globalKeys() async {
       'Content-Type': 'application/json',
     });
 
+    print("response is ${response!.body}");
+
     if (response!.statusCode == 200) {
       final data = jsonDecode(response.body);
 
