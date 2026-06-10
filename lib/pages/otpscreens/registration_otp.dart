@@ -119,9 +119,9 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
   }
 
   Future<void> _sendOtp() async {
-     String phone = widget.phoneNumber.toString();
+    String phone = widget.phoneNumber.toString();
     if (phone.length == 12 && phone.startsWith("63")) {
-      phone = phone.substring(2); 
+      phone = phone.substring(2);
     }
     print("phone number $phone");
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -131,8 +131,8 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
       recivedOtp = otp.toString();
     });
     // Step 1: Get access token
-    String clientId = await otpClientId();
-    String clientSecret = await otpClientSecret();
+    String clientId = await otpRegistrationClientId();
+    String clientSecret = await otpRegistrationClientSecret();
 
     final body = {
       'client_id': clientId,
@@ -262,7 +262,6 @@ class RegistrationOtpPageState extends State<RegistrationOtpPage> {
                   content: Text(
                       // "You have successfully registered.\nYou will receive your ID and Password in the registered Email ID."),
                       "Please contact your supervisor or administrator for further approval"),
-
                   actions: [
                     TextButton(
                       onPressed: () {

@@ -6,9 +6,6 @@ import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/services/api_global_key.dart';
 import 'package:unosfa/pages/services/api_service.dart';
 
-
-
-
 Future<void> globalKeys() async {
   final endpoint = '/api/secrets/';
   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -37,12 +34,14 @@ Future<void> globalKeys() async {
       Map<String, dynamic> finalOutput = {"result": mappedData};
 
       // 4. Assign values to global variables based on the current environment
-     ApiGlobalKeys.ssl_certificate =
+      ApiGlobalKeys.ssl_certificate =
           finalOutput['result']['ssl_certificate'][AppConfig.flavour];
-      ApiGlobalKeys.otp_client_id = finalOutput['result']['otp_client_id'][AppConfig.flavour];
+      ApiGlobalKeys.otp_client_id =
+          finalOutput['result']['otp_client_id'][AppConfig.flavour];
       ApiGlobalKeys.otp_client_secret =
           finalOutput['result']['otp_client_secret'][AppConfig.flavour];
-      ApiGlobalKeys.public_key = finalOutput['result']['public_key'][AppConfig.flavour];
+      ApiGlobalKeys.public_key =
+          finalOutput['result']['public_key'][AppConfig.flavour];
 
       print("Pubic key is this ${ApiGlobalKeys.public_key}");
       ApiGlobalKeys.security_check =
@@ -149,6 +148,64 @@ Future<String> otpClientSecret() async {
   //     : sslKeys['uat_otp_client_secret'];
   final String otpClientSecret = ApiGlobalKeys.otp_client_secret;
   return otpClientSecret;
+}
+
+Future<String> otpRegistrationClientSecret() async {
+  // If dev, return empty cert hash directly
+  if (AppConfig.isDev) {
+    return ''; // blank key for development
+  }
+
+  final remoteConfig = FirebaseRemoteConfig.instance;
+
+  await remoteConfig.setConfigSettings(RemoteConfigSettings(
+    fetchTimeout: const Duration(seconds: 10),
+    minimumFetchInterval: const Duration(hours: 1),
+  ));
+
+  await remoteConfig.fetchAndActivate();
+
+  final jsonString = remoteConfig.getString('otp_client_secret');
+  if (jsonString.isEmpty) {
+    throw Exception("No Client Secret found in Remote Config");
+  }
+
+  final Map<String, dynamic> sslKeys = json.decode(jsonString);
+  final bool isProd = AppConfig.isProd;
+  final String otpClientSecret = isProd
+      ? sslKeys['prod_otp_client_secret']
+      : sslKeys['uat_otp_client_secret'];
+  // final String otpClientSecret = ApiGlobalKeys.otp_client_secret;
+  return otpClientSecret;
+}
+
+Future<String> otpRegistrationClientId() async {
+  // If dev, return empty cert hash directly
+  if (AppConfig.isDev) {
+    return ''; // blank key for development
+  }
+
+  final remoteConfig = FirebaseRemoteConfig.instance;
+
+  await remoteConfig.setConfigSettings(RemoteConfigSettings(
+    fetchTimeout: const Duration(seconds: 10),
+    minimumFetchInterval: const Duration(hours: 1),
+  ));
+
+  await remoteConfig.fetchAndActivate();
+
+  final jsonString = remoteConfig.getString('otp_client_id');
+  if (jsonString.isEmpty) {
+    throw Exception("No Client Id found in Remote Config");
+  }
+
+  final Map<String, dynamic> sslKeys = json.decode(jsonString);
+  final bool isProd = AppConfig.isProd;
+  final String otpClientId =
+      isProd ? sslKeys['prod_otp_client_id'] : sslKeys['uat_otp_client_id'];
+  // final String otpClientId = ApiGlobalKeys.otp_client_id;
+
+  return otpClientId;
 }
 
 Future<String> googleApiKey() async {
