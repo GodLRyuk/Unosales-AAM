@@ -1779,18 +1779,20 @@ class _FsadashboardState extends State<Fsadashboard> {
               ),
             ),
           ),
+          
           // My Leads Box - triggers Tooltip for Training
           GestureDetector(
-            onTap: () async {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => Campaignlist()));
-            },
             // onTap: () async {
-            //   _CampaigntooltipKey.currentState?.ensureTooltipVisible();
+            //   Navigator.push(context,
+            //       MaterialPageRoute(builder: (context) => Campaignlist()));
             // },
+            onTap: () async {
+              _CampaigntooltipKey.currentState?.ensureTooltipVisible();
+            },
+            
             child: Tooltip(
               key: _CampaigntooltipKey,
-              message: 'Coming Soon',
+              message: 'Available Soon',
               decoration: BoxDecoration(
                 color: Color(
                     0xFFa604ad), // Set the background color of the tooltip

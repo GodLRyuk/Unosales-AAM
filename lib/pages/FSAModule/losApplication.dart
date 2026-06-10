@@ -2142,7 +2142,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           birthDate.text = (customer['birthDate']?.trim().isNotEmpty ?? false)
               ? customer['birthDate']?.trim()
               : (widget.dateofbirth ?? '');
-         
 
           fin_Mthly_Income.text = (empMonthlyIncome?['fin_Mthly_Income']
                       ?.toString()
@@ -2152,9 +2151,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
               ? empMonthlyIncome['fin_Mthly_Income'].toString().trim()
               : (widget.monthlyIncome ?? "");
 
-          perm_ZipCode.text = (address?['postcode']?.toString().trim().isNotEmpty ?? false)
-        ? address['postcode'].toString().trim()
-        : (widget.zipCode ?? "");
+          perm_ZipCode.text =
+              (address?['postcode']?.toString().trim().isNotEmpty ?? false)
+                  ? address['postcode'].toString().trim()
+                  : (widget.zipCode ?? "");
 
           // lastName.text = customer['lastName']?.trim() ?? '';
           // middlename.text = customer['middleName'] ?? "";
@@ -2171,7 +2171,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           }
 
           // address
-          //perm_ZipCode.text = address?['postcode'] ?? ""; 
+          //perm_ZipCode.text = address?['postcode'] ?? "";
           perm_Street.text = address?['line1'] ?? "";
 
           // document
@@ -2199,8 +2199,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         }
 
         // zip for employee
-        // emp_ZipCode.text = empAddress['emp_ZipCode'] ?? ""; 
-        // if (empAddress != null && empAddress['emp_ZipCode'] != null) {  
+        // emp_ZipCode.text = empAddress['emp_ZipCode'] ?? "";
+        // if (empAddress != null && empAddress['emp_ZipCode'] != null) {
         //   await onEmpZipCodeEntered(address['emp_ZipCode']);
         // }
 
@@ -2218,9 +2218,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
             emp_Work_Nature_Code.text = code;
             emp_Work_Nature.text = selectedItem['value'] ?? '';
           });
-        }
-
-        else if (widget.natureOfBusiness != null) {
+        } else if (widget.natureOfBusiness != null) {
           String code = widget.natureOfBusiness.toString();
 
           final selectedItem = empWorkNatureList.firstWhere(
@@ -2234,9 +2232,51 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
             emp_Work_Nature.text = selectedItem['value'] ?? '';
           });
         }
-
-
       }
+
+      // 8-6-2026
+
+      else {
+        setState(() {
+          firstName.text = widget.firstName ?? '';
+          lastName.text = widget.lastName ?? '';
+          middlename.text = widget.middleName ?? '';
+          mobilePhone.text = widget.mobilePhone ?? '';
+          birthDate.text = widget.dateofbirth ?? '';
+          fin_Mthly_Income.text = widget.monthlyIncome ?? '';
+          perm_ZipCode.text = widget.zipCode ?? '';
+
+          _searchController.text = widget.companyName ?? '';
+          emp_Employer_Name.text = widget.companyName ?? '';
+
+          if ((widget.companyName ?? "").toLowerCase() == "others") {
+            _selectedCompany = 'others';
+            _showOtherCompanyField = true;
+            _otherCompanyController.text = widget.otherCompanyName ?? '';
+          } else {
+            _showOtherCompanyField = false;
+          }
+        });
+
+        
+        if ((widget.zipCode ?? "").trim().isNotEmpty) {
+          await onZipCodeEntered(widget.zipCode!.trim());
+        }
+
+        if (widget.natureOfBusiness != null) {
+          String code = widget.natureOfBusiness.toString();
+          final selectedItem = empWorkNatureList.firstWhere(
+            (item) => item['key'] == code,
+            orElse: () => {},
+          );
+          setState(() {
+            emp_Work_Nature_Code.text = code;
+            emp_Work_Nature.text = selectedItem['value'] ?? '';
+          });
+        }
+      }
+
+      // Done
 
       // Fetch data from RQA
       //EMPLOYEE source of income
@@ -2375,9 +2415,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "firstName",
                                 isRequired: true,
                                 readOnly: ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode ==
-                                            "fromHYPERVERSER" ||
-                                        widget.pagemode == "fromETBStartFresh") && firstName.text.isNotEmpty) 
+                                            widget.pagemode ==
+                                                "fromHYPERVERSER" ||
+                                            widget.pagemode ==
+                                                "fromETBStartFresh") &&
+                                        firstName.text.isNotEmpty)
                                     ? true
                                     : false,
                               ),
@@ -2388,10 +2430,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "Please Enter Middle Name",
                                 "middlename",
                                 isRequired: false,
-                                readOnly:  ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode ==
-                                            "fromHYPERVERSER" ||
-                                        widget.pagemode == "fromETBStartFresh") && middlename.text.isNotEmpty) 
+                                readOnly: ((widget.pagemode == "fromDSR" ||
+                                            widget.pagemode ==
+                                                "fromHYPERVERSER" ||
+                                            widget.pagemode ==
+                                                "fromETBStartFresh") &&
+                                        middlename.text.isNotEmpty)
                                     ? true
                                     : false,
                               ),
@@ -2402,10 +2446,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "Please Enter Last Name",
                                 "lastName",
                                 isRequired: true,
-                                readOnly:  ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode ==
-                                            "fromHYPERVERSER" ||
-                                        widget.pagemode == "fromETBStartFresh") && lastName.text.isNotEmpty) 
+                                readOnly: ((widget.pagemode == "fromDSR" ||
+                                            widget.pagemode ==
+                                                "fromHYPERVERSER" ||
+                                            widget.pagemode ==
+                                                "fromETBStartFresh") &&
+                                        lastName.text.isNotEmpty)
                                     ? true
                                     : false,
                               ),
@@ -2413,10 +2459,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                               _buildMobileTextField(
                                 controller: mobilePhone,
                                 isPhoneNumber: true,
-                                readOnly:  ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode ==
-                                            "fromHYPERVERSER" ||
-                                        widget.pagemode == "fromETBStartFresh") && mobilePhone.text.isNotEmpty) 
+                                readOnly: ((widget.pagemode == "fromDSR" ||
+                                            widget.pagemode ==
+                                                "fromHYPERVERSER" ||
+                                            widget.pagemode ==
+                                                "fromETBStartFresh") &&
+                                        mobilePhone.text.isNotEmpty)
                                     ? true
                                     : false,
                               ),
@@ -2426,8 +2474,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                   label: "Birth Date",
                                   readOnly:
                                       ((widget.pagemode == "fromHYPERVERSER" ||
-                                              widget.pagemode ==
-                                                  "fromETBStartFresh") && birthDate.text.isNotEmpty)
+                                                  widget.pagemode ==
+                                                      "fromETBStartFresh") &&
+                                              birthDate.text.isNotEmpty)
                                           ? true
                                           : false),
                               SizedBox(height: 6),
@@ -2449,7 +2498,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "email",
                                 isRequired: true,
                                 readOnly: ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode == "fromETBStartFresh") && email.text.isNotEmpty)
+                                            widget.pagemode ==
+                                                "fromETBStartFresh") &&
+                                        email.text.isNotEmpty)
                                     ? true
                                     : false,
                               ),
@@ -2516,9 +2567,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 isRequired: true,
                                 isZip: true,
                                 readOnly: ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode ==
-                                            "fromETBStartFresh" ||
-                                        widget.pagemode == "fromHYPERVERSER") && perm_ZipCode.text.isNotEmpty)
+                                            widget.pagemode ==
+                                                "fromETBStartFresh" ||
+                                            widget.pagemode ==
+                                                "fromHYPERVERSER") &&
+                                        perm_ZipCode.text.isNotEmpty)
                                     ? true
                                     : false,
                                 onChanged: (value) async {
@@ -2886,9 +2939,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 "fin_Mthly_Income",
                                 isRequired: true,
                                 readOnly: ((widget.pagemode == "fromDSR" ||
-                                        widget.pagemode ==
-                                            "fromETBStartFresh" ||
-                                        widget.pagemode == "fromHYPERVERSER") && fin_Mthly_Income.text.isNotEmpty)
+                                            widget.pagemode ==
+                                                "fromETBStartFresh" ||
+                                            widget.pagemode ==
+                                                "fromHYPERVERSER") &&
+                                        fin_Mthly_Income.text.isNotEmpty)
                                     ? true
                                     : false,
                               ),
@@ -3048,7 +3103,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _buildZipTextField(
-                                emp_ZipCode, 
+                                emp_ZipCode,
                                 "Zip Code",
                                 "Please Enter Zip Code",
                                 "emp_ZipCode",
@@ -3359,7 +3414,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     // Define a regex to detect special characters
     String middleName = middlename.text.trim();
     // Check if middle name is not empty and contains any special characters
-    
+
     // if (middleName.isNotEmpty && specialCharRegex.hasMatch(middleName)) {
     //   _showValidationDialog("Middle Name must not contain special characters.");
     //   return false;

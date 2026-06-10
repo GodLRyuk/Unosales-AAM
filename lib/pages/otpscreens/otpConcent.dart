@@ -74,7 +74,6 @@ class OtpconcentState extends State<Otpconcent> {
     super.initState();
     String jsonString = jsonEncode(widget.losData.toJson());
     print("phone number1 ${widget.phoneNumber}");
-    
 
     // print("CW iN CONSENT ${widget.losData.applicationNumber}");
     // print("losData is this");
@@ -545,6 +544,7 @@ class OtpconcentState extends State<Otpconcent> {
 // Done created by 2/12/2025 *****************
 
   Future<void> waybookImplement(String cwId, String losId) async {
+    print("i am in Webhock cw id is $cwId and losID $losId");
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
@@ -573,6 +573,29 @@ class OtpconcentState extends State<Otpconcent> {
 
         print("offerStatus = $offerStatus");
         print("applicationStatus = $applicationStatus");
+
+        Map<String, dynamic> logmappedData = {
+          "url":
+              "${AppConfig.dynamicBaseUrl}/api/leads/los-details/?los_status__applicationNo=$cwId",
+          "request_body": "",
+          "status_code": response.statusCode,
+          "response_body": json.decode(response.body),
+        };
+
+        final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+        final headers = {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer $token",
+          'User-Agent':
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        };
+        // ignore: unused_local_variable
+        final LogResponse = await http.post(
+          logUrl,
+          headers: headers,
+          body: json.encode(logmappedData),
+        );
 
         // 1) PASSED → STOP LOOP + REDIRECT
 
@@ -626,11 +649,15 @@ class OtpconcentState extends State<Otpconcent> {
 
         if (offerStatus == "IN-PROGRESS" &&
             (applicationStatus == null || applicationStatus == "")) {
+          print("retry count in null block before $retryCount");
+
           retryCount++;
+          print("retry count in null block after $retryCount");
 
           await Future.delayed(Duration(seconds: 30));
 
           if (retryCount >= maxRetries) {
+            print("retry count final : $retryCount : $maxRetries");
             updateWorkflowStatus(losId, "SW_PW");
 
             Navigator.pushAndRemoveUntil(
@@ -761,6 +788,28 @@ class OtpconcentState extends State<Otpconcent> {
         body,
       );
 
+      Map<String, dynamic> logmappedData = {
+        "url": "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId//",
+        "request_body": json.encode(body),
+        "status_code": response!.statusCode,
+        "response_body": json.decode(response.body),
+      };
+
+      final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+      final header = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer $token",
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+      // ignore: unused_local_variable
+      final LogResponse = await http.post(
+        logUrl,
+        headers: header,
+        body: json.encode(logmappedData),
+      );
+
       print("Workflow status updated: $status");
     } catch (e) {
       print("Error updating workflow status: $e");
@@ -770,7 +819,6 @@ class OtpconcentState extends State<Otpconcent> {
 // Done  by 8.12.2025
 
   Future<void> postLoanCheck(Map<String, dynamic> requestData) async {
-    
     setState(() {});
     String tokens = "";
     try {
@@ -794,8 +842,6 @@ class OtpconcentState extends State<Otpconcent> {
 
     final url = Uri.parse("${AppConfig.otpUrl}/pre-uw/save-payload");
     final cookies = await cookie();
-
-
     final headers = {
       "Idempotency-Key": "th37per9-185d-4e22-83fb-18gf96g0g861",
       "Content-Type": "application/json",
@@ -806,22 +852,46 @@ class OtpconcentState extends State<Otpconcent> {
       "Correlation-Id": "1234",
       "Channel": "FSA",
       "Cookie": cookies['save_payload']!
-          
     };
 
-    print("url is $url");
-    print("Header is $headers");
-    String jsonString = jsonEncode(requestData);
-    for (int i = 0; i < jsonString.length; i += 1000) {
-      print(jsonString.substring(
-          i, (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-    }
+    // print("url is $url");
+    // print("Header is $headers");
+    // String jsonString = jsonEncode(requestData);
+    // for (int i = 0; i < jsonString.length; i += 1000) {
+    //   print(jsonString.substring(
+    //       i, (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
+    // }
 
     try {
       final response = await http.post(
         url,
         headers: headers,
         body: json.encode(requestData),
+      );
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('accessToken');
+
+      Map<String, dynamic> logmappedData = {
+        "url": "${AppConfig.otpUrl}/pre-uw/save-payload",
+        "request_body": json.encode(requestData),
+        "status_code": response.statusCode,
+        "response_body": json.decode(response.body),
+      };
+
+      final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+      final headerss = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer $token",
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+      // ignore: unused_local_variable
+      final LogResponse = await http.post(
+        logUrl,
+        headers: headerss,
+        body: json.encode(logmappedData),
       );
 
       if (response.statusCode == 200) {
@@ -953,6 +1023,29 @@ class OtpconcentState extends State<Otpconcent> {
 
             final responseLOS = await ApiService.patchWithHeaders(
                 ul, headers4, mappedResponseLOsData);
+
+            Map<String, dynamic> logmappedData = {
+              "url":
+                  "${AppConfig.dynamicBaseUrl}/api/leads/los-details/${data['id']}/",
+              "request_body": json.encode(mappedResponseLOsData),
+              "status_code": responseLOS!.statusCode,
+              "response_body": json.decode(responseLOS.body),
+            };
+
+            final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+            final headers = {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "Authorization": "Bearer $token",
+              'User-Agent':
+                  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+            };
+            // ignore: unused_local_variable
+            final LogResponse = await http.post(
+              logUrl,
+              headers: headers,
+              body: json.encode(logmappedData),
+            );
           }
 
           waybookImplement(requestData['CWTransactionID'], losId);
@@ -1227,10 +1320,9 @@ class OtpconcentState extends State<Otpconcent> {
   }
 
   Future<void> _sendOtp() async {
-
     String phone = widget.phoneNumber.toString();
     if (phone.length == 12 && phone.startsWith("63")) {
-      phone = phone.substring(2); 
+      phone = phone.substring(2);
     }
     print("phone number $phone");
 
@@ -1288,7 +1380,8 @@ class OtpconcentState extends State<Otpconcent> {
         }),
       );
       if (smsResponse.statusCode == 200) {
-        print('SMS sent successfully!');
+        print('SMS sent successfully! otp $otp');
+        
         setState(() {
           recivedOtp = otp.toString();
         });

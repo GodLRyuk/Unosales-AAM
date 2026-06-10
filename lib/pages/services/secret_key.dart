@@ -43,6 +43,8 @@ Future<void> globalKeys() async {
       ApiGlobalKeys.otp_client_secret =
           finalOutput['result']['otp_client_secret'][AppConfig.flavour];
       ApiGlobalKeys.public_key = finalOutput['result']['public_key'][AppConfig.flavour];
+
+      print("Pubic key is this ${ApiGlobalKeys.public_key}");
       ApiGlobalKeys.security_check =
           finalOutput['result']['security_check'][AppConfig.flavour];
       ApiGlobalKeys.openroute_apiKey =
