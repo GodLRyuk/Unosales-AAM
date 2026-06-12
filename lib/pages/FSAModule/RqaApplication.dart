@@ -710,7 +710,7 @@ class _RQAApplicationState extends State<RQAApplication> {
       final headers2 = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": "Bearer $token",
+        "Authorization": "Bearer $accessToken",
         'User-Agent':
             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };

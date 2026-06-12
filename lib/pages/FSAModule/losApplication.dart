@@ -2028,7 +2028,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         address.text = details?['ocr_address'] ?? '';
         documentType.text = details?['ocr_documentId'] ?? '';
         validUntil.text = details?['ocr_dateOfExpiry'] ?? '';
-        documentId.text = details?['ocr_documentId'] ?? '';
+        documentId.text = details?['ocr_idNumber'] ?? '';
 
         // RQA Data
         perm_ZipCode.text = widget.zipCode ?? "";
