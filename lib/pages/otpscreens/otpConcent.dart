@@ -657,11 +657,11 @@ class OtpconcentState extends State<Otpconcent> {
           print("retry count in null block after $retryCount");
 
           await Future.delayed(Duration(seconds: 30));
+          updateWorkflowStatus(losId, "SW_PW");
 
           if (retryCount == maxRetries) {
             print("retry count final : $retryCount : $maxRetries");
-            updateWorkflowStatus(losId, "SW_PW");
-
+          
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => NavigationPage()),

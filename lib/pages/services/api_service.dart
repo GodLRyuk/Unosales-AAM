@@ -685,4 +685,47 @@ class ApiService {
       body: jsonEncode(body),
     );
   }
+
+
+  // Function for LOG
+   static Future<http.Response?> LogApi(
+    String endpoint,
+    Map<String, dynamic> body,
+    Map<String, String> headers,
+  ) async {
+    final baseUri = Uri.parse(AppConfig.dynamicBaseUrl);
+    final fullUrl = Uri.parse('${AppConfig.dynamicBaseUrl}$endpoint');
+    final isHttps = baseUri.scheme == 'https';
+
+    // print("Log URL $fullUrl"); //********** */
+    // print("Log URL header $headers");
+    // print("Body ${body}");
+    headers['User-Agent'] =
+        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36';
+    if (isHttps) {
+      final result = await HttpCertificatePinning.check(
+        serverURL: baseUri.origin,
+        headerHttp: {},
+        timeout: 50,
+        sha: SHA.SHA256,
+        allowedSHAFingerprints: [certificate],
+      );
+      final state = parseCertificateState(result);
+      if (state == CertificateState.CONNECTION_SECURE) {
+        print("✅ SSL pinning succeeded");
+        return await http.post(
+          fullUrl,
+          headers: headers,
+          body: jsonEncode(body),
+        );
+      } else {
+        print("❌ SSL pinning failed: ${result}");
+        return null;
+      }
+    } else {
+      print("🌐 Non-HTTPS endpoint, skipping pinning4");
+      return await http.post(fullUrl, body: jsonEncode(body), headers: headers);
+    }
+  }
+
 }

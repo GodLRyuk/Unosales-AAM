@@ -1894,11 +1894,12 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => LosApplicationPage(
-                                leadId: "",
-                                campaign: "",
-                                pagemode: "fromDSR",
-                                dsrId: dsrId,
-                                CWTransactionID: '',),
+                              leadId: "",
+                              campaign: "",
+                              pagemode: "fromDSR",
+                              dsrId: dsrId,
+                              CWTransactionID: '',
+                            ),
                           ),
                         );
                       },
@@ -1938,6 +1939,20 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
             );
           }
         } else if (response != null && response.statusCode == 401) {
+          await ApiService.LogApi(
+            '/api/logs/',
+            {
+              "url": "${AppConfig.dynamicBaseUrl}$url",
+              "request_body": json.encode(mappedData),
+              "status_code": response.statusCode,
+              "response_body": json.decode(response.body),
+            },
+            {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "Authorization": "Bearer $token",
+            },
+          );
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
                 content: Text("Session expired. Please login again.")),
@@ -1947,14 +1962,12 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
         setState(() {
           _isLoading = false;
         });
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("An error occurred: ${response?.body}")),
         );
       }
     } else {
-      // final response =
-      //     await ApiService.patchWithHeaders(url, headers, mappedData);
-
       final response = await ApiService.patchWithHeadersUploadMultiPart(
           url, headers, mappedData,
           imageFile: _captureImageField1);
@@ -1982,10 +1995,12 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                           context,
                           MaterialPageRoute(
                             builder: (context) => LosApplicationPage(
-                                leadId: "",
-                                campaign: "",
-                                pagemode: "fromDSR",
-                                dsrId: dsrId, CWTransactionID: '',),
+                              leadId: "",
+                              campaign: "",
+                              pagemode: "fromDSR",
+                              dsrId: dsrId,
+                              CWTransactionID: '',
+                            ),
                           ),
                         );
                       },
@@ -2025,6 +2040,20 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
             );
           }
         } else if (response != null && response.statusCode == 401) {
+          await ApiService.LogApi(
+            '/api/logs/',
+            {
+              "url": "${AppConfig.dynamicBaseUrl}$url",
+              "request_body": json.encode(mappedData),
+              "status_code": response.statusCode,
+              "response_body": json.decode(response.body),
+            },
+            {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "Authorization": "Bearer $token",
+            },
+          );
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
                 content: Text("Session expired. Please login again.")),

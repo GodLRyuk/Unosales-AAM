@@ -11,6 +11,7 @@ import 'package:unosfa/pages/FSAModule/RqaApplication.dart';
 import 'package:unosfa/pages/FSAModule/fsaleaddashboard.dart';
 import 'package:unosfa/pages/FSAModule/losApplication.dart';
 import 'package:unosfa/pages/commingSoon.dart';
+import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/generalscreens/customNavigation.dart';
 import 'package:unosfa/pages/generalscreens/entrypage.dart';
 import 'package:unosfa/pages/generalscreens/profile.dart';
@@ -37,7 +38,7 @@ class DedupeCheck extends StatefulWidget {
   final String monthlyIncome;
   final String existingLoan;
   final String? creditLoanAmount;
-  final String CWTranscationID ;
+  final String CWTranscationID;
 
   const DedupeCheck({
     super.key,
@@ -58,8 +59,8 @@ class DedupeCheck extends StatefulWidget {
     required this.natureofBusiness,
     required this.monthlyIncome,
     required this.existingLoan,
-    this.creditLoanAmount, 
-    required  this.CWTranscationID,
+    this.creditLoanAmount,
+    required this.CWTranscationID,
   });
   @override
   State<DedupeCheck> createState() => _DedupeCheckState();
@@ -456,7 +457,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
         'Authorization': 'Bearer $accessToken',
         'Content-Type': 'application/json',
         //'User-Agent':
-          //  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        //  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
       final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
       if (Tokenresponse != null) {
@@ -467,15 +468,12 @@ class _DedupeCheckState extends State<DedupeCheck> {
       print("HTTP Request Failed: $e");
     }
 
-    
-    
     if (_formKey.currentState!.validate()) {
-      
-      
       // for date
       DateTime parsedDate = DateFormat('d/M/yyyy').parse(dob.text);
       String formattedDate = DateFormat('yyyy-MM-dd').format(parsedDate);
       final url = "/dedupe/check";
+      
       final Map<String, dynamic> mapeddata = {
         "firstName": firstName.text,
         "lastName": lastName.text,
@@ -488,7 +486,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
         'Correlation-Id': '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-        'Cookie': cookies['dedupe']!,           
+        'Cookie': cookies['dedupe']!,
         'channel': 'fsa',
       };
 
@@ -562,7 +560,8 @@ class _DedupeCheckState extends State<DedupeCheck> {
                       ),
                       onPressed: () async {
                         if (!mounted) return;
-                        HyperKycResult result = await EkycService.startKyc(widget.CWTranscationID);
+                        HyperKycResult result =
+                            await EkycService.startKyc(widget.CWTranscationID);
                         final statusStr = result.status.toString();
                         if (statusStr.contains("autoDeclined")) {
                           showDialog(
@@ -575,7 +574,11 @@ class _DedupeCheckState extends State<DedupeCheck> {
                                 TextButton(
                                   child: const Text("OK"),
                                   onPressed: () {
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => RQAApplication()));
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                RQAApplication()));
                                   },
                                 ),
                               ],
@@ -583,7 +586,6 @@ class _DedupeCheckState extends State<DedupeCheck> {
                           );
                         } else if ((statusStr.contains("autoApproved")) ||
                             (statusStr.contains("needsReview"))) {
-
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -604,7 +606,8 @@ class _DedupeCheckState extends State<DedupeCheck> {
                                 natureOfBusiness: natureBusinessController.text,
                                 monthlyIncome: monthlyIncomeController.text,
                                 existingLoan: existingLoanController.text,
-                                creditLoanAmount: creditLoanAmountController.text, 
+                                creditLoanAmount:
+                                    creditLoanAmountController.text,
                               ),
                             ),
                           );
@@ -668,7 +671,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
                       campaign: "",
                       pagemode: "fromETBStartFresh",
                       dsrId: "",
-                      CWTransactionID:widget.CWTranscationID,
+                      CWTransactionID: widget.CWTranscationID,
                       customerDetails: Etbdetails,
                       firstName: firstName.text,
                       middleName: middlename.text,
@@ -693,6 +696,20 @@ class _DedupeCheckState extends State<DedupeCheck> {
           }
         } else {
           _showAlert("No response from server.");
+          await ApiService.LogApi(
+            '/api/logs/',
+            {
+              "url":"${AppConfig.otpUrl}/dedupe/check",
+              "request_body": json.encode(mapeddata),
+              "status_code": response!.statusCode,
+              "response_body": json.decode(response.body),
+            },
+            {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "Authorization": "Bearer $accessToken",
+            },
+          );
         }
       } catch (e) {
         print("Login error: $e");
