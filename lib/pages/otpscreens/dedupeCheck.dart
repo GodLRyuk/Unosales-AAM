@@ -473,7 +473,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
       DateTime parsedDate = DateFormat('d/M/yyyy').parse(dob.text);
       String formattedDate = DateFormat('yyyy-MM-dd').format(parsedDate);
       final url = "/dedupe/check";
-      
+
       final Map<String, dynamic> mapeddata = {
         "firstName": firstName.text,
         "lastName": lastName.text,
@@ -493,7 +493,23 @@ class _DedupeCheckState extends State<DedupeCheck> {
       try {
         final response =
             await ApiService.postWithHeadersUnoApi(url, mapeddata, headers);
-        if (response != null) {
+
+        await ApiService.LogApi(
+          '/api/logs/',
+          {
+            "url": "${AppConfig.otpUrl}/dedupe/check",
+            "request_body": json.encode(mapeddata),
+            "status_code": response!.statusCode,
+            "response_body": json.decode(response.body),
+          },
+          {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": "Bearer $accessToken",
+          },
+        );
+
+        if (response.statusCode == 200) {
           final responseBody = json.decode(response.body);
           //print("response body ${responseBody}");
           final message = responseBody["message"] ?? "";
@@ -696,20 +712,6 @@ class _DedupeCheckState extends State<DedupeCheck> {
           }
         } else {
           _showAlert("No response from server.");
-          await ApiService.LogApi(
-            '/api/logs/',
-            {
-              "url":"${AppConfig.otpUrl}/dedupe/check",
-              "request_body": json.encode(mapeddata),
-              "status_code": response!.statusCode,
-              "response_body": json.decode(response.body),
-            },
-            {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-              "Authorization": "Bearer $accessToken",
-            },
-          );
         }
       } catch (e) {
         print("Login error: $e");

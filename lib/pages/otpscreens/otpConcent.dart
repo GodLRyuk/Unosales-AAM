@@ -791,7 +791,7 @@ class OtpconcentState extends State<Otpconcent> {
       );
 
       Map<String, dynamic> logmappedData = {
-        "url": "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId//",
+        "url": "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/",
         "request_body": json.encode(body),
         "status_code": response!.statusCode,
         "response_body": json.decode(response.body),
