@@ -648,7 +648,9 @@ class OtpconcentState extends State<Otpconcent> {
         // 2) EMPTY OR NULL → WAIT 30 SEC & RETRY
 
         if (offerStatus == "IN-PROGRESS" &&
-            (applicationStatus == null || applicationStatus == "")) {
+            (applicationStatus == null ||
+                applicationStatus == "" ||
+                applicationStatus.isEmpty)) {
           print("retry count in null block before $retryCount");
 
           retryCount++;
@@ -656,7 +658,7 @@ class OtpconcentState extends State<Otpconcent> {
 
           await Future.delayed(Duration(seconds: 30));
 
-          if (retryCount >= maxRetries) {
+          if (retryCount == maxRetries) {
             print("retry count final : $retryCount : $maxRetries");
             updateWorkflowStatus(losId, "SW_PW");
 
@@ -1381,7 +1383,7 @@ class OtpconcentState extends State<Otpconcent> {
       );
       if (smsResponse.statusCode == 200) {
         print('SMS sent successfully! otp $otp');
-        
+
         setState(() {
           recivedOtp = otp.toString();
         });

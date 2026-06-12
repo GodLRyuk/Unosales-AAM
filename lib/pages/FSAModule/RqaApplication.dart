@@ -485,6 +485,14 @@ class _RQAApplicationState extends State<RQAApplication> {
     }
   }
 
+  String _formatDob(String dob) {
+    final parts = dob.split('/');
+    final day = parts[0].padLeft(2, '0');
+    final month = parts[1].padLeft(2, '0');
+    final year = parts[2];
+    return '$year-$month-$day';
+  }
+
   // Random Application ID create
   String generateApplicationId() {
     final random = Random();
@@ -498,10 +506,12 @@ class _RQAApplicationState extends State<RQAApplication> {
     return "FSA_$randomNumber$dateTime";
   }
 
-   bool databaseUpdate_value = false; 
+  bool databaseUpdate_value = false;
   // Store data in UNO Data Base
   Future<bool> submitDataUnoDB(String lostoken,
       Map<String, dynamic> responseData, String CWTransactionID) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? accessToken = prefs.getString('accessToken');
     String url = "/save/external-response";
     final header1 = {
       'Authorization': 'Bearer $lostoken',
@@ -517,7 +527,7 @@ class _RQAApplicationState extends State<RQAApplication> {
       "requestBody": {
         "rqa": {
           "q1_id": selectedValue,
-          "q2_dob": dob.text,
+          "q2_dob": _formatDob(dob.text),
           "q3_zipcode": zip.text,
           "q4_source_income": emp_Status.text,
           "q4a_emp_status":
@@ -540,14 +550,34 @@ class _RQAApplicationState extends State<RQAApplication> {
     try {
       final response =
           await ApiService.postJsonWithUNOApiHeaders(url, formData1, header1);
+      Map<String, dynamic> logmappedData = {
+        "url":
+            "${AppConfig.unoBaseApiUrl}/engine/v1/executions/loans-interface/1.x/rqa-check/rqa_check/RQA_Check",
+        "request_body": json.encode(formData1),
+        "status_code": response!.statusCode,
+        "response_body": json.decode(response.body),
+      };
 
-      if (response != null) {
+      final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+      final headers2 = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer $accessToken",
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+      // ignore: unused_local_variable
+      final LogResponse = await http.post(
+        logUrl,
+        headers: headers2,
+        body: json.encode(logmappedData),
+      );
+
+      if (response.statusCode == 200) {
         if (response.statusCode == 200) {
-          databaseUpdate_value=true;
-          print("Data submitted successfully in UNO DB");          
-           
-        } 
-        else {
+          databaseUpdate_value = true;
+          print("Data submitted successfully in UNO DB");
+        } else {
           showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -599,15 +629,13 @@ class _RQAApplicationState extends State<RQAApplication> {
               );
             },
           );
-          databaseUpdate_value=false;
+          databaseUpdate_value = false;
         }
       }
     } catch (e) {
       print("error is $e");
-     
     }
     return databaseUpdate_value;
-   
   }
 
   //******************************************* */
@@ -648,7 +676,7 @@ class _RQAApplicationState extends State<RQAApplication> {
     Map<String, dynamic> formData = {
       "rqa": {
         "q1_id": selectedValue,
-        "q2_dob": dob.text,
+        "q2_dob": _formatDob(dob.text),
         "q3_zipcode": zip.text,
         "q4_source_income": emp_Status.text,
         "q4a_emp_status":
@@ -670,7 +698,30 @@ class _RQAApplicationState extends State<RQAApplication> {
       final response =
           await ApiService.postJsonWithUNOApiHeaders(rqaUrl, formData, headers);
 
-      if (response != null && response.statusCode == 200) {
+      Map<String, dynamic> logmappedData = {
+        "url":
+            "${AppConfig.unoBaseApiUrl}/engine/v1/executions/loans-interface/1.x/rqa-check/rqa_check/RQA_Check",
+        "request_body": json.encode(formData),
+        "status_code": response!.statusCode,
+        "response_body": json.decode(response.body),
+      };
+
+      final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+      final headers2 = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer $token",
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+      // ignore: unused_local_variable
+      final LogResponse = await http.post(
+        logUrl,
+        headers: headers2,
+        body: json.encode(logmappedData),
+      );
+
+      if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         print("response body $data");
 
@@ -679,9 +730,12 @@ class _RQAApplicationState extends State<RQAApplication> {
 
         //  ****************************************************
         print("status is $status");
-        bool dataUpdatedValue = await submitDataUnoDB(token, data, CWTransactionID);
+        bool dataUpdatedValue =
+            await submitDataUnoDB(token, data, CWTransactionID);
         // ***************************************************
-        if (status != null && status.toLowerCase() == "pass" && dataUpdatedValue == true) {
+        if (status != null &&
+            status.toLowerCase() == "pass" &&
+            dataUpdatedValue == true) {
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -763,29 +817,7 @@ class _RQAApplicationState extends State<RQAApplication> {
           );
         }
       } else {
-         Map<String, dynamic> logmappedData = {
-          "url": "${AppConfig.unoBaseApiUrl}/engine/v1/executions/loans-interface/1.x/rqa-check/rqa_check/RQA_Check",
-          "request_body": json.encode(formData),
-          "status_code": response!.statusCode,
-          "response_body": json.decode(response.body),
-        };
-
-        final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
-        final headers = {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Authorization": "Bearer $accessToken",
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        };
-        // ignore: unused_local_variable
-        final LogResponse = await http.post(
-          logUrl,
-          headers: headers,
-          body: json.encode(logmappedData),
-        );
-        
-  // Exist Code **********************************
+        // Exist Code **********************************
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -1509,7 +1541,7 @@ class _RQAApplicationState extends State<RQAApplication> {
         if (pickedDate != null) {
           setState(() {
             controller.text =
-                "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
+                "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year}";
           });
         }
       },
