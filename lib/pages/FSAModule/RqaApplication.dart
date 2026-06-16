@@ -551,8 +551,7 @@ class _RQAApplicationState extends State<RQAApplication> {
       final response =
           await ApiService.postJsonWithUNOApiHeaders(url, formData1, header1);
       Map<String, dynamic> logmappedData = {
-        "url":
-            "${AppConfig.unoBaseApiUrl}/engine/v1/executions/loans-interface/1.x/rqa-check/rqa_check/RQA_Check",
+        "url": "${AppConfig.unoBaseApiUrl}/save/external-response",
         "request_body": json.encode(formData1),
         "status_code": response!.statusCode,
         "response_body": json.decode(response.body),
@@ -574,63 +573,62 @@ class _RQAApplicationState extends State<RQAApplication> {
       );
 
       if (response.statusCode == 200) {
-        if (response.statusCode == 200) {
-          databaseUpdate_value = true;
-          print("Data submitted successfully in UNO DB");
-        } else {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                title: Row(
-                  children: const [
-                    Icon(
-                      Icons.error_outline,
-                      color: Colors.red,
-                      size: 28,
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      "Something Went Wrong",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ],
-                ),
-                content: Text(
-                  "Failed to connect with server.\nStatus Code: ${response.statusCode}",
-                  style: const TextStyle(fontSize: 16),
-                ),
-                actionsPadding: const EdgeInsets.only(bottom: 10, right: 10),
-                actions: [
-                  Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: const Text(
-                        "OK",
-                        style: TextStyle(color: Colors.white),
-                      ),
+        databaseUpdate_value = true;
+        print("Data submitted successfully in UNO DB");
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              title: Row(
+                children: const [
+                  Icon(
+                    Icons.error_outline,
+                    color: Colors.red,
+                    size: 28,
+                  ),
+                  SizedBox(width: 10),
+                  Text(
+                    "Something Went Wrong",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
                     ),
                   ),
                 ],
-              );
-            },
-          );
-          databaseUpdate_value = false;
-        }
+              ),
+              content: Text(
+                 "Application failed to store in Database.\nReason: ${json.decode(response.body)['message'] ?? 'Unknown error'}",
+                // "Failed to connect with server.\nStatus Code: ${response.statusCode}",
+                style: const TextStyle(fontSize: 16),
+              ),
+              actionsPadding: const EdgeInsets.only(bottom: 10, right: 10),
+              actions: [
+                Center(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.purple,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text(
+                      "OK",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+        databaseUpdate_value = false;
       }
     } catch (e) {
       print("error is $e");
@@ -761,8 +759,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                   creditLoanAmount: credit_loan_amount.text),
             ),
           );
-        } else 
-        {
+        } else {
           List reason = data['output']['response']['reject_reasons'];
           String allReasons = reason.map((e) => e['reason']).join('\n');
           showDialog(
@@ -844,7 +841,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                 ],
               ),
               content: Text(
-              "Application submission failed. \nReason: ${json.decode(response.body)['message'] ?? 'Unknown error'}",
+                "Application submission failed. \nReason: ${json.decode(response.body)['message'] ?? 'Unknown error'}",
                 //  "Failed to connect with server.\nStatus Code: ${response!.statusCode}",
                 style: const TextStyle(fontSize: 16),
               ),
