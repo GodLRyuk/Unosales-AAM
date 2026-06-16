@@ -761,7 +761,8 @@ class _RQAApplicationState extends State<RQAApplication> {
                   creditLoanAmount: credit_loan_amount.text),
             ),
           );
-        } else {
+        } else 
+        {
           List reason = data['output']['response']['reject_reasons'];
           String allReasons = reason.map((e) => e['reason']).join('\n');
           showDialog(
@@ -843,7 +844,8 @@ class _RQAApplicationState extends State<RQAApplication> {
                 ],
               ),
               content: Text(
-                "Failed to connect with server.\nStatus Code: ${response!.statusCode}",
+              "Application submission failed. \nReason: ${json.decode(response.body)['message'] ?? 'Unknown error'}",
+                //  "Failed to connect with server.\nStatus Code: ${response!.statusCode}",
                 style: const TextStyle(fontSize: 16),
               ),
               actionsPadding: const EdgeInsets.only(bottom: 10, right: 10),
