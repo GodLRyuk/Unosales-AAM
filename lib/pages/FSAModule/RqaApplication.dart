@@ -38,6 +38,8 @@ class _RQAApplicationState extends State<RQAApplication> {
   late Map<String, String> _ComIdOptions; // Store the fetched companies
   String? _selectedCompany;
   bool _showOtherCompanyField = false;
+  bool _isOthersSelected = false;
+  bool _showCompanyError = false;
 
   final firstName = TextEditingController();
   final middlename = TextEditingController();
@@ -601,7 +603,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                 ],
               ),
               content: Text(
-                 "Application failed to store in Database.\nReason: ${json.decode(response.body)['message'] ?? 'Unknown error'}",
+                "Application failed to store in Database.\nReason: ${json.decode(response.body)['message'] ?? 'Unknown error'}",
                 // "Failed to connect with server.\nStatus Code: ${response.statusCode}",
                 style: const TextStyle(fontSize: 16),
               ),
@@ -1064,6 +1066,9 @@ class _RQAApplicationState extends State<RQAApplication> {
                               controller: _searchController,
                               decoration: InputDecoration(
                                 contentPadding: EdgeInsets.only(left: 15),
+                                errorText: _showCompanyError
+                                    ? 'Company name is required'
+                                    : null,
                                 label: RichText(
                                   text: const TextSpan(
                                     text: 'Company',
@@ -1088,6 +1093,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                                 ),
                               ),
                               onChanged: (query) {
+                                setState(() => _showCompanyError = false);
                                 if (query.isEmpty) {
                                   setState(() {
                                     _filteredCompanies = _ComIdOptions.entries
@@ -1125,6 +1131,21 @@ class _RQAApplicationState extends State<RQAApplication> {
                                           ['company_name']!),
                                       onTap: () {
                                         // Set the selected company
+                                        // setState(() {
+                                        //   _selectedCompany =
+                                        //       _filteredCompanies[index]
+                                        //           ['company_name'];
+                                        //   _searchController.text =
+                                        //       _filteredCompanies[index]
+                                        //           ['company_name']!;
+                                        //   _isFieldFocused = false;
+                                        //   _showOtherCompanyField =
+                                        //       _selectedCompany!.toLowerCase() ==
+                                        //           'others';
+                                        // });
+
+                                        // *******************************************
+
                                         setState(() {
                                           _selectedCompany =
                                               _filteredCompanies[index]
@@ -1133,9 +1154,12 @@ class _RQAApplicationState extends State<RQAApplication> {
                                               _filteredCompanies[index]
                                                   ['company_name']!;
                                           _isFieldFocused = false;
+                                          _isOthersSelected =
+                                              _filteredCompanies[index]['id'] ==
+                                                  'others'; // ✅ new line
                                           _showOtherCompanyField =
-                                              _selectedCompany!.toLowerCase() ==
-                                                  'others';
+                                              _isOthersSelected; // ✅ changed
+                                          _showCompanyError = false;
                                         });
                                       },
                                     );
@@ -1157,13 +1181,22 @@ class _RQAApplicationState extends State<RQAApplication> {
                           decoration: InputDecoration(
                             hintText: "Enter Employer/Business Name",
                           ),
+                          // validator: (value) {
+                          //   // if (value == null ||
+                          //   //     value.isEmpty ||
+                          //   //     _selectedCompany == 'others') {
+                          //   //   return 'Company name is required';
+                          //   // }
+                          //   if (_selectedCompany == 'others' &&
+                          //       (value == null || value.isEmpty)) {
+                          //     return 'Company name is required';
+                          //   }
+                          //   return null;
+                          // },
+
+                          // *********************************
                           validator: (value) {
-                            // if (value == null ||
-                            //     value.isEmpty ||
-                            //     _selectedCompany == 'others') {
-                            //   return 'Company name is required';
-                            // }
-                            if (_selectedCompany == 'others' &&
+                            if (_isOthersSelected &&
                                 (value == null || value.isEmpty)) {
                               return 'Company name is required';
                             }
@@ -1242,9 +1275,21 @@ class _RQAApplicationState extends State<RQAApplication> {
                             ),
                             onPressed: () {
                               print("press");
+                              if (_selectedCompany == null ||
+                                  _selectedCompany!.isEmpty) {
+                                setState(() => _showCompanyError = true);
+                              }
+
                               if (_formKey.currentState!.validate()) {
+                                if (_selectedCompany == null ||
+                                    _selectedCompany!.isEmpty) {
+                                  return;
+                                }
                                 submitData();
                               }
+                              // if (_formKey.currentState!.validate()) {
+                              //   submitData();
+                              // }
                             },
                             child: Text(
                               "SUBMIT",
