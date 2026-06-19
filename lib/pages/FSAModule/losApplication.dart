@@ -3407,10 +3407,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     if (firstName.text.trim().isEmpty) {
       _showValidationDialog("Please enter First Name.");
       return false;
-    } else if (!nameRegex.hasMatch(firstName.text.trim())) {
-      _showValidationDialog("First Name must not contain special characters.");
-      return false;
-    }
+    } 
+    // else if (!nameRegex.hasMatch(firstName.text.trim())) {
+    //   _showValidationDialog("First Name must not contain special characters.");
+    //   return false;
+    // }
     // Define a regex to detect special characters
     String middleName = middlename.text.trim();
     // Check if middle name is not empty and contains any special characters
@@ -3422,10 +3423,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     if (lastName.text.trim().isEmpty) {
       _showValidationDialog("Please enter Last Name.");
       return false;
-    } else if (!nameRegex.hasMatch(lastName.text.trim())) {
-      _showValidationDialog("Last Name must not contain special characters.");
-      return false;
-    }
+    } 
+    // else if (!nameRegex.hasMatch(lastName.text.trim())) {
+    //   _showValidationDialog("Last Name must not contain special characters.");
+    //   return false;
+    // }
 
     if (mobilePhone.text.trim().isEmpty) {
       _showValidationDialog("Please enter Mobile Number.");
