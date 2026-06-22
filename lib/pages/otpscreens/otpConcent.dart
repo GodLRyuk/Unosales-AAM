@@ -608,7 +608,8 @@ class OtpconcentState extends State<Otpconcent> {
             await launchUrl(uri, mode: LaunchMode.externalApplication);
 
             String? offerStatusValue = await updateOfferStatus(cwId);
-            updateWorkflowStatus(losId, "AAM Invoked", offerStatusValue: offerStatusValue);
+            updateWorkflowStatus(losId, "AAM Invoked",
+                offerStatusValue: offerStatusValue);
 
             await Future.delayed(Duration(seconds: 5));
             showDialog(
@@ -652,8 +653,10 @@ class OtpconcentState extends State<Otpconcent> {
 
           await Future.delayed(Duration(seconds: 30));
 
-          String? offerStatusValue = await updateOfferStatus(cwId); // this line and offerstatusvalue is added here
-          updateWorkflowStatus(losId, "SW_PW", offerStatusValue: offerStatusValue); 
+          String? offerStatusValue = await updateOfferStatus(
+              cwId); // this line and offerstatusvalue is added here
+          updateWorkflowStatus(losId, "SW_PW",
+              offerStatusValue: offerStatusValue);
 
           if (retryCount == maxRetries) {
             print("retry count final : $retryCount : $maxRetries");
@@ -1719,26 +1722,42 @@ class OtpconcentState extends State<Otpconcent> {
                       //   ),
                       // ),
 
-                      // Updated Code
                       Visibility(
-                        visible: checkBox1 &&
-                            checkBox2, // Only show button once both are checked
-                        child: GestureDetector(
-                          onTap: () {
-                            submitLos(widget
-                                .losData); // both already confirmed true if button is visible
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF640D78),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Submit",
-                                style: WidgetSupport.LoginButtonTextColor(),
+                        visible: checkBox1 && checkBox2,
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(20, 80, 20, 5),
+                          child: GestureDetector(
+                            onTap: () => submitLos(widget.losData),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 11),
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFFc433e0),
+                                    Color(0xFF9a37ae)
+                                  ],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.send_rounded,
+                                      color: Colors.white, size: 15),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    "Submit",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: 0.4,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
