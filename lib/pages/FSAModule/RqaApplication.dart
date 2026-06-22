@@ -654,7 +654,7 @@ class _RQAApplicationState extends State<RQAApplication> {
         "url": "${AppConfig.unoBaseApiUrl}/save/external-response",
         "request_body": json.encode(formData1),
         "status_code": response!.statusCode,
-        "response_body": json.decode(response.body),
+        "response_body": response.data,
       };
 
       final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
@@ -701,7 +701,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                 ],
               ),
               content: Text(
-                "Application failed to store in Database.\nReason: ${json.decode(response.body)['message'] ?? 'Unknown error'}",
+                "Application failed to store in Database.\nReason: ${response.data['message'] ?? 'Unknown error'}",
                 // "Failed to connect with server.\nStatus Code: ${response.statusCode}",
                 style: const TextStyle(fontSize: 16),
               ),

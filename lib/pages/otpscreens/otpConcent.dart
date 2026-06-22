@@ -570,7 +570,7 @@ class OtpconcentState extends State<Otpconcent> {
               "${AppConfig.dynamicBaseUrl}/api/leads/los-details/?los_status__applicationNo=$cwId",
           "request_body": "",
           "status_code": response.statusCode,
-          "response_body": json.decode(response.body),
+          "response_body": response.data,
         };
 
         final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
@@ -785,7 +785,7 @@ class OtpconcentState extends State<Otpconcent> {
         "url": "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/",
         "request_body": json.encode(body),
         "status_code": response!.statusCode,
-        "response_body": json.decode(response.body),
+        "response_body": response.data,
       };
 
       final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
@@ -1057,7 +1057,7 @@ class OtpconcentState extends State<Otpconcent> {
                   "${AppConfig.dynamicBaseUrl}/api/leads/los-details/${data['id']}/",
               "request_body": json.encode(mappedResponseLOsData),
               "status_code": responseLOS!.statusCode,
-              "response_body": json.decode(responseLOS.body),
+              "response_body": responseLOS.data,
             };
 
             final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");

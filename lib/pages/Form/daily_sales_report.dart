@@ -134,32 +134,31 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
   //************************************************* */
 
   Future<void> loadImage(String fullUrl) async {
- 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('accessToken');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('accessToken');
 
-  final path = '/' + fullUrl.split('/unosales/').last;
-  // path = "/media/uploads/images/xxx.jpg"
+    final path = '/' + fullUrl.split('/unosales/').last;
+    // path = "/media/uploads/images/xxx.jpg"
 
-  final headers = {
-    'Authorization': 'Bearer $token',
-    'User-Agent':
-        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-  };
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'User-Agent':
+          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+    };
 
-  final response = await ApiService.getImageWithHeaders(path, headers);
+    final response = await ApiService.getImageWithHeaders(path, headers);
 
-  if (response != null && response.statusCode == 200) {
-    setState(() {
-      _imageBytes = Uint8List.fromList(response.data);
-      _isLoading = false;
-    });
-  } else {
-    setState(() {
-      _isLoading = false;
-    });
+    if (response != null && response.statusCode == 200) {
+      setState(() {
+        _imageBytes = Uint8List.fromList(response.data);
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
-}
   //************************************************** */
 
   @override
@@ -2098,7 +2097,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
               "url": "${AppConfig.dynamicBaseUrl}$url",
               "request_body": json.encode(mappedData),
               "status_code": response.statusCode,
-              "response_body": json.decode(response.body),
+              "response_body": response.data,
             },
             {
               "Content-Type": "application/json",
@@ -2199,7 +2198,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
               "url": "${AppConfig.dynamicBaseUrl}$url",
               "request_body": json.encode(mappedData),
               "status_code": response.statusCode,
-              "response_body": json.decode(response.body),
+              "response_body": response.data,
             },
             {
               "Content-Type": "application/json",
