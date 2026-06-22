@@ -615,7 +615,10 @@ class OtpconcentState extends State<Otpconcent> {
             //  updateWorkflowStatus(losId, "AAM Invoked");
 
             await launchUrl(uri, mode: LaunchMode.externalApplication);
-            updateWorkflowStatus(losId, "AAM Invoked");
+
+            String? offerStatusValue = await updateOfferStatus(cwId);
+            updateWorkflowStatus(losId, "AAM Invoked", offerStatusValue: offerStatusValue);
+
             await Future.delayed(Duration(seconds: 5));
             showDialog(
               context: context,
@@ -657,11 +660,13 @@ class OtpconcentState extends State<Otpconcent> {
           print("retry count in null block after $retryCount");
 
           await Future.delayed(Duration(seconds: 30));
-          updateWorkflowStatus(losId, "SW_PW");
+
+          String? offerStatusValue = await updateOfferStatus(cwId); // this line and offerstatusvalue is added here
+          updateWorkflowStatus(losId, "SW_PW", offerStatusValue: offerStatusValue); 
 
           if (retryCount == maxRetries) {
             print("retry count final : $retryCount : $maxRetries");
-          
+
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => NavigationPage()),
@@ -770,6 +775,7 @@ class OtpconcentState extends State<Otpconcent> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
+      //final losUrl = "/api/leads/los-details/$losId/";
       final losUrl = "/api/leads/los-details/$losId/";
 
       final headers = {
@@ -779,9 +785,14 @@ class OtpconcentState extends State<Otpconcent> {
         'Content-Type': 'application/json',
       };
 
+      // final body = {
+      //   "workflow_status": status,
+      //   if (offerStatusValue != null) "offerStatus": offerStatusValue,
+      // };
+
       final body = {
         "workflow_status": status,
-        if (offerStatusValue != null) "offerStatus": offerStatusValue,
+        "los_status": {"offerStatus": offerStatusValue}
       };
 
       final response = await ApiService.patchWithHeaders(

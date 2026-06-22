@@ -2258,7 +2258,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           }
         });
 
-        
         if ((widget.zipCode ?? "").trim().isNotEmpty) {
           await onZipCodeEntered(widget.zipCode!.trim());
         }
@@ -3362,11 +3361,20 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     return incomeValue != null && incomeValue > 0;
   }
 
-  bool _isValidEmail(String email) {
-    final RegExp emailRegex = RegExp(
-      r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$",
-    );
-    return emailRegex.hasMatch(email);
+  String? _isValidEmail(String email) {
+    if (email.endsWith(' ')) return "Email must not contains trailling space";
+
+    print("email address $email");
+
+    final RegExp emailRegex =
+        RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            // r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$",
+            );
+
+    if (!emailRegex.hasMatch(email)) return "Please enter a valid email";
+
+    return null;
+    // return emailRegex.hasMatch(email);
   }
 
   // void _showValidationDialog(String message) {
@@ -3407,7 +3415,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     if (firstName.text.trim().isEmpty) {
       _showValidationDialog("Please enter First Name.");
       return false;
-    } 
+    }
     // else if (!nameRegex.hasMatch(firstName.text.trim())) {
     //   _showValidationDialog("First Name must not contain special characters.");
     //   return false;
@@ -3423,7 +3431,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     if (lastName.text.trim().isEmpty) {
       _showValidationDialog("Please enter Last Name.");
       return false;
-    } 
+    }
     // else if (!nameRegex.hasMatch(lastName.text.trim())) {
     //   _showValidationDialog("Last Name must not contain special characters.");
     //   return false;
@@ -3446,19 +3454,31 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       _showValidationDialog("Please select Gender.");
       return false;
     }
-    if (email.text.trim().isEmpty) {
-      _showValidationDialog("Please enter Email Address.");
+    // if (email.text.trim().isEmpty) {
+    //   _showValidationDialog("Please enter Email Address.");
+    //   return false;
+    // }
+
+    // if (_isValidEmail(email.text.trim())) {
+    //   _showValidationDialog("Please enter a valid Email Address.");
+    //   return false;
+    // }
+    // if (!RegExp(r"^[\w\.-]+@[\w\.-]+\.\w+$").hasMatch(email.text.trim())) {
+    //   _showValidationDialog("Please enter a valid Email Address.");
+    //   return false;
+    // }
+
+    if (email.text.endsWith(' ')) {
+      _showValidationDialog("Email must not contain spaces.");
       return false;
     }
 
-    if (!_isValidEmail(email.text.trim())) {
-      _showValidationDialog("Please enter a valid Email Address.");
+    String? emailError = _isValidEmail(email.text.trim());
+    if (emailError != null) {
+      _showValidationDialog(emailError);
       return false;
     }
-    if (!RegExp(r"^[\w\.-]+@[\w\.-]+\.\w+$").hasMatch(email.text.trim())) {
-      _showValidationDialog("Please enter a valid Email Address.");
-      return false;
-    }
+
     if (civil_Status.text.trim().isEmpty) {
       _showValidationDialog("Please select Civil Status.");
       return false;
@@ -3589,7 +3609,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     if (emp_email.text.trim().isEmpty) {
       _showValidationDialog("Please enter Employee Email.");
       return false;
-    } else if (!RegExp(r"^[\w\.-]+@[\w\.-]+\.\w+$")
+    }
+    else if (emp_email.text.endsWith(' ')) {
+      _showValidationDialog("Employee Email must not contain spaces.");
+      return false;
+    }
+     else if (!RegExp(r"^[\w\.-]+@[\w\.-]+\.\w+$")
         .hasMatch(emp_email.text.trim())) {
       _showValidationDialog("Please enter a valid Employee Email Address.");
       return false;
@@ -4300,13 +4325,24 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         if (isRequired && (value == null || value.trim().isEmpty)) {
           return validationMessage;
         }
-        if (isEmail &&
-            value != null &&
-            value.isNotEmpty &&
-            !RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
-                .hasMatch(value)) {
-          return 'Please enter a valid email address';
+
+        if (isEmail && value != null && value.isNotEmpty) {
+          if (value.contains(' ')) {
+            return 'Email address must not contain spaces';
+          }
+          if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+              .hasMatch(value)) {
+            return 'Please enter a valid email address';
+          }
         }
+
+        // if (isEmail &&
+        //     value != null &&
+        //     value.isNotEmpty &&
+        //     !RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$')
+        //         .hasMatch(value)) {
+        //   return 'Please enter a valid email address';
+        // }
         if (isPhoneNumber &&
             (value == null || value.length != 10 || !value.startsWith('63'))) {
           print(isPhoneNumber);
