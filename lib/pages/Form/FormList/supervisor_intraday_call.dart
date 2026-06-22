@@ -74,7 +74,7 @@ class _CampaignlistState extends State<SuppervisorIntraDayList> {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = response.data;
           List<dynamic> leadsData = data['results'] ?? [];
 
           setState(() {
@@ -135,7 +135,7 @@ class _CampaignlistState extends State<SuppervisorIntraDayList> {
   }
 
   Future<void> fetchFilteredLeads() async {
-      String searchQuery = _searchFilter.text;
+    String searchQuery = _searchFilter.text;
 
     // if (_fromDate.text.isNotEmpty) {
     //   searchQuery += 'created_at=${_fromDate.text}T23:59:59';
@@ -143,7 +143,8 @@ class _CampaignlistState extends State<SuppervisorIntraDayList> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
     String? refresh = prefs.getString('refreshToken');
-    String url = '/api/timesheet/supervisor-intraday-calls/?created_at__gte=${searchQuery}T00:00:00&created_at__lte=${searchQuery}T23:59:59/';
+    String url =
+        '/api/timesheet/supervisor-intraday-calls/?created_at__gte=${searchQuery}T00:00:00&created_at__lte=${searchQuery}T23:59:59/';
     final headers = {
       'Authorization': 'Bearer $token',
       'User-Agent':
@@ -153,7 +154,7 @@ class _CampaignlistState extends State<SuppervisorIntraDayList> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = response.data;
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             leads = leadsData.map((item) {
@@ -174,7 +175,7 @@ class _CampaignlistState extends State<SuppervisorIntraDayList> {
           final response2 =
               await ApiService.getWithHeaders(url, {'refresh': refresh ?? ''});
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             SharedPreferences prefs = await SharedPreferences.getInstance();
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -352,7 +353,8 @@ class _CampaignlistState extends State<SuppervisorIntraDayList> {
                   ),
                   Expanded(
                     child: Container(
-                      margin: const EdgeInsets.all(10), // Margin around the container
+                      margin: const EdgeInsets.all(
+                          10), // Margin around the container
                       child: isLoading
                           ? const Center(child: CircularProgressIndicator())
                           : leads.isEmpty
@@ -366,8 +368,10 @@ class _CampaignlistState extends State<SuppervisorIntraDayList> {
                                   ),
                                 )
                               : ListView.builder(
-                                  controller: _scrollController, // Attach ScrollController
-                                  itemCount: leads.length + 1, // Add one extra item for loader
+                                  controller:
+                                      _scrollController, // Attach ScrollController
+                                  itemCount: leads.length +
+                                      1, // Add one extra item for loader
                                   itemBuilder: (context, index) {
                                     if (index < leads.length) {
                                       return GestureDetector(
@@ -377,32 +381,40 @@ class _CampaignlistState extends State<SuppervisorIntraDayList> {
                                             context,
                                             MaterialPageRoute(
                                               builder: (context) =>
-                                                 SuppervisorIntraDayCall(
+                                                  SuppervisorIntraDayCall(
                                                       id: id, isView: true),
                                             ),
                                           );
                                         },
                                         child: Container(
-                                          margin: const EdgeInsets.symmetric(vertical: 10),
+                                          margin: const EdgeInsets.symmetric(
+                                              vertical: 10),
                                           decoration: BoxDecoration(
                                             color: Colors.white,
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                             border: const Border(
                                               top: BorderSide(
-                                                  color: Color(0xFF640D78), width: 1.0),
+                                                  color: Color(0xFF640D78),
+                                                  width: 1.0),
                                               bottom: BorderSide(
-                                                  color: Color(0xFF640D78), width: 1.0),
+                                                  color: Color(0xFF640D78),
+                                                  width: 1.0),
                                               left: BorderSide(
-                                                  color: Color(0xFF640D78), width: 5.0),
+                                                  color: Color(0xFF640D78),
+                                                  width: 5.0),
                                               right: BorderSide(
-                                                  color: Color(0xFF640D78), width: 1.0),
+                                                  color: Color(0xFF640D78),
+                                                  width: 1.0),
                                             ),
                                           ),
                                           child: ListTile(
                                             contentPadding:
-                                                const EdgeInsets.symmetric(horizontal: 8),
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 8),
                                             leading: SizedBox(
-                                              width: 70, // slightly smaller width for better spacing
+                                              width:
+                                                  70, // slightly smaller width for better spacing
                                               child: Image.asset(
                                                 'images/campaign.jpg',
                                                 height: 55,
@@ -410,23 +422,29 @@ class _CampaignlistState extends State<SuppervisorIntraDayList> {
                                               ),
                                             ),
                                             title: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                 "Intraday Call".toUpperCase(),
-                                                  style: WidgetSupport.inputLabel(),
+                                                  "Intraday Call".toUpperCase(),
+                                                  style: WidgetSupport
+                                                      .inputLabel(),
                                                   softWrap: true,
-                                                  overflow: TextOverflow.ellipsis,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
                                                   maxLines: 3,
                                                 ),
                                                 const SizedBox(height: 5),
                                                 Text(
-                                                  DateFormat('dd MMM yyyy').format(
+                                                  DateFormat('dd MMM yyyy')
+                                                      .format(
                                                     DateTime.parse(
-                                                      leads[index]['created_at']!,
+                                                      leads[index]
+                                                          ['created_at']!,
                                                     ),
                                                   ),
-                                                  style: WidgetSupport.inputLabel(),
+                                                  style: WidgetSupport
+                                                      .inputLabel(),
                                                 ),
                                               ],
                                             ),
@@ -440,11 +458,15 @@ class _CampaignlistState extends State<SuppervisorIntraDayList> {
                                     } else {
                                       // Loader or "No more data" indicator
                                       return hasMoreData
-                                          ? const Center(child: CircularProgressIndicator())
+                                          ? const Center(
+                                              child:
+                                                  CircularProgressIndicator())
                                           : const Center(
                                               child: Text(
                                                 'No more data',
-                                                style: TextStyle(fontWeight: FontWeight.w500),
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.w500),
                                               ),
                                             );
                                     }

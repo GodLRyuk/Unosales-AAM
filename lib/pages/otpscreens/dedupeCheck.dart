@@ -5,16 +5,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hyperkyc_flutter/hyperkyc_result.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:top_snackbar_flutter/custom_snack_bar.dart';
-import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'package:unosfa/pages/FSAModule/RqaApplication.dart';
-import 'package:unosfa/pages/FSAModule/fsaleaddashboard.dart';
 import 'package:unosfa/pages/FSAModule/losApplication.dart';
-import 'package:unosfa/pages/commingSoon.dart';
 import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/generalscreens/customNavigation.dart';
 import 'package:unosfa/pages/generalscreens/entrypage.dart';
-import 'package:unosfa/pages/generalscreens/profile.dart';
 import 'package:unosfa/pages/services/api_service.dart';
 import 'package:unosfa/pages/services/ekyc.dart';
 import 'package:unosfa/pages/services/secret_key.dart';
@@ -461,7 +456,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
       };
       final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
+        final data = Tokenresponse.data;
         token = data['access_token'];
       }
     } catch (e) {
@@ -500,7 +495,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
             "url": "${AppConfig.otpUrl}/dedupe/check",
             "request_body": json.encode(mapeddata),
             "status_code": response!.statusCode,
-            "response_body": json.decode(response.body),
+            "response_body": response.data,
           },
           {
             "Content-Type": "application/json",
@@ -510,7 +505,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
         );
 
         if (response.statusCode == 200) {
-          final responseBody = json.decode(response.body);
+          final responseBody = response.data;
           //print("response body ${responseBody}");
           final message = responseBody["message"] ?? "";
           if (message == "No Client Found") {
@@ -758,7 +753,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
           await ApiService.postWithHeadersUnoApi(url, body, headers);
 
       if (response != null) {
-        final responseBody = jsonDecode(response.body);
+        final responseBody = jsonDecode(response.data.body);
 
         if (response.statusCode == 200) {
           if (responseBody is List && responseBody.isNotEmpty) {

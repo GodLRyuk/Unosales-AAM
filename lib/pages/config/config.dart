@@ -19,7 +19,7 @@ class AppConfig {
   static const String unoBaseUrlProd= "$unoApiurlprod";
 
 
-// Redirection base Url
+ // Redirection base Url
  // SIT/UAT Redirect URL: https://partneragent.sit.ph.unobank.asia/fsa-aam-auth?token=<<token>>&sales_app=<<applicationId>>
  //PROD Redirect URL: https://partneragent.prod.ph.unobank.asia/fsa-aam-auth?token=<<token>>&sales_app=<<applicationId>>
   static const String baseURlRedirectUat = "https://partneragent.sit.ph.unobank.asia";

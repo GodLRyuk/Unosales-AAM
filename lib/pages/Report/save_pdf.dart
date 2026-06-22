@@ -37,7 +37,7 @@ class ExcelService {
       };
       final Tokenresponse = await ApiService.getWithHeaders(tokenUrl, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.body);
+        final data = json.decode(Tokenresponse.data);
         //token = data['access_token'];
         print('token is $accessToken');  //Uno server access token
         return accessToken;
@@ -101,7 +101,7 @@ class ExcelService {
           '${directory.path}/Agent_Hourly_Report_$formatted.xlsx';
       final file = File(filePath);
 
-      await file.writeAsBytes(response!.bodyBytes, flush: true);
+      await file.writeAsBytes(response!.data.bodyBytes, flush: true);
 
       // iOS → Share dialog (since iOS cannot save to Downloads)
       if (Platform.isIOS) {

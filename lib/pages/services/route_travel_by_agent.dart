@@ -48,7 +48,7 @@ class _AgentRouteTraveledState extends State<AgentRouteTraveled> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          final Map<String, dynamic> data = response.data;
           leadDetails = data;
           setState(() {
             allleadsdetails = data['results'] ?? [];
@@ -177,6 +177,7 @@ class _AgentRouteTraveledState extends State<AgentRouteTraveled> {
           .map((loc) => "${loc.latitude},${loc.longitude}")
           .join('|');
 
+//  No need to change AS this is for google API and it is working fine
       final url =
           "https://maps.googleapis.com/maps/api/directions/json?origin=${origin.latitude},${origin.longitude}"
           "&destination=$destination"
@@ -204,7 +205,7 @@ class _AgentRouteTraveledState extends State<AgentRouteTraveled> {
           print("No route found.");
         }
       } else {
-        print("Google Directions API error: ${response.body}");
+        print("Google Directions API error: ${response..body}");
       }
     } catch (e) {
       print("Error fetching Google route: $e");

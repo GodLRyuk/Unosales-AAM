@@ -51,10 +51,11 @@ class _TodoPageState extends State<TodoPage> {
 
   /// 🔹 Generate week days/dates
   void _generateWeekDates() {
-    weekDates =
-        List.generate(7, (index) => currentWeekStart.add(Duration(days: index)));
+    weekDates = List.generate(
+        7, (index) => currentWeekStart.add(Duration(days: index)));
 
-    days = weekDates.map((d) => DateFormat('E').format(d).toUpperCase()).toList();
+    days =
+        weekDates.map((d) => DateFormat('E').format(d).toUpperCase()).toList();
     dates = weekDates.map((d) => DateFormat('d').format(d)).toList();
 
     DateTime today = DateTime.now();
@@ -117,7 +118,8 @@ class _TodoPageState extends State<TodoPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
     String formattedDate = _formatDate(selectedDate);
-    String url = "/api/timesheet/agent-daily-sales/?follow_up_date__gte=${formattedDate}T00:00:00&follow_up_date__lte=${formattedDate}T23:59:59";
+    String url =
+        "/api/timesheet/agent-daily-sales/?follow_up_date__gte=${formattedDate}T00:00:00&follow_up_date__lte=${formattedDate}T23:59:59";
 
     final headers = {
       'Authorization': 'Bearer $token',
@@ -127,7 +129,7 @@ class _TodoPageState extends State<TodoPage> {
     try {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
-        final data = json.decode(response.body);
+        final data = response.data;
         setState(() {
           dsrCount = data['count'];
         });
@@ -151,7 +153,8 @@ class _TodoPageState extends State<TodoPage> {
     String? token = prefs.getString('accessToken');
     String formattedDate = _formatDate(selectedDate);
     // String url = "/api/agents/todos/";
-    String url = "/api/agents/todos/?created_at__gte=${formattedDate}T00:00:00&created_at__lte=${formattedDate}T23:59:59";
+    String url =
+        "/api/agents/todos/?created_at__gte=${formattedDate}T00:00:00&created_at__lte=${formattedDate}T23:59:59";
 
     final headers = {
       'Authorization': 'Bearer $token',
@@ -161,7 +164,7 @@ class _TodoPageState extends State<TodoPage> {
     try {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null && response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = response.data;
         setState(() {
           assignleadCount = data['count'];
         });
@@ -332,8 +335,9 @@ class _TodoPageState extends State<TodoPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => DailySalesReportList(searchQuery: 
-                                        DateFormat('yyyy-MM-dd').format(selectedDate)),
+                                  builder: (context) => DailySalesReportList(
+                                      searchQuery: DateFormat('yyyy-MM-dd')
+                                          .format(selectedDate)),
                                 ),
                               );
                             },
@@ -351,8 +355,8 @@ class _TodoPageState extends State<TodoPage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => TodoListDateWise(
-                                    searchQuery: 
-                                        DateFormat('yyyy-MM-dd').format(selectedDate),
+                                    searchQuery: DateFormat('yyyy-MM-dd')
+                                        .format(selectedDate),
                                   ),
                                 ),
                               );

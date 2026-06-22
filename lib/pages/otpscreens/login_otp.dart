@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -123,48 +124,84 @@ class _LoginOtpState extends State<LoginOtp> {
       'grant_type': 'client_credentials',
     };
 
-    final response = await http.post(
-      Uri.parse('${AppConfig.otpUrl}/oauth2/token'),
+    // final response = await http.post(
+    //   Uri.parse('${AppConfig.otpUrl}/oauth2/token'),
+    //   headers: {
+    //     'Content-Type': 'application/x-www-form-urlencoded',
+    //     'User-Agent':
+    //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
+    //   },
+    //   body: body,
+    // );
+
+    final response = await ApiService.postFormUrlEncodedUnoApi(
+      '/oauth2/token',
+      body,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
       },
-      body: body,
     );
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+
+    if (response != null && response.statusCode == 200) {
+      final data = response.data;
       final accessToken = data['access_token'];
+
       // Step 2: Send SMS using the access token
-      final smsResponse = await http.post(
-        Uri.parse('${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $accessToken',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
-        },
-        body: json.encode({
-          "messages": [
-            {
-              "from": "UnoBank",
-              "destinations": [
-                {"to": "+63${phone}"}
-              ],
-              "text":
-                  """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
-            }
-          ]
-        }),
-      );
-      if (smsResponse.statusCode == 200) {
+      // final smsResponse = await http.post(
+      //   Uri.parse('${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'),
+      //   headers: {
+      //     'Content-Type': 'application/json',
+      //     'Authorization': 'Bearer $accessToken',
+      //     'User-Agent':
+      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36', // Override the default User-Agent
+      //   },
+      //   body: json.encode({
+      //     "messages": [
+      //       {
+      //         "from": "UnoBank",
+      //         "destinations": [
+      //           {"to": "+63${phone}"}
+      //         ],
+      //         "text":
+      //             """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
+      //       }
+      //     ]
+      //   }),
+      // );
+
+      String endpoint = '/fnf/api/v2/sms/sendSmsMessage';
+
+      final headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+
+      final body = {
+        "messages": [
+          {
+            "from": "UnoBank",
+            "destinations": [
+              {"to": "+63${phone}"}
+            ],
+            "text":
+                """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
+          }
+        ]
+      };
+
+      final smsResponse =
+          await ApiService.postWithHeadersUnoApi(endpoint, body, headers);
+
+      if (smsResponse != null && smsResponse.statusCode == 200) {
         print('SMS sent successfully!');
         setState(() {
           recivedOtp = otp.toString();
         });
       } else {
         Map<String, dynamic> logmappedData = {
-          "url": "${AppConfig.dynamicBaseUrl}/fnf/api/v2/sms/sendSmsMessage'",
+          "url": "${AppConfig.dynamicBaseUrl}/fnf/api/v2/sms/sendSmsMessage",
           "request_body": json.encode({
             "messages": [
               {
@@ -177,10 +214,11 @@ class _LoginOtpState extends State<LoginOtp> {
               }
             ]
           }),
-          "status_code": smsResponse.statusCode,
-          "response_body": json.decode(smsResponse.body),
+          "status_code": smsResponse!.statusCode,
+          "response_body": smsResponse.data,
         };
-        final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+
+        // final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
         final headers = {
           "Content-Type": "application/json",
           "Accept": "application/json",
@@ -188,18 +226,25 @@ class _LoginOtpState extends State<LoginOtp> {
           'User-Agent':
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
+
         // ignore: unused_local_variable
-        final LogResponse = await http.post(
-          logUrl,
-          headers: headers,
-          body: json.encode(logmappedData),
+        // final LogResponse = await http.post(
+        //   logUrl,
+        //   headers: headers,
+        //   body: json.encode(logmappedData),
+        // );
+
+        final LogResponse = await ApiService.postJsonWithHeaders(
+          '/api/logs/',
+          logmappedData,
+          headers,
         );
         print('Failed to send SMS. Status: ${smsResponse.statusCode}');
-        print('Response: ${smsResponse.body}');
+        // print('Response: ${LogResponse!.data}');
       }
     } else {
-      print('Failed to fetch token. Status: ${response.statusCode}');
-      print('Response: ${response.body}');
+      print('Failed to fetch token. Status: ${response!.statusCode}');
+      print('Response: ${response.data}');
     }
   }
 // Function to check location access
@@ -229,7 +274,7 @@ class _LoginOtpState extends State<LoginOtp> {
           final response = await ApiService.post(url, mapeddata);
           if (response != null) {
             if (response.statusCode == 200) {
-              final data = json.decode(response.body);
+              final data = response.data;
               if (data['access'] != null) {
                 List<String> userInfo = [
                   data['user']['username'],
@@ -254,11 +299,13 @@ class _LoginOtpState extends State<LoginOtp> {
                     await ApiService.getWithHeaders(checkInUserUrl, headers);
 
                 if (checkInUserResponse != null) {
-                  final data2 = json.decode(checkInUserResponse.body);
+                  final data2 = checkInUserResponse.data;
                   if (data2['data'] is List && data2['data'].isNotEmpty) {
                     final firstItem = data2['data'][0];
                     checkIndata =
                         firstItem['is_checked_in']; // this will be a bool
+
+                    //print("check in data is $checkIndata");
                     await prefs.setBool('checkInStatus', checkIndata);
                   }
                 }

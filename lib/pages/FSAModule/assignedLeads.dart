@@ -44,7 +44,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
   }
 
 // Fetch leads from API
-  Future<void> fetchLeads({bool isLoadMore = false,int? currentPage}) async {
+  Future<void> fetchLeads({bool isLoadMore = false, int? currentPage}) async {
     if (isLoadMore) {
       setState(() {
         isFetchingMore = true;
@@ -57,7 +57,8 @@ class _AssignedLeadsState extends State<AssignedLeads> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
-    String apiUrl ='/api/agents/assigned-leads/?search=${widget.searchQuery}&ordering=-created_at&page=${currentPage ?? 1}';
+    String apiUrl =
+        '/api/agents/assigned-leads/?search=${widget.searchQuery}&ordering=-created_at';
     final headers = {
       'Authorization': 'Bearer $token',
       'User-Agent':
@@ -72,7 +73,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
       );
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = response.data;
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             if (isLoadMore) {
@@ -127,7 +128,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
         !isFetchingMore &&
         hasMoreData) {
       currentPage++;
-      fetchLeads(isLoadMore: true,currentPage: currentPage); // Fetch more data
+      fetchLeads(isLoadMore: true, currentPage: currentPage); // Fetch more data
     }
   }
 
@@ -154,7 +155,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
       final response = await ApiService.getWithHeaders("$url", headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = response.data;
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             leads = leadsData.map((item) {
@@ -186,7 +187,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
             );
 
             if (response2 != null && response2.statusCode == 200) {
-              final data = json.decode(response2.body);
+              final data = json.decode(response2.data);
               SharedPreferences prefs = await SharedPreferences.getInstance();
               await prefs.setString('accessToken', data['access']);
               await prefs.setString('refreshToken', data['refresh']);

@@ -60,7 +60,6 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
         isFetchingMore = true;
       });
     } else {
-      
       setState(() {
         isLoading = true;
       });
@@ -81,7 +80,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = response.data;
           List<dynamic> leadsData = data['results'] ?? [];
           //print("campaign leads $leadsData");
 
@@ -166,7 +165,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
 
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = response.data;
 
           List<dynamic> leadsData = data['results'] ?? [];
           //print("And campaign lead $leadsData");
@@ -204,7 +203,7 @@ class _LeadListByCampaignState extends State<LeadListByCampaign> {
           String errorMessage = 'Something went wrong';
 
           try {
-            data1 = json.decode(response.body);
+            data1 = response.data;
             errorMessage = data1['detail'] ?? errorMessage;
           } catch (_) {}
 

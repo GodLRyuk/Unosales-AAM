@@ -71,7 +71,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
       print(response);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = response.data;
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             if (isLoadMore) {
@@ -153,7 +153,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          Map<String, dynamic> data = json.decode(response.body);
+          Map<String, dynamic> data = response.data;
           List<dynamic> leadsData = data['results'] ?? [];
           setState(() {
             leads = leadsData.map((item) {
@@ -175,7 +175,7 @@ class _AssignedLeadsState extends State<AssignedLeads> {
           Map<String, String> mappedData = {'refresh': refresh ?? ''};
           final response2 = await ApiService.post(url, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             SharedPreferences prefs = await SharedPreferences.getInstance();
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);

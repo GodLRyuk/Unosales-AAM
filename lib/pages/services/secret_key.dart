@@ -17,10 +17,10 @@ Future<void> globalKeys() async {
       'Content-Type': 'application/json',
     });
 
-    print("response is ${response!.body}");
+    print("response is ${response!.data}");
 
     if (response!.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = response.data;
 
       // 1. Extract the 'results' list
       List<dynamic> resultsList = data['results'];
@@ -241,6 +241,7 @@ Future<String> getPublicKey() async {
   //   throw Exception("Public key not found in Remote Config");
   // }
   String publicKey = ApiGlobalKeys.public_key;
+  print("Public Key is this $publicKey");
   return publicKey;
 }
 

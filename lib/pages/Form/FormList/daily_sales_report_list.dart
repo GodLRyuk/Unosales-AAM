@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/FSAModule/losApplication.dart';
@@ -77,7 +76,7 @@ class _CampaignlistState extends State<DailySalesReportList> {
     try {
       final response = await ApiService.getWithHeaders(apiUrl, headers);
       if (response != null && response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = response.data;
         final leadsData = data['results'];
         List<Map<String, dynamic>> newLeads =
             List<Map<String, dynamic>>.from(leadsData);
@@ -120,7 +119,7 @@ class _CampaignlistState extends State<DailySalesReportList> {
       };
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null && response.statusCode == 200) {
-        var decodedResponse = json.decode(response.body);
+        var decodedResponse = response.data;
 
         if (decodedResponse is Map<String, dynamic> &&
             decodedResponse['results'] != null) {
@@ -175,7 +174,8 @@ class _CampaignlistState extends State<DailySalesReportList> {
     try {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null && response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final data = response.data;
+
         final leadsData = data['results'];
         List<Map<String, dynamic>> newLeads =
             List<Map<String, dynamic>>.from(leadsData);

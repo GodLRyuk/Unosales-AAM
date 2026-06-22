@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/FSAModule/los_status_chart.dart';
@@ -47,7 +46,8 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
   }
 
   void _onScroll() {
-    if (!_scrollController.hasClients || _isFetchingMore || !_hasMoreData) return;
+    if (!_scrollController.hasClients || _isFetchingMore || !_hasMoreData)
+      return;
 
     final threshold = 200.0;
     // Trigger pagination when reaching near the bottom
@@ -102,9 +102,10 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => LosStatusChart(
-                                                      initialTabTitle:
-                                                          'IN-PROGRESS'),),
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        LosStatusChart(initialTabTitle: 'IN-PROGRESS'),
+                  ),
                 );
               },
             ),
@@ -143,7 +144,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
                 ),
               ),
             ),
-        
+
             Expanded(
               child: isLoading
                   ? const Center(
@@ -151,28 +152,28 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
                     )
                   : results.isEmpty
                       ? ListView(
-                        physics: AlwaysScrollableScrollPhysics(),
-                        children: [
-                           SizedBox(height: 200),
-                          Center(
-                            child: Text(
-                              "No Data Found",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                          ),
-                        ]
-                      )
+                          physics: AlwaysScrollableScrollPhysics(),
+                          children: [
+                              SizedBox(height: 200),
+                              Center(
+                                child: Text(
+                                  "No Data Found",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ])
                       : ListView.builder(
-                          controller: _scrollController, // Added ScrollController for pagination
+                          controller:
+                              _scrollController, // Added ScrollController for pagination
                           itemCount: results.length + (_isFetchingMore ? 1 : 0),
                           itemBuilder: (context, index) {
-                            
                             // Bottom loader
                             if (index == results.length) {
                               return const Center(
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(vertical: 16.0),
-                                  child: CircularProgressIndicator(color: Colors.purple),
+                                  child: CircularProgressIndicator(
+                                      color: Colors.purple),
                                 ),
                               );
                             }
@@ -180,7 +181,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
                             final leadData = results[index];
                             final client = leadData["clientDetails"] ?? {};
                             final losStatus = leadData["los_status"] ?? {};
-        
+
                             return Container(
                               margin: const EdgeInsets.symmetric(
                                   vertical: 10, horizontal: 10),
@@ -237,7 +238,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
                                           onTap: () {
                                             String cwTransactionID =
                                                 leadData['CWTransactionID'];
-        
+
                                             waybookImplement(cwTransactionID,
                                                 leadData['id'].toString());
                                           },
@@ -266,12 +267,11 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
     );
   }
 
-   Future<void> _handleRefresh() async {
+  Future<void> _handleRefresh() async {
     _searchFilter.clear();
     await loadInitialLeads();
     await Future.delayed(Duration(seconds: 2)); // Simulate a delay
   }
-
 
   Future<void> loadInitialLeads({bool isLoadMore = false}) async {
     try {
@@ -298,10 +298,10 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       final response = await ApiService.getWithHeaders(url, headers);
 
       if (response != null && response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = response.data;
 
         List allResults = data["results"] ?? [];
-        
+
         if (allResults.isEmpty) {
           _hasMoreData = false;
         }
@@ -334,7 +334,8 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
     }
   }
 
-  Future<void> underWritingStatus(String searchValue, {bool isLoadMore = false}) async {
+  Future<void> underWritingStatus(String searchValue,
+      {bool isLoadMore = false}) async {
     try {
       if (!isLoadMore) {
         setState(() {
@@ -348,7 +349,8 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       String? token = prefs.getString('accessToken');
 
       // Append page parameter to search URL
-      final url = "/api/leads/los-details/?search=$searchValue&page=$_currentPage";
+      final url =
+          "/api/leads/los-details/?search=$searchValue&page=$_currentPage";
 
       final headers = {
         'Authorization': 'Bearer $token',
@@ -359,7 +361,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       final response = await ApiService.getWithHeaders(url, headers);
 
       if (response != null && response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final data = response.data;
 
         List allResults = data["results"] ?? [];
 
@@ -385,7 +387,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
           isLoading = false;
           _isFetchingMore = false;
         });
-        print("Error: ${response?.body}");
+        print("Error: ${response?.data}");
       }
     } catch (e) {
       setState(() {
@@ -450,7 +452,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.body);
+          final data = json.decode(Tokenresponse.data);
           token = data['access_token'];
         }
       } catch (e) {
@@ -458,22 +460,38 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       }
 
       // Done
-      final url = Uri.parse("${AppConfig.otpUrl}/auth/sso-login");
+      // final url = Uri.parse("${AppConfig.otpUrl}/auth/sso-login");
+      // final headers = {
+      //   "Authorization": 'Bearer $token',
+      //   "Content-Type": "application/json",
+      //   "Accept": "application/json",
+      //   "User-Agent":
+      //       "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+      // };
+
+      // final response = await http.post(
+      //   url,
+      //   headers: headers,
+      //   body: jsonEncode(payload),
+      // );
+      // if (response.statusCode == 200) {
+
+      final endpoint = '/auth/sso-login';
+
       final headers = {
-        "Authorization": 'Bearer $token',
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "User-Agent":
-            "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 '
+                '(KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
 
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(payload),
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      final response =
+          await ApiService.postWithHeadersUnoApi(endpoint, payload, headers);
+
+      if (response != null && response.statusCode == 200) {
+        final data = response.data;
         final sostoken = data["token"];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -481,7 +499,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
 
         //return sostoken;
       } else {
-        print("Error happened → Status: ${response.statusCode}");
+        print("Error happened → Status: ${response!.statusCode}");
         // return null;
       }
     } catch (e) {
@@ -507,13 +525,13 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         final headers = {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
-         // 'User-Agent':
-           //   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          // 'User-Agent':
+          //   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.body);
+          final data = json.decode(Tokenresponse.data);
           losToken = data['access_token'];
         }
       } catch (e) {
@@ -540,16 +558,17 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       };
       print("cw id is $cwId");
 
-      final response = await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
+      final response =
+          await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
 
-      final data = json.decode(response!.body);
+      final data = json.decode(response!.data);
       String offerStatus = data[0]['offerStatus'];
 
       String aamUrl = "/api/leads/los-details/?los_status__applicationNo=$cwId";
       final aamheader = {'Authorization': 'Bearer $token'};
 
       final res = await ApiService.getWithHeaders(aamUrl, aamheader);
-      final datares = json.decode(res!.body);
+      final datares = json.decode(res!.data);
       final resresult = datares['results'][0]['los_status'];
 
       final applicationStatus = resresult['applicationStatus'];
@@ -649,7 +668,9 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         };
         final body = {
           "workflow_status": "Prelim UW Failed",
-           "los_status":{"offerStatus": "Fail",}
+          "los_status": {
+            "offerStatus": "Fail",
+          }
         };
 
         final responsefromLOS =

@@ -64,7 +64,7 @@ class _LoancalculationState extends State<Loancalculation> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.body);
+          var decodedResponse = response.data;
           if (decodedResponse is Map<String, dynamic> &&
               decodedResponse['results'] != null) {
             decodedResponse = decodedResponse['results'];
@@ -90,7 +90,7 @@ class _LoancalculationState extends State<Loancalculation> {
           String url2 = "/api/users/token-refresh/";
           final response2 = await ApiService.post(url2, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             SharedPreferences prefs = await SharedPreferences.getInstance();
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
@@ -122,7 +122,7 @@ class _LoancalculationState extends State<Loancalculation> {
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          var decodedResponse = json.decode(response.body);
+          var decodedResponse = response.data;
           if (decodedResponse['description'] == 'Submitted') {
             isSubmittedPresent = true;
             _selectedDependentData = "";
@@ -159,7 +159,7 @@ class _LoancalculationState extends State<Loancalculation> {
           String url3 = "/api/users/token-refresh/";
           final response2 = await ApiService.post(url3, mappedData);
           if (response2 != null) {
-            final data = json.decode(response2.body);
+            final data = json.decode(response2.data);
             await prefs.setBool('isLoggedIn', true);
             await prefs.setString('accessToken', data['access']);
             await prefs.setString('refreshToken', data['refresh']);
@@ -525,7 +525,7 @@ class _LoancalculationState extends State<Loancalculation> {
             await ApiService.patchWithHeaders(url, headers, mappedData);
         if (response != null) {
           if (response.statusCode == 200) {
-            json.decode(response.body);
+            response.data;
             showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -555,7 +555,7 @@ class _LoancalculationState extends State<Loancalculation> {
             });
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text("Failed to submit lead. Error: ${response.body}"),
+                content: Text("Failed to submit lead. Error: ${response.data}"),
               ),
             );
           }

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/FSAModule/underwritingApplication.dart';
@@ -226,7 +225,7 @@ class _LosStatusChartState extends State<LosStatusChart>
 
       final response = await ApiService.getWithHeaders(url, headers);
       if (response != null && response.statusCode == 200) {
-        final appJson = json.decode(response.body);
+        final appJson = response.data;
         final List results = appJson['results'];
 
         for (var item in results) {
@@ -301,7 +300,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         return;
       }
 
-      final appJson = json.decode(response.body);
+      final appJson = response.data;
       final List results = appJson['results'] ?? [];
 
       if (results.isEmpty) {
@@ -314,7 +313,8 @@ class _LosStatusChartState extends State<LosStatusChart>
           final client = appLead['clientDetails'] ?? {};
           final losStatus = appLead['los_status'] ?? {};
           return {
-            'id': appLead['id']?.toString() ?? '', // Included for waybook implement stability
+            'id': appLead['id']?.toString() ??
+                '', // Included for waybook implement stability
             'firstName': client['firstName'] ?? '',
             'middleName': client['middleName'] ?? '',
             'lastName': client['lastName'] ?? '',
@@ -322,7 +322,7 @@ class _LosStatusChartState extends State<LosStatusChart>
             'CWTransactionID': appLead['CWTransactionID'] ?? '',
             'applicationNo': appLead['CWTransactionID'] ?? '',
             'offerStatus': losStatus['offerStatus'] ?? '',
-            'workflow_status': appLead['workflow_status'] ?? '', 
+            'workflow_status': appLead['workflow_status'] ?? '',
           };
         },
       ).toList();
@@ -530,27 +530,28 @@ class _LosStatusChartState extends State<LosStatusChart>
 
                   if (currentTabLeads.isEmpty) {
                     return ListView(
-                      physics: AlwaysScrollableScrollPhysics(),
-                      children: [
-                        SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.3),
-                        Center(child: Text("No Data Found"))
-                      ],
-                    );
+                        physics: AlwaysScrollableScrollPhysics(),
+                        children: [
+                          SizedBox(
+                              height: MediaQuery.of(context).size.height * 0.3),
+                          Center(child: Text("No Data Found"))
+                        ]);
                   }
 
                   return ListView.builder(
-                    controller: _scrollController, // Connected scroll controller for pagination
+                    controller:
+                        _scrollController, // Connected scroll controller for pagination
                     physics: AlwaysScrollableScrollPhysics(),
-                    itemCount: currentTabLeads.length + (_isFetchingMore ? 1 : 0),
+                    itemCount:
+                        currentTabLeads.length + (_isFetchingMore ? 1 : 0),
                     itemBuilder: (context, index) {
-                      
                       // Loader at the bottom while fetching more data
                       if (index == currentTabLeads.length) {
                         return Center(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16.0),
-                            child: CircularProgressIndicator(color: Colors.purple),
+                            child:
+                                CircularProgressIndicator(color: Colors.purple),
                           ),
                         );
                       }
@@ -706,13 +707,13 @@ class _LosStatusChartState extends State<LosStatusChart>
         final headers = {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
-          //'User-Agent':
-          //   'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          'User-Agent':
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.body);
+          final data = Tokenresponse.data;
           token = data['access_token'];
         }
       } catch (e) {
@@ -720,7 +721,7 @@ class _LosStatusChartState extends State<LosStatusChart>
       }
 
       // Done
-      final url = Uri.parse("${AppConfig.otpUrl}/auth/sso-login");
+      final url = "/auth/sso-login";
       final headers = {
         "Authorization": 'Bearer $token',
         "Content-Type": "application/json",
@@ -729,13 +730,18 @@ class _LosStatusChartState extends State<LosStatusChart>
             "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
       };
 
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: jsonEncode(payload),
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+      final body = payload;
+
+      final response =
+          await ApiService.postWithHeadersUnoApi(url, body, headers);
+
+      // final response = await http.post(
+      //   url,
+      //   headers: headers,
+      //   body: jsonEncode(payload),
+      // );
+      if (response!.statusCode == 200) {
+        final data = response.data;
         final sostoken = data["token"];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -773,7 +779,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.body);
+          final data = Tokenresponse.data;
           losToken = data['access_token'];
         }
       } catch (e) {
@@ -798,13 +804,13 @@ class _LosStatusChartState extends State<LosStatusChart>
       };
       final response =
           await ApiService.postJsonWithUNOApiHeaders(offerUrl, body, headers);
-      final data = json.decode(response!.body);
+      final data = response!.data;
       String offerStatus = data[0]['offerStatus'];
       String aamUrl = "/api/leads/los-details/?los_status__applicationNo=$cwId";
       final aamheader = {'Authorization': 'Bearer $token'};
 
       final res = await ApiService.getWithHeaders(aamUrl, aamheader);
-      final datares = json.decode(res!.body);
+      final datares = res!.data;
       final resresult = datares['results'][0]['los_status'];
 
       final applicationStatus = resresult['applicationStatus'];
