@@ -1773,12 +1773,16 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
 
     // 🔹 Work validation
     if (_selectedCompany == null) errors.add("Company Name cannot be empty.");
+    if (_selectedCompany == 'others' && _otherCompanyController.text.trim().isEmpty) {
+      errors.add("Company Name cannot be empty.");
+    }
     if (selectedDocId == null) errors.add("Income Doc cannot be empty.");
     if (monthlySalary.text.isEmpty)
       errors.add("Monthly Salary cannot be empty.");
     if (loanAmount.text.isEmpty)
       errors.add("Desired Loan Amount cannot be empty.");
     if (industryType.text.isEmpty) errors.add("Industry Type cannot be empty.");
+    if(selectedActivityId == null) errors.add("Activity Type cannot be empty.");
 
     // Image Validation
     if (_captureImageField1 == null && _networkImageUrl == null)
