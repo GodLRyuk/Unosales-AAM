@@ -8,6 +8,8 @@ import 'package:pointycastle/api.dart' hide Padding;
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:pointycastle/random/fortuna_random.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'package:unosfa/pages/FSAModule/LosApplicationModel.dart';
 import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/generalscreens/customNavigation.dart';
@@ -55,7 +57,7 @@ class OtpconcentState extends State<Otpconcent> {
   bool checkBox3 = false;
   String dsrIdValue = "";
 
-  //bool isChecked = false;
+  // bool isChecked = false;
   bool showOtpSection = false;
   List<String>? userInfo;
 
@@ -77,22 +79,23 @@ class OtpconcentState extends State<Otpconcent> {
     //   );
     // }
 
-    // _start = 120; // 🔥 Add this line to initialize the countdown
-    // resendTimer = false;
-    // isOtpExpired = false;
+    _start = 120; // 🔥 Add this line to initialize the countdown
+    resendTimer = false;
+    isOtpExpired = false;
     // _sendOtp();
     // _startTimer();
-    // if (!AppConfig.isProd) {
-    //   _startTimer();
-    // }
+    if (!AppConfig.isProd) {
+      _startTimer();
+    }
     getPublicIP();
     callSosLogoin();
   }
 
-// No need to change as this is for public ip
+  // No need to change as this is for public ip
   Future<void> getPublicIP() async {
-    final response =
-        await http.get(Uri.parse('https://api64.ipify.org?format=json'));
+    final response = await http.get(
+      Uri.parse('https://api64.ipify.org?format=json'),
+    );
     if (response.statusCode == 200) {
       String ip = jsonDecode(response.body)['ip'];
       // if (mounted) {
@@ -114,39 +117,39 @@ class OtpconcentState extends State<Otpconcent> {
     return cleaned;
   }
 
-  // void _startTimer() {
-  //   _timer?.cancel();
-  //   _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-  //     if (_start == 0) {
-  //       _timer?.cancel();
-  //       setState(() {
-  //         resendTimer = true;
-  //         isOtpExpired = true;
-  //       });
-  //     } else {
-  //       setState(() {
-  //         _start--;
-  //       });
-  //     }
-  //   });
-  // }
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_start == 0) {
+        _timer?.cancel();
+        setState(() {
+          resendTimer = true;
+          isOtpExpired = true;
+        });
+      } else {
+        setState(() {
+          _start--;
+        });
+      }
+    });
+  }
 
-  // String get _timerText {
-  //   int minutes = _start ~/ 60;
-  //   int seconds = _start % 60;
-  //   return "$minutes:${seconds.toString().padLeft(2, '0')}";
-  // }
+  String get _timerText {
+    int minutes = _start ~/ 60;
+    int seconds = _start % 60;
+    return "$minutes:${seconds.toString().padLeft(2, '0')}";
+  }
 
-  // void _resendOtp() {
-  //   setState(() {
-  //     _sendOtp();
-  //     _start = 120; // Reset the timer
-  //     _otpController.clear(); // Clear the OTP field
-  //     resendTimer = false;
-  //     isOtpExpired = false;
-  //   });
-  //   _startTimer(); // Start the timer again
-  // }
+  void _resendOtp() {
+    setState(() {
+      _sendOtp();
+      _start = 120; // Reset the timer
+      _otpController.clear(); // Clear the OTP field
+      resendTimer = false;
+      isOtpExpired = false;
+    });
+    _startTimer(); // Start the timer again
+  }
 
   FortunaRandom createSecureFortunaRandomFromEntropy(String entropySource) {
     final secureRandom = FortunaRandom();
@@ -155,24 +158,24 @@ class OtpconcentState extends State<Otpconcent> {
     return secureRandom;
   }
 
-  // String generateSecureOTP() {
-  //   final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-  //   final entropyInput = '$timestamp:UnoSecureSeed';
-  //   final secureRandom = createSecureFortunaRandomFromEntropy(entropyInput);
+  String generateSecureOTP() {
+    final timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+    final entropyInput = '$timestamp:UnoSecureSeed';
+    final secureRandom = createSecureFortunaRandomFromEntropy(entropyInput);
 
-  //   // generate 4 random digits
-  //   final digits = List.generate(4, (_) {
-  //     final byte = secureRandom.nextUint8();
-  //     return (byte % 10).toString();
-  //   }).join();
+    // generate 4 random digits
+    final digits = List.generate(4, (_) {
+      final byte = secureRandom.nextUint8();
+      return (byte % 10).toString();
+    }).join();
 
-  //   // format date as YYYYMMDD
-  //   final now = DateTime.now();
-  //   final formattedDate =
-  //       "${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}";
+    // format date as YYYYMMDD
+    final now = DateTime.now();
+    final formattedDate =
+        "${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}";
 
-  //   return "$digits"; // appended date
-  // }
+    return "$digits"; // appended date
+  }
 
   void submitLos(LosApplicationModel data) async {
     setState(() => _isLoading = true);
@@ -227,7 +230,7 @@ class OtpconcentState extends State<Otpconcent> {
             "region": data.permRegion,
             "postcode": data.permZipCode,
             "country": data.permCountryCode,
-          }
+          },
         ],
         "idDocuments": [
           {
@@ -239,7 +242,7 @@ class OtpconcentState extends State<Otpconcent> {
             "firstName": data.firstName,
             "middleName": data.middleName,
             "lastName": data.lastName,
-          }
+          },
         ],
         "_Perm_Address": {
           "perm_State": data.permState,
@@ -250,11 +253,12 @@ class OtpconcentState extends State<Otpconcent> {
           "perm_Region": data.permRegion,
           "perm_Country": data.nationality!.replaceFirst(RegExp(r'^0+'), ''),
           "perm_countryCode": data.nationality,
-          "hra": ""
+          "hra": "",
         },
         "_Fin_Details": {
-          "fin_Mthly_Income":
-              double.tryParse(data.finMonthlyIncome!)?.toInt().toString(),
+          "fin_Mthly_Income": double.tryParse(
+            data.finMonthlyIncome!,
+          )?.toInt().toString(),
           "fin_Ownr_Car": "",
           "fin_Ann_Income": "",
           "fin_Ownr_Home": "",
@@ -274,7 +278,8 @@ class OtpconcentState extends State<Otpconcent> {
           "emp_Mths_In_Cur_Comp": data.empMonthsInCompany,
           "emp_Status": data.empStatus,
 
-          "emp_Employer_Name": (data.empEmployerName == null ||
+          "emp_Employer_Name":
+              (data.empEmployerName == null ||
                   data.empEmployerName!.trim().isEmpty ||
                   data.empEmployerName!.toLowerCase() == "others")
               ? data.empEmployerOtherName
@@ -284,17 +289,21 @@ class OtpconcentState extends State<Otpconcent> {
           "emp_Type": data.empType,
           "emp_Yrs_In_Cur_Comp": data.empYearsInCompany,
           "Office_phone_no": "",
-          "emp_Type_Code": formatedCode(data
-              .empTypeCode), //data.empTypeCode!.replaceFirst(RegExp(r'^0+'), ''),
-          "emp_Status_Code": formatedCode(data
-              .empStatusCode), // data.empStatusCode!.replaceFirst(RegExp(r'^0+'), ''),
-          "emp_Work_Nature_Code": formatedCode(data
-              .empWorkNatureCode), //data.empWorkNatureCode!.replaceFirst(RegExp(r'^0+'), ''),
-          "emp_Indus_Type_Code": formatedCode(data
-              .empIndustryTypeCode), //data.empIndustryTypeCode!.replaceFirst(RegExp(r'^0+'), ''),
+          "emp_Type_Code": formatedCode(
+            data.empTypeCode,
+          ), //data.empTypeCode!.replaceFirst(RegExp(r'^0+'), ''),
+          "emp_Status_Code": formatedCode(
+            data.empStatusCode,
+          ), // data.empStatusCode!.replaceFirst(RegExp(r'^0+'), ''),
+          "emp_Work_Nature_Code": formatedCode(
+            data.empWorkNatureCode,
+          ), //data.empWorkNatureCode!.replaceFirst(RegExp(r'^0+'), ''),
+          "emp_Indus_Type_Code": formatedCode(
+            data.empIndustryTypeCode,
+          ), //data.empIndustryTypeCode!.replaceFirst(RegExp(r'^0+'), ''),
           "emp_email": data.empEmail,
           "companyCategorySegment": "",
-          "profession": data.profession
+          "profession": data.profession,
         },
         "_Emp_Address": {
           "emp_Street": data.empStreet,
@@ -341,11 +350,7 @@ class OtpconcentState extends State<Otpconcent> {
           "dosriName": "",
           "dosriRelationship": "",
         },
-        "rpt_Check": {
-          "rptCheck": "",
-          "rptName": "",
-          "rptRelationship": "",
-        },
+        "rpt_Check": {"rptCheck": "", "rptName": "", "rptRelationship": ""},
         "_Biz_Address": {
           "biz_Country": "",
           "biz_ZipCode": "",
@@ -354,7 +359,7 @@ class OtpconcentState extends State<Otpconcent> {
           "biz_State": "",
           "biz_Barangay": "",
           "biz_Region": "",
-          "biz_countryCode": ""
+          "biz_countryCode": "",
         },
         "_Biz_Details": {
           "biz_IndusType": "",
@@ -363,7 +368,7 @@ class OtpconcentState extends State<Otpconcent> {
           "biz_Yrs_Operating": "",
           "biz_Mths_Operating": "",
           "Office_phone_no": "",
-          "biz_email": ""
+          "biz_email": "",
         },
         "_AML_Status": {
           "aml_Name_Screening_Flag": "",
@@ -371,7 +376,7 @@ class OtpconcentState extends State<Otpconcent> {
           "aml_Name_Request_ID": "",
           "aml_Name_Case_ID": "",
           "aml_Scoring_Request_ID": "",
-          "aml_Scoring_Case_ID": ""
+          "aml_Scoring_Case_ID": "",
         },
       },
       "sourcing": {
@@ -388,7 +393,7 @@ class OtpconcentState extends State<Otpconcent> {
           "promotionalCode": "",
           "sourceCompany": "UnoSales",
           "agentCode": data.agentCode,
-        }
+        },
       },
       "partner": {
         "partnerName": "USA FSA",
@@ -397,10 +402,7 @@ class OtpconcentState extends State<Otpconcent> {
         "applicationNumber": widget.losData.applicationNumber,
         "expectedMonthlyTransaction": "",
         "redirectionURL": "",
-        "docURL": {
-          "selfieURL": "",
-          "idProofURL": "",
-        },
+        "docURL": {"selfieURL": "", "idProofURL": ""},
         "partnerScore": {
           "partnerTelcoScore": 0,
           "partnerPrefilterScore": 0,
@@ -416,7 +418,7 @@ class OtpconcentState extends State<Otpconcent> {
             "incomeValidation": "N",
             "addressValidation": "N",
             "employmentValidation": "N",
-          }
+          },
         },
       },
       "customerConsent": 1,
@@ -449,15 +451,10 @@ class OtpconcentState extends State<Otpconcent> {
     final parser = RSAKeyParser();
     final RSAPublicKey rsaPublicKey = parser.parse(publicKeyP1) as RSAPublicKey;
 
-    final encrypter = Encrypter(
-      RSA(publicKey: rsaPublicKey),
-    );
+    final encrypter = Encrypter(RSA(publicKey: rsaPublicKey));
 
     // 1️⃣ JSON object to encrypt
-    final jsonObject = {
-      "userId": userInfo![0],
-      "appId": "Sales_App",
-    };
+    final jsonObject = {"userId": userInfo![0], "appId": "Sales_App"};
 
     // 2️⃣ Convert to JSON string
     final jsonString = json.encode(jsonObject);
@@ -465,10 +462,7 @@ class OtpconcentState extends State<Otpconcent> {
     final encrypted = encrypter.encrypt(jsonString).base64;
 
     // 4️⃣ Final payload
-    return {
-      "data": encrypted,
-      "keyId": "v1",
-    };
+    return {"data": encrypted, "keyId": "v1"};
   }
 
   Future<void> callSosLogoin() async {
@@ -487,8 +481,10 @@ class OtpconcentState extends State<Otpconcent> {
           'User-Agent':
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
-        final Tokenresponse =
-            await ApiService.getWithHeaders(tokenUrl, headers);
+        final Tokenresponse = await ApiService.getWithHeaders(
+          tokenUrl,
+          headers,
+        );
         if (Tokenresponse != null) {
           final data = Tokenresponse.data;
           token = data['access_token'];
@@ -512,8 +508,11 @@ class OtpconcentState extends State<Otpconcent> {
       //   body: jsonEncode(payload),
       // );
 
-      final response =
-          await ApiService.postWithHeadersUnoApi(url, payload, headers);
+      final response = await ApiService.postWithHeadersUnoApi(
+        url,
+        payload,
+        headers,
+      );
 
       if (response != null && response.statusCode == 200) {
         final data = response.data;
@@ -532,7 +531,7 @@ class OtpconcentState extends State<Otpconcent> {
       //return null;
     }
   }
-// Done created by 2/12/2025 *****************
+  // Done created by 2/12/2025 *****************
 
   Future<void> waybookImplement(String cwId, String losId) async {
     print("i am in Webhock cw id is $cwId and losID $losId");
@@ -590,7 +589,8 @@ class OtpconcentState extends State<Otpconcent> {
 
         // 1) PASSED → STOP LOOP + REDIRECT
 
-        if (offerStatus == "IN-PROGRESS" && applicationStatus == "Passed") {
+        if ((offerStatus == "In-Progress" || offerStatus == "IN-PROGRESS") &&
+            applicationStatus == "Passed") {
           String applicationId = cwId;
           final redirectUrl =
               "${AppConfig.aamredictUrl}/fsa-aam-auth?token=$encodedToken&sales_app=$applicationId";
@@ -608,8 +608,11 @@ class OtpconcentState extends State<Otpconcent> {
             await launchUrl(uri, mode: LaunchMode.externalApplication);
 
             String? offerStatusValue = await updateOfferStatus(cwId);
-            updateWorkflowStatus(losId, "AAM Invoked",
-                offerStatusValue: offerStatusValue);
+            updateWorkflowStatus(
+              losId,
+              "AAM Invoked",
+              offerStatusValue: offerStatusValue,
+            );
 
             await Future.delayed(Duration(seconds: 5));
             showDialog(
@@ -624,7 +627,8 @@ class OtpconcentState extends State<Otpconcent> {
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => NavigationPage()),
+                            builder: (context) => NavigationPage(),
+                          ),
                           (route) => false,
                         );
                       },
@@ -642,7 +646,7 @@ class OtpconcentState extends State<Otpconcent> {
 
         // 2) EMPTY OR NULL → WAIT 30 SEC & RETRY
 
-        if (offerStatus == "IN-PROGRESS" &&
+        if ((offerStatus == "In-Progress" || offerStatus == "IN-PROGRESS") &&
             (applicationStatus == null ||
                 applicationStatus == "" ||
                 applicationStatus.isEmpty)) {
@@ -651,13 +655,16 @@ class OtpconcentState extends State<Otpconcent> {
           retryCount++;
           print("retry count in null block after $retryCount");
 
-          await Future.delayed(Duration(seconds: 30));
-
           String? offerStatusValue = await updateOfferStatus(
-              cwId); // this line and offerstatusvalue is added here
-          updateWorkflowStatus(losId, "SW_PW",
-              offerStatusValue: offerStatusValue);
+            cwId,
+          ); // this line and offerstatusvalue is added here
+          updateWorkflowStatus(
+            losId,
+            "SW_PW",
+            offerStatusValue: offerStatusValue,
+          );
 
+          await Future.delayed(Duration(seconds: 30));
           if (retryCount == maxRetries) {
             print("retry count final : $retryCount : $maxRetries");
 
@@ -674,12 +681,16 @@ class OtpconcentState extends State<Otpconcent> {
 
         // 3) FAILED → STOP LOOP + GO DASHBOARD
 
-        if (offerStatus == "IN-PROGRESS" && applicationStatus == "Failed") {
+        if ((offerStatus == "In-Progress" || offerStatus == "IN-PROGRESS") &&
+            applicationStatus == "Failed") {
           //updateWorkflowStatus(losId, "Prelim UW Failed");
 
           String? offerStatusValue = await updateOfferStatus(cwId);
-          updateWorkflowStatus(losId, "Prelim UW Failed",
-              offerStatusValue: offerStatusValue);
+          updateWorkflowStatus(
+            losId,
+            "Prelim UW Failed",
+            offerStatusValue: offerStatusValue,
+          );
 
           Navigator.pushAndRemoveUntil(
             context,
@@ -737,12 +748,13 @@ class OtpconcentState extends State<Otpconcent> {
       'Content-Type': "application/json",
     };
 
-    final body = {
-      "applicationId": cwTransactionId,
-    };
+    final body = {"applicationId": cwTransactionId};
 
-    final response =
-        await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
+    final response = await ApiService.postJsonWithUNOApiHeaders(
+      url,
+      body,
+      headers,
+    );
 
     if (response != null && response.statusCode == 200) {
       final appJson = response.data;
@@ -786,14 +798,10 @@ class OtpconcentState extends State<Otpconcent> {
 
       final body = {
         "workflow_status": status,
-        "los_status": {"offerStatus": offerStatusValue}
+        "los_status": {"offerStatus": offerStatusValue},
       };
 
-      final response = await ApiService.patchWithHeaders(
-        losUrl,
-        headers,
-        body,
-      );
+      final response = await ApiService.patchWithHeaders(losUrl, headers, body);
 
       Map<String, dynamic> logmappedData = {
         "url": "${AppConfig.dynamicBaseUrl}/api/leads/los-details/$losId/",
@@ -823,7 +831,7 @@ class OtpconcentState extends State<Otpconcent> {
     }
   }
 
-// Done  by 8.12.2025
+  // Done  by 8.12.2025
 
   Future<void> postLoanCheck(Map<String, dynamic> requestData) async {
     setState(() {});
@@ -868,7 +876,7 @@ class OtpconcentState extends State<Otpconcent> {
           'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       "Correlation-Id": "1234",
       "Channel": "FSA",
-      "Cookie": cookies['save_payload']!
+      "Cookie": cookies['save_payload']!,
     };
 
     // print("url is $url");
@@ -885,8 +893,11 @@ class OtpconcentState extends State<Otpconcent> {
       //   headers: headers,
       //   body: json.encode(requestData),
       // );
-      final response =
-          await ApiService.postWithHeadersUnoApi(url, requestData, headers);
+      final response = await ApiService.postWithHeadersUnoApi(
+        url,
+        requestData,
+        headers,
+      );
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
@@ -959,7 +970,7 @@ class OtpconcentState extends State<Otpconcent> {
           "agentCode": "",
           "applicationNo": "${LoSResponcedata['applicationNumber']}",
           "channel": "",
-          "source": ""
+          "source": "",
         };
 
         // final fetchStatusUrl =
@@ -980,9 +991,7 @@ class OtpconcentState extends State<Otpconcent> {
             context: context,
             barrierDismissible: false,
             builder: (BuildContext context) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             },
           );
 
@@ -1024,7 +1033,10 @@ class OtpconcentState extends State<Otpconcent> {
           // );
 
           final backendresponseLOS = await ApiService.postJsonWithHeaders(
-              LosbackendStatusUrl, finalRequestData, headers3);
+            LosbackendStatusUrl,
+            finalRequestData,
+            headers3,
+          );
 
           //  print("LosbackendStatusUrl is $LosbackendStatusUrl");
           //  print("headers3 is $headers3");
@@ -1059,12 +1071,15 @@ class OtpconcentState extends State<Otpconcent> {
                 "channel": 'fsa',
                 "offerStatus": 'IN-PROGRESS',
                 "uwStatus": '',
-                "lastScreen": ''
-              }
+                "lastScreen": '',
+              },
             };
 
             final responseLOS = await ApiService.patchWithHeaders(
-                ul, headers4, mappedResponseLOsData);
+              ul,
+              headers4,
+              mappedResponseLOsData,
+            );
 
             Map<String, dynamic> logmappedData = {
               "url":
@@ -1093,9 +1108,9 @@ class OtpconcentState extends State<Otpconcent> {
           waybookImplement(requestData['CWTransactionID'], losId);
         } catch (e) {
           Navigator.of(context).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Something went wrong: $e')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Something went wrong: $e')));
         }
       } else {
         SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1104,7 +1119,7 @@ class OtpconcentState extends State<Otpconcent> {
           "url": "${AppConfig.otpUrl}/partner/loans/check",
           "request_body": requestData,
           "status_code": response!.statusCode,
-          "response_body": response.data
+          "response_body": response.data,
         };
         // final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
 
@@ -1131,8 +1146,9 @@ class OtpconcentState extends State<Otpconcent> {
         final data = LogResponse?.data;
         String message = data['message'] ?? "Validation Error";
         Map<String, dynamic> errors = data['errors'] ?? {};
-        String errorMessages =
-            errors.entries.map((entry) => "${entry.value}").join("\n");
+        String errorMessages = errors.entries
+            .map((entry) => "${entry.value}")
+            .join("\n");
 
         showDialog(
           context: context,
@@ -1246,17 +1262,14 @@ class OtpconcentState extends State<Otpconcent> {
                   "Idempotency-Key": "jbkjdbjkjk",
                   "Authorization": "Bearer $tokens",
                 };
-                final refreshedResponse = await ApiService.postJsonWithHeaders(
-                  url,
-                  {
-                    "mobileNo": "",
-                    "agentCode": "",
-                    "applicationNo": "${application['applicationNo']}",
-                    "channel": "",
-                    "source": ""
-                  },
-                  headers,
-                );
+                final refreshedResponse =
+                    await ApiService.postJsonWithHeaders(url, {
+                      "mobileNo": "",
+                      "agentCode": "",
+                      "applicationNo": "${application['applicationNo']}",
+                      "channel": "",
+                      "source": "",
+                    }, headers);
 
                 if (refreshedResponse != null &&
                     refreshedResponse.statusCode == 200) {
@@ -1276,8 +1289,12 @@ class OtpconcentState extends State<Otpconcent> {
               Navigator.of(context).pop(); // Close progress dialog
               if (isFinalStatus) {
                 String offerStatus = application['offerStatus'];
-                if (["Cancel", "Fail", "REJECT", "Dedupe"]
-                    .contains(offerStatus)) {
+                if ([
+                  "Cancel",
+                  "Fail",
+                  "REJECT",
+                  "Dedupe",
+                ].contains(offerStatus)) {
                   // Rejected states
                   showDialog(
                     context: context,
@@ -1387,7 +1404,8 @@ class OtpconcentState extends State<Otpconcent> {
                   CircularProgressIndicator(),
                   SizedBox(height: 10),
                   Text(
-                      "Checking application status...\nThis may take up to 30 seconds or more."),
+                    "Checking application status...\nThis may take up to 30 seconds or more.",
+                  ),
                 ],
               ),
             );
@@ -1397,166 +1415,166 @@ class OtpconcentState extends State<Otpconcent> {
     );
   }
 
-  // Future<void> _sendOtp() async {
-  //   String phone = widget.phoneNumber.toString();
-  //   if (phone.length == 12 && phone.startsWith("63")) {
-  //     phone = phone.substring(2);
-  //   }
-  //   print("phone number $phone");
+  Future<void> _sendOtp() async {
+    String phone = widget.phoneNumber.toString();
+    if (phone.length == 12 && phone.startsWith("63")) {
+      phone = phone.substring(2);
+    }
+    print("phone number $phone");
 
-  //   SharedPreferences prefs = await SharedPreferences.getInstance();
-  //   String? authToken = prefs.getString('accessToken');
-  //   String otp = generateSecureOTP();
-  //   setState(() {
-  //     recivedOtp = otp.toString();
-  //   });
-  //   // Step 1: Get access token
-  //   String clientId = await otpClientId();
-  //   print("cliend id $clientId");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? authToken = prefs.getString('accessToken');
+    String otp = generateSecureOTP();
+    setState(() {
+      recivedOtp = otp.toString();
+    });
+    // Step 1: Get access token
+    String clientId = await otpClientId();
+    print("cliend id $clientId");
 
-  //   String clientSecret = await otpClientSecret();
+    String clientSecret = await otpClientSecret();
 
-  //   final body = {
-  //     'client_id': clientId,
-  //     'client_secret': clientSecret,
-  //     'grant_type': 'client_credentials',
-  //   };
+    final body = {
+      'client_id': clientId,
+      'client_secret': clientSecret,
+      'grant_type': 'client_credentials',
+    };
 
-  //   final response = await http.post(
-  //     Uri.parse('${AppConfig.otpUrl}/oauth2/token'),
-  //     headers: {
-  //       'Content-Type': 'application/x-www-form-urlencoded',
-  //       'User-Agent':
-  //           'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36'
-  //     },
-  //     body: body,
-  //   );
+    final response = await http.post(
+      Uri.parse('${AppConfig.otpUrl}/oauth2/token'),
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      },
+      body: body,
+    );
 
-  //   if (response.statusCode == 200) {
-  //     final data = json.decode(response.body);
-  //     final accessToken = data['access_token'];
-  //     // Step 2: Send SMS using the access token
-  //     final smsResponse = await http.post(
-  //       Uri.parse('${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': 'Bearer $accessToken',
-  //         'User-Agent':
-  //             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-  //       },
-  //       body: json.encode({
-  //         "messages": [
-  //           {
-  //             "from": "UnoBank",
-  //             "destinations": [
-  //               {"to": "+63${phone}"}
-  //             ],
-  //             "text":
-  //                 """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
-  //           }
-  //         ]
-  //       }),
-  //     );
-  //     if (smsResponse.statusCode == 200) {
-  //       print('SMS sent successfully! otp $otp');
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final accessToken = data['access_token'];
+      // Step 2: Send SMS using the access token
+      final smsResponse = await http.post(
+        Uri.parse('${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+          'User-Agent':
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        },
+        body: json.encode({
+          "messages": [
+            {
+              "from": "UnoBank",
+              "destinations": [
+                {"to": "+63${phone}"},
+              ],
+              "text":
+                  """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us.""",
+            },
+          ],
+        }),
+      );
+      if (smsResponse.statusCode == 200) {
+        print('SMS sent successfully! otp $otp');
 
-  //       setState(() {
-  //         recivedOtp = otp.toString();
-  //       });
+        setState(() {
+          recivedOtp = otp.toString();
+        });
 
-  //       _startTimer(); // *************************
-  //     } else {
-  //       Map<String, dynamic> logmappedData = {
-  //         "url": "${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'",
-  //         "request_body": json.encode({
-  //           "messages": [
-  //             {
-  //               "from": "UnoBank",
-  //               "destinations": [
-  //                 {"to": "63${phone}"}
-  //               ],
-  //               "text":
-  //                   """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us."""
-  //             }
-  //           ]
-  //         }),
-  //         "status_code": smsResponse.statusCode,
-  //         "response_body": json.decode(smsResponse.body),
-  //       };
-  //       final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
-  //       final headers = {
-  //         "Content-Type": "application/json",
-  //         "Accept": "application/json",
-  //         "Authorization": "Bearer $authToken",
-  //         'User-Agent':
-  //             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-  //       };
-  //       // ignore: unused_local_variable
-  //       final LogResponse = await http.post(
-  //         logUrl,
-  //         headers: headers,
-  //         body: json.encode(logmappedData),
-  //       );
-  //     }
-  //   } else {
-  //     print('Failed to fetch token. Status: ${response.statusCode}');
-  //   }
-  // }
+        _startTimer(); // *************************
+      } else {
+        Map<String, dynamic> logmappedData = {
+          "url": "${AppConfig.otpUrl}/fnf/api/v2/sms/sendSmsMessage'",
+          "request_body": json.encode({
+            "messages": [
+              {
+                "from": "UnoBank",
+                "destinations": [
+                  {"to": "63${phone}"},
+                ],
+                "text":
+                    """Your One-Time PIN is ${otp}. NEVER SHARE YOUR OTP. UNO will never request OTP from customers. If you did not request an OTP, please contact us.""",
+              },
+            ],
+          }),
+          "status_code": smsResponse.statusCode,
+          "response_body": json.decode(smsResponse.body),
+        };
+        final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+        final headers = {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer $authToken",
+          'User-Agent':
+              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+        };
+        // ignore: unused_local_variable
+        final LogResponse = await http.post(
+          logUrl,
+          headers: headers,
+          body: json.encode(logmappedData),
+        );
+      }
+    } else {
+      print('Failed to fetch token. Status: ${response.statusCode}');
+    }
+  }
 
-  // Future<void> _verifyOtp() async {
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-  //   if (isOtpExpired) {
-  //     showDialog(
-  //       context: context,
-  //       builder: (_) => AlertDialog(
-  //         title: Text("Invalid OTP"),
-  //         content: Text("The OTP has expired."),
-  //       ),
-  //     );
-  //     return;
-  //   } else {
-  //     if (_formKey.currentState?.validate() ?? false) {
-  //       if (recivedOtp == _otpController.text) {
-  //         showDialog(
-  //           context: context,
-  //           builder: (_) => AlertDialog(
-  //             title: Text("Info"),
-  //             content: Text("OTP Success Full"),
-  //             actions: [
-  //               TextButton(
-  //                 onPressed: () {
-  //                   Navigator.of(context).pop(); // Close dialog
-  //                   submitLos(widget.losData);
-  //                 },
-  //                 child: Text("OK"),
-  //               ),
-  //             ],
-  //           ),
-  //         );
-  //       } else {
-  //         showDialog(
-  //           context: context,
-  //           builder: (_) => AlertDialog(
-  //             title: Text("Info"),
-  //             content: Text("Invalid OTP"),
-  //             actions: [
-  //               TextButton(
-  //                 onPressed: () => Navigator.of(context).pop(),
-  //                 child: Text("OK"),
-  //               ),
-  //             ],
-  //           ),
-  //         );
-  //       }
-  //     }
+  Future<void> _verifyOtp() async {
+    setState(() {
+      _isLoading = true;
+    });
+    if (isOtpExpired) {
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: Text("Invalid OTP"),
+          content: Text("The OTP has expired."),
+        ),
+      );
+      return;
+    } else {
+      if (_formKey.currentState?.validate() ?? false) {
+        if (recivedOtp == _otpController.text) {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: Text("Info"),
+              content: Text("OTP Success Full"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close dialog
+                    submitLos(widget.losData);
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            ),
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: Text("Info"),
+              content: Text("Invalid OTP"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text("OK"),
+                ),
+              ],
+            ),
+          );
+        }
+      }
 
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-  //   }
-  // }
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -1608,13 +1626,9 @@ class OtpconcentState extends State<Otpconcent> {
           SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.05,
-                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                 _buildTextbox(),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.05,
-                ),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 0.0),
                   child: Column(
@@ -1683,81 +1697,41 @@ class OtpconcentState extends State<Otpconcent> {
                         height: MediaQuery.of(context).size.height * 0.05,
                       ),
 
-                      // Visibility(
-                      //   visible:
-                      //       !showOtpSection, // Hide button when OTP section is visible
-                      //   child: GestureDetector(
-                      //     onTap: () {
-                      //       if (checkBox1 && checkBox2) {
-                      //         setState(() {
-                      //           showOtpSection = true; // Show OTP section
-                      //         });
-                      //         // _sendOtp(); // Call your OTP sending method
-                      //       } else {
-                      //         showTopSnackBar(
-                      //           Overlay.of(context),
-                      //           CustomSnackBar.info(
-                      //             backgroundColor: const Color(0xFF640D78),
-                      //             message:
-                      //                 "Please agree to both the Terms & Conditions and the Data Privacy Statement before proceeding.",
-                      //             textStyle: const TextStyle(
-                      //               color: Colors.white,
-                      //               fontSize: 14,
-                      //               fontWeight: FontWeight.w500,
-                      //             ),
-                      //           ),
-                      //         );
-                      //       }
-                      //     },
-                      //     child: Container(
-                      //       width: double.infinity,
-                      //       padding: const EdgeInsets.symmetric(vertical: 14),
-                      //       child: Center(
-                      //         child: Text(
-                      //           "Submit",
-                      //           style: WidgetSupport.LoginButtonTextColor(),
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-
                       Visibility(
-                        visible: checkBox1 && checkBox2,
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(20, 80, 20, 5),
-                          child: GestureDetector(
-                            onTap: () => submitLos(widget.losData),
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 11),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFFc433e0),
-                                    Color(0xFF9a37ae)
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.send_rounded,
-                                      color: Colors.white, size: 15),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    "Submit",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      letterSpacing: 0.4,
-                                    ),
+                        visible:
+                            checkBox1 &&
+                            checkBox2 &&
+                            !showOtpSection, // Hide button when OTP section is visible
+                        child: GestureDetector(
+                          onTap: () {
+                            if (checkBox1 && checkBox2) {
+                              setState(() {
+                                showOtpSection = true; // Show OTP section
+                              });
+                              _sendOtp(); // Call your OTP sending method
+                            } else {
+                              showTopSnackBar(
+                                Overlay.of(context),
+                                CustomSnackBar.info(
+                                  backgroundColor: const Color(0xFF640D78),
+                                  message:
+                                      "Please agree to both the Terms & Conditions and the Data Privacy Statement before proceeding.",
+                                  textStyle: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                ],
+                                ),
+                              );
+                            }
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            child: Center(
+                              child: Text(
+                                "Get OTP",
+                                style: WidgetSupport.LoginButtonTextColor(),
                               ),
                             ),
                           ),
@@ -1767,88 +1741,87 @@ class OtpconcentState extends State<Otpconcent> {
                   ),
                 ),
 
-                // Visibility(
-                //   visible: showOtpSection, // controls visibility
-                //   child: Column(
-                //     children: [
-                //       (AppConfig.flavour != 'prod')
-                //           ? Text(
-                //               'Enter OTP sent to your phone OTP [${recivedOtp}]',
-                //               style: const TextStyle(fontSize: 16),
-                //               textAlign: TextAlign.center,
-                //             )
-                //           : const Text(
-                //               'Enter OTP sent to your phone',
-                //               style: TextStyle(fontSize: 16),
-                //               textAlign: TextAlign.center,
-                //             ),
-                //       const SizedBox(height: 10),
-                //       Text(
-                //         _timerText,
-                //         style: const TextStyle(
-                //             fontSize: 18, fontWeight: FontWeight.bold),
-                //       ),
-                //       SizedBox(
-                //           height: MediaQuery.of(context).size.height * 0.05),
-                //       Form(
-                //         key: _formKey,
-                //         child: _buildOtpBox(),
-                //       ),
-                //       SizedBox(
-                //           height: MediaQuery.of(context).size.height * 0.02),
-                //       Container(
-                //         width: MediaQuery.of(context).size.width * 0.60,
-                //         child: Row(
-                //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //           children: [
-                //             GestureDetector(
-                //               onTap: _verifyOtp,
-                //               child: Container(
-                //                 color: Colors.transparent,
-                //                 child: Center(
-                //                   child: Text(
-                //                     "Verify OTP",
-                //                     style: WidgetSupport.LoginButtonTextColor(),
-                //                   ),
-                //                 ),
-                //               ),
-                //             ),
-                //             GestureDetector(
-                //               onTap: () {
-                //                 if (resendTimer) {
-                //                   _resendOtp(); // Only call when allowed
-                //                 }
-                //               },
-                //               child: Container(
-                //                 color: Colors.transparent,
-                //                 child: Center(
-                //                   child: Text(
-                //                     "Resend OTP",
-                //                     style: WidgetSupport.LoginButtonTextColor()
-                //                         .copyWith(
-                //                       color: resendTimer
-                //                           ? Colors.purple
-                //                           : Colors.grey,
-                //                     ),
-                //                   ),
-                //                 ),
-                //               ),
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
+                Visibility(
+                  visible: showOtpSection, // controls visibility
+                  child: Column(
+                    children: [
+                      (AppConfig.flavour != 'prod')
+                          ? Text(
+                              'Enter OTP sent to your phone OTP [${recivedOtp}]',
+                              style: const TextStyle(fontSize: 16),
+                              textAlign: TextAlign.center,
+                            )
+                          : const Text(
+                              'Enter OTP sent to your phone',
+                              style: TextStyle(fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                      const SizedBox(height: 10),
+                      Text(
+                        _timerText,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.05,
+                      ),
+                      Form(key: _formKey, child: _buildOtpBox()),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.02,
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width * 0.60,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
+                              onTap: _verifyOtp,
+                              child: Container(
+                                color: Colors.transparent,
+                                child: Center(
+                                  child: Text(
+                                    "Verify OTP",
+                                    style: WidgetSupport.LoginButtonTextColor(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                if (resendTimer) {
+                                  _resendOtp(); // Only call when allowed
+                                }
+                              },
+                              child: Container(
+                                color: Colors.transparent,
+                                child: Center(
+                                  child: Text(
+                                    "Resend OTP",
+                                    style: WidgetSupport.LoginButtonTextColor()
+                                        .copyWith(
+                                          color: resendTimer
+                                              ? Colors.purple
+                                              : Colors.grey,
+                                        ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
           if (_isLoading)
             Container(
               color: Colors.transparent,
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: const Center(child: CircularProgressIndicator()),
             ),
         ],
       ),
@@ -1872,24 +1845,14 @@ class OtpconcentState extends State<Otpconcent> {
           ),
           backgroundColor: const Color(0xFF640D78),
           //title: Text(title,),
-          title: Text(
-            title,
-            style: TextStyle(color: Colors.white),
-          ),
+          title: Text(title, style: TextStyle(color: Colors.white)),
           content: SingleChildScrollView(
             child: Html(
               data: fixedHtml,
               style: {
-                "body": Style(
-                  color: Colors.white,
-                  fontSize: FontSize(16),
-                ),
-                "p": Style(
-                  color: Colors.white,
-                ),
-                "strong": Style(
-                  color: Colors.white,
-                ),
+                "body": Style(color: Colors.white, fontSize: FontSize(16)),
+                "p": Style(color: Colors.white),
+                "strong": Style(color: Colors.white),
               },
             ),
           ),
@@ -1899,10 +1862,7 @@ class OtpconcentState extends State<Otpconcent> {
                 Navigator.pop(context);
                 onAgree();
               },
-              child: const Text(
-                "Agree",
-                style: TextStyle(color: Colors.white),
-              ),
+              child: const Text("Agree", style: TextStyle(color: Colors.white)),
             ),
           ],
         );
@@ -1910,43 +1870,43 @@ class OtpconcentState extends State<Otpconcent> {
     );
   }
 
-  // Widget _buildOtpBox() {
-  //   return Container(
-  //     width: MediaQuery.of(context).size.width * 0.60,
-  //     child: SizedBox(
-  //       child: TextFormField(
-  //         controller: _otpController,
-  //         focusNode: _focusNode,
-  //         keyboardType: TextInputType.number,
-  //         maxLength: 4,
-  //         textAlign: TextAlign.center,
-  //         style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-  //         decoration: InputDecoration(
-  //           counterText: "",
-  //           hintText: "-   -   -   -",
-  //           hintStyle: TextStyle(color: Colors.grey),
-  //           contentPadding: EdgeInsets.symmetric(vertical: 10),
-  //           enabledBorder: OutlineInputBorder(
-  //             borderRadius: BorderRadius.circular(8),
-  //             borderSide: BorderSide(color: Colors.grey),
-  //           ),
-  //           focusedBorder: OutlineInputBorder(
-  //             borderRadius: BorderRadius.circular(8),
-  //             borderSide: BorderSide(color: Colors.purple),
-  //           ),
-  //         ),
-  //         validator: (value) {
-  //           if (value == null || value.length != 4) {
-  //             return 'Please enter a 4-digit OTP';
-  //           }
-  //           return null;
-  //         },
-  //         autocorrect: false,
-  //         enableSuggestions: false,
-  //       ),
-  //     ),
-  //   );
-  // }
+  Widget _buildOtpBox() {
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.60,
+      child: SizedBox(
+        child: TextFormField(
+          controller: _otpController,
+          focusNode: _focusNode,
+          keyboardType: TextInputType.number,
+          maxLength: 4,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          decoration: InputDecoration(
+            counterText: "",
+            hintText: "-   -   -   -",
+            hintStyle: TextStyle(color: Colors.grey),
+            contentPadding: EdgeInsets.symmetric(vertical: 10),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.grey),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: Colors.purple),
+            ),
+          ),
+          validator: (value) {
+            if (value == null || value.length != 4) {
+              return 'Please enter a 4-digit OTP';
+            }
+            return null;
+          },
+          autocorrect: false,
+          enableSuggestions: false,
+        ),
+      ),
+    );
+  }
 
   Widget _buildTextbox() {
     return Container(
@@ -1963,11 +1923,12 @@ class OtpconcentState extends State<Otpconcent> {
             fillColor: Colors.grey,
             counterText: "",
             label: Container(
-                padding: EdgeInsets.only(left: 20),
-                child: Text(
-                  "+63${widget.phoneNumber}",
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
-                )),
+              padding: EdgeInsets.only(left: 20),
+              child: Text(
+                "+63${widget.phoneNumber}",
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
+              ),
+            ),
             hintStyle: TextStyle(color: Colors.grey),
             contentPadding: EdgeInsets.symmetric(vertical: 10),
             disabledBorder: OutlineInputBorder(
