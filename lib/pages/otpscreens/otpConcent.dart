@@ -785,7 +785,7 @@ class OtpconcentState extends State<Otpconcent> {
 
       final body = {
         "workflow_status": status,
-        "los_status": {"offerStatus": offerStatusValue?.toUpperCase()}
+        "los_status": {"offerStatus": offerStatusValue}
       };
 
       final response = await ApiService.patchWithHeaders(

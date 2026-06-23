@@ -1779,6 +1779,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
     if (loanAmount.text.isEmpty)
       errors.add("Desired Loan Amount cannot be empty.");
     if (industryType.text.isEmpty) errors.add("Industry Type cannot be empty.");
+    if(activityType.text.isEmpty) errors.add("Activity Type cannot be empty.");
 
     // Image Validation
     if (_captureImageField1 == null && _networkImageUrl == null)
