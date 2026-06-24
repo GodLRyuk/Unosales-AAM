@@ -318,6 +318,8 @@ class _LoginPageState extends State<LoginPage> {
                         _usernameController.text,
                         _passwordController.text,
                         data['user']['phone_number'],
+                        otpStatus: data['user']['otp_status'] ?? false,
+                        otpMessage: data['user']['message'] ?? '',
                       ),
                     ),
                   );

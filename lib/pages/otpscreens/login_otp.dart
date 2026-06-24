@@ -15,7 +15,15 @@ class LoginOtp extends StatefulWidget {
   final String uname;
   final String pwd;
   final String phone_number;
-  const LoginOtp(this.uname, this.pwd, this.phone_number);
+  final bool otpStatus; //************ */
+  final String otpMessage; //************ */
+  const LoginOtp(
+    this.uname,
+    this.pwd,
+    this.phone_number, {
+    this.otpStatus = false, //************ */
+    this.otpMessage = '',
+  });
 
   @override
   State<LoginOtp> createState() => _LoginOtpState();
@@ -41,6 +49,26 @@ class _LoginOtpState extends State<LoginOtp> {
     // isOtpExpired = false;
     // _sendOtp();
     // _startTimer();
+
+    if (widget.otpStatus && widget.otpMessage.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("OTP Info"),
+              content: Text(widget.otpMessage),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      });
+    }
   }
 
   // void _startTimer() {
@@ -248,146 +276,125 @@ class _LoginOtpState extends State<LoginOtp> {
 
   Future<void> _verifyOtp() async {
     bool checkIndata = false;
-    if (isOtpExpired) {
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text("Invalid OTP"),
-          content: Text("The OTP has expired."),
-        ),
+    // if (isOtpExpired) {
+    //   showDialog(
+    //     context: context,
+    //     builder: (_) => AlertDialog(
+    //       title: Text("Invalid OTP"),
+    //       content: Text("The OTP has expired."),
+    //     ),
+    //   );
+    //   return;
+    // }
+    // else {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // if (recivedOtp == _otpController.text) {
+      //   setState(() {
+      //     _isLoading = true;
+      //   });
+
+      // ************************************************
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? authToken = prefs.getString('accessToken');
+      print("auth token $authToken");
+
+      final verifyResponse = await ApiService.postJsonWithHeaders(
+        "/api/users/validate-otp/",
+        {"otp": _otpController.text},
+        {
+          'Authorization': 'Bearer $authToken',
+        },
       );
-      return;
-    }
-     else {
-      if (_formKey.currentState!.validate()) {
+
+      bool otpVerified = verifyResponse != null &&
+          verifyResponse.statusCode == 200 &&
+          verifyResponse.data['otp_verified'] == true;
+
+      print("otp verification $otpVerified");
+
+      if (!otpVerified) {
         setState(() {
-          _isLoading = true;
+          _isLoading = false;
         });
-
-        // if (recivedOtp == _otpController.text) {
-        //   setState(() {
-        //     _isLoading = true;
-        //   });
-
-        // ************************************************
-
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        String? authToken = prefs.getString('accessToken');
-        print("auth token $authToken");
-
-        final verifyResponse = await ApiService.postJsonWithHeaders(
-          "/api/users/validate-otp/",
-          {"otp": _otpController.text},
-          {
-            'Authorization': 'Bearer $authToken',
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Info"),
+              content: Text(verifyResponse?.data['message'] ?? "Invalid OTP"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
           },
         );
+        return;
+      }
 
-        bool otpVerified = verifyResponse != null &&
-            verifyResponse.statusCode == 200 &&
-            verifyResponse.data['otp_verified'] == true;
+      //************************************************* */
 
-        print("otp verification $otpVerified");
+      var url = "/api/users/login/";
+      final Map<String, String> mapeddata = {
+        'username': widget.uname,
+        'password': widget.pwd,
+      };
+      final response = await ApiService.post(url, mapeddata);
+      if (response != null) {
+        if (response.statusCode == 200) {
+          final data = response.data;
+          if (data['access'] != null) {
+            // ************************************************
 
-        if (!otpVerified) {
-          setState(() {
-            _isLoading = false;
-          });
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text("Info"),
-                content: Text(verifyResponse?.data['message'] ?? "Invalid OTP"),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text("OK"),
-                  ),
-                ],
-              );
-            },
-          );
-          return;
-        }
+            // *****************************************************
+            List<String> userInfo = [
+              data['user']['username'],
+              data['user']['first_name'],
+              data['user']['last_name'],
+              data['user']['email'],
+            ];
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            await prefs.setStringList('userInfo', userInfo);
+            // await prefs.setBool('isLoggedIn', true);
+            await prefs.setString('accessToken', data['access']);
+            await prefs.setString('refreshToken', data['refresh']);
+            await prefs.setString('role', data['roles'][0]);
+            String? token = prefs.getString('accessToken');
+            final headers = {
+              'Authorization': 'Bearer $token',
+              'User-Agent':
+                  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+            };
+            var checkInUserUrl = "/api/users/attendance/active/";
+            final checkInUserResponse =
+                await ApiService.getWithHeaders(checkInUserUrl, headers);
 
-        //************************************************* */
+            if (checkInUserResponse != null) {
+              final data2 = checkInUserResponse.data;
+              if (data2['data'] is List && data2['data'].isNotEmpty) {
+                final firstItem = data2['data'][0];
+                checkIndata = firstItem['is_checked_in']; // this will be a bool
 
-        var url = "/api/users/login/";
-        final Map<String, String> mapeddata = {
-          'username': widget.uname,
-          'password': widget.pwd,
-        };
-        final response = await ApiService.post(url, mapeddata);
-        if (response != null) {
-          if (response.statusCode == 200) {
-            final data = response.data;
-            if (data['access'] != null) {
-              // ************************************************
-
-              // *****************************************************
-              List<String> userInfo = [
-                data['user']['username'],
-                data['user']['first_name'],
-                data['user']['last_name'],
-                data['user']['email'],
-              ];
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              await prefs.setStringList('userInfo', userInfo);
-              // await prefs.setBool('isLoggedIn', true);
-              await prefs.setString('accessToken', data['access']);
-              await prefs.setString('refreshToken', data['refresh']);
-              await prefs.setString('role', data['roles'][0]);
-              String? token = prefs.getString('accessToken');
-              final headers = {
-                'Authorization': 'Bearer $token',
-                'User-Agent':
-                    'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-              };
-              var checkInUserUrl = "/api/users/attendance/active/";
-              final checkInUserResponse =
-                  await ApiService.getWithHeaders(checkInUserUrl, headers);
-
-              if (checkInUserResponse != null) {
-                final data2 = checkInUserResponse.data;
-                if (data2['data'] is List && data2['data'].isNotEmpty) {
-                  final firstItem = data2['data'][0];
-                  checkIndata =
-                      firstItem['is_checked_in']; // this will be a bool
-
-                  //print("check in data is $checkIndata");
-                  await prefs.setBool('checkInStatus', checkIndata);
-                }
+                //print("check in data is $checkIndata");
+                await prefs.setBool('checkInStatus', checkIndata);
               }
-
-              Future.delayed(const Duration(seconds: 2), () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const NavigationPage()),
-                );
-              });
             }
-          } else {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text("Info"),
-                  content: Text("Invalid username or password."),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text("OK"),
-                    ),
-                  ],
-                );
-              },
-            );
+
+            Future.delayed(const Duration(seconds: 2), () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const NavigationPage()),
+              );
+            });
           }
         } else {
           showDialog(
@@ -395,7 +402,7 @@ class _LoginOtpState extends State<LoginOtp> {
             builder: (BuildContext context) {
               return AlertDialog(
                 title: Text("Info"),
-                content: Text("Server Error Please Try Again"),
+                content: Text("Invalid username or password."),
                 actions: [
                   TextButton(
                     onPressed: () {
@@ -408,27 +415,46 @@ class _LoginOtpState extends State<LoginOtp> {
             },
           );
         }
-        //  else {
-        //   showDialog(
-        //     context: context,
-        //     builder: (BuildContext context) {
-        //       return AlertDialog(
-        //         title: Text("Info"),
-        //         content: Text("Invalid OTP"),
-        //         actions: [
-        //           TextButton(
-        //             onPressed: () {
-        //               Navigator.of(context).pop();
-        //             },
-        //             child: Text("OK"),
-        //           ),
-        //         ],
-        //       );
-        //     },
-        //   );
-        // }
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Info"),
+              content: Text("Server Error Please Try Again"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
       }
+      //  else {
+      //   showDialog(
+      //     context: context,
+      //     builder: (BuildContext context) {
+      //       return AlertDialog(
+      //         title: Text("Info"),
+      //         content: Text("Invalid OTP"),
+      //         actions: [
+      //           TextButton(
+      //             onPressed: () {
+      //               Navigator.of(context).pop();
+      //             },
+      //             child: Text("OK"),
+      //           ),
+      //         ],
+      //       );
+      //     },
+      //   );
+      // }
     }
+    //}
   }
 
   @override
@@ -467,7 +493,7 @@ class _LoginOtpState extends State<LoginOtp> {
                   //       )
                   //     :
                   Text(
-                    'Enter the OTP send your registered Email',
+                    'Enter the OTP sent your registered Email',
                     style: TextStyle(fontSize: 16),
                     textAlign: TextAlign.center,
                   ),
@@ -490,7 +516,7 @@ class _LoginOtpState extends State<LoginOtp> {
                     //color: Colors.red,
                     width: MediaQuery.of(context).size.width * 0.60,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         GestureDetector(
                           onTap: _verifyOtp,
