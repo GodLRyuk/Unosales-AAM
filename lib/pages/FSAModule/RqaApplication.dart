@@ -435,19 +435,6 @@ class _RQAApplicationState extends State<RQAApplication> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
-
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
-      // final tokenData = json.decode(tokenResponse.body);
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -462,24 +449,6 @@ class _RQAApplicationState extends State<RQAApplication> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "filters": [
-      //       {"id": "9"}
-      //     ]
-      //   }),
-      // );
-
-      // if (response.statusCode == 200) {
-
       final endpoint = '/api/app/fetch/LOV/details';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -647,31 +616,31 @@ class _RQAApplicationState extends State<RQAApplication> {
       "responseBody": responseData
     };
 
+    final response =
+        await ApiService.postJsonWithUNOApiHeaders(url, formData1, header1);
+    Map<String, dynamic> logmappedData = {
+      "url": "${AppConfig.unoBaseApiUrl}/save/external-response",
+      "request_body": json.encode(formData1),
+      "status_code": response!.statusCode,
+      "response_body": response.data,
+    };
+
+    final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+    final headers2 = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "Bearer $accessToken",
+      'User-Agent':
+          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+    };
+    // ignore: unused_local_variable
+    final LogResponse = await http.post(
+      logUrl,
+      headers: headers2,
+      body: json.encode(logmappedData),
+    );
+
     try {
-      final response =
-          await ApiService.postJsonWithUNOApiHeaders(url, formData1, header1);
-      Map<String, dynamic> logmappedData = {
-        "url": "${AppConfig.unoBaseApiUrl}/save/external-response",
-        "request_body": json.encode(formData1),
-        "status_code": response!.statusCode,
-        "response_body": response.data,
-      };
-
-      final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
-      final headers2 = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": "Bearer $accessToken",
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      };
-      // ignore: unused_local_variable
-      final LogResponse = await http.post(
-        logUrl,
-        headers: headers2,
-        body: json.encode(logmappedData),
-      );
-
       if (response.statusCode == 200) {
         databaseUpdate_value = true;
         print("Data submitted successfully in UNO DB");
@@ -731,12 +700,25 @@ class _RQAApplicationState extends State<RQAApplication> {
         databaseUpdate_value = false;
       }
     } catch (e) {
-      print("error is $e");
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Info"),
+          content: SingleChildScrollView(
+            child: Text(response.data?.toString() ??
+                "Network or server error. Please try again."),
+          ),
+          actions: [
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
     }
     return databaseUpdate_value;
   }
-
-  //******************************************* */
 
   Future<void> submitData() async {
     setState(() {
@@ -795,42 +777,38 @@ class _RQAApplicationState extends State<RQAApplication> {
       }
     };
 
+    final response =
+        await ApiService.postJsonWithUNOApiHeaders(rqaUrl, formData, headers);
+
+    Map<String, dynamic> logmappedData = {
+      "url":
+          "${AppConfig.unoBaseApiUrl}/engine/v1/executions/loans-interface/1.x/rqa-check/rqa_check/RQA_Check",
+      "request_body": json.encode(formData),
+      "status_code": response!.statusCode,
+      "response_body": response.data,
+    };
+
+    final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+    final headers2 = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "Bearer $accessToken",
+      'User-Agent':
+          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+    };
+    // ignore: unused_local_variable
+    final LogResponse = await http.post(
+      logUrl,
+      headers: headers2,
+      body: json.encode(logmappedData),
+    );
+
     try {
-      final response =
-          await ApiService.postJsonWithUNOApiHeaders(rqaUrl, formData, headers);
-
-      Map<String, dynamic> logmappedData = {
-        "url":
-            "${AppConfig.unoBaseApiUrl}/engine/v1/executions/loans-interface/1.x/rqa-check/rqa_check/RQA_Check",
-        "request_body": json.encode(formData),
-        "status_code": response!.statusCode,
-        "response_body": response.data,
-      };
-
-      final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
-      final headers2 = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": "Bearer $accessToken",
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      };
-      // ignore: unused_local_variable
-      final LogResponse = await http.post(
-        logUrl,
-        headers: headers2,
-        body: json.encode(logmappedData),
-      );
-
       if (response.statusCode == 200) {
         final data = response.data;
-        print("response body $data");
 
         String? status = data['output']['response']['status'];
-        print("status is $status");
 
-        //  ****************************************************
-        print("status is $status");
         bool dataUpdatedValue =
             await submitDataUnoDB(token, data, CWTransactionID);
         // ***************************************************
@@ -918,7 +896,6 @@ class _RQAApplicationState extends State<RQAApplication> {
           );
         }
       } else {
-        // Exist Code **********************************
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -945,7 +922,6 @@ class _RQAApplicationState extends State<RQAApplication> {
               ),
               content: Text(
                 "Application submission failed. \nReason: ${response.data['message'] ?? 'Unknown error'}",
-                //  "Failed to connect with server.\nStatus Code: ${response!.statusCode}",
                 style: const TextStyle(fontSize: 16),
               ),
               actionsPadding: const EdgeInsets.only(bottom: 10, right: 10),
@@ -973,7 +949,22 @@ class _RQAApplicationState extends State<RQAApplication> {
         );
       }
     } catch (e) {
-      print("error is $e");
+      showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+          title: const Text("Info"),
+          content: SingleChildScrollView(
+            child: Text(response.data?.toString() ??
+                "Network or server error. Please try again."),
+          ),
+          actions: [
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
     }
 
     setState(() {
@@ -985,7 +976,7 @@ class _RQAApplicationState extends State<RQAApplication> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.0), // Adjusted height for TabBar
+        preferredSize: Size.fromHeight(60.0),
         child: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -1139,15 +1130,6 @@ class _RQAApplicationState extends State<RQAApplication> {
                       ),
                     ],
 
-                    // Text(
-                    //   "Employe Type",
-                    //   style: WidgetSupport.Questionblack(),
-                    // ),
-                    // _buildEmpTypeDropdown(
-                    //   controller: emp_Type,
-                    //   label: "Select Employe Status",
-                    // ),
-
                     Text(
                       "Company Name",
                       style: WidgetSupport.Questionblack(),
@@ -1156,7 +1138,6 @@ class _RQAApplicationState extends State<RQAApplication> {
                       padding: EdgeInsets.all(0.0),
                       child: Column(
                         children: [
-                          // TextField for searching companies
                           Focus(
                             onFocusChange: (hasFocus) {
                               setState(() {
@@ -1231,22 +1212,6 @@ class _RQAApplicationState extends State<RQAApplication> {
                                       title: Text(_filteredCompanies[index]
                                           ['company_name']!),
                                       onTap: () {
-                                        // Set the selected company
-                                        // setState(() {
-                                        //   _selectedCompany =
-                                        //       _filteredCompanies[index]
-                                        //           ['company_name'];
-                                        //   _searchController.text =
-                                        //       _filteredCompanies[index]
-                                        //           ['company_name']!;
-                                        //   _isFieldFocused = false;
-                                        //   _showOtherCompanyField =
-                                        //       _selectedCompany!.toLowerCase() ==
-                                        //           'others';
-                                        // });
-
-                                        // *******************************************
-
                                         setState(() {
                                           _selectedCompany =
                                               _filteredCompanies[index]
@@ -1282,20 +1247,6 @@ class _RQAApplicationState extends State<RQAApplication> {
                           decoration: InputDecoration(
                             hintText: "Enter Employer/Business Name",
                           ),
-                          // validator: (value) {
-                          //   // if (value == null ||
-                          //   //     value.isEmpty ||
-                          //   //     _selectedCompany == 'others') {
-                          //   //   return 'Company name is required';
-                          //   // }
-                          //   if (_selectedCompany == 'others' &&
-                          //       (value == null || value.isEmpty)) {
-                          //     return 'Company name is required';
-                          //   }
-                          //   return null;
-                          // },
-
-                          // *********************************
                           validator: (value) {
                             if (_isOthersSelected &&
                                 (value == null || value.isEmpty)) {
@@ -1350,12 +1301,6 @@ class _RQAApplicationState extends State<RQAApplication> {
                         "Please provide loan amount or credit card limit",
                         style: WidgetSupport.Questionblack(),
                       ),
-                      // _buildTextField(
-                      //   credit_loan_amount,
-                      //   "Loan Amount/ Credit Limit",
-                      //   "Please enter Loan Amount/ Credit Limit",
-                      // ),
-
                       _buildIncomeTextField(
                         controller: credit_loan_amount,
                       )
@@ -1388,9 +1333,6 @@ class _RQAApplicationState extends State<RQAApplication> {
                                 }
                                 submitData();
                               }
-                              // if (_formKey.currentState!.validate()) {
-                              //   submitData();
-                              // }
                             },
                             child: Text(
                               "SUBMIT",
@@ -1745,10 +1687,6 @@ class _RQAApplicationState extends State<RQAApplication> {
         icon: const SizedBox.shrink(),
         decoration: InputDecoration(
           contentPadding: EdgeInsets.only(left: 5),
-          // filled: true,
-          // fillColor: readOnly
-          //     ? Colors.grey.shade200 // visually indicate read-only
-          //     : Colors.white,
           label: isRequired
               ? RichText(
                   text: TextSpan(

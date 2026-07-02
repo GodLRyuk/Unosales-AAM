@@ -189,6 +189,9 @@ class ApiService {
         // options: Options(contentType: 'application/x-www-form-urlencoded'),
       );
     } on DioException catch (e) {
+      if (e.response != null) {
+        return e.response; 
+      }
       _handleError(e);
       return null;
     }

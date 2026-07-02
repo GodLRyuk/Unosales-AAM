@@ -315,43 +315,6 @@ class _DedupeCheckState extends State<DedupeCheck> {
     );
   }
 
-  // Widget _buildDobField(TextEditingController controller, String labelText) {
-  //   return TextFormField(
-  //     controller: controller,
-  //     readOnly: true,
-  //     decoration: InputDecoration(
-  //       hintText: labelText,
-  //       hintStyle: WidgetSupport.inputLabel(),
-  //       suffixIcon: const Icon(
-  //         FontAwesomeIcons.calendar, // ✅ calendar icon here
-  //         color: Colors.purple,
-  //         size: 18,
-  //       ),
-  //     ),
-  //     onTap: () async {
-  //       FocusScope.of(context).requestFocus(FocusNode());
-  //       DateTime? pickedDate = await showDatePicker(
-  //         context: context,
-  //         initialDate: DateTime(2000),
-  //         firstDate: DateTime(1500),
-  //         lastDate: DateTime.now(),
-  //       );
-  //       if (pickedDate != null) {
-  //         setState(() {
-  //           controller.text =
-  //               "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
-  //         });
-  //       }
-  //     },
-  //     validator: (value) {
-  //       if (value == null || value.isEmpty) {
-  //         return 'Date of Birth is required';
-  //       }
-  //       return null;
-  //     },
-  //   );
-  // }
-
   Widget _buildDobField(TextEditingController controller, String labelText) {
     return TextFormField(
       controller: controller,
@@ -485,28 +448,27 @@ class _DedupeCheckState extends State<DedupeCheck> {
         'channel': 'fsa',
       };
 
+      final response =
+          await ApiService.postWithHeadersUnoApi(url, mapeddata, headers);
+
+      await ApiService.LogApi(
+        '/api/logs/',
+        {
+          "url": "${AppConfig.otpUrl}/dedupe/check",
+          "request_body": json.encode(mapeddata),
+          "status_code": response!.statusCode,
+          "response_body": response.data,
+        },
+        {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "Authorization": "Bearer $accessToken",
+        },
+      );
+
       try {
-        final response =
-            await ApiService.postWithHeadersUnoApi(url, mapeddata, headers);
-
-        await ApiService.LogApi(
-          '/api/logs/',
-          {
-            "url": "${AppConfig.otpUrl}/dedupe/check",
-            "request_body": json.encode(mapeddata),
-            "status_code": response!.statusCode,
-            "response_body": response.data,
-          },
-          {
-            "Content-Type": "application/json",
-            "Accept": "application/json",
-            "Authorization": "Bearer $accessToken",
-          },
-        );
-
         if (response.statusCode == 200) {
           final responseBody = response.data;
-          //print("response body ${responseBody}");
           final message = responseBody["message"] ?? "";
           if (message == "No Client Found") {
             await userDetailsMatch(token, "63${mobilePhone.text}");
@@ -706,11 +668,16 @@ class _DedupeCheckState extends State<DedupeCheck> {
             }
           }
         } else {
-          _showAlert("No response from server.");
+          //_showAlert("No response from server.");
+          final responseBody = response.data;
+          String errorMessage = "Something went wrong. Please try again.";
+          _showAlert(responseBody?.toString() ?? errorMessage);
         }
+
       } catch (e) {
-        print("Login error: $e");
-        _showAlert("Network or server error.");
+        final responseBody = response.data;
+        String errorMessage = "Network or server error. Please try again.";
+        _showAlert(responseBody?.toString() ?? errorMessage);
       } finally {
         setState(() {
           _isLoading = false;
@@ -779,7 +746,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text("Info"),
+        title: const Text("Error Info"),
         content: Text(message),
         actions: [
           TextButton(

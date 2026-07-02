@@ -7,21 +7,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:hyperkyc_flutter/hyperkyc_result.dart';
-import 'package:pointycastle/api.dart' hide Padding;
-import 'package:pointycastle/random/fortuna_random.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unosfa/pages/FSAModule/LosApplicationModel.dart';
-import 'package:unosfa/pages/FSAModule/fsaleaddashboard.dart';
 import 'package:unosfa/pages/FSAModule/leadsByCampaign.dart';
 import 'package:unosfa/pages/Form/FormList/daily_sales_report_list.dart';
-import 'package:unosfa/pages/config/config.dart';
 import 'package:intl/intl.dart';
-import 'package:unosfa/pages/generalscreens/customNavigation.dart';
 import 'package:unosfa/pages/otpscreens/otpConcent.dart';
 import 'package:unosfa/pages/services/api_service.dart';
 import 'package:unosfa/pages/services/transactionId.dart';
 import 'package:unosfa/widgetSupport/widgetstyle.dart';
-import 'package:crypto/crypto.dart';
 
 class LosApplicationPage extends StatefulWidget {
   final String leadId;
@@ -389,8 +383,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     );
   }
 
-  //************************************************************** */
-
   Future<void> _searchCompanyGetDSR(String query) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (query.isEmpty) {
@@ -465,8 +457,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     }
   }
 
-  //************************************************************************** */
-
   Future<void> _searchCompany(String query) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     if (query.isEmpty) {
@@ -529,22 +519,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     }
   }
 
-  // void _searchCompany(String companyId) {
-  //   // companyId here is the ID from the search result or API
-  //   if (_ComIdOptions.containsKey(companyId)) {
-  //     setState(() {
-  //       // store the ID internally
-  //       _selectedCompany = companyId;
-
-  //       // show the name in the textfield
-  //       _searchController.text = _ComIdOptions[companyId] ?? '';
-  //     });
-  //   } else {
-  //     // no match found
-  //     print('Company ID not found');
-  //   }
-  // }
-
   Future<Map<String, String>> _getAuthHeader() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
@@ -563,18 +537,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     String? refresh = prefs.getString('refreshToken');
     userInfo = prefs.getStringList('userInfo');
     try {
-      // final response = await http.get(
-      //   Uri.parse(
-      //       '${AppConfig.dynamicBaseUrl}/api/campaigns/${widget.campaign}/leads/${widget.leadId}/'), // Using leadId in the API URL
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
       final headers = {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -582,21 +544,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       final url = '/api/campaigns/${widget.campaign}/leads/${widget.leadId}/';
 
       final response = await ApiService.getWithHeaders(url, headers);
-      
 
       if (response!.statusCode == 200) {
         setState(() {
           leadDetails = response.data;
 
-          // print("lead details is this for campaign........");
-          // String jsonString = jsonEncode(leadDetails);
-          // for (int i = 0; i < jsonString.length; i += 1000) {
-          //   print(jsonString.substring(i,
-          //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-
-          // }
-
-          //****************************************************** */
           firstName.text = leadDetails['first_name'] ?? "";
           lastName.text = leadDetails['last_name'] ?? "";
           middlename.text = leadDetails['middle_name'] ?? "";
@@ -689,11 +641,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           'refresh': refresh,
         };
 
-        // final response2 = await http.post(
-        //   Uri.parse(
-        //       '${AppConfig.dynamicBaseUrl}/api/users/token-refresh/'), // Using leadId in the API URL
-        //   body: mappedData,
-        // );
         final url = '/api/users/token-refresh/';
 
         final response2 = await ApiService.post(url, mappedData);
@@ -728,36 +675,16 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     userInfo = prefs.getStringList('userInfo');
 
     try {
-      // final response = await http.get(
-      //   Uri.parse(
-      //       '${AppConfig.dynamicBaseUrl}/api/timesheet/agent-daily-sales/${widget.dsrId}/'), // Using leadId in the API URL
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'application/json',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
       final headers = {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
       };
       final url = '/api/timesheet/agent-daily-sales/${widget.dsrId}/';
       final response = await ApiService.getWithHeaders(url, headers);
-      
 
       if (response!.statusCode == 200) {
         setState(() {
           leadDetails = response.data;
-
-          // print("lead details is $leadDetails");
-          // String jsonString = jsonEncode(leadDetails);
-          // for (int i = 0; i < jsonString.length; i += 1000) {
-          //   print(jsonString.substring(i,
-          //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-          // }
 
           firstName.text = leadDetails['first_name'] ?? "";
           lastName.text = leadDetails['last_name'] ?? "";
@@ -795,21 +722,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
             });
           }
           setState(() {
-            // print(leadDetails['employer']);
-            // print(_ComIdOptions);
-            // _searchController is the TextField controller
-            // If the ID exists, set the corresponding company name
-            // print("null check start");
-            // _searchController.text = _ComIdOptions[employerId]!;
-            // emp_Employer_Name.text = _ComIdOptions[employerId]!;
-            // print(emp_Employer_Name.text);
-            // print("null check start2");
-
-            // _selectedCompany =
-            //     _ComIdOptions[employerId]!; // optional, if you track selection
-
-            // print("null check start3");
-
             identity_TinId.text = leadDetails['tin_id'] ?? "";
             identity_GsisID.text = leadDetails['gsis_id'] ?? "";
             identity_SssID.text = leadDetails['sss_id'] ?? "";
@@ -839,11 +751,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         Map<String, dynamic> mappedData = {
           'refresh': refresh,
         };
-        // final response2 = await http.post(
-        //   Uri.parse(
-        //       '${AppConfig.dynamicBaseUrl}/api/users/token-refresh/'), // Using leadId in the API URL
-        //   body: mappedData,
-        // );
+
         final url = '/api/users/token-refresh/';
         final response2 = await ApiService.post(url, mappedData);
         final data = response2!.data;
@@ -869,15 +777,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     Map<String, dynamic> mappedData = {
       'refresh': refresh,
     };
-    // final response2 = await http.post(
-    //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/users/token-refresh/'),
-    //   body: mappedData,
-    // );
 
     final url = '/api/users/token-refresh/';
     final response2 = await ApiService.post(url, mappedData);
     final data = response2!.data;
-    
+
     await prefs.setBool('isLoggedIn', true);
     await prefs.setString('accessToken', data['access']);
     await prefs.setString('refreshToken', data['refresh']);
@@ -898,16 +802,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -922,17 +816,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     }
 
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/address'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({"zipcode": "$zipCode"}),
-      // );
       final endpoint = '/api/app/address';
 
       final headers = {
@@ -991,16 +874,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -1016,17 +889,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     }
 
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/address'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //   },
-      //   body: jsonEncode({"zipcode": "$zipCode"}),
-      // );
-      // if (response.statusCode == 200) {
-
       final endpoint = '/api/app/address';
       final headers = {
         'Authorization': 'Bearer $tokens',
@@ -1078,16 +940,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -1102,17 +954,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     }
 
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/address'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //   },
-      //   body: jsonEncode({"zipcode": "$zipCode"}),
-      // );
-      // if (response.statusCode == 200) {
-
       final endpoint = '/api/app/address';
       final headers = {
         'Authorization': 'Bearer $tokens',
@@ -1171,17 +1012,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -1196,18 +1026,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/address'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({"zipcode": "$zipCode"}),
-      // );
-      // if (response.statusCode == 200) {
       final endpoint = '/api/app/address';
       final headers = {
         'Authorization': 'Bearer $tokens',
@@ -1265,16 +1083,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -1290,16 +1098,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     }
 
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/address'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //   },
-      //   body: jsonEncode({"zipcode": "$zipCode"}),
-      // );
-      // if (response.statusCode == 200) {
       final endpoint = '/api/app/address';
       final headers = {
         'Authorization': 'Bearer $tokens',
@@ -1360,16 +1158,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -1385,21 +1173,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       final tokenData = tokenResponse.data;
       tokens = tokenData['access_token'];
 
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "filters": [
-      //       {"id": "3"}
-      //     ]
-      //   }),
-      // );
       final endpoint = '/api/app/fetch/LOV/details';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -1452,16 +1225,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -1476,21 +1239,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
-    // final response = await http.post(
-    //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-    //   headers: {
-    //     'Authorization': 'Bearer $tokens',
-    //     'Content-Type': 'application/json',
-    //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-    //     'User-Agent':
-    //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    //   },
-    //   body: jsonEncode({
-    //     "filters": [
-    //       {"id": "20"}
-    //     ]
-    //   }),
-    // );
+
     final endpoint = '/api/app/fetch/LOV/details';
     final headers2 = {
       'Authorization': 'Bearer $tokens',
@@ -1544,16 +1293,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -1568,22 +1307,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "filters": [
-      //       {"id": "9"}
-      //     ]
-      //   }),
-      // );
-
       final endpoint = '/api/app/fetch/LOV/details';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -1636,17 +1359,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -1661,21 +1373,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "filters": [
-      //       {"id": "8"}
-      //     ]
-      //   }),
-      // );
       final endpoint = '/api/app/fetch/LOV/details';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -1727,17 +1424,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -1752,21 +1438,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "filters": [
-      //       {"id": "1"}
-      //     ]
-      //   }),
-      // );
       final endpoint = '/api/app/fetch/LOV/details';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -1819,16 +1490,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -1844,22 +1505,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "filters": [
-      //       {"id": "22"}
-      //     ]
-      //   }),
-      // );
-
       final endpoint = '/api/app/fetch/LOV/details';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -1912,18 +1557,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
-      // final tokenData = json.decode(tokenResponse.body);
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -1938,21 +1571,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "filters": [
-      //       {"id": "11"}
-      //     ]
-      //   }),
-      // );
       final endpoint = '/api/app/fetch/LOV/details';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -2005,19 +1623,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
-      // final tokenData = json.decode(tokenResponse.body);
-
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -2032,24 +1637,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "filters": [
-      //       {"id": "15"}
-      //     ]
-      //   }),
-      // );
-
-      // if (response.statusCode == 200) {
-
       final endpoint = '/api/app/fetch/LOV/details';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -2102,19 +1689,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
-      // final tokenData = json.decode(tokenResponse.body);
-
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -2129,24 +1703,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "filters": [
-      //       {"id": "15"}
-      //     ]
-      //   }),
-      // );
-
-      // if (response.statusCode == 200) {
-
       final endpoint = '/api/app/fetch/LOV/details';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -2199,19 +1755,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
-      // final tokenData = json.decode(tokenResponse.body);
-
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -2226,23 +1769,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "filters": [
-      //       {"id": "4"}
-      //     ]
-      //   }),
-      // );
-
-      // if (response.statusCode == 200) {
       final endpoint = '/api/app/fetch/LOV/details';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -2295,19 +1821,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
-      // final tokenData = json.decode(tokenResponse.body);
-
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -2322,23 +1835,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/lov/mapping/sequence'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "category": "Source_of_Fund",
-      //     "empStatusId": emp_Status_Code.text.replaceFirst(RegExp(r'^0+'), ''),
-      //     "nowId": emp_Work_Nature_Code.text.replaceFirst(RegExp(r'^0+'), ''),
-      //     "positionId": emp_position.text.replaceFirst(RegExp(r'^0+'), ''),
-      //   }),
-      // );
-
       final endpoint = '/api/lov/mapping/sequence';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -2383,10 +1879,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   // For hyperverser use method
 
   Future<void> setHyperverserData() async {
-    // setState(() {
-    //   _isLoading = true;
-    // });
-
     try {
       final details = widget.ekycResult?.details;
 
@@ -2485,10 +1977,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
   // ***************** ETB FRESH APPLICATION ********************
   Future<void> setEtbFreshCandidate() async {
-    // setState(() {
-    //   _isLoading = true;
-    // });
-
     try {
       final etbDetails = widget.customerDetails;
 
@@ -2539,14 +2027,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                   ? address['postcode'].toString().trim()
                   : (widget.zipCode ?? "");
 
-          // lastName.text = customer['lastName']?.trim() ?? '';
-          // middlename.text = customer['middleName'] ?? "";
-          // mobilePhone.text = customer['mobilePhone'].substring(2) ?? "";
-
-          // birthDate.text = customer['birthDate'] ?? "";
-          //Employee monthly income
-          //fin_Mthly_Income.text = empMonthlyIncome?['fin_Mthly_Income'] ?? "";
-
           if (customer?['gender'] == "MALE") {
             gender.text = "Male";
           } else {
@@ -2554,7 +2034,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           }
 
           // address
-          //perm_ZipCode.text = address?['postcode'] ?? "";
+
           perm_Street.text = address?['line1'] ?? "";
 
           // document
@@ -2615,11 +2095,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
             emp_Work_Nature.text = selectedItem['value'] ?? '';
           });
         }
-      }
-
-      // 8-6-2026
-
-      else {
+      } else {
         setState(() {
           firstName.text = widget.firstName ?? '';
           lastName.text = widget.lastName ?? '';
@@ -2658,8 +2134,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         }
       }
 
-      // Done
-
       // Fetch data from RQA
       //EMPLOYEE source of income
       String code1 = widget.sourceIncome ?? "";
@@ -2692,7 +2166,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       }
     }
   }
-  // *************** done  **********************
 
   @override
   Widget build(BuildContext context) {
@@ -2746,953 +2219,959 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       ),
       body: Stack(
         children: [
-          Container(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "Please Review If All Information Is Correct"
-                          .toUpperCase(),
-                      style: WidgetSupport.label(),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xFF640D78),
-                    borderRadius: BorderRadius.circular(3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
+          RefreshIndicator(
+             onRefresh: () async {
+            await initAll();
+          },
+          color: Color(0xFF640D78),
+            child: Container(
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Please Review If All Information Is Correct"
+                            .toUpperCase(),
+                        style: WidgetSupport.label(),
                       ),
                     ],
                   ),
-                  child: Theme(
-                    data: Theme.of(context)
-                        .copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      initiallyExpanded: true,
-                      trailing: Icon(Icons.keyboard_arrow_down,
-                          color: Colors.white, size: 30),
-                      title: Text("Client Details",
-                          style: WidgetSupport.normalTextTab()),
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildTextField(
-                                firstName,
-                                "First Name",
-                                "Please Enter First Name",
-                                "firstName",
-                                isRequired: true,
-                                readOnly: ((widget.pagemode == "fromDSR" ||
-                                            widget.pagemode ==
-                                                "fromHYPERVERSER" ||
-                                            widget.pagemode ==
-                                                "fromETBStartFresh") &&
-                                        firstName.text.isNotEmpty)
-                                    ? true
-                                    : false,
-                              ),
-                              SizedBox(height: 6),
-                              _buildTextField(
-                                middlename,
-                                "Middle name",
-                                "Please Enter Middle Name",
-                                "middlename",
-                                isRequired: false,
-                                readOnly: ((widget.pagemode == "fromDSR" ||
-                                            widget.pagemode ==
-                                                "fromHYPERVERSER" ||
-                                            widget.pagemode ==
-                                                "fromETBStartFresh") &&
-                                        middlename.text.isNotEmpty)
-                                    ? true
-                                    : false,
-                              ),
-                              SizedBox(height: 6),
-                              _buildTextField(
-                                lastName,
-                                "Last Name",
-                                "Please Enter Last Name",
-                                "lastName",
-                                isRequired: true,
-                                readOnly: ((widget.pagemode == "fromDSR" ||
-                                            widget.pagemode ==
-                                                "fromHYPERVERSER" ||
-                                            widget.pagemode ==
-                                                "fromETBStartFresh") &&
-                                        lastName.text.isNotEmpty)
-                                    ? true
-                                    : false,
-                              ),
-                              SizedBox(height: 6),
-                              _buildMobileTextField(
-                                controller: mobilePhone,
-                                isPhoneNumber: true,
-                                readOnly: ((widget.pagemode == "fromDSR" ||
-                                            widget.pagemode ==
-                                                "fromHYPERVERSER" ||
-                                            widget.pagemode ==
-                                                "fromETBStartFresh") &&
-                                        mobilePhone.text.isNotEmpty)
-                                    ? true
-                                    : false,
-                              ),
-                              SizedBox(height: 6),
-                              _buildDateField(
-                                  controller: birthDate,
-                                  label: "Birth Date",
-                                  readOnly:
-                                      ((widget.pagemode == "fromHYPERVERSER" ||
-                                                  widget.pagemode ==
-                                                      "fromETBStartFresh") &&
-                                              birthDate.text.isNotEmpty)
-                                          ? true
-                                          : false),
-                              SizedBox(height: 6),
-                              _buildGenderDropdown(
-                                  controller: gender,
-                                  label: "   Select Gender",
-                                  readOnly: gender.text.isNotEmpty &&
-                                          (widget.pagemode ==
-                                                  "fromHYPERVERSER" ||
+                  SizedBox(height: 20),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF640D78),
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Theme(
+                      data: Theme.of(context)
+                          .copyWith(dividerColor: Colors.transparent),
+                      child: ExpansionTile(
+                        initiallyExpanded: true,
+                        trailing: Icon(Icons.keyboard_arrow_down,
+                            color: Colors.white, size: 30),
+                        title: Text("Client Details",
+                            style: WidgetSupport.normalTextTab()),
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildTextField(
+                                  firstName,
+                                  "First Name",
+                                  "Please Enter First Name",
+                                  "firstName",
+                                  isRequired: true,
+                                  readOnly: ((widget.pagemode == "fromDSR" ||
                                               widget.pagemode ==
-                                                  "fromETBStartFresh")
-                                      ? true
-                                      : false),
-                              SizedBox(height: 6),
-                              _buildTextField(
-                                email,
-                                "Email Address",
-                                "Please Enter Email Address",
-                                "email",
-                                isRequired: true,
-                                readOnly: ((widget.pagemode == "fromDSR" ||
-                                            widget.pagemode ==
-                                                "fromETBStartFresh") &&
-                                        email.text.isNotEmpty)
-                                    ? true
-                                    : false,
-                              ),
-                              SizedBox(height: 6),
-                              _buildCivilStatusDropdown(
-                                controller: civil_Status,
-                                label: "   Select Civil Status",
-                              ),
-                              SizedBox(height: 6),
-                              _buildNationalityDropdown(
-                                controller: nationality,
-                                label: "   Select Nationality",
-                              ),
-                              SizedBox(height: 6),
-                              _buildTextField(
-                                  place_Of_Birth,
-                                  "Place Of Birth",
-                                  "Please Enter Place Of Birth",
-                                  "place_Of_Birth",
-                                  isRequired: true),
-                              SizedBox(height: 20),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 15),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xFF640D78),
-                    borderRadius: BorderRadius.circular(3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Theme(
-                    data: Theme.of(context)
-                        .copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      initiallyExpanded: true,
-                      trailing: Icon(Icons.keyboard_arrow_down,
-                          color: Colors.white, size: 30),
-                      title: Text("Current Residential Address",
-                          style: WidgetSupport.normalTextTab()),
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildZipTextField(
-                                perm_ZipCode,
-                                "Zip Code",
-                                "Please Enter Zip Code",
-                                "perm_ZipCode",
-                                isRequired: true,
-                                isZip: true,
-                                readOnly: ((widget.pagemode == "fromDSR" ||
-                                            widget.pagemode ==
-                                                "fromETBStartFresh" ||
-                                            widget.pagemode ==
-                                                "fromHYPERVERSER") &&
-                                        perm_ZipCode.text.isNotEmpty)
-                                    ? true
-                                    : false,
-                                onChanged: (value) async {
-                                  if (value.length == 4) {
-                                    onZipCodeEntered(value);
-                                  }
-                                },
-                              ),
-                              SizedBox(height: 6),
-                              _buildTextField(perm_Region, "Region",
-                                  "Please Enter Region", "perm_Region",
-                                  isRequired: true, readOnly: true),
-                              SizedBox(height: 6),
-                              _buildTextField(
-                                perm_State,
-                                "Province",
-                                "Please Enter Province",
-                                "perm_State",
-                                isRequired: true,
-                                readOnly: true,
-                              ),
-                              SizedBox(height: 6),
-                              _buildTextField(
-                                perm_City,
-                                "City",
-                                "Please Enter City",
-                                "perm_City",
-                                isRequired: true,
-                                readOnly: true,
-                              ),
-                              SizedBox(height: 6),
-                              _buildPermBarangayDropdown(
-                                controller: perm_Barangay,
-                                label: "Select Barangay",
-                                readOnly:
-                                    widget.pagemode == "fromDSR" ? true : false,
-                              ),
-                              SizedBox(
-                                height: 6,
-                              ),
-                              _buildTextField(
-                                perm_Street,
-                                "House no. & Street",
-                                "Please Enter House no. & Street",
-                                "perm_Street",
-                                isRequired: true,
-                                readOnly: (widget.pagemode == "fromDSR")
-                                    ? true
-                                    : false,
-                              ),
-                              SizedBox(height: 20),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 15),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xFF640D78),
-                    borderRadius: BorderRadius.circular(3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Theme(
-                    data: Theme.of(context)
-                        .copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      initiallyExpanded: true,
-                      trailing: Icon(Icons.keyboard_arrow_down,
-                          color: Colors.white, size: 30),
-                      title: Text("Employer Details",
-                          style: WidgetSupport.normalTextTab()),
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildEmpStatusDropdown(
-                                  controller: emp_Status,
-                                  label: "Select Status",
-                                  isReadOnly:
-                                      ((widget.pagemode == "fromHYPERVERSER" ||
-                                                  widget.pagemode ==
-                                                      "fromETBStartFresh") &&
-                                              emp_Status_Code.text.isNotEmpty)
-                                          ? true
-                                          : false),
-                              SizedBox(height: 6),
-                              _buildEmpWorkNatureDropdown(
-                                  controller: emp_Work_Nature,
-                                  label: "Select Emp Work Nature",
-                                  isReadOnly: ((widget.pagemode ==
                                                   "fromHYPERVERSER" ||
                                               widget.pagemode ==
                                                   "fromETBStartFresh") &&
-                                          emp_Work_Nature_Code.text.isNotEmpty)
+                                          firstName.text.isNotEmpty)
                                       ? true
-                                      : false),
-                              SizedBox(height: 6),
-                              _buildPositionDropdown(
-                                controller: emp_position,
-                                label: "Select Emp Position",
-                              ),
-                              SizedBox(height: 6),
-                              _buildWorkExpDropdown(
-                                controller: emp_Mths_In_Cur_Comp,
-                                label: "Work Experience",
-                              ),
-                              if (EmpStatus == true)
-                                _buildEmpPrefessionDropdown(
-                                  controller: profession,
-                                  label: "Select Emp Profession",
+                                      : false,
                                 ),
-                              SizedBox(height: 6),
-                              // _buildTextField(
-                              //   emp_Employer_Name,
-                              //   "Employers Name",
-                              //   "Please Enter Employers Name",
-                              //   "emp_Employer_Name",
-                              //   isRequired: true,
-                              // ),
-                              Padding(
-                                padding: EdgeInsets.all(0.0),
-                                child: Column(
-                                  children: [
-                                    // TextField for searching companies
-                                    Focus(
-                                      onFocusChange: (hasFocus) {
-                                        setState(() {
-                                          _isFieldFocused = hasFocus;
-                                        });
-                                      },
-                                      child: TextField(
-                                        controller: _searchController,
-                                        enabled:
-                                            (widget.pagemode != "fromDSR") &&
-                                                (widget.pagemode !=
-                                                    "fromHYPERVERSER") &&
-                                                (widget.pagemode !=
-                                                    "fromETBStartFresh"),
-                                        decoration: InputDecoration(
-                                          contentPadding:
-                                              EdgeInsets.only(left: 5),
-                                          filled: true,
-                                          fillColor:
-                                              (widget.pagemode == "fromDSR") ||
-                                                      (widget.pagemode ==
-                                                          "fromHYPERVERSER") ||
-                                                      (widget.pagemode ==
-                                                          "fromETBStartFresh")
-                                                  ? Colors.grey.shade200
-                                                  : Colors.white,
-                                          label: RichText(
-                                            text: const TextSpan(
-                                              text: 'Company',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 15,
-                                              ),
-                                              children: [
-                                                TextSpan(
-                                                  text: ' *',
-                                                  style: TextStyle(
-                                                      color: Colors.red,
-                                                      fontSize: 20),
+                                SizedBox(height: 6),
+                                _buildTextField(
+                                  middlename,
+                                  "Middle name",
+                                  "Please Enter Middle Name",
+                                  "middlename",
+                                  isRequired: false,
+                                  readOnly: ((widget.pagemode == "fromDSR" ||
+                                              widget.pagemode ==
+                                                  "fromHYPERVERSER" ||
+                                              widget.pagemode ==
+                                                  "fromETBStartFresh") &&
+                                          middlename.text.isNotEmpty)
+                                      ? true
+                                      : false,
+                                ),
+                                SizedBox(height: 6),
+                                _buildTextField(
+                                  lastName,
+                                  "Last Name",
+                                  "Please Enter Last Name",
+                                  "lastName",
+                                  isRequired: true,
+                                  readOnly: ((widget.pagemode == "fromDSR" ||
+                                              widget.pagemode ==
+                                                  "fromHYPERVERSER" ||
+                                              widget.pagemode ==
+                                                  "fromETBStartFresh") &&
+                                          lastName.text.isNotEmpty)
+                                      ? true
+                                      : false,
+                                ),
+                                SizedBox(height: 6),
+                                _buildMobileTextField(
+                                  controller: mobilePhone,
+                                  isPhoneNumber: true,
+                                  readOnly: ((widget.pagemode == "fromDSR" ||
+                                              widget.pagemode ==
+                                                  "fromHYPERVERSER" ||
+                                              widget.pagemode ==
+                                                  "fromETBStartFresh") &&
+                                          mobilePhone.text.isNotEmpty)
+                                      ? true
+                                      : false,
+                                ),
+                                SizedBox(height: 6),
+                                _buildDateField(
+                                    controller: birthDate,
+                                    label: "Birth Date",
+                                    readOnly:
+                                        ((widget.pagemode == "fromHYPERVERSER" ||
+                                                    widget.pagemode ==
+                                                        "fromETBStartFresh") &&
+                                                birthDate.text.isNotEmpty)
+                                            ? true
+                                            : false),
+                                SizedBox(height: 6),
+                                _buildGenderDropdown(
+                                    controller: gender,
+                                    label: "   Select Gender",
+                                    readOnly: gender.text.isNotEmpty &&
+                                            (widget.pagemode ==
+                                                    "fromHYPERVERSER" ||
+                                                widget.pagemode ==
+                                                    "fromETBStartFresh")
+                                        ? true
+                                        : false),
+                                SizedBox(height: 6),
+                                _buildTextField(
+                                  email,
+                                  "Email Address",
+                                  "Please Enter Email Address",
+                                  "email",
+                                  isRequired: true,
+                                  readOnly: ((widget.pagemode == "fromDSR" ||
+                                              widget.pagemode ==
+                                                  "fromETBStartFresh") &&
+                                          email.text.isNotEmpty)
+                                      ? true
+                                      : false,
+                                ),
+                                SizedBox(height: 6),
+                                _buildCivilStatusDropdown(
+                                  controller: civil_Status,
+                                  label: "   Select Civil Status",
+                                ),
+                                SizedBox(height: 6),
+                                _buildNationalityDropdown(
+                                  controller: nationality,
+                                  label: "   Select Nationality",
+                                ),
+                                SizedBox(height: 6),
+                                _buildTextField(
+                                    place_Of_Birth,
+                                    "Place Of Birth",
+                                    "Please Enter Place Of Birth",
+                                    "place_Of_Birth",
+                                    isRequired: true),
+                                SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF640D78),
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Theme(
+                      data: Theme.of(context)
+                          .copyWith(dividerColor: Colors.transparent),
+                      child: ExpansionTile(
+                        initiallyExpanded: true,
+                        trailing: Icon(Icons.keyboard_arrow_down,
+                            color: Colors.white, size: 30),
+                        title: Text("Current Residential Address",
+                            style: WidgetSupport.normalTextTab()),
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildZipTextField(
+                                  perm_ZipCode,
+                                  "Zip Code",
+                                  "Please Enter Zip Code",
+                                  "perm_ZipCode",
+                                  isRequired: true,
+                                  isZip: true,
+                                  readOnly: ((widget.pagemode == "fromDSR" ||
+                                              widget.pagemode ==
+                                                  "fromETBStartFresh" ||
+                                              widget.pagemode ==
+                                                  "fromHYPERVERSER") &&
+                                          perm_ZipCode.text.isNotEmpty)
+                                      ? true
+                                      : false,
+                                  onChanged: (value) async {
+                                    if (value.length == 4) {
+                                      onZipCodeEntered(value);
+                                    }
+                                  },
+                                ),
+                                SizedBox(height: 6),
+                                _buildTextField(perm_Region, "Region",
+                                    "Please Enter Region", "perm_Region",
+                                    isRequired: true, readOnly: true),
+                                SizedBox(height: 6),
+                                _buildTextField(
+                                  perm_State,
+                                  "Province",
+                                  "Please Enter Province",
+                                  "perm_State",
+                                  isRequired: true,
+                                  readOnly: true,
+                                ),
+                                SizedBox(height: 6),
+                                _buildTextField(
+                                  perm_City,
+                                  "City",
+                                  "Please Enter City",
+                                  "perm_City",
+                                  isRequired: true,
+                                  readOnly: true,
+                                ),
+                                SizedBox(height: 6),
+                                _buildPermBarangayDropdown(
+                                  controller: perm_Barangay,
+                                  label: "Select Barangay",
+                                  readOnly:
+                                      widget.pagemode == "fromDSR" ? true : false,
+                                ),
+                                SizedBox(
+                                  height: 6,
+                                ),
+                                _buildTextField(
+                                  perm_Street,
+                                  "House no. & Street",
+                                  "Please Enter House no. & Street",
+                                  "perm_Street",
+                                  isRequired: true,
+                                  readOnly: (widget.pagemode == "fromDSR")
+                                      ? true
+                                      : false,
+                                ),
+                                SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF640D78),
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Theme(
+                      data: Theme.of(context)
+                          .copyWith(dividerColor: Colors.transparent),
+                      child: ExpansionTile(
+                        initiallyExpanded: true,
+                        trailing: Icon(Icons.keyboard_arrow_down,
+                            color: Colors.white, size: 30),
+                        title: Text("Employer Details",
+                            style: WidgetSupport.normalTextTab()),
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildEmpStatusDropdown(
+                                    controller: emp_Status,
+                                    label: "Select Status",
+                                    isReadOnly:
+                                        ((widget.pagemode == "fromHYPERVERSER" ||
+                                                    widget.pagemode ==
+                                                        "fromETBStartFresh") &&
+                                                emp_Status_Code.text.isNotEmpty)
+                                            ? true
+                                            : false),
+                                SizedBox(height: 6),
+                                _buildEmpWorkNatureDropdown(
+                                    controller: emp_Work_Nature,
+                                    label: "Select Emp Work Nature",
+                                    isReadOnly: ((widget.pagemode ==
+                                                    "fromHYPERVERSER" ||
+                                                widget.pagemode ==
+                                                    "fromETBStartFresh") &&
+                                            emp_Work_Nature_Code.text.isNotEmpty)
+                                        ? true
+                                        : false),
+                                SizedBox(height: 6),
+                                _buildPositionDropdown(
+                                  controller: emp_position,
+                                  label: "Select Emp Position",
+                                ),
+                                SizedBox(height: 6),
+                                _buildWorkExpDropdown(
+                                  controller: emp_Mths_In_Cur_Comp,
+                                  label: "Work Experience",
+                                ),
+                                if (EmpStatus == true)
+                                  _buildEmpPrefessionDropdown(
+                                    controller: profession,
+                                    label: "Select Emp Profession",
+                                  ),
+                                SizedBox(height: 6),
+                                // _buildTextField(
+                                //   emp_Employer_Name,
+                                //   "Employers Name",
+                                //   "Please Enter Employers Name",
+                                //   "emp_Employer_Name",
+                                //   isRequired: true,
+                                // ),
+                                Padding(
+                                  padding: EdgeInsets.all(0.0),
+                                  child: Column(
+                                    children: [
+                                      // TextField for searching companies
+                                      Focus(
+                                        onFocusChange: (hasFocus) {
+                                          setState(() {
+                                            _isFieldFocused = hasFocus;
+                                          });
+                                        },
+                                        child: TextField(
+                                          controller: _searchController,
+                                          enabled:
+                                              (widget.pagemode != "fromDSR") &&
+                                                  (widget.pagemode !=
+                                                      "fromHYPERVERSER") &&
+                                                  (widget.pagemode !=
+                                                      "fromETBStartFresh"),
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                EdgeInsets.only(left: 5),
+                                            filled: true,
+                                            fillColor:
+                                                (widget.pagemode == "fromDSR") ||
+                                                        (widget.pagemode ==
+                                                            "fromHYPERVERSER") ||
+                                                        (widget.pagemode ==
+                                                            "fromETBStartFresh")
+                                                    ? Colors.grey.shade200
+                                                    : Colors.white,
+                                            label: RichText(
+                                              text: const TextSpan(
+                                                text: 'Company',
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 15,
                                                 ),
-                                              ],
+                                                children: [
+                                                  TextSpan(
+                                                    text: ' *',
+                                                    style: TextStyle(
+                                                        color: Colors.red,
+                                                        fontSize: 20),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            suffixIcon: IconButton(
+                                              icon: const Icon(Icons.search),
+                                              onPressed: () {
+                                                // _searchCompanyGetDSR(
+                                                //     _searchController.text);
+                                                _searchCompany(
+                                                    _searchController.text);
+                                              },
                                             ),
                                           ),
-                                          suffixIcon: IconButton(
-                                            icon: const Icon(Icons.search),
-                                            onPressed: () {
-                                              // _searchCompanyGetDSR(
-                                              //     _searchController.text);
-                                              _searchCompany(
-                                                  _searchController.text);
-                                            },
-                                          ),
+                                          onChanged: (query) {
+                                            if (query.isEmpty) {
+                                              setState(() {
+                                                _filteredCompanies =
+                                                    _ComIdOptions.entries
+                                                        .map((e) => {
+                                                              'id': e.key,
+                                                              'company_name':
+                                                                  e.value,
+                                                            })
+                                                        .toList();
+                                              });
+                                            }
+                                          },
                                         ),
-                                        onChanged: (query) {
-                                          if (query.isEmpty) {
-                                            setState(() {
-                                              _filteredCompanies =
-                                                  _ComIdOptions.entries
-                                                      .map((e) => {
-                                                            'id': e.key,
-                                                            'company_name':
-                                                                e.value,
-                                                          })
-                                                      .toList();
-                                            });
-                                          }
-                                        },
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              if (_isFieldFocused)
-                                Stack(
-                                  children: [
-                                    Positioned(
-                                      child: Material(
-                                        elevation: 4,
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        child: Container(
-                                          height: 200,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(8.0),
-                                          ),
-                                          child: ListView.builder(
-                                            itemCount:
-                                                _filteredCompanies.length,
-                                            itemBuilder: (context, index) {
-                                              return ListTile(
-                                                title: Text(
-                                                    _filteredCompanies[index]
-                                                        ['company_name']!),
-                                                onTap: () {
-                                                  // Set the selected company
-                                                  setState(() {
-                                                    _selectedCompany =
-                                                        _filteredCompanies[
-                                                            index]['id'];
-                                                    _searchController.text =
-                                                        _filteredCompanies[
-                                                                index]
-                                                            ['company_name']!;
-                                                    _isFieldFocused = false;
-                                                    _showOtherCompanyField =
-                                                        _selectedCompany ==
-                                                            'others';
-                                                    emp_Employer_Name.text =
-                                                        _filteredCompanies[
-                                                                index]
-                                                            ['company_name']!;
-                                                  });
-                                                },
-                                              );
-                                            },
+                                if (_isFieldFocused)
+                                  Stack(
+                                    children: [
+                                      Positioned(
+                                        child: Material(
+                                          elevation: 4,
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          child: Container(
+                                            height: 200,
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                            ),
+                                            child: ListView.builder(
+                                              itemCount:
+                                                  _filteredCompanies.length,
+                                              itemBuilder: (context, index) {
+                                                return ListTile(
+                                                  title: Text(
+                                                      _filteredCompanies[index]
+                                                          ['company_name']!),
+                                                  onTap: () {
+                                                    // Set the selected company
+                                                    setState(() {
+                                                      _selectedCompany =
+                                                          _filteredCompanies[
+                                                              index]['id'];
+                                                      _searchController.text =
+                                                          _filteredCompanies[
+                                                                  index]
+                                                              ['company_name']!;
+                                                      _isFieldFocused = false;
+                                                      _showOtherCompanyField =
+                                                          _selectedCompany ==
+                                                              'others';
+                                                      emp_Employer_Name.text =
+                                                          _filteredCompanies[
+                                                                  index]
+                                                              ['company_name']!;
+                                                    });
+                                                  },
+                                                );
+                                              },
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-
-                              if (_showOtherCompanyField) ...[
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 0.9),
-                                  child: TextFormField(
-                                    enabled: (widget.pagemode != "fromDSR") &&
-                                        (widget.pagemode !=
-                                            "fromHYPERVERSER") &&
-                                        (widget.pagemode !=
-                                            "fromETBStartFresh"),
-                                    controller: _otherCompanyController,
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor:
-                                          (widget.pagemode == "fromDSR") ||
-                                                  (widget.pagemode ==
-                                                      "fromHYPERVERSER") ||
-                                                  (widget.pagemode ==
-                                                      "fromETBStartFresh")
-                                              ? Colors.grey.shade200
-                                              : Colors.white,
-                                      contentPadding: EdgeInsets.only(left: 10),
-                                      hintText: "Enter company name",
-                                    ),
-                                    validator: (value) {
-                                      if (value == null ||
-                                          value.isEmpty ||
-                                          _selectedCompany == 'others') {
-                                        return 'Company name is required';
-                                      }
-                                      return null;
-                                    },
-                                    onChanged: (value) {},
+                                    ],
                                   ),
-                                ),
-                              ],
-                              _buildEmpIndusTypeDropdown(
-                                controller: emp_Indus_Type,
-                                label: "Industry Type",
-                                readOnly:
-                                    widget.pagemode == "fromDSR" ? true : false,
-                              ),
-                              SizedBox(height: 6),
-                              _buildEmpTypeDropdown(
-                                  controller: emp_Type,
-                                  label: "   Employee Type",
-                                  isReadOnly:
-                                      ((widget.pagemode == "fromHYPERVERSER" ||
-                                                  widget.pagemode ==
-                                                      "fromETBStartFresh") &&
-                                              emp_Type_Code.text.isNotEmpty)
-                                          ? true
-                                          : false),
-                              SizedBox(height: 6),
-                              _buildTextField(
-                                emp_email,
-                                "Employee Email Address",
-                                "Please Enter Email Address",
-                                "emp_email",
-                                isEmail: true,
-                              ),
-                              SizedBox(height: 20),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 15),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xFF640D78),
-                    borderRadius: BorderRadius.circular(3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Theme(
-                    data: Theme.of(context)
-                        .copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      initiallyExpanded: true,
-                      trailing: Icon(Icons.keyboard_arrow_down,
-                          color: Colors.white, size: 30),
-                      title: Text("Financial Details",
-                          style: WidgetSupport.normalTextTab()),
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildTextField(
-                                fin_Mthly_Income,
-                                "Montly Income",
-                                "Please Enter Montly Income",
-                                "fin_Mthly_Income",
-                                isRequired: true,
-                                readOnly: ((widget.pagemode == "fromDSR" ||
-                                            widget.pagemode ==
-                                                "fromETBStartFresh" ||
-                                            widget.pagemode ==
-                                                "fromHYPERVERSER") &&
-                                        fin_Mthly_Income.text.isNotEmpty)
-                                    ? true
-                                    : false,
-                              ),
-                              SizedBox(height: 6),
-                              _buildSourceFundDropdown(
-                                controller: fin_Src_Of_Funds,
-                                label: "   Select Source Of Funds",
-                              ),
-                              SizedBox(height: 20),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 15),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xFF640D78),
-                    borderRadius: BorderRadius.circular(3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Theme(
-                    data: Theme.of(context)
-                        .copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      initiallyExpanded: true,
-                      trailing: Icon(Icons.keyboard_arrow_down,
-                          color: Colors.white, size: 30),
-                      title: Text("Identification Details",
-                          style: WidgetSupport.normalTextTab()),
-                      children: [
-                        Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: AbsorbPointer(
-                                      absorbing: widget.pagemode == "fromDSR"
-                                          ? true
-                                          : false,
-                                      child: _buildRadioField<IdType>(
-                                        value: IdType.tin,
-                                        groupValue: _selectedIdType,
-                                        onChanged: (val) => setState(
-                                            () => _selectedIdType = val),
-                                        label: "TIN ID",
-                                        isRequired: false,
+            
+                                if (_showOtherCompanyField) ...[
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 0.9),
+                                    child: TextFormField(
+                                      enabled: (widget.pagemode != "fromDSR") &&
+                                          (widget.pagemode !=
+                                              "fromHYPERVERSER") &&
+                                          (widget.pagemode !=
+                                              "fromETBStartFresh"),
+                                      controller: _otherCompanyController,
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor:
+                                            (widget.pagemode == "fromDSR") ||
+                                                    (widget.pagemode ==
+                                                        "fromHYPERVERSER") ||
+                                                    (widget.pagemode ==
+                                                        "fromETBStartFresh")
+                                                ? Colors.grey.shade200
+                                                : Colors.white,
+                                        contentPadding: EdgeInsets.only(left: 10),
+                                        hintText: "Enter company name",
                                       ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: AbsorbPointer(
-                                      absorbing: widget.pagemode == "fromDSR"
-                                          ? true
-                                          : false,
-                                      child: _buildRadioField<IdType>(
-                                        value: IdType.sss,
-                                        groupValue: _selectedIdType,
-                                        onChanged: (val) => setState(
-                                            () => _selectedIdType = val),
-                                        label: "SSS ID",
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: AbsorbPointer(
-                                      absorbing: widget.pagemode == "fromDSR"
-                                          ? true
-                                          : false,
-                                      child: _buildRadioField<IdType>(
-                                        value: IdType.gsis,
-                                        groupValue: _selectedIdType,
-                                        onChanged: (val) => setState(
-                                            () => _selectedIdType = val),
-                                        label: "GSIS ID",
-                                      ),
+                                      validator: (value) {
+                                        if (value == null ||
+                                            value.isEmpty ||
+                                            _selectedCompany == 'others') {
+                                          return 'Company name is required';
+                                        }
+                                        return null;
+                                      },
+                                      onChanged: (value) {},
                                     ),
                                   ),
                                 ],
-                              ),
-                              SizedBox(height: 6),
-                              if (_selectedIdType == IdType.tin)
-                                _buildTextField2(
-                                    identity_TinId, "TIN Id", "identity_TinId",
-                                    maxDigits: 9,
-                                    isRequired: false,
-                                    readOnly: widget.pagemode == "fromDSR"
-                                        ? true
-                                        : false),
-                              if (_selectedIdType == IdType.sss)
-                                _buildTextField2(
-                                    identity_SssID, "SSS ID", "identity_SssID",
-                                    maxDigits: 10,
-                                    isRequired: false,
-                                    readOnly: widget.pagemode == "fromDSR"
-                                        ? true
-                                        : false),
-                              if (_selectedIdType == IdType.gsis)
-                                _buildTextField2(identity_GsisID, "GSIS ID",
-                                    "identity_GsisID",
-                                    maxDigits: 11,
-                                    isRequired: false,
-                                    readOnly: widget.pagemode == "fromDSR"
-                                        ? true
-                                        : false),
-                              SizedBox(height: 20),
-                            ],
+                                _buildEmpIndusTypeDropdown(
+                                  controller: emp_Indus_Type,
+                                  label: "Industry Type",
+                                  readOnly:
+                                      widget.pagemode == "fromDSR" ? true : false,
+                                ),
+                                SizedBox(height: 6),
+                                _buildEmpTypeDropdown(
+                                    controller: emp_Type,
+                                    label: "   Employee Type",
+                                    isReadOnly:
+                                        ((widget.pagemode == "fromHYPERVERSER" ||
+                                                    widget.pagemode ==
+                                                        "fromETBStartFresh") &&
+                                                emp_Type_Code.text.isNotEmpty)
+                                            ? true
+                                            : false),
+                                SizedBox(height: 6),
+                                _buildTextField(
+                                  emp_email,
+                                  "Employee Email Address",
+                                  "Please Enter Email Address",
+                                  "emp_email",
+                                  isEmail: true,
+                                ),
+                                SizedBox(height: 20),
+                              ],
+                            ),
                           ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF640D78),
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
                         ),
                       ],
                     ),
-                  ),
-                ),
-                SizedBox(height: 15),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Color(0xFF640D78),
-                    borderRadius: BorderRadius.circular(3),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
+                    child: Theme(
+                      data: Theme.of(context)
+                          .copyWith(dividerColor: Colors.transparent),
+                      child: ExpansionTile(
+                        initiallyExpanded: true,
+                        trailing: Icon(Icons.keyboard_arrow_down,
+                            color: Colors.white, size: 30),
+                        title: Text("Financial Details",
+                            style: WidgetSupport.normalTextTab()),
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildTextField(
+                                  fin_Mthly_Income,
+                                  "Montly Income",
+                                  "Please Enter Montly Income",
+                                  "fin_Mthly_Income",
+                                  isRequired: true,
+                                  readOnly: ((widget.pagemode == "fromDSR" ||
+                                              widget.pagemode ==
+                                                  "fromETBStartFresh" ||
+                                              widget.pagemode ==
+                                                  "fromHYPERVERSER") &&
+                                          fin_Mthly_Income.text.isNotEmpty)
+                                      ? true
+                                      : false,
+                                ),
+                                SizedBox(height: 6),
+                                _buildSourceFundDropdown(
+                                  controller: fin_Src_Of_Funds,
+                                  label: "   Select Source Of Funds",
+                                ),
+                                SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                  child: Theme(
-                    data: Theme.of(context)
-                        .copyWith(dividerColor: Colors.transparent),
-                    child: ExpansionTile(
-                      initiallyExpanded: true,
-                      trailing: Icon(Icons.keyboard_arrow_down,
-                          color: Colors.white, size: 30),
-                      title: Text("Employer Address",
-                          style: WidgetSupport.normalTextTab()),
+                  SizedBox(height: 15),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF640D78),
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Theme(
+                      data: Theme.of(context)
+                          .copyWith(dividerColor: Colors.transparent),
+                      child: ExpansionTile(
+                        initiallyExpanded: true,
+                        trailing: Icon(Icons.keyboard_arrow_down,
+                            color: Colors.white, size: 30),
+                        title: Text("Identification Details",
+                            style: WidgetSupport.normalTextTab()),
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: AbsorbPointer(
+                                        absorbing: widget.pagemode == "fromDSR"
+                                            ? true
+                                            : false,
+                                        child: _buildRadioField<IdType>(
+                                          value: IdType.tin,
+                                          groupValue: _selectedIdType,
+                                          onChanged: (val) => setState(
+                                              () => _selectedIdType = val),
+                                          label: "TIN ID",
+                                          isRequired: false,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: AbsorbPointer(
+                                        absorbing: widget.pagemode == "fromDSR"
+                                            ? true
+                                            : false,
+                                        child: _buildRadioField<IdType>(
+                                          value: IdType.sss,
+                                          groupValue: _selectedIdType,
+                                          onChanged: (val) => setState(
+                                              () => _selectedIdType = val),
+                                          label: "SSS ID",
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: AbsorbPointer(
+                                        absorbing: widget.pagemode == "fromDSR"
+                                            ? true
+                                            : false,
+                                        child: _buildRadioField<IdType>(
+                                          value: IdType.gsis,
+                                          groupValue: _selectedIdType,
+                                          onChanged: (val) => setState(
+                                              () => _selectedIdType = val),
+                                          label: "GSIS ID",
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 6),
+                                if (_selectedIdType == IdType.tin)
+                                  _buildTextField2(
+                                      identity_TinId, "TIN Id", "identity_TinId",
+                                      maxDigits: 9,
+                                      isRequired: false,
+                                      readOnly: widget.pagemode == "fromDSR"
+                                          ? true
+                                          : false),
+                                if (_selectedIdType == IdType.sss)
+                                  _buildTextField2(
+                                      identity_SssID, "SSS ID", "identity_SssID",
+                                      maxDigits: 10,
+                                      isRequired: false,
+                                      readOnly: widget.pagemode == "fromDSR"
+                                          ? true
+                                          : false),
+                                if (_selectedIdType == IdType.gsis)
+                                  _buildTextField2(identity_GsisID, "GSIS ID",
+                                      "identity_GsisID",
+                                      maxDigits: 11,
+                                      isRequired: false,
+                                      readOnly: widget.pagemode == "fromDSR"
+                                          ? true
+                                          : false),
+                                SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF640D78),
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Theme(
+                      data: Theme.of(context)
+                          .copyWith(dividerColor: Colors.transparent),
+                      child: ExpansionTile(
+                        initiallyExpanded: true,
+                        trailing: Icon(Icons.keyboard_arrow_down,
+                            color: Colors.white, size: 30),
+                        title: Text("Employer Address",
+                            style: WidgetSupport.normalTextTab()),
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0, vertical: 8),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildZipTextField(
+                                  emp_ZipCode,
+                                  "Zip Code",
+                                  "Please Enter Zip Code",
+                                  "emp_ZipCode",
+                                  isRequired: true,
+                                  // readOnly: (emp_ZipCode.text.isNotEmpty && (widget.pagemode ==
+                                  //                   "fromETBStartFresh")),
+                                  isZip: true,
+                                  onChanged: (value) async {
+                                    if (value.length == 4) {
+                                      onEmpZipCodeEntered(value);
+                                    }
+                                  },
+                                ),
+                                SizedBox(height: 6),
+                                _buildTextField(
+                                  emp_Region,
+                                  "Region",
+                                  "Please Enter Region",
+                                  "emp_Region",
+                                  isRequired: true,
+                                  readOnly: true,
+                                ),
+                                SizedBox(height: 6),
+                                _buildTextField(
+                                  emp_State,
+                                  "Province",
+                                  "Please Enter Province",
+                                  "perm_State",
+                                  isRequired: true,
+                                  readOnly: true,
+                                ),
+                                SizedBox(height: 6),
+                                _buildTextField(
+                                  emp_City,
+                                  "City",
+                                  "Please Enter City",
+                                  "emp_City",
+                                  isRequired: true,
+                                  readOnly: true,
+                                ),
+                                SizedBox(height: 6),
+                                _buildEmpBarangayDropdown(
+                                  controller: emp_Barangay,
+                                  label: "Select Barangay",
+                                ),
+                                SizedBox(height: 6),
+                                _buildTextField(
+                                    emp_Street,
+                                    "Building No./Street",
+                                    "Please Enter Building No./Street",
+                                    "emp_Street",
+                                    isRequired: true),
+                                SizedBox(height: 20),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0, vertical: 8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildZipTextField(
-                                emp_ZipCode,
-                                "Zip Code",
-                                "Please Enter Zip Code",
-                                "emp_ZipCode",
-                                isRequired: true,
-                                // readOnly: (emp_ZipCode.text.isNotEmpty && (widget.pagemode ==
-                                //                   "fromETBStartFresh")),
-                                isZip: true,
-                                onChanged: (value) async {
-                                  if (value.length == 4) {
-                                    onEmpZipCodeEntered(value);
-                                  }
-                                },
-                              ),
-                              SizedBox(height: 6),
-                              _buildTextField(
-                                emp_Region,
-                                "Region",
-                                "Please Enter Region",
-                                "emp_Region",
-                                isRequired: true,
-                                readOnly: true,
-                              ),
-                              SizedBox(height: 6),
-                              _buildTextField(
-                                emp_State,
-                                "Province",
-                                "Please Enter Province",
-                                "perm_State",
-                                isRequired: true,
-                                readOnly: true,
-                              ),
-                              SizedBox(height: 6),
-                              _buildTextField(
-                                emp_City,
-                                "City",
-                                "Please Enter City",
-                                "emp_City",
-                                isRequired: true,
-                                readOnly: true,
-                              ),
-                              SizedBox(height: 6),
-                              _buildEmpBarangayDropdown(
-                                controller: emp_Barangay,
-                                label: "Select Barangay",
-                              ),
-                              SizedBox(height: 6),
-                              _buildTextField(
-                                  emp_Street,
-                                  "Building No./Street",
-                                  "Please Enter Building No./Street",
-                                  "emp_Street",
-                                  isRequired: true),
-                              SizedBox(height: 20),
-                            ],
+                        Checkbox(
+                          value: _isChecked,
+                          onChanged: (value) {
+                            setState(() {
+                              _isChecked = value ?? false;
+                              disclaimerCheck.text = "true";
+                            });
+                          },
+                        ),
+                        Expanded(
+                          child: Text(
+                            "I (The Customer) authorize UNO Digital Bank to debit Php100 from my savings as payment for loan application fee. "
+                            "I further agree that this will be refunded to me should my loan be approved and disbursed.",
+                            style: TextStyle(fontSize: 14),
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                SizedBox(height: 20),
-                Container(
-                  margin: EdgeInsets.symmetric(vertical: 10),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Checkbox(
-                        value: _isChecked,
-                        onChanged: (value) {
-                          setState(() {
-                            _isChecked = value ?? false;
-                            disclaimerCheck.text = "true";
-                          });
-                        },
-                      ),
-                      Expanded(
-                        child: Text(
-                          "I (The Customer) authorize UNO Digital Bank to debit Php100 from my savings as payment for loan application fee. "
-                          "I further agree that this will be refunded to me should my loan be approved and disbursed.",
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 50),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    if (_isChecked) {
-                      // validateAndSubmit();
-                      bool valid = validateAndSubmit();
-                      print("valid $valid");
-
-                      if (!valid) {
-                        return;
+                  SizedBox(height: 50),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      if (_isChecked) {
+                        // validateAndSubmit();
+                        bool valid = validateAndSubmit();
+                        print("valid $valid");
+            
+                        if (!valid) {
+                          return;
+                        }
+            
+                        String CWTransactionIdNo =
+                            widget.CWTransactionID?.isNotEmpty == true
+                                ? widget.CWTransactionID.toString()
+                                : generateSecureTransactionId();
+                        //  String? CWTransactionIdNo = widget.CWTransactionID;
+            
+                        LosApplicationModel losData = LosApplicationModel(
+                            firstName: firstName.text,
+                            middleName: middlename.text,
+                            lastName: lastName.text,
+                            mobilePhone: mobilePhone.text,
+                            birthDate: birthDate.text,
+                            gender: gender.text,
+                            email: email.text,
+                            permState: perm_State.text,
+                            permCity: perm_City.text,
+                            permStreet: perm_Street.text,
+                            permZipCode: perm_ZipCode.text,
+                            permBarangay: perm_Barangay.text,
+                            permRegion: perm_Region.text,
+                            permCountryCode: perm_countryCode.text,
+                            finMonthlyIncome: fin_Mthly_Income.text,
+                            finSourceOfFunds: fin_Src_Of_Funds.text,
+                            finSourceOfFundsCode: fin_Src_Of_Funds_Code.text,
+                            tinId: identity_TinId.text,
+                            sssId: identity_SssID.text,
+                            gsisId: identity_GsisID.text,
+                            empWorkNature: emp_Work_Nature.text,
+                            empMonthsInCompany: emp_Mths_In_Cur_Comp.text,
+                            empStatus: emp_Status.text,
+                            empEmployerName: emp_Employer_Name.text,
+                            empEmployerOtherName: _otherCompanyController
+                                .text, //**************************************** */
+                            empIndustryType: emp_Indus_Type.text,
+                            empType: emp_Type.text,
+                            empYearsInCompany: emp_Yrs_In_Cur_Comp.text,
+                            empTypeCode: emp_Type_Code.text,
+                            empStatusCode: emp_Status_Code.text,
+                            empWorkNatureCode: emp_Work_Nature_Code.text,
+                            empIndustryTypeCode: emp_Indus_Type_Code.text,
+                            empEmail: emp_email.text,
+                            profession: profession.text,
+                            empStreet: emp_Street.text,
+                            empState: emp_State.text,
+                            empCity: emp_City.text,
+                            empCountry: nationality.text,
+                            empZipCode: emp_ZipCode.text,
+                            empBarangay: emp_Barangay.text,
+                            empRegion: emp_Region.text,
+                            empCountryCode: nationality.text,
+                            civilStatus: civil_Status.text,
+                            nationality: nationality.text,
+                            placeOfBirth: place_Of_Birth.text,
+                            sourceCompany: sourceCompany.text,
+                            agentCode: agentCode.text,
+                            partnerName: partnerName.text,
+                            natureOfPartnership: natureOfPartnership.text,
+                            applicationNumber: CWTransactionIdNo,
+                            cwTransactionID: CWTransactionIdNo,
+                            empWorkExperience: emp_Work_Exp.text,
+                            empPosition: emp_position.text,
+                            clientIp: IpAddress,
+                            isChecked: _isChecked,
+                            ipAddress: IpAddress,
+                            latitude: latitude,
+                            longitude: longitude,
+                            address: address.text.toString(),
+                            documentType: documentType.text.toString(),
+                            validUntil: validUntil.text.toString(),
+                            documentId: documentId.text.toString(),
+                            //selectedIdType: _selectedIdType,
+                            empStatusFlag: EmpStatus,
+                            leadDetails: leadDetails,
+                            dsrId: widget.dsrId);
+            
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => Otpconcent(
+                                  phoneNumber: mobilePhone.text,
+                                  losData: losData,
+                                  campaign: widget.campaign,
+                                  leadId: widget.leadId,
+                                  pagemode: widget.pagemode)),
+                        );
+            
+                        print("cw transaction id ${losData.cwTransactionID}");
+                      } else {
+                        return null;
                       }
-
-                      String CWTransactionIdNo =
-                          widget.CWTransactionID?.isNotEmpty == true
-                              ? widget.CWTransactionID.toString()
-                              : generateSecureTransactionId();
-                      //  String? CWTransactionIdNo = widget.CWTransactionID;
-
-                      LosApplicationModel losData = LosApplicationModel(
-                          firstName: firstName.text,
-                          middleName: middlename.text,
-                          lastName: lastName.text,
-                          mobilePhone: mobilePhone.text,
-                          birthDate: birthDate.text,
-                          gender: gender.text,
-                          email: email.text,
-                          permState: perm_State.text,
-                          permCity: perm_City.text,
-                          permStreet: perm_Street.text,
-                          permZipCode: perm_ZipCode.text,
-                          permBarangay: perm_Barangay.text,
-                          permRegion: perm_Region.text,
-                          permCountryCode: perm_countryCode.text,
-                          finMonthlyIncome: fin_Mthly_Income.text,
-                          finSourceOfFunds: fin_Src_Of_Funds.text,
-                          finSourceOfFundsCode: fin_Src_Of_Funds_Code.text,
-                          tinId: identity_TinId.text,
-                          sssId: identity_SssID.text,
-                          gsisId: identity_GsisID.text,
-                          empWorkNature: emp_Work_Nature.text,
-                          empMonthsInCompany: emp_Mths_In_Cur_Comp.text,
-                          empStatus: emp_Status.text,
-                          empEmployerName: emp_Employer_Name.text,
-                          empEmployerOtherName: _otherCompanyController
-                              .text, //**************************************** */
-                          empIndustryType: emp_Indus_Type.text,
-                          empType: emp_Type.text,
-                          empYearsInCompany: emp_Yrs_In_Cur_Comp.text,
-                          empTypeCode: emp_Type_Code.text,
-                          empStatusCode: emp_Status_Code.text,
-                          empWorkNatureCode: emp_Work_Nature_Code.text,
-                          empIndustryTypeCode: emp_Indus_Type_Code.text,
-                          empEmail: emp_email.text,
-                          profession: profession.text,
-                          empStreet: emp_Street.text,
-                          empState: emp_State.text,
-                          empCity: emp_City.text,
-                          empCountry: nationality.text,
-                          empZipCode: emp_ZipCode.text,
-                          empBarangay: emp_Barangay.text,
-                          empRegion: emp_Region.text,
-                          empCountryCode: nationality.text,
-                          civilStatus: civil_Status.text,
-                          nationality: nationality.text,
-                          placeOfBirth: place_Of_Birth.text,
-                          sourceCompany: sourceCompany.text,
-                          agentCode: agentCode.text,
-                          partnerName: partnerName.text,
-                          natureOfPartnership: natureOfPartnership.text,
-                          applicationNumber: CWTransactionIdNo,
-                          cwTransactionID: CWTransactionIdNo,
-                          empWorkExperience: emp_Work_Exp.text,
-                          empPosition: emp_position.text,
-                          clientIp: IpAddress,
-                          isChecked: _isChecked,
-                          ipAddress: IpAddress,
-                          latitude: latitude,
-                          longitude: longitude,
-                          address: address.text.toString(),
-                          documentType: documentType.text.toString(),
-                          validUntil: validUntil.text.toString(),
-                          documentId: documentId.text.toString(),
-                          //selectedIdType: _selectedIdType,
-                          empStatusFlag: EmpStatus,
-                          leadDetails: leadDetails,
-                          dsrId: widget.dsrId);
-
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => Otpconcent(
-                                phoneNumber: mobilePhone.text,
-                                losData: losData,
-                                campaign: widget.campaign,
-                                leadId: widget.leadId,
-                                pagemode: widget.pagemode)),
-                      );
-
-                      print("cw transaction id ${losData.cwTransactionID}");
-                    } else {
-                      return null;
-                    }
-                  },
-
-                  //onPressed: _isChecked ? validateAndSubmit : null,
-                  icon: Icon(Icons.rocket_launch,
-                      color: const Color.fromARGB(255, 34, 29, 29)),
-                  label: Text(
-                    "SUBMIT",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF6e0386),
-                    padding: EdgeInsets.symmetric(horizontal: 70, vertical: 10),
-                    shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(5), // Removes rounded corners
+                    },
+            
+                    //onPressed: _isChecked ? validateAndSubmit : null,
+                    icon: Icon(Icons.rocket_launch,
+                        color: const Color.fromARGB(255, 34, 29, 29)),
+                    label: Text(
+                      "SUBMIT",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF6e0386),
+                      padding: EdgeInsets.symmetric(horizontal: 70, vertical: 10),
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(5), // Removes rounded corners
+                      ),
                     ),
                   ),
-                ),
-                SizedBox(height: 350),
-              ],
+                  SizedBox(height: 350),
+                ],
+              ),
             ),
           ),
           if (_isLoading)
@@ -3759,24 +3238,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     return null;
     // return emailRegex.hasMatch(email);
   }
-
-  // void _showValidationDialog(String message) {
-  //   showDialog(
-  //     context: context,
-  //     builder: (context) => AlertDialog(
-  //       title: const Text("Validation Error"),
-  //       content: Text(message),
-  //       actions: [
-  //         TextButton(
-  //           onPressed: () => Navigator.pop(context),
-  //           child: const Text("OK"),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Newly Added
 
   void _showValidationDialog(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -3992,12 +3453,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     if (emp_email.text.trim().isEmpty) {
       _showValidationDialog("Please enter Employee Email.");
       return false;
-    }
-    else if (emp_email.text.endsWith(' ')) {
+    } else if (emp_email.text.endsWith(' ')) {
       _showValidationDialog("Employee Email must not contain spaces.");
       return false;
-    }
-     else if (!RegExp(r"^[\w\.-]+@[\w\.-]+\.\w+$")
+    } else if (!RegExp(r"^[\w\.-]+@[\w\.-]+\.\w+$")
         .hasMatch(emp_email.text.trim())) {
       _showValidationDialog("Please enter a valid Employee Email Address.");
       return false;
@@ -4089,566 +3548,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     // submitLos();
   }
 
-  void checkApplicationStatusLoop(Map<String, dynamic> application) async {
-    setState(() {
-      _isLoading = true;
-    });
-    int retryCount = 0;
-    bool isFinalStatus = false;
-    String tokens = "";
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('accessToken');
-    // final Tokenresponse = await http.get(
-    //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-    //   headers: {
-    //     'Authorization': 'Bearer $token',
-    //     'User-Agent':
-    //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    //   },
-    // );
-    // final data = json.decode(Tokenresponse.body);
-    final url = '/api/leads/los-access-token/';
-    final headers = {
-      'Authorization': 'Bearer $token',
-      'Accept': 'application/json',
-      'Content-Type': 'multipart/form-data',
-    };
-    final tokenResponse = await ApiService.getWithHeaders(url, headers);
-
-    final tokenData = tokenResponse!.data;
-    tokens = tokenData['access_token'];
-    // String applicationN =application['applicationNo'];
-    showDialog(
-      barrierDismissible: false, // Prevent closing
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            Future<void> pollStatus(applicationN) async {
-              while (retryCount < 5 &&
-                  application['offerStatus'] == "IN-PROGRESS") {
-                await Future.delayed(Duration(seconds: 20)); // Wait 10 seconds
-                retryCount++;
-
-                // Refresh status via API
-                // final refreshedResponse = await http.post(
-                //   Uri.parse(
-                //       '${AppConfig.dynamicBaseUrl}/api/app/fetch/application/status'),
-                //   headers: {
-                //     'Content-Type': 'application/json',
-                //     "Idempotency-Key": "jbkjdbjkjk",
-                //     "Authorization": "Bearer $tokens",
-                //     'User-Agent':
-                //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-                //   },
-                //   body: json.encode({
-                //     "mobileNo": "",
-                //     "agentCode": "",
-                //     "applicationNo": "${application['applicationNo']}",
-                //     "channel": "",
-                //     "source": ""
-                //   }),
-                // );
-
-                final url = '/api/app/fetch/application/status';
-                final headers = {
-                      'Content-Type': 'application/json',
-                      "Idempotency-Key": "jbkjdbjkjk",
-                      "Authorization": "Bearer $tokens",
-                    };
-                    final body = {
-                      "mobileNo": "",
-                      "agentCode": "",
-                      "applicationNo": "${application['applicationNo']}",
-                      "channel": "",
-                      "source": ""
-                    };
-
-                  final refreshedResponse = await ApiService.postJsonWithHeaders(
-                    url,
-                    body,
-                   headers,
-                  );
-
-                if (refreshedResponse !=null && refreshedResponse.statusCode == 200) {
-                  final refreshedData = refreshedResponse.data;
-                  if (refreshedData['result'] != null &&
-                      refreshedData['result'].isNotEmpty) {
-                    application = refreshedData['result'][0];
-                  }
-                }
-
-                if (application['offerStatus'] != "IN-PROGRESS") {
-                  isFinalStatus = true;
-                  break;
-                }
-              }
-
-              Navigator.of(context).pop(); // Close progress dialog
-              if (isFinalStatus) {
-                String offerStatus = application['offerStatus'];
-                if (["Cancel", "Fail", "REJECT", "Dedupe"]
-                    .contains(offerStatus)) {
-                  // Rejected states
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text("Application"),
-                        content: Text(
-                          "Your application does not meet Uno Criteria, thank you for applying – Uno Bank\n"
-                          "Application Status: $offerStatus\n"
-                          "Application No: $applicationN",
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => NavigationPage(),
-                                ),
-                              );
-                            },
-                            child: Text("Ok"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                } else {
-                  // Approved or any other final state
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text("Application"),
-                        content: Text(
-                          "Your application has been in-principally approved, please ask customer to visit Uno Bank Mobile app to complete the application – Uno Bank\n"
-                          "Application Status: $offerStatus\n"
-                          "Application No: $applicationN",
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => NavigationPage(),
-                                ),
-                              );
-                            },
-                            child: Text("Ok"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-              } else {
-                String offerStatus = application['offerStatus'];
-
-                if (offerStatus == "IN-PROGRESS" ||
-                    offerStatus == "PRE-QUALIFIED") {
-                  // Still in progress
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text("Application"),
-                        content: Text(
-                          "Your application is currently **$offerStatus**. Our team is reviewing your details.\n"
-                          "Application Status: $offerStatus\n"
-                          "Application No:  $applicationN",
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => NavigationPage(),
-                                ),
-                              );
-                            },
-                            child: Text("Ok"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-              }
-            }
-
-            // Start polling
-            pollStatus(application['applicationNo']);
-
-            return AlertDialog(
-              title: Text("Checking Status..."),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 10),
-                  Text(
-                      "Checking application status...\nThis may take up to 30 seconds or more."),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   String convertMonthsToReadableFormat(String monthsStr) {
     int months = int.tryParse(monthsStr) ?? 0;
     int years = months ~/ 12;
 
     return "$years";
   }
-
-  // Future<void> postLoanCheck(Map<String, dynamic> requestData) async {
-  //   setState(() {});
-  //   String tokens = "";
-  //   try {
-  //     print("position 2");
-  //     SharedPreferences prefs = await SharedPreferences.getInstance();
-  //     String? token = prefs.getString('accessToken');
-  //     final Tokenresponse = await http.get(
-  //       Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-  //       headers: {
-  //         'Authorization': 'Bearer $token',
-  //         'Accept': 'application/json',
-  //         'Content-Type': 'multipart/form-data',
-  //         'User-Agent':
-  //             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-  //       },
-  //     );
-  //     final data = response.data;
-  //     tokens = data['access_token'];
-  //   } catch (e) {
-  //     print("HTTP Request Failed: $e");
-  //   }
-
-  //   print("position 3");
-  //   final url = Uri.parse("${AppConfig.otpUrl}/partner/loans/check");
-  //   final headers = {
-  //     "Idempotency-Key": "th37per9-185d-4e22-83fb-18gf96g0g861",
-  //     "Content-Type": "application/json",
-  //     "Accept": "application/json",
-  //     "Authorization": "Bearer $tokens",
-  //     'User-Agent':
-  //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-  //   };
-
-  //   print("position 4");
-  //   try {
-  //     print("position 5");
-  //     final response = await http.post(
-  //       url,
-  //       headers: headers,
-  //       body: json.encode(requestData),
-  //     );
-  //     print("los respose ${response.statusCode}");
-  //     print("Response body ${response.data.body}");
-  //     if (response.statusCode == 201) {
-  //       SharedPreferences prefs = await SharedPreferences.getInstance();
-  //       String? token = prefs.getString('accessToken');
-  //       final LosStatusUrl = Uri.parse(
-  //           '${AppConfig.dynamicBaseUrl}/api/campaigns/${widget.campaign}/leads/${widget.leadId}/');
-
-  //       final headers2 = {
-  //         "Content-Type": "application/json",
-  //         "Accept": "application/json",
-  //         "Authorization": "Bearer $token",
-  //         'User-Agent':
-  //             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-  //       };
-  //       print("position 6");
-  //       Map<String, String> mappedLOsData = {
-  //         "cwtransection_id": "${requestData['CWTransactionID']}",
-  //         "los_status": "submitted",
-  //       };
-  //       final responseLOS = await http.patch(
-  //         LosStatusUrl,
-  //         headers: headers2,
-  //         body: json.encode(mappedLOsData),
-  //       );
-
-  //       final LoSResponcedata = response.data;
-  //       Map<String, dynamic> mappedData = {
-  //         "mobileNo": "",
-  //         "agentCode": "",
-  //         "applicationNo": "${LoSResponcedata['applicationNumber']}",
-  //         "channel": "",
-  //         "source": ""
-  //       };
-
-  //       print("position 7");
-  //       final fetchStatusUrl =
-  //           Uri.parse("${AppConfig.otpUrl}/api/app/fetch/application/status");
-  //       final fetchStatusHeaders = {
-  //         'Content-Type': 'application/json',
-  //         "Idempotency-Key": "jbkjdbjkjk",
-  //         "Authorization": "Bearer $tokens",
-  //         'User-Agent':
-  //             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-  //       };
-
-  //       try {
-  //         print("position 8");
-  //         showDialog(
-  //           context: context,
-  //           barrierDismissible: false,
-  //           builder: (BuildContext context) {
-  //             return const Center(
-  //               child: CircularProgressIndicator(),
-  //             );
-  //           },
-  //         );
-
-  //         int retryCount = 0;
-  //         Map<String, dynamic>? data;
-  //         List<dynamic>? result;
-
-  //         while (retryCount < 3) {
-  //           final Statusresponse = await http.post(
-  //             fetchStatusUrl,
-  //             headers: fetchStatusHeaders,
-  //             body: json.encode(mappedData),
-  //           );
-
-  //           await Future.delayed(const Duration(seconds: 2)); // 2-second delay
-
-  //           if (Statusresponse.statusCode == 200) {
-  //             data = json.decode(Statusresponse.data.body);
-  //             result = data?['result'];
-  //             if (result != null && result.isNotEmpty) {
-  //               break; // Success, exit retry loop
-  //             }
-  //           }
-  //           retryCount++;
-  //         }
-
-  //         Navigator.of(context).pop(); // close loader
-
-  //         print("Result status is show like that $result");
-
-  //         if (result == null || result.isEmpty) {
-  //           showDialog(
-  //             context: context,
-  //             builder: (BuildContext context) {
-  //               return const AlertDialog(
-  //                 title: Text("No Application Data"),
-  //                 content: Text(
-  //                     "The application status response returned null after retries."),
-  //               );
-  //             },
-  //           );
-  //           return;
-  //         }
-
-  //         var application = result[0]; // Safe to access now
-  //         print("position 9");
-
-  //         final LosbackendStatusUrl =
-  //             Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-details/');
-  //         final headers3 = {
-  //           "Content-Type": "application/json",
-  //           "Accept": "application/json",
-  //           "Authorization": "Bearer $token",
-  //           'User-Agent':
-  //               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-  //         };
-  //         print("position 10");
-
-  //         final finalRequestData;
-  //         if (widget.pagemode == 'edit') {
-  //           finalRequestData = Map<String, dynamic>.from(requestData)
-  //             ..["lead_type"] = "campaign_lead"
-  //             ..["declaration"] = true;
-  //         } else {
-  //           finalRequestData = Map<String, dynamic>.from(requestData)
-  //             ..["lead_type"] = "fresh_lead"
-  //             ..["declaration"] = true
-  //             ..["dsr"] = "${widget.dsrId}";
-  //         }
-
-  //         final backendresponseLOS = await http.post(
-  //           LosbackendStatusUrl,
-  //           headers: headers3,
-  //           body: json.encode(finalRequestData),
-  //         );
-
-  //         print(LosbackendStatusUrl);
-  //         print(headers3);
-  //         String jsonString = jsonEncode(finalRequestData);
-  //         for (int i = 0; i < jsonString.length; i += 1000) {
-  //           print(jsonString.substring(i,
-  //               (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-  //         }
-
-  //         if (backendresponseLOS.statusCode == 201) {
-  //           final data = json.decode(backendresponseLOS.body);
-  //           final LosBackendResponseUrl = Uri.parse(
-  //               '${AppConfig.dynamicBaseUrl}/api/leads/los-details/${data['id']}/');
-  //           final headers4 = {
-  //             "Content-Type": "application/json",
-  //             "Accept": "application/json",
-  //             "Authorization": "Bearer $token",
-  //             'User-Agent':
-  //                 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-  //           };
-  //           Map<String, dynamic> mappedResponseLOsData = {
-  //             "los_status": {
-  //               "mobileNo": application['mobileNo'],
-  //               "applicationNo": application['applicationNo'],
-  //               "applicationId": application['applicationId'],
-  //               "source": application['source'],
-  //               "channel": application['channel'],
-  //               "offerStatus": application['offerStatus'],
-  //               "uwStatus": application['uwStatus'],
-  //               "lastScreen": application['lastScreen']
-  //             }
-  //           };
-  //           final responseLOS = await http.patch(
-  //             LosBackendResponseUrl,
-  //             headers: headers4,
-  //             body: json.encode(mappedResponseLOsData),
-  //           );
-  //         }
-
-  //         if (application['offerStatus'] == "IN-PROGRESS") {
-  //           print("position 11");
-  //           checkApplicationStatusLoop(application);
-  //         } else {
-  //           print("position 12");
-  //           showDialog(
-  //             context: context,
-  //             builder: (BuildContext context) {
-  //               return AlertDialog(
-  //                 title: Text("Application Status"),
-  //                 content: Text(
-  //                   "Offer Status: ${application['offerStatus']}\nUnderWriting Status: ${application['uwStatus']}",
-  //                 ),
-  //                 actions: [
-  //                   TextButton(
-  //                     onPressed: () {
-  //                       Navigator.of(context).pop();
-  //                       Navigator.pushReplacement(
-  //                         context,
-  //                         MaterialPageRoute(
-  //                           builder: (context) =>
-  //                               LeadListByCampaign(campaign: widget.campaign),
-  //                         ),
-  //                       );
-  //                     },
-  //                     child: Text("OK"),
-  //                   ),
-  //                 ],
-  //               );
-  //             },
-  //           );
-  //         }
-  //       } catch (e) {
-  //         Navigator.of(context).pop();
-  //         ScaffoldMessenger.of(context).showSnackBar(
-  //           SnackBar(content: Text('Something went wrong: $e')),
-  //         );
-  //       }
-  //     } else {
-  //       print("position 14");
-  //       SharedPreferences prefs = await SharedPreferences.getInstance();
-  //       String? authToken = prefs.getString('accessToken');
-  //       Map<String, dynamic> logmappedData = {
-  //         "url": "${AppConfig.otpUrl}/partner/loans/check",
-  //         "request_body": requestData,
-  //         "status_code": response.statusCode,
-  //         "response_body": json.decode(response.data.body),
-  //       };
-  //       final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
-
-  //       final headers = {
-  //         "Content-Type": "application/json",
-  //         "Accept": "application/json",
-  //         "Authorization": "Bearer $authToken",
-  //         'User-Agent':
-  //             'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-  //       };
-  //       print("------------------");
-  //       print(logUrl);
-  //       print(headers);
-  //       print(json.encode(logmappedData));
-  //       final LogResponse = await http.post(
-  //         logUrl,
-  //         headers: headers,
-  //         body: json.encode(logmappedData),
-  //       );
-
-  //       print(LogResponse.statusCode);
-  //       print(Logresponse.data.body);
-  //       if (LogResponse.statusCode == 201) {
-  //         print("Log Created");
-  //       }
-  //       final data = response.data;
-  //       String message = data['message'] ?? "Validation Error";
-  //       Map<String, dynamic> errors = data['errors'] ?? {};
-  //       String errorMessages =
-  //           errors.entries.map((entry) => "${entry.value}").join("\n");
-
-  //       showDialog(
-  //         context: context,
-  //         builder: (BuildContext context) {
-  //           return AlertDialog(
-  //             title: Text("Error"),
-  //             content: Text("$message\n\n$errorMessages"),
-  //             actions: [
-  //               TextButton(
-  //                 onPressed: () {
-  //                   Navigator.of(context).pop();
-  //                 },
-  //                 child: Text("OK"),
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     }
-  //     setState(() {});
-  //   } catch (e) {
-  //     print("HTTP Request Failed: $e");
-
-  //     showDialog(
-  //       context: context,
-  //       builder: (BuildContext context) {
-  //         return AlertDialog(
-  //           title: Text("Error"),
-  //           content: Text("An error occurred. Please try again."),
-  //           actions: [
-  //             TextButton(
-  //               onPressed: () {
-  //                 Navigator.of(context).pop();
-  //               },
-  //               child: Text("OK"),
-  //             ),
-  //           ],
-  //         );
-  //       },
-  //     );
-
-  //     setState(() {});
-  //   }
-  // }
-
-  //***************************************** */
 
   Widget _buildZipTextField(
     TextEditingController controller,

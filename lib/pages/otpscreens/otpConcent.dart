@@ -1,15 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:pointycastle/api.dart' hide Padding;
 import 'package:pointycastle/asymmetric/api.dart';
-import 'package:pointycastle/random/fortuna_random.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:top_snackbar_flutter/custom_snack_bar.dart';
-import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'package:unosfa/pages/FSAModule/LosApplicationModel.dart';
 import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/generalscreens/customNavigation.dart';
@@ -17,8 +12,6 @@ import 'package:unosfa/pages/generalscreens/message.dart';
 import 'package:unosfa/pages/services/api_service.dart';
 import 'package:unosfa/pages/services/secret_key.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../widgetSupport/widgetstyle.dart';
-import 'package:crypto/crypto.dart';
 import 'package:flutter_html/flutter_html.dart';
 
 class Otpconcent extends StatefulWidget {
@@ -65,19 +58,7 @@ class OtpconcentState extends State<Otpconcent> {
   void initState() {
     super.initState();
     String jsonString = jsonEncode(widget.losData.toJson());
-    print("phone number1 ${widget.phoneNumber}");
-
-    // print("CW iN CONSENT ${widget.losData.applicationNumber}");
-    // print("losData is this");
-
-    // for (int i = 0; i < jsonString.length; i += 1000) {
-    //   print(
-    //     jsonString.substring(
-    //       i,
-    //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000,
-    //     ),
-    //   );
-    // }
+    // print("phone number1 ${widget.phoneNumber}");
 
     // _start = 120; // 🔥 Add this line to initialize the countdown
     // resendTimer = false;
@@ -198,7 +179,6 @@ class OtpconcentState extends State<Otpconcent> {
       year = parts[2];
     }
 
-    // Reformat to yyyy-MM-dd
     String formattedBirthDate = "$year-$month-$day";
     Map<String, dynamic> requestData = {
       "CWTransactionID": widget.losData.cwTransactionID,
@@ -278,8 +258,7 @@ class OtpconcentState extends State<Otpconcent> {
           "emp_Mths_In_Cur_Comp": data.empMonthsInCompany,
           "emp_Status": data.empStatus,
 
-          "emp_Employer_Name":
-              (data.empEmployerName == null ||
+          "emp_Employer_Name": (data.empEmployerName == null ||
                   data.empEmployerName!.trim().isEmpty ||
                   data.empEmployerName!.toLowerCase() == "others")
               ? data.empEmployerOtherName
@@ -428,12 +407,6 @@ class OtpconcentState extends State<Otpconcent> {
       dsrIdValue = data.dsrId.toString();
     });
     postLoanCheck(requestData);
-
-    // String jsonString = jsonEncode(requestData);
-    // for (int i = 0; i < jsonString.length; i += 1000) {
-    //   print(jsonString.substring(
-    //       i, (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-    // }
   }
 
   Future<Map<String, dynamic>> buildPayload() async {
@@ -493,28 +466,44 @@ class OtpconcentState extends State<Otpconcent> {
         print("HTTP Request Failed: $e");
       }
 
-      // Done
-      // final url = Uri.parse("${AppConfig.otpUrl}/auth/sso-login");
       final headers = {
         "Authorization": 'Bearer $token',
         "Content-Type": "application/json",
         "Accept": "application/json",
       };
       final url = "/auth/sso-login";
-
-      // final response = await http.post(
-      //   url,
-      //   headers: headers,
-      //   body: jsonEncode(payload),
-      // );
-
       final response = await ApiService.postWithHeadersUnoApi(
         url,
         payload,
         headers,
       );
 
-      if (response != null && response.statusCode == 200) {
+      // add this log here 1/7/2026
+      Map<String, dynamic> logmappedData = {
+        "url": "${AppConfig.otpUrl}/auth/sso-login",
+        "request_body": payload,
+        "status_code": response!.statusCode,
+        "response_body": response.data,
+      };
+
+      final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+      final header = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer $accessToken",
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+      };
+      // ignore: unused_local_variable
+      final LogResponse = await http.post(
+        logUrl,
+        headers: header,
+        body: json.encode(logmappedData),
+      );
+
+      // if (response != null && response.statusCode == 200)  Log added and this if condition is updated 1/7/2026
+
+      if (response.statusCode == 200) {
         final data = response.data;
         final sostoken = data["token"];
 
@@ -523,7 +512,7 @@ class OtpconcentState extends State<Otpconcent> {
 
         //return sostoken;
       } else {
-        print("Error happened here → Status: ${response!.statusCode}");
+        print("Error happened here → Status: ${response.statusCode}");
         // return null;
       }
     } catch (e) {
@@ -541,6 +530,33 @@ class OtpconcentState extends State<Otpconcent> {
       String? ssotoken = prefs.getString('ssoToken');
 
       if (ssotoken == null) {
+        // updated 1-7-2026
+        if (mounted) {
+          showDialog(
+            context: context,
+            builder: (_) => AlertDialog(
+              title: const Text("Error Info"),
+              content: const Text(
+                "We couldn't verify your session because of sso token. Please try submitting again.",
+              ),
+              actions: [
+                TextButton(
+                  child: const Text("OK"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => NavigationPage()),
+                      (route) => false,
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
+        }
+
+        // done
         return;
       }
 
@@ -597,14 +613,6 @@ class OtpconcentState extends State<Otpconcent> {
 
           final uri = Uri.parse(redirectUrl);
           if (await canLaunchUrl(uri)) {
-            // Navigator.pushAndRemoveUntil(
-            //   context,
-            //   MaterialPageRoute(builder: (context) => NavigationPage()),
-            //   (route) => false,
-            // );
-
-            //  updateWorkflowStatus(losId, "AAM Invoked");
-
             await launchUrl(uri, mode: LaunchMode.externalApplication);
 
             String? offerStatusValue = await updateOfferStatus(cwId);
@@ -692,6 +700,22 @@ class OtpconcentState extends State<Otpconcent> {
             offerStatusValue: offerStatusValue,
           );
 
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => NavigationPage()),
+            (route) => false,
+          );
+          return;
+        }
+        if (offerStatus == "Fail" || offerStatus == "Fail".toUpperCase()) {
+          //updateWorkflowStatus(losId, "Prelim UW Failed");
+
+          String? offerStatusValue = await updateOfferStatus(cwId);
+          updateWorkflowStatus(
+            losId,
+            "Application has been rejected",
+            offerStatusValue: offerStatusValue,
+          );
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => NavigationPage()),
@@ -839,17 +863,6 @@ class OtpconcentState extends State<Otpconcent> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
-      // final Tokenresponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-      // final data = json.decode(Tokenresponse.body);
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -864,7 +877,6 @@ class OtpconcentState extends State<Otpconcent> {
       print("HTTP Request Failed: $e");
     }
 
-    // final url = Uri.parse("${AppConfig.otpUrl}/pre-uw/save-payload");
     final url = "/pre-uw/save-payload";
     final cookies = await cookie();
     final headers = {
@@ -879,56 +891,41 @@ class OtpconcentState extends State<Otpconcent> {
       "Cookie": cookies['save_payload']!,
     };
 
-    // print("url is $url");
-    // print("Header is $headers");
-    // String jsonString = jsonEncode(requestData);
-    // for (int i = 0; i < jsonString.length; i += 1000) {
-    //   print(jsonString.substring(
-    //       i, (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-    // }
+    final response = await ApiService.postWithHeadersUnoApi(
+      url,
+      requestData,
+      headers,
+    );
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('accessToken');
+
+    Map<String, dynamic> logmappedData = {
+      "url": "${AppConfig.otpUrl}/pre-uw/save-payload",
+      "request_body": requestData,
+      "status_code": response?.statusCode,
+      "response_body": response?.data,
+    };
+
+    final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+    final headerss = {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+      "Authorization": "Bearer $token",
+      'User-Agent':
+          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+    };
+    // ignore: unused_local_variable
+    final LogResponse = await http.post(
+      logUrl,
+      headers: headerss,
+      body: json.encode(logmappedData),
+    );
 
     try {
-      // final response = await http.post(
-      //   url,
-      //   headers: headers,
-      //   body: json.encode(requestData),
-      // );
-      final response = await ApiService.postWithHeadersUnoApi(
-        url,
-        requestData,
-        headers,
-      );
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('accessToken');
-
-      Map<String, dynamic> logmappedData = {
-        "url": "${AppConfig.otpUrl}/pre-uw/save-payload",
-        "request_body": requestData,
-        "status_code": response?.statusCode,
-        "response_body": response?.data,
-      };
-
-      final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
-      final headerss = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "Authorization": "Bearer $token",
-        'User-Agent':
-            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      };
-      // ignore: unused_local_variable
-      final LogResponse = await http.post(
-        logUrl,
-        headers: headerss,
-        body: json.encode(logmappedData),
-      );
-
       if (response?.statusCode == 200) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? token = prefs.getString('accessToken');
-        // final LosStatusUrl = Uri.parse(
-        //     '${AppConfig.dynamicBaseUrl}/api/campaigns/${widget.campaign}/leads/${widget.leadId}/');
 
         final LosStatusUrl =
             '/api/campaigns/${widget.campaign}/leads/${widget.leadId}/';
@@ -941,50 +938,18 @@ class OtpconcentState extends State<Otpconcent> {
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
 
-        // Map<String, String> mappedLOsData = {
-        //   "cwtransection_id": "${requestData['CWTransactionID']}",
-        //   "los_status": "submitted",
-        // };
-
         final mappedLOsData = {
           "cwtransection_id": "${requestData['CWTransactionID']}",
           "los_status": "submitted",
         };
 
         if (widget.campaign.isNotEmpty) {
-          // final responseLOS = await http.patch(
-          //   LosStatusUrl,
-          //   headers: headers2,
-          //   body: json.encode(mappedLOsData),
-          // );
           final responseLOS = await ApiService.patchWithHeaders(
             LosStatusUrl,
             headers2,
             mappedLOsData,
           );
         }
-
-        final LoSResponcedata = response?.data;
-        Map<String, dynamic> mappedData = {
-          "mobileNo": "",
-          "agentCode": "",
-          "applicationNo": "${LoSResponcedata['applicationNumber']}",
-          "channel": "",
-          "source": "",
-        };
-
-        // final fetchStatusUrl =
-        //     Uri.parse("${AppConfig.otpUrl}/api/app/fetch/application/status");
-
-        final fetchStatusUrl = "/api/app/fetch/application/status";
-
-        final fetchStatusHeaders = {
-          'Content-Type': 'application/json',
-          "Idempotency-Key": "jbkjdbjkjk",
-          "Authorization": "Bearer $tokens",
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        };
 
         try {
           showDialog(
@@ -996,9 +961,6 @@ class OtpconcentState extends State<Otpconcent> {
           );
 
           Navigator.of(context).pop(); // close loader
-
-          // final LosbackendStatusUrl =
-          //     Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-details/');
 
           final LosbackendStatusUrl = '/api/leads/los-details/';
 
@@ -1026,25 +988,11 @@ class OtpconcentState extends State<Otpconcent> {
               ..["workflow_status"] = "submit";
           }
 
-          // final backendresponseLOS = await http.post(
-          //   LosbackendStatusUrl,
-          //   headers: headers3,
-          //   body: json.encode(finalRequestData),
-          // );
-
           final backendresponseLOS = await ApiService.postJsonWithHeaders(
             LosbackendStatusUrl,
             finalRequestData,
             headers3,
           );
-
-          //  print("LosbackendStatusUrl is $LosbackendStatusUrl");
-          //  print("headers3 is $headers3");
-          // String jsonString = jsonEncode(finalRequestData);
-          // for (int i = 0; i < jsonString.length; i += 1000) {
-          //   print(jsonString.substring(i,
-          //       (i + 1000 > jsonString.length) ? jsonString.length : i + 1000));
-          // }
 
           String losId = "";
 
@@ -1103,9 +1051,12 @@ class OtpconcentState extends State<Otpconcent> {
               headers: headers,
               body: json.encode(logmappedData),
             );
+
+            await waybookImplement(
+                requestData['CWTransactionID'], losId); // Updated 1/7/2026
           }
 
-          waybookImplement(requestData['CWTransactionID'], losId);
+          // waybookImplement(requestData['CWTransactionID'], losId);
         } catch (e) {
           Navigator.of(context).pop();
           ScaffoldMessenger.of(
@@ -1131,11 +1082,6 @@ class OtpconcentState extends State<Otpconcent> {
           'User-Agent':
               'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
         };
-        // final LogResponse = await http.post(
-        //   logUrl,
-        //   headers: headers,
-        //   body: json.encode(logmappedData),
-        // );
 
         final LogResponse = await ApiService.postJsonWithHeaders(
           logUrl,
@@ -1143,20 +1089,22 @@ class OtpconcentState extends State<Otpconcent> {
           headers,
         );
         if (LogResponse != null && LogResponse.statusCode == 201) {}
-        final data = LogResponse?.data;
-        String message = data['message'] ?? "Validation Error";
-        Map<String, dynamic> errors = data['errors'] ?? {};
-        String errorMessages = errors.entries
-            .map((entry) => "${entry.value}")
-            .join("\n");
+        //final data = LogResponse?.data;
+        // String message = data['message'] ?? "Validation Error";
 
+        // Map<String, dynamic> errors = data['errors'] ?? {};
+        // String errorMessages =
+        //     errors.entries.map((entry) => "${entry.value}").join("\n");
+
+        final responseData = response.data as Map<String, dynamic>;
+        final innerMap = responseData.values.firstOrNull;
+        String message = innerMap?["message"] ?? "Validation Error";
         showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
-              //title: Text("Hello Error"),
               title: Text("Error"),
-              content: Text("$message\n\n$errorMessages"),
+              content: Text(message),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -1171,14 +1119,13 @@ class OtpconcentState extends State<Otpconcent> {
       }
       setState(() {});
     } catch (e) {
-      print("HTTP Request Failed: $e");
-
+      String errorMessage = "Something went wrong. Please try again.";
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: Text("Error"),
-            content: Text("An error occurred. Please try again."),
+            content: Text(response?.data?.toString() ?? errorMessage),
             actions: [
               TextButton(
                 onPressed: () {
@@ -1193,226 +1140,6 @@ class OtpconcentState extends State<Otpconcent> {
 
       setState(() {});
     }
-  }
-
-  void checkApplicationStatusLoop(Map<String, dynamic> application) async {
-    setState(() {
-      _isLoading = true;
-    });
-    int retryCount = 0;
-    bool isFinalStatus = false;
-    String tokens = "";
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('accessToken');
-    // final Tokenresponse = await http.get(
-    //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-    //   headers: {
-    //     'Authorization': 'Bearer $token',
-    //     'User-Agent':
-    //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-    //   },
-    // );
-    // final data = json.decode(Tokenresponse.body);
-
-    final url = '/api/leads/los-access-token/';
-    final headers = {
-      'Authorization': 'Bearer $token',
-      'Accept': 'application/json',
-      'Content-Type': 'multipart/form-data',
-    };
-    final tokenResponse = await ApiService.getWithHeaders(url, headers);
-
-    final tokenData = tokenResponse!.data;
-    tokens = tokenData['access_token'];
-    // String applicationN =application['applicationNo'];
-    showDialog(
-      barrierDismissible: false, // Prevent closing
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            Future<void> pollStatus(applicationN) async {
-              while (retryCount < 5 &&
-                  application['offerStatus'] == "IN-PROGRESS") {
-                await Future.delayed(Duration(seconds: 20)); // Wait 10 seconds
-                retryCount++;
-
-                // Refresh status via API
-                // final refreshedResponse = await http.post(
-                //   Uri.parse(
-                //       '${AppConfig.dynamicBaseUrl}/api/app/fetch/application/status'),
-                //   headers: {
-                //     'Content-Type': 'application/json',
-                //     "Idempotency-Key": "jbkjdbjkjk",
-                //     "Authorization": "Bearer $tokens",
-                //     'User-Agent':
-                //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-                //   },
-                //   body: json.encode({
-                //     "mobileNo": "",
-                //     "agentCode": "",
-                //     "applicationNo": "${application['applicationNo']}",
-                //     "channel": "",
-                //     "source": ""
-                //   }),
-                // );
-                final url = '/api/app/fetch/application/status';
-                final headers = {
-                  'Content-Type': 'application/json',
-                  "Idempotency-Key": "jbkjdbjkjk",
-                  "Authorization": "Bearer $tokens",
-                };
-                final refreshedResponse =
-                    await ApiService.postJsonWithHeaders(url, {
-                      "mobileNo": "",
-                      "agentCode": "",
-                      "applicationNo": "${application['applicationNo']}",
-                      "channel": "",
-                      "source": "",
-                    }, headers);
-
-                if (refreshedResponse != null &&
-                    refreshedResponse.statusCode == 200) {
-                  final refreshedData = refreshedResponse.data;
-                  if (refreshedData['result'] != null &&
-                      refreshedData['result'].isNotEmpty) {
-                    application = refreshedData['result'][0];
-                  }
-                }
-
-                if (application['offerStatus'] != "IN-PROGRESS") {
-                  isFinalStatus = true;
-                  break;
-                }
-              }
-
-              Navigator.of(context).pop(); // Close progress dialog
-              if (isFinalStatus) {
-                String offerStatus = application['offerStatus'];
-                if ([
-                  "Cancel",
-                  "Fail",
-                  "REJECT",
-                  "Dedupe",
-                ].contains(offerStatus)) {
-                  // Rejected states
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text("Application"),
-                        content: Text(
-                          "Your application does not meet Uno Criteria, thank you for applying – Uno Bank\n"
-                          "Application Status: $offerStatus\n"
-                          "Application No: $applicationN",
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => NavigationPage(),
-                                ),
-                              );
-                            },
-                            child: Text("Ok"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                } else {
-                  // Approved or any other final state
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text("Application"),
-                        content: Text(
-                          "Your application has been in-principally approved, please ask customer to visit Uno Bank Mobile app to complete the application – Uno Bank\n"
-                          "Application Status: $offerStatus\n"
-                          "Application No: $applicationN",
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => NavigationPage(),
-                                ),
-                              );
-                            },
-                            child: Text("Ok"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-              } else {
-                String offerStatus = application['offerStatus'];
-
-                if (offerStatus == "IN-PROGRESS" ||
-                    offerStatus == "PRE-QUALIFIED") {
-                  // Still in progress
-                  showDialog(
-                    context: context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: Text("Application"),
-                        content: Text(
-                          "Your application is currently **$offerStatus**. Our team is reviewing your details.\n"
-                          "Application Status: $offerStatus\n"
-                          "Application No:  $applicationN",
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => NavigationPage(),
-                                ),
-                              );
-                            },
-                            child: Text("Ok"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                }
-              }
-            }
-
-            // Start polling
-            pollStatus(application['applicationNo']);
-
-            return AlertDialog(
-              title: Text("Checking Status..."),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 10),
-                  Text(
-                    "Checking application status...\nThis may take up to 30 seconds or more.",
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
   }
 
   // Future<void> _sendOtp() async {
@@ -1738,7 +1465,7 @@ class OtpconcentState extends State<Otpconcent> {
                       //   ),
                       // ),
 
-                       Visibility(
+                      Visibility(
                         visible: checkBox1 && checkBox2,
                         child: Container(
                           padding: const EdgeInsets.fromLTRB(20, 80, 20, 5),

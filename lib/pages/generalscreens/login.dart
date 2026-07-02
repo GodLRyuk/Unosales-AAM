@@ -296,7 +296,6 @@ class _LoginPageState extends State<LoginPage> {
         'password': _passwordController.text,
       };
       final response = await ApiService.post(url, mapeddata);
-      print("Resp: $response");
       try {
         if (response != null) {
           final statusCode = response.statusCode;
@@ -349,7 +348,8 @@ class _LoginPageState extends State<LoginPage> {
                     },
                   );
                 } else if (detail == "Invalid credentials.") {
-                  _showAlert("Invalid username or password.");
+                  // _showAlert("Invalid username or password.");
+                  _showAlert(data['detail']); 
                 } else {
                   _showAlert(detail ?? "Login failed. Please try again.");
                 }
