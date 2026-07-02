@@ -49,6 +49,7 @@ class OtpconcentState extends State<Otpconcent> {
   bool checkBox2 = false;
   bool checkBox3 = false;
   String dsrIdValue = "";
+  String ssoErrorMessage = "";
 
   // bool isChecked = false;
   bool showOtpSection = false;
@@ -513,6 +514,11 @@ class OtpconcentState extends State<Otpconcent> {
         //return sostoken;
       } else {
         print("Error happened here → Status: ${response.statusCode}");
+        try {
+          ssoErrorMessage = response.data.values.first.toString();
+        } catch (_) {
+          ssoErrorMessage = "SSO login failed.";
+        }
         // return null;
       }
     } catch (e) {
@@ -523,7 +529,6 @@ class OtpconcentState extends State<Otpconcent> {
   // Done created by 2/12/2025 *****************
 
   Future<void> waybookImplement(String cwId, String losId) async {
-    print("i am in Webhock cw id is $cwId and losID $losId");
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
@@ -535,9 +540,11 @@ class OtpconcentState extends State<Otpconcent> {
           showDialog(
             context: context,
             builder: (_) => AlertDialog(
-              title: const Text("Error Info"),
-              content: const Text(
-                "We couldn't verify your session because of sso token. Please try submitting again.",
+              title: const Text("Invalid SSO Credintial"),
+              content: Text(
+                ssoErrorMessage.isNotEmpty
+                    ? ssoErrorMessage
+                    : "We couldn't verify your session because of sso token. Please try submitting again.",
               ),
               actions: [
                 TextButton(
