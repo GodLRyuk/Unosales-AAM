@@ -823,7 +823,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                   firstName: firstName.text,
                   middleName: middlename.text,
                   lastName: lastName.text,
-                  dob: dob.text,
+                  dob: _formatDob(dob.text),
                   mobilePhone: mobileController.text,
                   zipCode: zip.text,
                   idCard: selectedValue.toString(),

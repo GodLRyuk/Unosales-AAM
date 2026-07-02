@@ -428,14 +428,14 @@ class _DedupeCheckState extends State<DedupeCheck> {
 
     if (_formKey.currentState!.validate()) {
       // for date
-      DateTime parsedDate = DateFormat('d/M/yyyy').parse(dob.text);
-      String formattedDate = DateFormat('yyyy-MM-dd').format(parsedDate);
+      // DateTime parsedDate = DateFormat('d/M/yyyy').parse(dob.text);
+      // String formattedDate = DateFormat('yyyy-MM-dd').format(parsedDate);
       final url = "/dedupe/check";
 
       final Map<String, dynamic> mapeddata = {
         "firstName": firstName.text,
         "lastName": lastName.text,
-        "dateOfBirth": formattedDate,
+        "dateOfBirth": dob.text, //formattedDate,
         "mobileNumber": "63" + mobilePhone.text
       };
       final cookies = await cookie();

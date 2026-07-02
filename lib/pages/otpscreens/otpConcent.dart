@@ -163,6 +163,7 @@ class OtpconcentState extends State<Otpconcent> {
     setState(() => _isLoading = true);
 
     String dob = data.birthDate!; // "28-01-1960"
+    print("dob is $dob");
 
     // Split the string
     List<String> parts = dob.split('-');
