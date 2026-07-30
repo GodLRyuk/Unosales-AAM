@@ -249,7 +249,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
           await ApiService.postWithHeadersUnoApi(url, mappedData, headers);
       if (response != null) {
         if (response.statusCode == 200) {
-          final data = json.decode(response.data);
+          final data = response.data;
           List<dynamic> losData = data['result'] ?? [];
           setState(() {
             accepted = losData

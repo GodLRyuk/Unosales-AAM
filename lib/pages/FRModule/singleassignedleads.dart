@@ -1326,7 +1326,7 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
               await ApiService.postJsonWithHeaders(url, mappedData, headers);
           if (refreshResponse != null) {
             if (refreshResponse.statusCode == 200) {
-              final data = json.decode(refreshResponse.data);
+              final data = refreshResponse.data;
               await prefs.setBool('isLoggedIn', true);
               await prefs.setString('accessToken', data['access']);
               await prefs.setString('refreshToken', data['refresh']);

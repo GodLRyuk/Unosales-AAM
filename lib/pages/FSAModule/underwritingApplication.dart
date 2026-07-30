@@ -307,7 +307,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         }
 
         List filteredResults = allResults
-            .where((item) => item["workflow_status"] == "SW_PW")
+            .where((item) => item["workflow_status"] == "SW_PW" ||  item["workflow_status"] == "submit")
             .toList();
 
         setState(() {
@@ -370,7 +370,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         }
 
         List filteredResults = allResults
-            .where((item) => item["workflow_status"] == "SW_PW")
+            .where((item) => item["workflow_status"] == "SW_PW" || item["workflow_status"] == "submit")
             .toList();
 
         setState(() {
@@ -452,7 +452,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.data);
+          final data = Tokenresponse.data;
           token = data['access_token'];
         }
       } catch (e) {
@@ -530,8 +530,9 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         };
         final Tokenresponse =
             await ApiService.getWithHeaders(tokenUrl, headers);
+
         if (Tokenresponse != null) {
-          final data = json.decode(Tokenresponse.data);
+          final data = Tokenresponse.data;
           losToken = data['access_token'];
         }
       } catch (e) {
@@ -544,7 +545,6 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       }
 
       final encodedToken = Uri.encodeComponent(ssotoken);
-      // print("encode token is $encodedToken");
 
       final url = "/api/app/offer";
 
@@ -561,14 +561,14 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       final response =
           await ApiService.postJsonWithUNOApiHeaders(url, body, headers);
 
-      final data = json.decode(response!.data);
+      final data = response!.data;
       String offerStatus = data[0]['offerStatus'];
 
       String aamUrl = "/api/leads/los-details/?los_status__applicationNo=$cwId";
       final aamheader = {'Authorization': 'Bearer $token'};
 
       final res = await ApiService.getWithHeaders(aamUrl, aamheader);
-      final datares = json.decode(res!.data);
+      final datares = res!.data;
       final resresult = datares['results'][0]['los_status'];
 
       final applicationStatus = resresult['applicationStatus'];

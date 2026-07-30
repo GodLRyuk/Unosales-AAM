@@ -2155,7 +2155,7 @@ class _FSACampaignSingleLeadState extends State<FSACampaignSingleLead> {
       };
       final Tokenresponse = await ApiService.getWithHeaders(url, headers);
       if (Tokenresponse != null) {
-        final data = json.decode(Tokenresponse.data);
+        final data = Tokenresponse.data;
         tokens = data['access_token'];
       }
     } catch (e) {
@@ -2238,7 +2238,7 @@ class _FSACampaignSingleLeadState extends State<FSACampaignSingleLead> {
             Navigator.of(context).pop();
             if (Statusresponse != null) {
               if (Statusresponse.statusCode == 200) {
-                final data = json.decode(Statusresponse.data);
+                final data = Statusresponse.data;
                 var result = data['result'];
 
                 if (result != null && result.isNotEmpty) {

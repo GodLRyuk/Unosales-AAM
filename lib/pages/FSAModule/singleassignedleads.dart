@@ -47,7 +47,9 @@ class _FSASingleAssignedLeadState extends State<FSASingleAssignedLead> {
         if (response.statusCode == 200) {
           // Parse the response body as JSON
           setState(() {
-            leadDetails = response.data;
+            leadDetails = response.data;    
+            // print("lead details is $leadDetails");     
+            // print("lead details contact is this ${leadDetails['contact_status']}");
             _selectedStatusCode = leadDetails['contact_status'].toString();
             _loadDependentData(leadDetails['contact_status']);
             _loadSubSubData(leadDetails['disposition_status']);
@@ -145,6 +147,7 @@ class _FSASingleAssignedLeadState extends State<FSASingleAssignedLead> {
   }
 
   Future<void> _loadDependentData(statusId) async {
+    print("lead status id is $statusId");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('accessToken');
 

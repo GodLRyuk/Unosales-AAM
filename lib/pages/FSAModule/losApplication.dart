@@ -2055,9 +2055,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         });
 
         // zip function customer
-        if (address != null && address['postcode'] != null) {
+        if (address != null &&
+            address['postcode'] != null &&
+            address['postcode'].toString().trim().isNotEmpty) {
           await onZipCodeEntered(address['postcode']);
         } else if ((widget.zipCode ?? "").trim().isNotEmpty) {
+          print("i am here");
           await onZipCodeEntered(widget.zipCode!.trim());
         }
 
@@ -2220,10 +2223,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       body: Stack(
         children: [
           RefreshIndicator(
-             onRefresh: () async {
-            await initAll();
-          },
-          color: Color(0xFF640D78),
+            onRefresh: () async {
+              await initAll();
+            },
+            color: Color(0xFF640D78),
             child: Container(
               child: ListView(
                 padding: const EdgeInsets.all(16),
@@ -2332,13 +2335,13 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 _buildDateField(
                                     controller: birthDate,
                                     label: "Birth Date",
-                                    readOnly:
-                                        ((widget.pagemode == "fromHYPERVERSER" ||
-                                                    widget.pagemode ==
-                                                        "fromETBStartFresh") &&
-                                                birthDate.text.isNotEmpty)
-                                            ? true
-                                            : false),
+                                    readOnly: ((widget.pagemode ==
+                                                    "fromHYPERVERSER" ||
+                                                widget.pagemode ==
+                                                    "fromETBStartFresh") &&
+                                            birthDate.text.isNotEmpty)
+                                        ? true
+                                        : false),
                                 SizedBox(height: 6),
                                 _buildGenderDropdown(
                                     controller: gender,
@@ -2466,8 +2469,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 _buildPermBarangayDropdown(
                                   controller: perm_Barangay,
                                   label: "Select Barangay",
-                                  readOnly:
-                                      widget.pagemode == "fromDSR" ? true : false,
+                                  readOnly: widget.pagemode == "fromDSR"
+                                      ? true
+                                      : false,
                                 ),
                                 SizedBox(
                                   height: 6,
@@ -2523,13 +2527,13 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 _buildEmpStatusDropdown(
                                     controller: emp_Status,
                                     label: "Select Status",
-                                    isReadOnly:
-                                        ((widget.pagemode == "fromHYPERVERSER" ||
-                                                    widget.pagemode ==
-                                                        "fromETBStartFresh") &&
-                                                emp_Status_Code.text.isNotEmpty)
-                                            ? true
-                                            : false),
+                                    isReadOnly: ((widget.pagemode ==
+                                                    "fromHYPERVERSER" ||
+                                                widget.pagemode ==
+                                                    "fromETBStartFresh") &&
+                                            emp_Status_Code.text.isNotEmpty)
+                                        ? true
+                                        : false),
                                 SizedBox(height: 6),
                                 _buildEmpWorkNatureDropdown(
                                     controller: emp_Work_Nature,
@@ -2538,7 +2542,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                                     "fromHYPERVERSER" ||
                                                 widget.pagemode ==
                                                     "fromETBStartFresh") &&
-                                            emp_Work_Nature_Code.text.isNotEmpty)
+                                            emp_Work_Nature_Code
+                                                .text.isNotEmpty)
                                         ? true
                                         : false),
                                 SizedBox(height: 6),
@@ -2587,14 +2592,14 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                             contentPadding:
                                                 EdgeInsets.only(left: 5),
                                             filled: true,
-                                            fillColor:
-                                                (widget.pagemode == "fromDSR") ||
-                                                        (widget.pagemode ==
-                                                            "fromHYPERVERSER") ||
-                                                        (widget.pagemode ==
-                                                            "fromETBStartFresh")
-                                                    ? Colors.grey.shade200
-                                                    : Colors.white,
+                                            fillColor: (widget.pagemode ==
+                                                        "fromDSR") ||
+                                                    (widget.pagemode ==
+                                                        "fromHYPERVERSER") ||
+                                                    (widget.pagemode ==
+                                                        "fromETBStartFresh")
+                                                ? Colors.grey.shade200
+                                                : Colors.white,
                                             label: RichText(
                                               text: const TextSpan(
                                                 text: 'Company',
@@ -2692,11 +2697,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                       ),
                                     ],
                                   ),
-            
+
                                 if (_showOtherCompanyField) ...[
                                   Padding(
-                                    padding:
-                                        const EdgeInsets.symmetric(vertical: 0.9),
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 0.9),
                                     child: TextFormField(
                                       enabled: (widget.pagemode != "fromDSR") &&
                                           (widget.pagemode !=
@@ -2714,7 +2719,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                                         "fromETBStartFresh")
                                                 ? Colors.grey.shade200
                                                 : Colors.white,
-                                        contentPadding: EdgeInsets.only(left: 10),
+                                        contentPadding:
+                                            EdgeInsets.only(left: 10),
                                         hintText: "Enter company name",
                                       ),
                                       validator: (value) {
@@ -2732,20 +2738,21 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 _buildEmpIndusTypeDropdown(
                                   controller: emp_Indus_Type,
                                   label: "Industry Type",
-                                  readOnly:
-                                      widget.pagemode == "fromDSR" ? true : false,
+                                  readOnly: widget.pagemode == "fromDSR"
+                                      ? true
+                                      : false,
                                 ),
                                 SizedBox(height: 6),
                                 _buildEmpTypeDropdown(
                                     controller: emp_Type,
                                     label: "   Employee Type",
-                                    isReadOnly:
-                                        ((widget.pagemode == "fromHYPERVERSER" ||
-                                                    widget.pagemode ==
-                                                        "fromETBStartFresh") &&
-                                                emp_Type_Code.text.isNotEmpty)
-                                            ? true
-                                            : false),
+                                    isReadOnly: ((widget.pagemode ==
+                                                    "fromHYPERVERSER" ||
+                                                widget.pagemode ==
+                                                    "fromETBStartFresh") &&
+                                            emp_Type_Code.text.isNotEmpty)
+                                        ? true
+                                        : false),
                                 SizedBox(height: 6),
                                 _buildTextField(
                                   emp_email,
@@ -2901,16 +2908,16 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 ),
                                 SizedBox(height: 6),
                                 if (_selectedIdType == IdType.tin)
-                                  _buildTextField2(
-                                      identity_TinId, "TIN Id", "identity_TinId",
+                                  _buildTextField2(identity_TinId, "TIN Id",
+                                      "identity_TinId",
                                       maxDigits: 9,
                                       isRequired: false,
                                       readOnly: widget.pagemode == "fromDSR"
                                           ? true
                                           : false),
                                 if (_selectedIdType == IdType.sss)
-                                  _buildTextField2(
-                                      identity_SssID, "SSS ID", "identity_SssID",
+                                  _buildTextField2(identity_SssID, "SSS ID",
+                                      "identity_SssID",
                                       maxDigits: 10,
                                       isRequired: false,
                                       readOnly: widget.pagemode == "fromDSR"
@@ -3056,17 +3063,17 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                         // validateAndSubmit();
                         bool valid = validateAndSubmit();
                         print("valid $valid");
-            
+
                         if (!valid) {
                           return;
                         }
-            
+
                         String CWTransactionIdNo =
                             widget.CWTransactionID?.isNotEmpty == true
                                 ? widget.CWTransactionID.toString()
                                 : generateSecureTransactionId();
                         //  String? CWTransactionIdNo = widget.CWTransactionID;
-            
+
                         LosApplicationModel losData = LosApplicationModel(
                             firstName: firstName.text,
                             middleName: middlename.text,
@@ -3135,7 +3142,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                             empStatusFlag: EmpStatus,
                             leadDetails: leadDetails,
                             dsrId: widget.dsrId);
-            
+
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -3146,13 +3153,13 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                   leadId: widget.leadId,
                                   pagemode: widget.pagemode)),
                         );
-            
+
                         print("cw transaction id ${losData.cwTransactionID}");
                       } else {
                         return null;
                       }
                     },
-            
+
                     //onPressed: _isChecked ? validateAndSubmit : null,
                     icon: Icon(Icons.rocket_launch,
                         color: const Color.fromARGB(255, 34, 29, 29)),
@@ -3162,7 +3169,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF6e0386),
-                      padding: EdgeInsets.symmetric(horizontal: 70, vertical: 10),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 70, vertical: 10),
                       shape: RoundedRectangleBorder(
                         borderRadius:
                             BorderRadius.circular(5), // Removes rounded corners
