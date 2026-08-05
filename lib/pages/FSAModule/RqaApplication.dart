@@ -62,12 +62,27 @@ class _RQAApplicationState extends State<RQAApplication> {
   final emp_Type_Code = TextEditingController();
   final emp_Type = TextEditingController();
 
+  List<Map<String, dynamic>> _uniqueByField(
+      List<Map<String, dynamic>> items, String field) {
+    final seen = <String>{};
+    final uniqueItems = <Map<String, dynamic>>[];
+
+    for (final item in items) {
+      final fieldValue = item[field]?.toString() ?? '';
+      if (fieldValue.isNotEmpty && seen.add(fieldValue)) {
+        uniqueItems.add(item);
+      }
+    }
+
+    return uniqueItems;
+  }
+
   void initState() {
     super.initState();
     _initializeIndustryTypeList();
     _initializeEmpStatusList();
     _initializeEmpTypeList();
-    _initializeEmpWorkNatureList();
+    // _initializeEmpWorkNatureList(); changes in 30-7-2026
     _loadData();
   }
 
@@ -77,18 +92,6 @@ class _RQAApplicationState extends State<RQAApplication> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
-      // final tokenData = json.decode(tokenResponse.body);
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -103,22 +106,6 @@ class _RQAApplicationState extends State<RQAApplication> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "filters": [
-      //       {"id": "8"}
-      //     ]
-      //   }),
-      // );
-
       final endpoint = '/api/app/fetch/LOV/details';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -137,17 +124,19 @@ class _RQAApplicationState extends State<RQAApplication> {
         final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
-          final firstItem =
-              responseBody['data'][0]; // The first map in the list
+          final firstItem = responseBody['data'][0];
 
           final lovsDetails = firstItem['lovs_details'];
           if (lovsDetails != null && lovsDetails['EmploymentStatus'] is List) {
             if (!mounted) return;
             setState(() {
-              empStatusList = (lovsDetails['EmploymentStatus'] as List)
-                  .map<Map<String, dynamic>>(
-                      (item) => Map<String, dynamic>.from(item))
-                  .toList();
+              empStatusList = _uniqueByField(
+                (lovsDetails['EmploymentStatus'] as List)
+                    .map<Map<String, dynamic>>(
+                        (item) => Map<String, dynamic>.from(item))
+                    .toList(),
+                'key',
+              );
             });
           } else {
             print("lovs_details or EMP Status list not found");
@@ -173,18 +162,6 @@ class _RQAApplicationState extends State<RQAApplication> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
-      // final tokenData = json.decode(tokenResponse.body);
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -199,24 +176,6 @@ class _RQAApplicationState extends State<RQAApplication> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "filters": [
-      //       {"id": "22"}
-      //     ]
-      //   }),
-      // );
-
-      // if (response.statusCode == 200) {
-
       final endpoint = '/api/app/fetch/LOV/details';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -235,17 +194,19 @@ class _RQAApplicationState extends State<RQAApplication> {
         final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
-          final firstItem =
-              responseBody['data'][0]; // The first map in the list
+          final firstItem = responseBody['data'][0];
 
           final lovsDetails = firstItem['lovs_details'];
           if (lovsDetails != null && lovsDetails['IndustryType'] is List) {
             if (!mounted) return;
             setState(() {
-              industryList = (lovsDetails['IndustryType'] as List)
-                  .map<Map<String, dynamic>>(
-                      (item) => Map<String, dynamic>.from(item))
-                  .toList();
+              industryList = _uniqueByField(
+                (lovsDetails['IndustryType'] as List)
+                    .map<Map<String, dynamic>>(
+                        (item) => Map<String, dynamic>.from(item))
+                    .toList(),
+                'key',
+              );
             });
           } else {
             print("lovs_details or Industry Type list not found");
@@ -271,18 +232,6 @@ class _RQAApplicationState extends State<RQAApplication> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
 
-      // final tokenResponse = await http.get(
-      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/los-access-token/'),
-      //   headers: {
-      //     'Authorization': 'Bearer $token',
-      //     'Accept': 'application/json',
-      //     'Content-Type': 'multipart/form-data',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      // );
-
-      // final tokenData = json.decode(tokenResponse.body);
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -297,24 +246,6 @@ class _RQAApplicationState extends State<RQAApplication> {
       print("HTTP Request Failed: $e");
     }
     try {
-      // final response = await http.post(
-      //   Uri.parse('${AppConfig.otpUrl}/api/app/fetch/LOV/details'),
-      //   headers: {
-      //     'Authorization': 'Bearer $tokens',
-      //     'Content-Type': 'application/json',
-      //     'Idempotency-Key': 'sfsggdhsdgdgdg',
-      //     'User-Agent':
-      //         'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      //   },
-      //   body: jsonEncode({
-      //     "filters": [
-      //       {"id": "1"}
-      //     ]
-      //   }),
-      // );
-
-      // if (response.statusCode == 200) {
-
       final endpoint = '/api/app/fetch/LOV/details';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
@@ -333,16 +264,18 @@ class _RQAApplicationState extends State<RQAApplication> {
         final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
-          final firstItem =
-              responseBody['data'][0]; // The first map in the list
+          final firstItem = responseBody['data'][0];
 
           final lovsDetails = firstItem['lovs_details'];
           if (lovsDetails != null && lovsDetails['Occupation'] is List) {
             setState(() {
-              empList = (lovsDetails['Occupation'] as List)
-                  .map<Map<String, dynamic>>(
-                      (item) => Map<String, dynamic>.from(item))
-                  .toList();
+              empList = _uniqueByField(
+                (lovsDetails['Occupation'] as List)
+                    .map<Map<String, dynamic>>(
+                        (item) => Map<String, dynamic>.from(item))
+                    .toList(),
+                'key',
+              );
             });
           } else {
             print("lovs_details or EMP Type list not found");
@@ -435,6 +368,7 @@ class _RQAApplicationState extends State<RQAApplication> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('accessToken');
+
       final url = '/api/leads/los-access-token/';
       final headers = {
         'Authorization': 'Bearer $token',
@@ -448,17 +382,17 @@ class _RQAApplicationState extends State<RQAApplication> {
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
+
     try {
-      final endpoint = '/api/app/fetch/LOV/details';
+      final endpoint = '/api/lov/mapping/sequence';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
         'Content-Type': 'application/json',
         'Idempotency-Key': 'sfsggdhsdgdgdg',
       };
       final body = {
-        "filters": [
-          {"id": "9"}
-        ]
+        "category": "Nature_of_Work",
+        "empStatusId": emp_Status_Code.text.replaceFirst(RegExp(r'^0+'), ''),
       };
       final response =
           await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
@@ -467,22 +401,18 @@ class _RQAApplicationState extends State<RQAApplication> {
         final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
-          final firstItem =
-              responseBody['data'][0]; // The first map in the list
-
-          final lovsDetails = firstItem['lovs_details'];
-          if (lovsDetails != null && lovsDetails['NatureOfWork'] is List) {
-            setState(() {
-              empWorkNatureList = (lovsDetails['NatureOfWork'] as List)
+          final dataList = responseBody['data'];
+          setState(() {
+            empWorkNatureList = _uniqueByField(
+              dataList
                   .map<Map<String, dynamic>>(
-                      (item) => Map<String, dynamic>.from(item))
-                  .toList();
-            });
-          } else {
-            print("lovs_details or EMP Work Nature list not found");
-          }
+                      (item) => {"key": item['key'], "value": item['value']})
+                  .toList(),
+              'key',
+            );
+          });
         } else {
-          print("Response status not Success or data is invalid");
+          print("Data is not a valid list or is empty.");
         }
       } else {
         throw Exception('Failed to load EMP Work Nature list');
@@ -562,21 +492,14 @@ class _RQAApplicationState extends State<RQAApplication> {
     return '$year-$month-$day';
   }
 
-  // Random Application ID create
   String generateApplicationId() {
     final random = Random();
-
-    // 6 digit random number
     int randomNumber = 100000 + random.nextInt(900000);
-
-    // current date time (yyyyMMddHHmmss)
     String dateTime = DateFormat('yyyyMMddHHmmss').format(DateTime.now());
-
     return "FSA_$randomNumber$dateTime";
   }
 
   bool databaseUpdate_value = false;
-  // Store data in UNO Data Base
   Future<bool> submitDataUnoDB(String lostoken,
       Map<String, dynamic> responseData, String CWTransactionID) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -633,7 +556,6 @@ class _RQAApplicationState extends State<RQAApplication> {
       'User-Agent':
           'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
     };
-    // ignore: unused_local_variable
     final LogResponse = await http.post(
       logUrl,
       headers: headers2,
@@ -671,7 +593,6 @@ class _RQAApplicationState extends State<RQAApplication> {
               ),
               content: Text(
                 "Application failed to store in Database.\nReason: ${response.data['message'] ?? 'Unknown error'}",
-                // "Failed to connect with server.\nStatus Code: ${response.statusCode}",
                 style: const TextStyle(fontSize: 16),
               ),
               actionsPadding: const EdgeInsets.only(bottom: 10, right: 10),
@@ -753,7 +674,6 @@ class _RQAApplicationState extends State<RQAApplication> {
       'Authorization': 'Bearer $token',
       'User-Agent':
           'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-      // 'Content-Type': 'application/json'
     };
 
     Map<String, dynamic> formData = {
@@ -796,7 +716,6 @@ class _RQAApplicationState extends State<RQAApplication> {
       'User-Agent':
           'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
     };
-    // ignore: unused_local_variable
     final LogResponse = await http.post(
       logUrl,
       headers: headers2,
@@ -811,7 +730,6 @@ class _RQAApplicationState extends State<RQAApplication> {
 
         bool dataUpdatedValue =
             await submitDataUnoDB(token, data, CWTransactionID);
-        // ***************************************************
         if (status != null &&
             status.toLowerCase() == "pass" &&
             dataUpdatedValue == true) {
@@ -828,13 +746,13 @@ class _RQAApplicationState extends State<RQAApplication> {
                   zipCode: zip.text,
                   idCard: selectedValue.toString(),
                   source_of_income: emp_Status_Code
-                      .text, //*********************** */  emp_status_code
+                      .text,
                   emp_Status: emp_Type_Code
-                      .text, //***************************** */ emp_type_code
+                      .text,
                   companyName: _selectedCompany.toString(),
                   otherCompanyName: _otherCompanyController.text,
                   natureofBusiness: emp_Work_Nature_Code
-                      .text, //********************** */ emp_work_nature_code
+                      .text,
                   monthlyIncome: incomeController.text,
                   existingLoan: creditCardSelectedValue.toString(),
                   creditLoanAmount: credit_loan_amount.text),
@@ -1021,7 +939,6 @@ class _RQAApplicationState extends State<RQAApplication> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Heading
                     Container(
                       color: Colors.purple,
                       width: 500,
@@ -1040,7 +957,6 @@ class _RQAApplicationState extends State<RQAApplication> {
 
                     const SizedBox(height: 30),
 
-                    // ID Card Question
                     _buildTextField(
                       firstName,
                       "First Name",
@@ -1222,9 +1138,9 @@ class _RQAApplicationState extends State<RQAApplication> {
                                           _isFieldFocused = false;
                                           _isOthersSelected =
                                               _filteredCompanies[index]['id'] ==
-                                                  'others'; // ✅ new line
+                                                  'others';
                                           _showOtherCompanyField =
-                                              _isOthersSelected; // ✅ changed
+                                              _isOthersSelected;
                                           _showCompanyError = false;
                                         });
                                       },
@@ -1397,7 +1313,7 @@ class _RQAApplicationState extends State<RQAApplication> {
           setState(() {
             controller.text = selectedItem['value'] ?? '';
             emp_Status_Code.text = selectedItem['key'] ?? '';
-            //_initializeSourceFundList();
+            _initializeEmpWorkNatureList();
           });
         }
       },
@@ -1561,8 +1477,8 @@ class _RQAApplicationState extends State<RQAApplication> {
       controller: zip,
       keyboardType: TextInputType.number,
       inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly, // Only numbers
-        LengthLimitingTextInputFormatter(4), // Max 4 digits
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(4),
       ],
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -1581,10 +1497,7 @@ class _RQAApplicationState extends State<RQAApplication> {
             children: const [
               TextSpan(
                 text: " *",
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 25,
-                ),
+                style: TextStyle(color: Colors.red, fontSize: 25),
               ),
             ],
           ),
@@ -1750,7 +1663,6 @@ class _RQAApplicationState extends State<RQAApplication> {
       onChanged: (String? newValue) {
         if (newValue != null) {
           controller.text = newValue;
-          // 🔍 Lookup selected item from the list
           final selectedItem =
               sourceofFundList.firstWhere((item) => item['key'] == newValue);
           setState(() {
@@ -2005,7 +1917,6 @@ class _RQAApplicationState extends State<RQAApplication> {
           setState(() {
             controller.text = selectedItem['value'] ?? '';
             emp_Work_Nature_Code.text = selectedItem['key'] ?? '';
-            //_initializeSourceFundList();
           });
         }
       },
