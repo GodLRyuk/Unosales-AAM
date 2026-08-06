@@ -195,6 +195,13 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       fin_Src_Of_Funds.clear();
       fin_Src_Of_Funds_Code.clear();
       sourceofFundList = [];
+
+      profession.clear();
+      empProfessionList = [];
+
+      emp_Mths_In_Cur_Comp.clear();
+      emp_Yrs_In_Cur_Comp.clear();
+      workExperience = [];
     });
   }
 
@@ -205,7 +212,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
 
     if (isRefresh) {
       print("Refreshing data and clearing dependent fields... $isRefresh");
-     
+
       _clearDependentFields();
     }
 
