@@ -1712,7 +1712,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.phoneVolume,
     bool obscureText = false,
     bool isEmail = false,
     bool isPhoneNumber = false,
@@ -1808,7 +1808,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
             : Text(hintText, style: WidgetSupport.inputLabel()),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(
+          child: FaIcon(
             icon,
             color: Colors.purple,
             size: 15,
@@ -2247,7 +2247,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.phoneVolume,
     bool obscureText = false,
     bool isNumeric = false,
   }) {
@@ -2274,7 +2274,7 @@ class _FsaLeadGenerateState extends State<FsaLeadGenerate> {
         hintStyle: WidgetSupport.inputLabel(),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(
+          child: FaIcon(
             icon,
             color: Colors.purple,
             size: 15,

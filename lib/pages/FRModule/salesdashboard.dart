@@ -540,7 +540,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
                                     Row(
                                       children: [
                                         FaIcon(
-                                          Icons.task,
+                                          FontAwesomeIcons.clipboardList,
                                           size: MediaQuery.of(context)
                                                       .size
                                                       .width >
@@ -656,7 +656,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
                                       children: [
                                         // Container for the icon and text
                                         FaIcon(
-                                          Icons.hourglass_empty,
+                                          FontAwesomeIcons.hourglassHalf,
                                           size: MediaQuery.of(context)
                                                       .size
                                                       .width >
@@ -778,7 +778,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
                                     Row(
                                       children: [
                                         FaIcon(
-                                          Icons.check_box,
+                                          FontAwesomeIcons.circleCheck,
                                           size: MediaQuery.of(context)
                                                       .size
                                                       .width >
@@ -891,7 +891,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
                                     Row(
                                       children: [
                                         FaIcon(
-                                          Icons.verified,
+                                          FontAwesomeIcons.solidCircleCheck,
                                           size: MediaQuery.of(context)
                                                       .size
                                                       .width >
@@ -990,7 +990,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
                                       children: [
                                         // Container for the icon with centered content
                                         FaIcon(
-                                          Icons.cancel,
+                                          FontAwesomeIcons.cancel,
                                           size: MediaQuery.of(context)
                                                       .size
                                                       .width >
@@ -1105,7 +1105,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
                                       children: [
                                         // Container for the icon with centered content
                                         FaIcon(
-                                          Icons.done_all,
+                                          FontAwesomeIcons.circleCheck,
                                           size: MediaQuery.of(context)
                                                       .size
                                                       .width >
@@ -1278,7 +1278,7 @@ class _SalesdashboardState extends State<Salesdashboard> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         FaIcon(
-                          Icons.person_add_alt_outlined,
+                          FontAwesomeIcons.personCirclePlus,
                           size:
                               MediaQuery.of(context).size.width > 600 ? 40 : 20,
                           color: Colors.purple,

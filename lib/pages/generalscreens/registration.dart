@@ -191,15 +191,15 @@ class _RegistrationState extends State<Registration> {
                                       MediaQuery.of(context).size.height * 0.03,
                                 ),
                                 _buildKydIdTextField(
-                                    _externalId,
-                                    _getIdHintText(),
-                                    _getIdHintText(),
-                                    'external_id',
-                                    icon: FontAwesomeIcons.idCard,
-                                    isRequired: _selectedGId != null, // 👈 Dynamic requirement
-                                    isNumeric: false,
-                                  ),
-
+                                  _externalId,
+                                  _getIdHintText(),
+                                  _getIdHintText(),
+                                  'external_id',
+                                  icon: FontAwesomeIcons.idCard,
+                                  isRequired: _selectedGId !=
+                                      null, // 👈 Dynamic requirement
+                                  isNumeric: false,
+                                ),
                                 SizedBox(
                                   height:
                                       MediaQuery.of(context).size.height * 0.03,
@@ -209,7 +209,8 @@ class _RegistrationState extends State<Registration> {
                                   _imageController,
                                   _getIdUplpadHintTFileext(),
                                   _getIdUplpadHintText(),
-                                  _selectedGId != null, // 👈 Dynamic requirement
+                                  _selectedGId !=
+                                      null, // 👈 Dynamic requirement
                                   Icons.upload_file,
                                 ),
                                 SizedBox(
@@ -262,8 +263,7 @@ class _RegistrationState extends State<Registration> {
                                     children: [
                                       ElevatedButton(
                                         onPressed: () {
-                                          setState(() {
-                                          });
+                                          setState(() {});
                                           // if (_isDropdownValid /* && other validations */) {
                                           if (_formKey.currentState!
                                               .validate()) {
@@ -399,7 +399,7 @@ class _RegistrationState extends State<Registration> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
     bool isEmail = false,
     bool isPhoneNumber = false,
@@ -490,7 +490,7 @@ class _RegistrationState extends State<Registration> {
             : Text(hintText, style: WidgetSupport.inputLabel()),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(
+          child: FaIcon(
             icon,
             color: Colors.purple,
             size: 15,
@@ -505,7 +505,7 @@ class _RegistrationState extends State<Registration> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
     bool isEmail = false,
     bool isPhoneNumber = false,
@@ -593,7 +593,7 @@ class _RegistrationState extends State<Registration> {
         hintStyle: WidgetSupport.inputLabel(),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(
+          child: FaIcon(
             icon,
             color: Colors.purple,
             size: 15,
@@ -608,7 +608,7 @@ class _RegistrationState extends State<Registration> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
     bool isNumeric = false,
     bool isRequired = true,
@@ -648,7 +648,7 @@ class _RegistrationState extends State<Registration> {
         ),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(
+          child: FaIcon(
             icon,
             color: Colors.purple,
             size: 15,
@@ -777,7 +777,7 @@ class _RegistrationState extends State<Registration> {
               return validationMessage;
             }
             return null;
-             },
+          },
         ),
         if (_image != null)
           Padding(
@@ -798,7 +798,7 @@ class _RegistrationState extends State<Registration> {
   Widget _buildMobileTextField({
     required TextEditingController controller,
     bool isRequired = true,
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool isPhoneNumber = false,
     bool isNumeric = false,
   }) {
@@ -856,7 +856,7 @@ class _RegistrationState extends State<Registration> {
                       ),
                     )
                   : Text("Phone Number", style: WidgetSupport.inputLabel()),
-              suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+              suffixIcon: FaIcon(icon, color: Colors.purple, size: 15),
             ),
           ),
         ),

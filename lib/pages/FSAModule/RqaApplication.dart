@@ -1433,7 +1433,7 @@ class _RQAApplicationState extends State<RQAApplication> {
     TextEditingController controller,
     String hintText,
     String validationMessage, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.phoneVolume,
     bool obscureText = false,
   }) {
     bool isMiddleName = hintText == "Middle Name";
@@ -1458,7 +1458,7 @@ class _RQAApplicationState extends State<RQAApplication> {
         ),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(
+          child: FaIcon(
             icon,
             color: Colors.purple,
             size: 20,
@@ -1610,7 +1610,7 @@ class _RQAApplicationState extends State<RQAApplication> {
             ],
           ),
         ),
-        suffixIcon: const Icon(
+        suffixIcon: const FaIcon(
           FontAwesomeIcons.calendar,
           color: Colors.purple,
           size: 18,
@@ -1788,7 +1788,7 @@ class _RQAApplicationState extends State<RQAApplication> {
   Widget _buildIncomeTextField({
     required TextEditingController controller,
     bool isRequired = true,
-    IconData icon = FontAwesomeIcons.moneyBill,
+    FaIconData icon = FontAwesomeIcons.moneyBill,
   }) {
     return TextFormField(
       controller: controller,
@@ -1826,7 +1826,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                 ),
               )
             : Text("Monthly Income", style: WidgetSupport.inputLabel()),
-        suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+        suffixIcon: FaIcon(icon, color: Colors.purple, size: 15),
       ),
     );
   }
@@ -1834,7 +1834,7 @@ class _RQAApplicationState extends State<RQAApplication> {
   Widget _buildMobileTextField({
     required TextEditingController controller,
     bool isRequired = true,
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.phoneVolume,
     bool isPhoneNumber = false,
   }) {
     return Row(
@@ -1894,7 +1894,7 @@ class _RQAApplicationState extends State<RQAApplication> {
                       ),
                     )
                   : Text("Phone Number", style: WidgetSupport.inputLabel()),
-              suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+              suffixIcon: FaIcon(icon, color: Colors.purple, size: 15),
             ),
           ),
         ),

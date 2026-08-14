@@ -1,14 +1,11 @@
-import 'dart:convert';
 import 'package:circle_progress_bar/circle_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:unosfa/pages/FSAModule/assignedLeads.dart';
-import 'package:unosfa/pages/FSAModule/campaignlist.dart';
 import 'package:unosfa/pages/FSAModule/fsaleaddashboard.dart';
 import 'package:unosfa/pages/FSAModule/to_do_list.dart';
 import 'package:unosfa/pages/Form/FormList/daily_activity_report_list.dart';
@@ -16,11 +13,8 @@ import 'package:unosfa/pages/Form/FormList/daily_sales_report_list.dart';
 import 'package:unosfa/pages/Form/FormList/supervisor_intraday_call.dart';
 import 'package:unosfa/pages/Form/FormList/suppervisor_team_huddle_list.dart';
 import 'package:unosfa/pages/Report/form_report.dart';
-import 'package:unosfa/pages/otpscreens/dedupeCheck.dart';
 import 'package:unosfa/pages/services/api_service.dart';
 import 'package:unosfa/pages/services/checkin.dart';
-import 'package:unosfa/pages/services/in_app_storage.dart';
-import 'package:unosfa/pages/services/in_app_tutorial_target.dart';
 import 'package:unosfa/pages/FSAModule/los_status_chart.dart';
 import 'package:unosfa/widgetSupport/widgetstyle.dart';
 import 'package:flutter/services.dart';
@@ -70,8 +64,6 @@ class _FsadashboardState extends State<Fsadashboard> {
   int declined = 0;
   int disbursed = 0;
   bool isExpanded = false;
-  static const String kAddAppTourKey = "saveTour";
-  LatLng _currentLocation = LatLng(00, 00);
   bool _isLoading = true;
   bool _isLoading1 = true;
   @override
@@ -80,15 +72,6 @@ class _FsadashboardState extends State<Fsadashboard> {
     _loadData();
     _loadLOSData();
 
-    // WidgetsBinding.instance.addPostFrameCallback((_) async {
-    //   bool isTourShown = await AppTourManager.getTourStatus(kAddAppTourKey);
-    //   if (!isTourShown) {
-    //     _initPreferences();
-    //     _initAddAppInAppTour(context);
-    //   } else {
-    //     debugPrint("User has already seen the tutorial.");
-    //   }
-    // });
     _initPreferences();
   }
 
@@ -106,24 +89,6 @@ class _FsadashboardState extends State<Fsadashboard> {
         // hide loader after everything done
       });
     }
-  }
-
-  Future<void> getCurrentLocation() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Location permission denied")),
-        );
-        return; // Stop here if still denied
-      }
-    }
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    _currentLocation = LatLng(position.latitude, position.longitude);
   }
 
   Future<void> _showCheckInOverlay() async {
@@ -153,7 +118,6 @@ class _FsadashboardState extends State<Fsadashboard> {
     );
     _latitude = position.latitude;
     _longitude = position.longitude;
-    _currentLocation = LatLng(position.latitude, position.longitude);
 
     // Reverse geocode safely (with timeout + try/catch)
     String address = "";
@@ -235,72 +199,6 @@ class _FsadashboardState extends State<Fsadashboard> {
     );
   }
 
-  void _initAddAppInAppTour(BuildContext context) {
-    // Close any old tour instance if visible
-    tutorialCoachMark?.finish();
-
-    tutorialCoachMark = TutorialCoachMark(
-      targets: addAppFRTargets(
-        CreateLeadKey: CreateLeadKey,
-        AssignedLeadsKey: AssignedLeadsKey,
-        MyToDoListKey: MyToDoListKey,
-        CampaignKey: CampaignKey,
-        RewardsKey: RewardsKey,
-        TrainingKey: TrainingKey,
-        SearchFilterKey: SearchFilterKey,
-        TotalSubmitedKey: TotalSubmitedKey,
-        InProgressKey: InProgressKey,
-        InPrincipalApprovedKey: InPrincipalApprovedKey,
-        FinalApprovedKey: FinalApprovedKey,
-        DeclinedKey: DeclinedKey,
-        DisbursedKey: DisbursedKey,
-      ),
-      colorShadow: const Color(0xFF420244),
-      paddingFocus: 10,
-      hideSkip: false,
-      textStyleSkip: const TextStyle(
-        fontSize: 18,
-        color: Colors.white,
-        fontWeight: FontWeight.bold,
-      ),
-      skipWidget: GestureDetector(
-        onTap: () {
-          tutorialCoachMark?.finish(); // Close overlay
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Text(
-            "Skip",
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-      opacityShadow: 0.8,
-      onFinish: () async {
-        await AppTourManager.saveTourStatus(kAddAppTourKey);
-        tutorialCoachMark = null; // release instance
-      },
-      onSkip: () {
-        AppTourManager.saveTourStatus(kAddAppTourKey);
-        tutorialCoachMark = null; // release instance
-        return true;
-      },
-    );
-
-    // Show the tour one time once widget tree is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      tutorialCoachMark?.show(context: context);
-    });
-  }
-
   List DashboardstatusList = [
     'Accept',
     'Accept_Manual',
@@ -320,7 +218,6 @@ class _FsadashboardState extends State<Fsadashboard> {
     setState(() => _isLoading = true);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     userInfo = prefs.getStringList('userInfo');
-    String userId = userInfo![0];
     String? accessToken = prefs.getString('accessToken');
 
     final headers = {
@@ -698,7 +595,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                     Row(
                                       children: [
                                         FaIcon(
-                                          Icons.task,
+                                          FontAwesomeIcons.tasks,
                                           size: MediaQuery.of(context)
                                                       .size
                                                       .width >
@@ -814,7 +711,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                       children: [
                                         // Container for the icon and text
                                         FaIcon(
-                                          Icons.hourglass_empty,
+                                          FontAwesomeIcons.hourglassEmpty,
                                           size: MediaQuery.of(context)
                                                       .size
                                                       .width >
@@ -936,7 +833,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                     Row(
                                       children: [
                                         FaIcon(
-                                          Icons.check_box,
+                                          FontAwesomeIcons.circleCheck,
                                           size: MediaQuery.of(context)
                                                       .size
                                                       .width >
@@ -1049,7 +946,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                     Row(
                                       children: [
                                         FaIcon(
-                                          Icons.verified,
+                                          FontAwesomeIcons.circleCheck,
                                           size: MediaQuery.of(context)
                                                       .size
                                                       .width >
@@ -1148,7 +1045,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                       children: [
                                         // Container for the icon with centered content
                                         FaIcon(
-                                          Icons.cancel,
+                                          FontAwesomeIcons.cancel,
                                           size: MediaQuery.of(context)
                                                       .size
                                                       .width >
@@ -1263,7 +1160,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                                       children: [
                                         // Container for the icon with centered content
                                         FaIcon(
-                                          Icons.done_all,
+                                          FontAwesomeIcons.solidCircleCheck,
                                           size: MediaQuery.of(context)
                                                       .size
                                                       .width >
@@ -1436,7 +1333,7 @@ class _FsadashboardState extends State<Fsadashboard> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         FaIcon(
-                          Icons.handshake,
+                          FontAwesomeIcons.handshake,
                           size:
                               MediaQuery.of(context).size.width > 600 ? 40 : 20,
                           color: Colors.purple,
@@ -1458,7 +1355,7 @@ class _FsadashboardState extends State<Fsadashboard> {
               ],
             ),
           ),
-        
+
           // GestureDetector(
           //   onTap: () async {
           //     Navigator.push(
@@ -1781,7 +1678,7 @@ class _FsadashboardState extends State<Fsadashboard> {
               ),
             ),
           ),
-          
+
           // My Leads Box - triggers Tooltip for Training
           GestureDetector(
             // onTap: () async {
@@ -1791,7 +1688,7 @@ class _FsadashboardState extends State<Fsadashboard> {
             onTap: () async {
               _CampaigntooltipKey.currentState?.ensureTooltipVisible();
             },
-            
+
             child: Tooltip(
               key: _CampaigntooltipKey,
               message: 'Available Soon',
@@ -1863,12 +1760,6 @@ class _FsadashboardState extends State<Fsadashboard> {
       GlobalKey<TooltipState>();
   Widget _smallBoxFourthContainer() {
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
-    bool isLandscape =
-        MediaQuery.of(context).orientation == Orientation.landscape;
-    double containerHeight = screenWidth > 600
-        ? (isLandscape ? screenHeight * 0.08 : screenHeight * 0.05)
-        : (isLandscape ? screenHeight * 0.07 : screenHeight * 0.05);
     return Padding(
       padding: const EdgeInsets.all(10),
       child: Row(

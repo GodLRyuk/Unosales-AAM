@@ -469,7 +469,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
     bool isEmail = false,
     bool isPhoneNumber = false,
@@ -526,7 +526,7 @@ class _ProfileUpdateState extends State<ProfileUpdate> {
             : Text(hintText, style: WidgetSupport.inputLabel()),
         suffix: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(icon, color: Colors.purple, size: 15),
+          child: FaIcon(icon, color: Colors.purple, size: 15),
         ),
       ),
     );

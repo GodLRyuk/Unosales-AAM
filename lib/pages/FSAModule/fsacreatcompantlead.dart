@@ -1391,7 +1391,7 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.phoneVolume,
     bool obscureText = false,
     bool isEmail = false,
     bool isPhoneNumber = false,
@@ -1486,7 +1486,7 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
                 ),
               )
             : Text("$hintText", style: WidgetSupport.inputLabel()),
-        suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+        suffixIcon: FaIcon(icon, color: Colors.purple, size: 15),
       ),
     );
   }
@@ -1494,7 +1494,7 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
   Widget _buildMobileTextField({
     required TextEditingController controller,
     bool isRequired = true,
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.phoneVolume,
     bool isPhoneNumber = false,
     bool isNumeric = false,
   }) {
@@ -1543,7 +1543,7 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
                       ),
                     )
                   : Text(" Phone Number", style: WidgetSupport.inputLabel()),
-              suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+              suffixIcon: FaIcon(icon, color: Colors.purple, size: 15),
             ),
           ),
         ),
@@ -1604,7 +1604,7 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.phoneVolume,
     bool obscureText = false,
     bool isNumeric = false,
     bool isRequired = true,
@@ -1645,7 +1645,7 @@ class _FsaCompanyLeadGenerateState extends State<FsaCompanyLeadGenerate> {
             : Text("Enter Your Id Number", style: WidgetSupport.inputLabel()),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(
+          child: FaIcon(
             icon,
             color: Colors.purple,
             size: 15,

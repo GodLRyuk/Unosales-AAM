@@ -242,7 +242,7 @@ class _FinanceregistrationState extends State<Financeregistration> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
     bool isEmail = false,
     bool isPhoneNumber = false,
@@ -306,7 +306,7 @@ class _FinanceregistrationState extends State<Financeregistration> {
         hintStyle: WidgetSupport.inputLabel(),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(
+          child: FaIcon(
             icon,
             color: Colors.purple,
             size: 15,

@@ -1877,22 +1877,22 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
 
       String lovMapUrl = "/api/lov/mapping/sequence";
       final header = {
-          'Authorization': 'Bearer $tokens',
-          'Content-Type': 'application/json',
-          'Idempotency-Key': 'sfsggdhsdgdgdg',
-          'User-Agent':
-              'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-        };
-
-      final body = {
-          "category": "Source_of_Fund",
-          "empStatusId": emp_Status_Code.text.replaceFirst(RegExp(r'^0+'), ''),
-          "nowId": emp_Work_Nature_Code.text.replaceFirst(RegExp(r'^0+'), ''),
-          "positionId": emp_position.text.replaceFirst(RegExp(r'^0+'), ''),
-
+        'Authorization': 'Bearer $tokens',
+        'Content-Type': 'application/json',
+        'Idempotency-Key': 'sfsggdhsdgdgdg',
+        'User-Agent':
+            'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
       };
 
-      final response = await ApiService.postWithHeadersUnoApi(lovMapUrl, body, header);
+      final body = {
+        "category": "Source_of_Fund",
+        "empStatusId": emp_Status_Code.text.replaceFirst(RegExp(r'^0+'), ''),
+        "nowId": emp_Work_Nature_Code.text.replaceFirst(RegExp(r'^0+'), ''),
+        "positionId": emp_position.text.replaceFirst(RegExp(r'^0+'), ''),
+      };
+
+      final response =
+          await ApiService.postWithHeadersUnoApi(lovMapUrl, body, header);
 
       if (response!.statusCode == 200) {
         final Map<String, dynamic> responseBody = response.data;
@@ -2934,23 +2934,23 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
                 // );
 
                 String url = "/api/app/fetch/application/status";
-                final header = {                               
-                    "Idempotency-Key": "jbkjdbjkjk",
-                    "Authorization": "Bearer $tokens",
-                    'User-Agent':
-                        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-                  
+                final header = {
+                  "Idempotency-Key": "jbkjdbjkjk",
+                  "Authorization": "Bearer $tokens",
+                  'User-Agent':
+                      'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
                 };
 
                 final body = {
-                    "mobileNo": "",
-                    "agentCode": "",
-                    "applicationNo": "${application['applicationNo']}",
-                    "channel": "",
-                    "source": ""
+                  "mobileNo": "",
+                  "agentCode": "",
+                  "applicationNo": "${application['applicationNo']}",
+                  "channel": "",
+                  "source": ""
                 };
 
-                final refreshedResponse = await ApiService.postJsonWithHeaders(url,body,header);
+                final refreshedResponse =
+                    await ApiService.postJsonWithHeaders(url, body, header);
                 if (refreshedResponse!.statusCode == 200) {
                   final refreshedData = refreshedResponse.data;
                   if (refreshedData['result'] != null &&
@@ -3410,14 +3410,16 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
       //   body: json.encode(requestData),
       // );
 
-      final response =  await ApiService.postWithHeadersUnoApi(url,requestData,headers);
+      final response =
+          await ApiService.postWithHeadersUnoApi(url, requestData, headers);
       if (response!.statusCode == 201) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         String? token = prefs.getString('accessToken');
         // final LosStatusUrl = Uri.parse(
         //     '${AppConfig.dynamicBaseUrl}/api/campaigns/${widget.campaign}/leads/${widget.leadId}/');
 
-        String LosStatusUrl = "/api/campaigns/${widget.campaign}/leads/${widget.leadId}/";
+        String LosStatusUrl =
+            "/api/campaigns/${widget.campaign}/leads/${widget.leadId}/";
 
         final headers2 = {
           "Content-Type": "application/json",
@@ -3432,7 +3434,7 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
         // };
 
         final body1 = {
-           "cwtransection_id": "${requestData['CWTransactionID']}",
+          "cwtransection_id": "${requestData['CWTransactionID']}",
           "los_status": "submitted"
         };
 
@@ -3443,7 +3445,8 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
         //   body: json.encode(mappedLOsData),
         // );
         // ignore: unused_local_variable
-        final responseLOS = await ApiService.patchWithHeaders(LosStatusUrl,headers2,body1);
+        final responseLOS =
+            await ApiService.patchWithHeaders(LosStatusUrl, headers2, body1);
         final LoSResponcedata = response.data;
 
         //LOS Application Status Check
@@ -3491,7 +3494,8 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
           //   body: json.encode(mappedData),
           // );
 
-          final Statusresponse = await ApiService.postWithHeadersUnoApi(url,body,headers);
+          final Statusresponse =
+              await ApiService.postWithHeadersUnoApi(url, body, headers);
           // Close the loading dialog
           Navigator.of(context).pop();
 
@@ -3526,14 +3530,16 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
               //   body: json.encode(finalRequestData),
               // );
 
-              final backendresponseLOS = await ApiService.postJsonWithHeaders(LosbackendStatusUrl,finalRequestData,headers3);
+              final backendresponseLOS = await ApiService.postJsonWithHeaders(
+                  LosbackendStatusUrl, finalRequestData, headers3);
               if (backendresponseLOS!.statusCode == 201) {
                 final data = backendresponseLOS.data;
 
                 // final LosBackendResponseUrl = Uri.parse(
                 //     '${AppConfig.dynamicBaseUrl}/api/leads/los-details/${data['id']}/');
 
-                 String LosBackendResponseUrl = "/api/leads/los-details/${data['id']}/";
+                String LosBackendResponseUrl =
+                    "/api/leads/los-details/${data['id']}/";
                 final headers4 = {
                   "Content-Type": "application/json",
                   "Accept": "application/json",
@@ -3560,7 +3566,8 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
                 //   body: json.encode(mappedResponseLOsData),
                 // );
 
-                final responseLOS = await ApiService.patchWithHeaders(LosBackendResponseUrl,headers4,mappedResponseLOsData);
+                final responseLOS = await ApiService.patchWithHeaders(
+                    LosBackendResponseUrl, headers4, mappedResponseLOsData);
               }
               if (application['offerStatus'] == "IN-PROGRESS") {
                 checkApplicationStatusLoop(application);
@@ -3627,7 +3634,8 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
         //   headers: headers,
         //   body: json.encode(logmappedData),
         // );
-        final LogResponse = await ApiService.postJsonWithHeaders(logUrl,logmappedData,headers);
+        final LogResponse = await ApiService.postJsonWithHeaders(
+            logUrl, logmappedData, headers);
 
         if (LogResponse!.statusCode == 201) {
           print("Log Created");
@@ -3723,7 +3731,7 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
     bool isEmail = false,
     bool isPhoneNumber = false,
@@ -3799,7 +3807,7 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
                 ),
               )
             : Text(hintText, style: WidgetSupport.inputLabel()),
-        suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+        suffixIcon: FaIcon(icon, color: Colors.purple, size: 15),
       ),
     );
   }
@@ -3807,7 +3815,7 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
   Widget _buildMobileTextField({
     required TextEditingController controller,
     bool isRequired = true,
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool isPhoneNumber = false,
   }) {
     return Row(
@@ -3855,7 +3863,7 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
                       ),
                     )
                   : Text(" Phone Number", style: WidgetSupport.inputLabel()),
-              suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+              suffixIcon: FaIcon(icon, color: Colors.purple, size: 15),
             ),
           ),
         ),
@@ -3869,7 +3877,7 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
     String validationKey, {
     bool isRequired = true,
     bool readOnly = false,
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
   }) {
     return TextFormField(
       controller: controller,
@@ -3891,7 +3899,7 @@ class _FrLosApplicationPageState extends State<FrLosApplicationPage> {
                 ),
               )
             : Text(hintText, style: WidgetSupport.inputLabel()),
-        suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+        suffixIcon: FaIcon(icon, color: Colors.purple, size: 15),
       ),
     );
   }

@@ -1508,7 +1508,7 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
     bool isRequired = true,
   }) {
@@ -1532,7 +1532,7 @@ class _FRSingleAssignedLeadState extends State<FRSingleAssignedLead> {
             : Text(hintText, style: WidgetSupport.inputLabel()),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(
+          child: FaIcon(
             icon,
             color: Colors.purple,
             size: 15,

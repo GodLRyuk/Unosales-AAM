@@ -1797,7 +1797,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
     bool isEmail = false,
     bool isPhoneNumber = false,
@@ -1892,7 +1892,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
             : Text(hintText, style: WidgetSupport.inputLabel()),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(
+          child: FaIcon(
             icon,
             color: Colors.purple,
             size: 15,
@@ -1907,7 +1907,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
     bool isNumeric = false,
     bool isRequired = true,
@@ -1948,7 +1948,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
             : Text(hintText, style: WidgetSupport.inputLabel()),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(
+          child: FaIcon(
             icon,
             color: Colors.purple,
             size: 15,
@@ -2322,7 +2322,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
   Widget _buildMobileTextField({
     required TextEditingController controller,
     bool isRequired = true,
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool isPhoneNumber = false,
     bool isNumeric = false,
   }) {
@@ -2371,7 +2371,7 @@ class _LeadGenerateState extends State<LeadGenerate> {
                       ),
                     )
                   : Text("Phone Number", style: WidgetSupport.inputLabel()),
-              suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+              suffixIcon: FaIcon(icon, color: Colors.purple, size: 15),
             ),
           ),
         ),

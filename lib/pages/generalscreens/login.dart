@@ -216,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
   }) {
     return TextFormField(
@@ -227,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
         hintStyle: WidgetSupport.inputLabel(),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(
+          child: FaIcon(
             icon,
             color: Colors.purple,
             size: 20,
@@ -248,7 +248,7 @@ class _LoginPageState extends State<LoginPage> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
   }) {
     return TextFormField(
@@ -260,7 +260,7 @@ class _LoginPageState extends State<LoginPage> {
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
           child: IconButton(
-            icon: Icon(
+            icon: FaIcon(
               _isPasswordVisible
                   ? FontAwesomeIcons.eyeSlash
                   : FontAwesomeIcons.eye,
@@ -349,7 +349,7 @@ class _LoginPageState extends State<LoginPage> {
                   );
                 } else if (detail == "Invalid credentials.") {
                   // _showAlert("Invalid username or password.");
-                  _showAlert(data['detail']); 
+                  _showAlert(data['detail']);
                 } else {
                   _showAlert(detail ?? "Login failed. Please try again.");
                 }

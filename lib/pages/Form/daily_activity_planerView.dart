@@ -14,7 +14,8 @@ class DailyActivityViewPage extends StatefulWidget {
   final String activityId;
   final String pageMode;
 
-  const DailyActivityViewPage({Key? key, required this.activityId, required this.pageMode})
+  const DailyActivityViewPage(
+      {Key? key, required this.activityId, required this.pageMode})
       : super(key: key);
 
   @override
@@ -41,8 +42,8 @@ class _DailyActivityViewPageState extends State<DailyActivityViewPage> {
   List<Map<String, dynamic>> locationTypelist = [];
   final locationType = TextEditingController();
   final activityType = TextEditingController();
-  String locationText= "";
-  String activityText= "";
+  String locationText = "";
+  String activityText = "";
   @override
   void initState() {
     super.initState();
@@ -50,131 +51,133 @@ class _DailyActivityViewPageState extends State<DailyActivityViewPage> {
   }
 
   Future<void> fetchActivityData() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('accessToken');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('accessToken');
 
-  final url = "/api/timesheet/agent-daily-activities/${widget.activityId}/";
-  final headers = {
-    'Authorization': 'Bearer $token',
-    'User-Agent':
-        'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-  };
+    final url = "/api/timesheet/agent-daily-activities/${widget.activityId}/";
+    final headers = {
+      'Authorization': 'Bearer $token',
+      'User-Agent':
+          'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+    };
 
-  final response = await ApiService.getWithHeaders(url, headers);
+    final response = await ApiService.getWithHeaders(url, headers);
 
-  try {
-    if (response != null && response.statusCode == 200) {
-      final data = response.data;
-      print("data is this $data");
-      if (data != null && data.isNotEmpty) {
-        final List<dynamic> locations = data['assigned_locations'] ?? [];
+    try {
+      if (response != null && response.statusCode == 200) {
+        final data = response.data;
+        print("data is this $data");
+        if (data != null && data.isNotEmpty) {
+          final List<dynamic> locations = data['assigned_locations'] ?? [];
 
-        // Use a temporary list to avoid async setState chaos
-        List<LatLng> tempLocations = [];
-        List<String> tempAddresses = [];
-        List<dynamic> enrichedLocations = [];
+          // Use a temporary list to avoid async setState chaos
+          List<LatLng> tempLocations = [];
+          List<String> tempAddresses = [];
+          List<dynamic> enrichedLocations = [];
 
-        for (var loc in locations) {
-          double lat = double.tryParse(loc['lead_latitude'].toString()) ?? 0.0;
-          double lng = double.tryParse(loc['lead_longitude'].toString()) ?? 0.0;
+          for (var loc in locations) {
+            double lat =
+                double.tryParse(loc['lead_latitude'].toString()) ?? 0.0;
+            double lng =
+                double.tryParse(loc['lead_longitude'].toString()) ?? 0.0;
 
-          // Fetch extra info for each location
-          final locationDesc =
-              await _getLocationTypeDescription(loc['location_type']);
-          final activityDesc =
-              await _getActivityTypeDescription(loc['activity']);
+            // Fetch extra info for each location
+            final locationDesc =
+                await _getLocationTypeDescription(loc['location_type']);
+            final activityDesc =
+                await _getActivityTypeDescription(loc['activity']);
 
-          // Merge data
-          loc['locationText'] = locationDesc;
-          loc['activityText'] = activityDesc;
+            // Merge data
+            loc['locationText'] = locationDesc;
+            loc['activityText'] = activityDesc;
 
-          tempLocations.add(LatLng(lat, lng));
-          tempAddresses.add(loc['lead_location_name'] ?? "Address not available");
-          enrichedLocations.add(loc);
+            tempLocations.add(LatLng(lat, lng));
+            tempAddresses
+                .add(loc['lead_location_name'] ?? "Address not available");
+            enrichedLocations.add(loc);
+          }
+
+          setState(() {
+            plannedMeeting.text = data['meetings_planned']?.toString() ?? '';
+            targetAplication.text =
+                data['application_target']?.toString() ?? '';
+            _locations = tempLocations;
+            _addresses = tempAddresses;
+            _apiLocations = enrichedLocations;
+            isLoading = false;
+          });
         }
-
-        setState(() {
-          plannedMeeting.text = data['meetings_planned']?.toString() ?? '';
-          targetAplication.text = data['application_target']?.toString() ?? '';
-          _locations = tempLocations;
-          _addresses = tempAddresses;
-          _apiLocations = enrichedLocations;
-          isLoading = false;
-        });
+      } else {
+        hasError = true;
+        isLoading = false;
       }
-    } else {
+    } catch (e) {
+      debugPrint("Error fetching activity data: $e");
       hasError = true;
       isLoading = false;
     }
-  } catch (e) {
-    debugPrint("Error fetching activity data: $e");
-    hasError = true;
-    isLoading = false;
+    setState(() {});
   }
-  setState(() {});
-}
 
-Future<String> _getLocationTypeDescription(dynamic locid) async {
-  if (locid == null) return "N/A";
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('accessToken');
+  Future<String> _getLocationTypeDescription(dynamic locid) async {
+    if (locid == null) return "N/A";
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('accessToken');
 
-  try {
-    String url = "/api/leads/location-types/$locid/";
-     final headers = {
+    try {
+      String url = "/api/leads/location-types/$locid/";
+      final headers = {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
-        
       };
 
-   final response = await ApiService.getWithHeaders(url, headers);
-    // final response = await http.get(
-    //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/location-types/$locid/'),
-    //   headers: {
-    //     'Authorization': 'Bearer $token',
-    //     'Content-Type': 'application/json',
-    //   },
-    // );
-    if (response!.statusCode == 200) {
-      final Map<String, dynamic> body = response.data;
-      return body['description'] ?? 'N/A';
+      final response = await ApiService.getWithHeaders(url, headers);
+      // final response = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/location-types/$locid/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Content-Type': 'application/json',
+      //   },
+      // );
+      if (response!.statusCode == 200) {
+        final Map<String, dynamic> body = response.data;
+        return body['description'] ?? 'N/A';
+      }
+    } catch (e) {
+      debugPrint("Error loading location type: $e");
     }
-  } catch (e) {
-    debugPrint("Error loading location type: $e");
+    return "N/A";
   }
-  return "N/A";
-}
 
-Future<String> _getActivityTypeDescription(dynamic actid) async {
-  if (actid == null) return "N/A";
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('accessToken');
+  Future<String> _getActivityTypeDescription(dynamic actid) async {
+    if (actid == null) return "N/A";
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('accessToken');
 
-  try {
-     String url = "/api/leads/activities/$actid/";
-     final headers = {
+    try {
+      String url = "/api/leads/activities/$actid/";
+      final headers = {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
-        
       };
 
-   final response = await ApiService.getWithHeaders(url, headers);
-    // final response = await http.get(
-    //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/activities/$actid/'),
-    //   headers: {
-    //     'Authorization': 'Bearer $token',
-    //     'Content-Type': 'application/json',
-    //   },
-    // );
-    if (response!.statusCode == 200) {
-      final Map<String, dynamic> body = response.data;
-      return body['description'] ?? 'N/A';
+      final response = await ApiService.getWithHeaders(url, headers);
+      // final response = await http.get(
+      //   Uri.parse('${AppConfig.dynamicBaseUrl}/api/leads/activities/$actid/'),
+      //   headers: {
+      //     'Authorization': 'Bearer $token',
+      //     'Content-Type': 'application/json',
+      //   },
+      // );
+      if (response!.statusCode == 200) {
+        final Map<String, dynamic> body = response.data;
+        return body['description'] ?? 'N/A';
+      }
+    } catch (e) {
+      debugPrint("Error loading activity type: $e");
     }
-  } catch (e) {
-    debugPrint("Error loading activity type: $e");
+    return "N/A";
   }
-  return "N/A";
-}
 
   @override
   Widget build(BuildContext context) {
@@ -234,7 +237,7 @@ Future<String> _getActivityTypeDescription(dynamic actid) async {
                     "Meetings planned for today?",
                     "Please Enter Meetings planned for today?",
                     "meetingPlanned",
-                    icon: Icons.meeting_room,
+                    icon: FontAwesomeIcons.doorOpen,
                     isNumeric: true,
                     readOnly: step2,
                   ),
@@ -246,7 +249,7 @@ Future<String> _getActivityTypeDescription(dynamic actid) async {
                     "What is your application target for the day",
                     "Please Enter Application target for the day",
                     "targetAplication",
-                    icon: Icons.app_registration,
+                    icon: FontAwesomeIcons.registered,
                     isNumeric: true,
                     readOnly: step2,
                   ),
@@ -269,21 +272,18 @@ Future<String> _getActivityTypeDescription(dynamic actid) async {
                             padding: EdgeInsets.only(top: 20),
                             child: Text(
                               "No assigned locations found.",
-                              style: TextStyle(color: Colors.black54, fontSize: 16),
+                              style: TextStyle(
+                                  color: Colors.black54, fontSize: 16),
                             ),
                           ),
                         ),
 
                   const SizedBox(height: 20),
-
-                  
                 ],
               ),
             ),
     );
   }
-
-  
 
   /// EACH LOCATION CARD WITH MAP
   Widget _buildMapCard(int index, LatLng loc, String address) {
@@ -328,22 +328,25 @@ Future<String> _getActivityTypeDescription(dynamic actid) async {
                   Text("📍 Address: $address",
                       style: WidgetSupport.Questionblack()),
                   const SizedBox(height: 4),
-                      if (index < _addresses.length)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 5),
-                      Text("Buddy Code: ${_apiLocations[index]['buddy_code'] ?? 'N/A'}",
-                          style: const TextStyle(color: Colors.black87)),
-                      Text("Target Meetings: ${_apiLocations[index]['target_meetings'] ?? 'N/A'}",
-                          style: const TextStyle(color: Colors.black87)),
-                      Text("Location Type: ${_apiLocations[index]['locationText'] ?? 'N/A'}",
-                      style: const TextStyle(color: Colors.black87)),
-                      Text("Activity Type: ${_apiLocations[index]['activityText'] ?? 'N/A'}",
-                      style: const TextStyle(color: Colors.black87)),
-
-                    ],
-                  ),
+                  if (index < _addresses.length)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 5),
+                        Text(
+                            "Buddy Code: ${_apiLocations[index]['buddy_code'] ?? 'N/A'}",
+                            style: const TextStyle(color: Colors.black87)),
+                        Text(
+                            "Target Meetings: ${_apiLocations[index]['target_meetings'] ?? 'N/A'}",
+                            style: const TextStyle(color: Colors.black87)),
+                        Text(
+                            "Location Type: ${_apiLocations[index]['locationText'] ?? 'N/A'}",
+                            style: const TextStyle(color: Colors.black87)),
+                        Text(
+                            "Activity Type: ${_apiLocations[index]['activityText'] ?? 'N/A'}",
+                            style: const TextStyle(color: Colors.black87)),
+                      ],
+                    ),
                 ],
               ),
             ),
@@ -352,12 +355,13 @@ Future<String> _getActivityTypeDescription(dynamic actid) async {
       ),
     );
   }
+
   Widget _buildTextField(
     TextEditingController controller,
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
     bool isEmail = false,
     bool isPhoneNumber = false,
@@ -366,7 +370,7 @@ Future<String> _getActivityTypeDescription(dynamic actid) async {
     bool allowSpaces = false,
     bool isReferralCode = false,
     bool readOnly = false,
-    
+
     // bool isRequired = false,
   }) {
     return TextFormField(
@@ -404,6 +408,7 @@ Future<String> _getActivityTypeDescription(dynamic actid) async {
       // ),
     );
   }
+
   Widget _buildEmpActivityTypeDropdown({
     required TextEditingController controller,
     required String label,

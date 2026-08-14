@@ -5,8 +5,9 @@ import 'package:unosfa/widgetSupport/widgetstyle.dart';
 
 class ForcePasswordChange extends StatefulWidget {
   final String accesToken; // Lead ID passed from the previous screen
-final  String phone_number;
-  const ForcePasswordChange({super.key, required this.accesToken, required this.phone_number});
+  final String phone_number;
+  const ForcePasswordChange(
+      {super.key, required this.accesToken, required this.phone_number});
 
   @override
   State<ForcePasswordChange> createState() => _ForcePasswordChangeState();
@@ -131,7 +132,7 @@ class _ForcePasswordChangeState extends State<ForcePasswordChange> {
   Widget _buildoldPasswordTextField(
     TextEditingController controller,
     String hintText, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
   }) {
     return TextFormField(
@@ -144,7 +145,7 @@ class _ForcePasswordChangeState extends State<ForcePasswordChange> {
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
           child: IconButton(
-            icon: Icon(
+            icon: FaIcon(
               _isoldPasswordVisible
                   ? FontAwesomeIcons.eyeSlash
                   : FontAwesomeIcons.eye,
@@ -171,7 +172,7 @@ class _ForcePasswordChangeState extends State<ForcePasswordChange> {
   Widget _buildPasswordTextField(
     TextEditingController controller,
     String hintText, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
     bool isConfirmPassword = false,
   }) {
@@ -187,7 +188,7 @@ class _ForcePasswordChangeState extends State<ForcePasswordChange> {
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
           child: IconButton(
-            icon: Icon(
+            icon: FaIcon(
               _isPasswordVisible
                   ? FontAwesomeIcons.eyeSlash
                   : FontAwesomeIcons.eye,
@@ -243,7 +244,7 @@ class _ForcePasswordChangeState extends State<ForcePasswordChange> {
   Widget _buildConfirmPasswordTextField(
     TextEditingController controller,
     String hintText, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
     bool isConfirmPassword = false,
   }) {
@@ -258,7 +259,7 @@ class _ForcePasswordChangeState extends State<ForcePasswordChange> {
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
           child: IconButton(
-            icon: Icon(
+            icon: FaIcon(
               _isConfirmPasswordVisible
                   ? FontAwesomeIcons.eyeSlash
                   : FontAwesomeIcons.eye,
@@ -300,12 +301,11 @@ class _ForcePasswordChangeState extends State<ForcePasswordChange> {
           context,
           MaterialPageRoute(
             builder: (context) => Changepasswordotp(
-              oldpassword: _oldpasswordController.text,
-              newpassword: _newpasswordController.text,
-              confirmpassword: _confirmpasswordController.text,
-              token: widget.accesToken,
-              phone_number: widget.phone_number
-            ),
+                oldpassword: _oldpasswordController.text,
+                newpassword: _newpasswordController.text,
+                confirmpassword: _confirmpasswordController.text,
+                token: widget.accesToken,
+                phone_number: widget.phone_number),
           ),
         );
       } else {

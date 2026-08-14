@@ -2243,7 +2243,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
     String hintText,
     String validationMessage,
     String validationKey, {
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
     bool isEmail = false,
     bool isPhoneNumber = false,
@@ -2317,7 +2317,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                 ),
               )
             : Text(hintText, style: WidgetSupport.inputLabel()),
-        suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+        suffixIcon: FaIcon(icon, color: Colors.purple, size: 15),
       ),
     );
   }
@@ -2325,7 +2325,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
   Widget _buildMobileTextField({
     required TextEditingController controller,
     bool isRequired = true,
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool isPhoneNumber = false,
   }) {
     return Row(
@@ -2373,7 +2373,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                       ),
                     )
                   : Text(" Phone Number", style: WidgetSupport.inputLabel()),
-              suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+              suffixIcon: FaIcon(icon, color: Colors.purple, size: 15),
             ),
           ),
         ),
@@ -2510,7 +2510,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
     String validationKey, {
     bool isRequired = true,
     bool readOnly = false,
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     int? maxDigits, // Maximum digits allowed (TIN=9, SSS=10, GSIS=11)
   }) {
     return TextFormField(
@@ -2537,7 +2537,7 @@ class _DailyAgentPlanerState extends State<DailySalesReport> {
                 ),
               )
             : Text(hintText, style: WidgetSupport.inputLabel()),
-        suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+        suffixIcon: FaIcon(icon, color: Colors.purple, size: 15),
       ),
       validator: (value) {
         if (isRequired && (value == null || value.trim().isEmpty)) {

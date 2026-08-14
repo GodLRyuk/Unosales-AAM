@@ -138,7 +138,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             decoration: InputDecoration(
               hintText: "Enter your email",
               hintStyle: WidgetSupport.inputLabel(),
-              suffixIcon: Icon(FontAwesomeIcons.envelope),
+              suffixIcon: FaIcon(FontAwesomeIcons.envelope),
             ),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -250,7 +250,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         hintText: hintText,
         hintStyle: WidgetSupport.inputLabel(),
         suffixIcon: IconButton(
-          icon: Icon(
+          icon: FaIcon(
             obscureText ? FontAwesomeIcons.eye : FontAwesomeIcons.eyeSlash,
             color: Colors.purple,
             size: 20,

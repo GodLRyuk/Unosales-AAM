@@ -282,7 +282,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
     String validationMessage,
     String validationKey, {
     //bool isRequired = true,
-    IconData icon = FontAwesomeIcons.solidCircleUser,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool obscureText = false,
   }) {
     return TextFormField(
@@ -296,7 +296,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
         hintStyle: WidgetSupport.inputLabel(),
         suffixIcon: Padding(
           padding: const EdgeInsets.all(0),
-          child: Icon(
+          child: FaIcon(
             icon,
             color: Colors.purple,
             size: 20,
@@ -324,7 +324,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
         fillColor: Colors.grey.shade200,
         hintText: labelText,
         hintStyle: WidgetSupport.inputLabel(),
-        suffixIcon: const Icon(
+        suffixIcon: const FaIcon(
           FontAwesomeIcons.calendar,
           color: Colors.purple,
           size: 18,
@@ -342,7 +342,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
   Widget _buildMobileTextField({
     required TextEditingController controller,
     bool isRequired = true,
-    IconData icon = FontAwesomeIcons.phoneVolume,
+    FaIconData icon = FontAwesomeIcons.solidCircleUser,
     bool isPhoneNumber = false,
     bool readOnly = false,
   }) {
@@ -394,7 +394,7 @@ class _DedupeCheckState extends State<DedupeCheck> {
                       ),
                     )
                   : Text(" Phone Number", style: WidgetSupport.inputLabel()),
-              suffixIcon: Icon(icon, color: Colors.purple, size: 15),
+              suffixIcon: FaIcon(icon, color: Colors.purple, size: 15),
             ),
           ),
         ),
@@ -673,7 +673,6 @@ class _DedupeCheckState extends State<DedupeCheck> {
           String errorMessage = "Something went wrong. Please try again.";
           _showAlert(responseBody?.toString() ?? errorMessage);
         }
-
       } catch (e) {
         final responseBody = response.data;
         String errorMessage = "Network or server error. Please try again.";
