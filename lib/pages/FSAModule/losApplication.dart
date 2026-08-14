@@ -152,6 +152,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
   final documentId = TextEditingController();
   // done
 
+  bool _empTypePrefilled = false;
   bool _isChecked = false;
   String IpAddress = "";
   String latitude = "";
@@ -170,23 +171,62 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     initAll();
   }
 
-  Future<void> initAll() async {
+  void _clearDependentFields() {
+    setState(() {
+      emp_Status.clear();
+      emp_Status_Code.clear();
+      empStatusList = [];
+
+      emp_Work_Nature.clear();
+      emp_Work_Nature_Code.clear();
+      empWorkNatureList = [];
+
+      emp_Indus_Type.clear();
+      emp_Indus_Type_Code.clear();
+      industryList = [];
+
+      emp_Type.clear();
+      emp_Type_Code.clear();
+      empList = [];
+
+      emp_position.clear();
+      position = [];
+
+      fin_Src_Of_Funds.clear();
+      fin_Src_Of_Funds_Code.clear();
+      sourceofFundList = [];
+
+      profession.clear();
+      empProfessionList = [];
+
+      emp_Mths_In_Cur_Comp.clear();
+      emp_Yrs_In_Cur_Comp.clear();
+      workExperience = [];
+    });
+  }
+
+  Future<void> initAll({bool isRefresh = false}) async {
     setState(() {
       _isLoading = true;
     });
 
-    _loadData();
+    if (isRefresh) {
+      print("Refreshing data and clearing dependent fields... $isRefresh");
 
+      _clearDependentFields();
+    }
+
+    _loadData();
     await _initializeGenderList();
-    await _initializeEmpWorkNatureList();
     await _initializeEmpStatusList();
+    // await _initializeEmpWorkNatureList(); // **********
     await _initializeEmpTypeList();
     await _initializeEmpprofessionList();
     await _initializeCivilList();
     await _loadagent();
     await getPublicIP();
     await getCurrentLocation(context);
-    await _initializeEmpPositionList();
+    //await _initializeEmpPositionList(); //************* */
     await _initializeIndustryTypeList();
     await _initializeWorkExprienceList();
     await _initializeNationalityList();
@@ -1287,6 +1327,74 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     }
   }
 
+  // Future<void> _initializeEmpWorkNatureList() async {
+  //   String tokens = "";
+  //   try {
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     String? token = prefs.getString('accessToken');
+
+  //     final url = '/api/leads/los-access-token/';
+  //     final headers = {
+  //       'Authorization': 'Bearer $token',
+  //       'Accept': 'application/json',
+  //       'Content-Type': 'multipart/form-data',
+  //     };
+  //     final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+  //     final tokenData = tokenResponse!.data;
+  //     tokens = tokenData['access_token'];
+  //   } catch (e) {
+  //     print("HTTP Request Failed: $e");
+  //   }
+  //   try {
+  //     final endpoint = '/api/app/fetch/LOV/details';
+  //     final headers2 = {
+  //       'Authorization': 'Bearer $tokens',
+  //       'Content-Type': 'application/json',
+  //       'Idempotency-Key': 'sfsggdhsdgdgdg',
+  //     };
+  //     final body = {
+  //       "filters": [
+  //         {"id": "9"}
+  //       ]
+  //     };
+  //     final response =
+  //         await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
+
+  //     if (response != null && response.statusCode == 200) {
+  //       final Map<String, dynamic> responseBody = response.data;
+
+  //       if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
+  //         final firstItem =
+  //             responseBody['data'][0]; // The first map in the list
+
+  //         final lovsDetails = firstItem['lovs_details'];
+  //         if (lovsDetails != null && lovsDetails['NatureOfWork'] is List) {
+  //           setState(() {
+  //             empWorkNatureList = (lovsDetails['NatureOfWork'] as List)
+  //                 .map<Map<String, dynamic>>(
+  //                     (item) => Map<String, dynamic>.from(item))
+  //                 .toList();
+  //           });
+  //         } else {
+  //           print("lovs_details or EMP Work Nature list not found");
+  //         }
+  //       } else {
+  //         print("Response status not Success or data is invalid");
+  //       }
+  //     } else {
+  //       throw Exception('Failed to load EMP Work Nature list');
+  //     }
+  //   } catch (e) {
+  //     print("Error loading EMP Work Nature list: $e");
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Failed to load EMP Work Nature list')),
+  //     );
+  //   }
+  // }
+
+  // ********************************************************
+
   Future<void> _initializeEmpWorkNatureList() async {
     String tokens = "";
     try {
@@ -1306,17 +1414,17 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
+
     try {
-      final endpoint = '/api/app/fetch/LOV/details';
+      final endpoint = '/api/lov/mapping/sequence';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
         'Content-Type': 'application/json',
         'Idempotency-Key': 'sfsggdhsdgdgdg',
       };
       final body = {
-        "filters": [
-          {"id": "9"}
-        ]
+        "category": "Nature_of_Work",
+        "empStatusId": emp_Status_Code.text.replaceFirst(RegExp(r'^0+'), ''),
       };
       final response =
           await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
@@ -1325,22 +1433,15 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
-          final firstItem =
-              responseBody['data'][0]; // The first map in the list
-
-          final lovsDetails = firstItem['lovs_details'];
-          if (lovsDetails != null && lovsDetails['NatureOfWork'] is List) {
-            setState(() {
-              empWorkNatureList = (lovsDetails['NatureOfWork'] as List)
-                  .map<Map<String, dynamic>>(
-                      (item) => Map<String, dynamic>.from(item))
-                  .toList();
-            });
-          } else {
-            print("lovs_details or EMP Work Nature list not found");
-          }
+          final dataList = responseBody['data'];
+          setState(() {
+            empWorkNatureList = dataList
+                .map<Map<String, dynamic>>(
+                    (item) => {"key": item['key'], "value": item['value']})
+                .toList();
+          });
         } else {
-          print("Response status not Success or data is invalid");
+          print("Data is not a valid list or is empty.");
         }
       } else {
         throw Exception('Failed to load EMP Work Nature list');
@@ -1352,6 +1453,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
     }
   }
+
+  //**********************************************************
 
   Future<void> _initializeEmpStatusList() async {
     String tokens = "";
@@ -1683,6 +1786,73 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     }
   }
 
+  // Future<void> _initializeEmpPositionList() async {
+  //   String tokens = "";
+  //   try {
+  //     SharedPreferences prefs = await SharedPreferences.getInstance();
+  //     String? token = prefs.getString('accessToken');
+
+  //     final url = '/api/leads/los-access-token/';
+  //     final headers = {
+  //       'Authorization': 'Bearer $token',
+  //       'Accept': 'application/json',
+  //       'Content-Type': 'multipart/form-data',
+  //     };
+  //     final tokenResponse = await ApiService.getWithHeaders(url, headers);
+
+  //     final tokenData = tokenResponse!.data;
+  //     tokens = tokenData['access_token'];
+  //   } catch (e) {
+  //     print("HTTP Request Failed: $e");
+  //   }
+  //   try {
+  //     final endpoint = '/api/app/fetch/LOV/details';
+  //     final headers2 = {
+  //       'Authorization': 'Bearer $tokens',
+  //       'Content-Type': 'application/json',
+  //       'Idempotency-Key': 'sfsggdhsdgdgdg',
+  //     };
+  //     final body = {
+  //       "filters": [
+  //         {"id": "15"}
+  //       ]
+  //     };
+  //     final response =
+  //         await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
+
+  //     if (response != null && response.statusCode == 200) {
+  //       final Map<String, dynamic> responseBody = response.data;
+
+  //       if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
+  //         final firstItem =
+  //             responseBody['data'][0]; // The first map in the list
+
+  //         final lovsDetails = firstItem['lovs_details'];
+  //         if (lovsDetails != null && lovsDetails['Position'] is List) {
+  //           setState(() {
+  //             position = (lovsDetails['Position'] as List)
+  //                 .map<Map<String, dynamic>>(
+  //                     (item) => Map<String, dynamic>.from(item))
+  //                 .toList();
+  //           });
+  //         } else {
+  //           print("lovs_details or EMP Position list not found");
+  //         }
+  //       } else {
+  //         print("Response status not Success or data is invalid");
+  //       }
+  //     } else {
+  //       throw Exception('Failed to load EMP Position list');
+  //     }
+  //   } catch (e) {
+  //     print("Error loading EMP Position list: $e");
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Failed to load EMP Position list')),
+  //     );
+  //   }
+  // }
+
+  //********************************************************************* */
   Future<void> _initializeEmpPositionList() async {
     String tokens = "";
     try {
@@ -1702,17 +1872,18 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     } catch (e) {
       print("HTTP Request Failed: $e");
     }
+
     try {
-      final endpoint = '/api/app/fetch/LOV/details';
+      final endpoint = '/api/lov/mapping/sequence';
       final headers2 = {
         'Authorization': 'Bearer $tokens',
         'Content-Type': 'application/json',
         'Idempotency-Key': 'sfsggdhsdgdgdg',
       };
       final body = {
-        "filters": [
-          {"id": "15"}
-        ]
+        "category": "Position",
+        "empStatusId": emp_Status_Code.text.replaceFirst(RegExp(r'^0+'), ''),
+        "nowId": emp_Work_Nature_Code.text.replaceFirst(RegExp(r'^0+'), ''),
       };
       final response =
           await ApiService.postWithHeadersUnoApi(endpoint, body, headers2);
@@ -1721,22 +1892,15 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         final Map<String, dynamic> responseBody = response.data;
 
         if (responseBody['data'] is List && responseBody['data'].isNotEmpty) {
-          final firstItem =
-              responseBody['data'][0]; // The first map in the list
-
-          final lovsDetails = firstItem['lovs_details'];
-          if (lovsDetails != null && lovsDetails['Position'] is List) {
-            setState(() {
-              position = (lovsDetails['Position'] as List)
-                  .map<Map<String, dynamic>>(
-                      (item) => Map<String, dynamic>.from(item))
-                  .toList();
-            });
-          } else {
-            print("lovs_details or EMP Position list not found");
-          }
+          final dataList = responseBody['data'];
+          setState(() {
+            position = dataList
+                .map<Map<String, dynamic>>(
+                    (item) => {"key": item['key'], "value": item['value']})
+                .toList();
+          });
         } else {
-          print("Response status not Success or data is invalid");
+          print("Data is not a valid list or is empty.");
         }
       } else {
         throw Exception('Failed to load EMP Position list');
@@ -1748,6 +1912,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       );
     }
   }
+
+  //********************************************************************* */
 
   Future<void> _initializeCivilList() async {
     String tokens = "";
@@ -1938,6 +2104,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         emp_Status_Code.text = code1;
         emp_Status.text = selectedItem1['value'] ?? '';
       });
+      if (emp_Status_Code.text.isNotEmpty) {
+        await _initializeEmpWorkNatureList();
+      }
 
       //****************************************************
 
@@ -1952,6 +2121,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         emp_Work_Nature_Code.text = code2;
         emp_Work_Nature.text = selectedItem2['value'] ?? '';
       });
+      if (emp_Work_Nature_Code.text.isNotEmpty) {
+        await _initializeEmpPositionList();
+      }
 
       //************************************************ */
 
@@ -1964,6 +2136,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       setState(() {
         emp_Type_Code.text = code3;
         emp_Type.text = selectedItem3['value'] ?? '';
+        _empTypePrefilled = (selectedItem3['value'] ?? '').isNotEmpty;
       });
     } catch (e) {
       print("Error in setNtbFreshCandidate: $e");
@@ -1975,10 +2148,28 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     }
   }
 
-  // ***************** ETB FRESH APPLICATION ********************
+  // updated at 31-7-2026 *********************************************
+
   Future<void> setEtbFreshCandidate() async {
     try {
       final etbDetails = widget.customerDetails;
+
+      // Fetch data from RQA
+      //EMPLOYEE source of income
+      String code1 = widget.sourceIncome ?? "";
+      final selectedItem1 = empStatusList.firstWhere(
+        (item) => item['key'] == code1,
+        orElse: () => {},
+      );
+
+      setState(() {
+        emp_Status_Code.text = code1;
+        emp_Status.text = selectedItem1['value'] ?? '';
+      });
+
+      if (emp_Status_Code.text.isNotEmpty) {
+        await _initializeEmpWorkNatureList();
+      }
 
       if (etbDetails is List && etbDetails.isNotEmpty) {
         final customer = etbDetails[0];
@@ -2014,18 +2205,42 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
               ? customer['birthDate']?.trim()
               : (widget.dateofbirth ?? '');
 
-          fin_Mthly_Income.text = (empMonthlyIncome?['fin_Mthly_Income']
-                      ?.toString()
-                      .trim()
-                      .isNotEmpty ??
-                  false)
-              ? empMonthlyIncome['fin_Mthly_Income'].toString().trim()
-              : (widget.monthlyIncome ?? "");
+          final String rqaIncome = (widget.monthlyIncome ?? "").trim();
+          final String backendIncome =
+              (empMonthlyIncome?['fin_Mthly_Income']?.toString().trim() ?? "");
 
-          perm_ZipCode.text =
-              (address?['postcode']?.toString().trim().isNotEmpty ?? false)
-                  ? address['postcode'].toString().trim()
-                  : (widget.zipCode ?? "");
+          if (backendIncome.isNotEmpty && backendIncome == rqaIncome) {
+            fin_Mthly_Income.text = rqaIncome;
+          } else {
+            fin_Mthly_Income.text = rqaIncome;
+          }
+
+          // fin_Mthly_Income.text = (empMonthlyIncome?['fin_Mthly_Income']
+          //             ?.toString()
+          //             .trim()
+          //             .isNotEmpty ??
+          //         false)
+          //     ? empMonthlyIncome['fin_Mthly_Income'].toString().trim()
+          //     : (widget.monthlyIncome ?? "");
+
+          // perm_ZipCode.text =
+          //     (address?['postcode']?.toString().trim().isNotEmpty ?? false)
+          //         ? address['postcode'].toString().trim()
+          //         : (widget.zipCode ?? "");
+
+          // ********************* Done by today 3-8-2026 *********************
+
+          final String rqaZip = (widget.zipCode ?? "").trim();
+          final String backendZip =
+              (address?['postcode']?.toString().trim() ?? "");
+
+          if (backendZip.isNotEmpty && backendZip == rqaZip) {
+            perm_ZipCode.text = rqaZip;
+          } else {
+            perm_ZipCode.text = rqaZip;
+          }
+
+          //*********************************** */
 
           if (customer?['gender'] == "MALE") {
             gender.text = "Male";
@@ -2034,7 +2249,6 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
           }
 
           // address
-
           perm_Street.text = address?['line1'] ?? "";
 
           // document
@@ -2055,46 +2269,90 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         });
 
         // zip function customer
-        if (address != null && address['postcode'] != null) {
-          await onZipCodeEntered(address['postcode']);
-        } else if ((widget.zipCode ?? "").trim().isNotEmpty) {
+        // if (address != null &&
+        //     address['postcode'] != null &&
+        //     address['postcode'].toString().trim().isNotEmpty) {
+        //   await onZipCodeEntered(address['postcode']);
+        // } else if ((widget.zipCode ?? "").trim().isNotEmpty) {
+        //   await onZipCodeEntered(widget.zipCode!.trim());
+        // }
+
+        if (widget.zipCode != null && widget.zipCode!.trim().isNotEmpty) {
           await onZipCodeEntered(widget.zipCode!.trim());
         }
 
-        // zip for employee
-        // emp_ZipCode.text = empAddress['emp_ZipCode'] ?? "";
-        // if (empAddress != null && empAddress['emp_ZipCode'] != null) {
-        //   await onEmpZipCodeEntered(address['emp_ZipCode']);
-        // }
+        // Employee work nature from RQA and backend
 
-        // employee work nature
-        if (empDetails != null && empDetails['emp_Work_Nature_Code'] != null) {
-          String code = empDetails['emp_Work_Nature_Code'].toString();
+        final String rqaWorkNatureCode =
+            (widget.natureOfBusiness ?? "").toString().trim();
+        final String backendWorkNatureCode =
+            (empDetails?['emp_Work_Nature_Code']?.toString().trim() ?? "");
 
-          final selectedItem = empWorkNatureList.firstWhere(
-            (item) => item['key'] == code,
-            orElse: () => {},
-          );
-
-          setState(() {
-            //emp_Work_Nature
-            emp_Work_Nature_Code.text = code;
-            emp_Work_Nature.text = selectedItem['value'] ?? '';
-          });
-        } else if (widget.natureOfBusiness != null) {
-          String code = widget.natureOfBusiness.toString();
-
-          final selectedItem = empWorkNatureList.firstWhere(
-            (item) => item['key'] == code,
-            orElse: () => {},
-          );
-
-          setState(() {
-            //emp_Work_Nature
-            emp_Work_Nature_Code.text = code;
-            emp_Work_Nature.text = selectedItem['value'] ?? '';
-          });
+        String finalWorkNatureCode;
+        if (backendWorkNatureCode.isNotEmpty &&
+            backendWorkNatureCode == rqaWorkNatureCode) {
+          finalWorkNatureCode = rqaWorkNatureCode;
+        } else {
+          finalWorkNatureCode = rqaWorkNatureCode;
         }
+
+        final selectedItem = empWorkNatureList.firstWhere(
+          (item) => item['key'] == finalWorkNatureCode,
+          orElse: () => {},
+        );
+
+        setState(() {
+          emp_Work_Nature_Code.text = selectedItem['key'] ?? '';
+          emp_Work_Nature.text = selectedItem['value'] ?? '';
+        });
+
+        if (emp_Work_Nature_Code.text.isNotEmpty) {
+          await _initializeEmpPositionList();
+        }
+
+        // employee work nature from API
+        // if (empDetails != null &&
+        //     empDetails['emp_Work_Nature_Code'] != null &&
+        //     empDetails['emp_Work_Nature_Code'].toString().trim().isNotEmpty) {
+        //   String code = empDetails['emp_Work_Nature_Code'].toString();
+
+        //   final selectedItem = empWorkNatureList.firstWhere(
+        //     (item) => item['key'] == code,
+        //     orElse: () => {},
+        //   );
+
+        //   setState(() {
+        //     //emp_Work_Nature
+        //     // emp_Work_Nature_Code.text = code;
+        //     emp_Work_Nature_Code.text = selectedItem['key'] ?? '';
+        //     emp_Work_Nature.text = selectedItem['value'] ?? '';
+        //     _empWorkNaturePrefilled =
+        //         (selectedItem['value'] ?? '').isNotEmpty; // ADDED in 3/8/2026
+        //   });
+
+        //   if (emp_Work_Nature_Code.text.isNotEmpty) {
+        //     await _initializeEmpPositionList();
+        //   }
+        // } else if (widget.natureOfBusiness != null) {
+        //   String code = widget.natureOfBusiness.toString();
+
+        //   final selectedItem = empWorkNatureList.firstWhere(
+        //     (item) => item['key'] == code,
+        //     orElse: () => {},
+        //   );
+
+        //   setState(() {
+        //     //emp_Work_Nature
+        //     //emp_Work_Nature_Code.text = code;
+        //     emp_Work_Nature_Code.text = selectedItem['key'] ?? '';
+        //     emp_Work_Nature.text = selectedItem['value'] ?? '';
+        //     _empWorkNaturePrefilled =
+        //         (selectedItem['value'] ?? '').isNotEmpty; // ADDED IN 3/8/2026
+        //   });
+        //   if (emp_Work_Nature_Code.text.isNotEmpty) {
+        //     await _initializeEmpPositionList();
+        //   }
+        // }
       } else {
         setState(() {
           firstName.text = widget.firstName ?? '';
@@ -2128,24 +2386,16 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
             orElse: () => {},
           );
           setState(() {
-            emp_Work_Nature_Code.text = code;
+            //emp_Work_Nature_Code.text = code;
+            emp_Work_Nature_Code.text = selectedItem['key'] ?? '';
             emp_Work_Nature.text = selectedItem['value'] ?? '';
           });
+
+          if (emp_Work_Nature_Code.text.isNotEmpty) {
+            await _initializeEmpPositionList();
+          }
         }
       }
-
-      // Fetch data from RQA
-      //EMPLOYEE source of income
-      String code1 = widget.sourceIncome ?? "";
-      final selectedItem1 = empStatusList.firstWhere(
-        (item) => item['key'] == code1,
-        orElse: () => {},
-      );
-
-      setState(() {
-        emp_Status_Code.text = code1;
-        emp_Status.text = selectedItem1['value'] ?? '';
-      });
 
       // EMPLOYEE TYPE
       String code3 = widget.empStatus ?? "";
@@ -2156,6 +2406,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       setState(() {
         emp_Type_Code.text = code3;
         emp_Type.text = selectedItem3['value'] ?? '';
+        _empTypePrefilled = (selectedItem3['value'] ?? '').isNotEmpty;
       });
     } catch (e) {
       print("Error in setEtbFreshCandidate: $e");
@@ -2166,6 +2417,220 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       }
     }
   }
+
+  // Future<void> setEtbFreshCandidate() async {
+  //   try {
+  //     final etbDetails = widget.customerDetails;
+
+  //     // Fetch data from RQA
+  //     //EMPLOYEE source of income
+  //     String code1 = widget.sourceIncome ?? "";
+  //     final selectedItem1 = empStatusList.firstWhere(
+  //       (item) => item['key'] == code1,
+  //       orElse: () => {},
+  //     );
+
+  //     setState(() {
+  //       emp_Status_Code.text = code1;
+  //       emp_Status.text = selectedItem1['value'] ?? '';
+  //     });
+
+  //     if (emp_Status_Code.text.isNotEmpty) {
+  //       await _initializeEmpWorkNatureList();
+  //     }
+
+  //     if (etbDetails is List && etbDetails.isNotEmpty) {
+  //       final customer = etbDetails[0];
+  //       final address = customer['addresses']?[0];
+  //       //final empAddress = customer['_Emp_Address'];
+  //       final iddocuments = customer['idDocuments']?[0];
+  //       final empMonthlyIncome = customer['_Fin_Details'];
+  //       final empDetails = customer['_Emp_Details'];
+
+  //       setState(() {
+  //         firstName.text = (customer['firstName']?.trim().isNotEmpty ?? false)
+  //             ? customer['firstName']?.trim()
+  //             : (widget.firstName ?? '');
+
+  //         lastName.text = (customer['lastName']?.trim().isNotEmpty ?? false)
+  //             ? customer['lastName']?.trim()
+  //             : (widget.lastName ?? '');
+
+  //         middlename.text = (customer['middleName']?.trim().isNotEmpty ?? false)
+  //             ? customer['middleName']?.trim()
+  //             : (widget.middleName ?? '');
+
+  //         mobilePhone.text =
+  //             (customer['mobilePhone']?.trim().isNotEmpty ?? false)
+  //                 ? (customer['mobilePhone'].trim().length > 2
+  //                     ? customer['mobilePhone'].trim().substring(2)
+  //                     : '')
+  //                 : (widget.mobilePhone ?? '');
+
+  //         email.text = customer['emailAddress'] ?? "";
+
+  //         birthDate.text = (customer['birthDate']?.trim().isNotEmpty ?? false)
+  //             ? customer['birthDate']?.trim()
+  //             : (widget.dateofbirth ?? '');
+
+  //         fin_Mthly_Income.text = (empMonthlyIncome?['fin_Mthly_Income']
+  //                     ?.toString()
+  //                     .trim()
+  //                     .isNotEmpty ??
+  //                 false)
+  //             ? empMonthlyIncome['fin_Mthly_Income'].toString().trim()
+  //             : (widget.monthlyIncome ?? "");
+
+  //         perm_ZipCode.text =
+  //             (address?['postcode']?.toString().trim().isNotEmpty ?? false)
+  //                 ? address['postcode'].toString().trim()
+  //                 : (widget.zipCode ?? "");
+
+  //         if (customer?['gender'] == "MALE") {
+  //           gender.text = "Male";
+  //         } else {
+  //           gender.text = "Female";
+  //         }
+
+  //         // address
+
+  //         perm_Street.text = address?['line1'] ?? "";
+
+  //         // document
+  //         documentType.text = iddocuments?['documentType'] ?? "";
+  //         documentId.text = iddocuments?['documentId'] ?? "";
+
+  //         // Company
+  //         _searchController.text = widget.companyName ?? "";
+  //         emp_Employer_Name.text = widget.companyName ?? "";
+
+  //         if ((widget.companyName ?? "").toLowerCase() == "others") {
+  //           _selectedCompany = 'others';
+  //           _showOtherCompanyField = true;
+  //           _otherCompanyController.text = widget.otherCompanyName ?? "";
+  //         } else {
+  //           _showOtherCompanyField = false;
+  //         }
+  //       });
+
+  //       // zip function customer
+  //       if (address != null &&
+  //           address['postcode'] != null &&
+  //           address['postcode'].toString().trim().isNotEmpty) {
+  //         await onZipCodeEntered(address['postcode']);
+  //       } else if ((widget.zipCode ?? "").trim().isNotEmpty) {
+  //         await onZipCodeEntered(widget.zipCode!.trim());
+  //       }
+
+  //       // employee work nature from API
+  //       if (empDetails != null &&
+  //           empDetails['emp_Work_Nature_Code'] != null &&
+  //           empDetails['emp_Work_Nature_Code'].toString().trim().isNotEmpty) {
+  //         String code = empDetails['emp_Work_Nature_Code'].toString();
+
+  //         final selectedItem = empWorkNatureList.firstWhere(
+  //           (item) => item['key'] == code,
+  //           orElse: () => {},
+  //         );
+
+  //         setState(() {
+  //           //emp_Work_Nature
+  //           // emp_Work_Nature_Code.text = code;
+  //           emp_Work_Nature_Code.text = selectedItem['key'] ?? '';
+  //           emp_Work_Nature.text = selectedItem['value'] ?? '';
+  //           _empWorkNaturePrefilled =
+  //               (selectedItem['value'] ?? '').isNotEmpty; // ADDED in 3/8/2026
+  //         });
+
+  //         if (emp_Work_Nature_Code.text.isNotEmpty) {
+  //           await _initializeEmpPositionList();
+  //         }
+  //       } else if (widget.natureOfBusiness != null) {
+  //         String code = widget.natureOfBusiness.toString();
+
+  //         final selectedItem = empWorkNatureList.firstWhere(
+  //           (item) => item['key'] == code,
+  //           orElse: () => {},
+  //         );
+
+  //         setState(() {
+  //           //emp_Work_Nature
+  //           //emp_Work_Nature_Code.text = code;
+  //           emp_Work_Nature_Code.text = selectedItem['key'] ?? '';
+  //           emp_Work_Nature.text = selectedItem['value'] ?? '';
+  //           _empWorkNaturePrefilled =
+  //               (selectedItem['value'] ?? '').isNotEmpty; // ADDED IN 3/8/2026
+  //         });
+  //         if (emp_Work_Nature_Code.text.isNotEmpty) {
+  //           await _initializeEmpPositionList();
+  //         }
+  //       }
+  //     } else {
+  //       setState(() {
+  //         firstName.text = widget.firstName ?? '';
+  //         lastName.text = widget.lastName ?? '';
+  //         middlename.text = widget.middleName ?? '';
+  //         mobilePhone.text = widget.mobilePhone ?? '';
+  //         birthDate.text = widget.dateofbirth ?? '';
+  //         fin_Mthly_Income.text = widget.monthlyIncome ?? '';
+  //         perm_ZipCode.text = widget.zipCode ?? '';
+
+  //         _searchController.text = widget.companyName ?? '';
+  //         emp_Employer_Name.text = widget.companyName ?? '';
+
+  //         if ((widget.companyName ?? "").toLowerCase() == "others") {
+  //           _selectedCompany = 'others';
+  //           _showOtherCompanyField = true;
+  //           _otherCompanyController.text = widget.otherCompanyName ?? '';
+  //         } else {
+  //           _showOtherCompanyField = false;
+  //         }
+  //       });
+
+  //       if ((widget.zipCode ?? "").trim().isNotEmpty) {
+  //         await onZipCodeEntered(widget.zipCode!.trim());
+  //       }
+
+  //       if (widget.natureOfBusiness != null) {
+  //         String code = widget.natureOfBusiness.toString();
+  //         final selectedItem = empWorkNatureList.firstWhere(
+  //           (item) => item['key'] == code,
+  //           orElse: () => {},
+  //         );
+  //         setState(() {
+  //           //emp_Work_Nature_Code.text = code;
+  //           emp_Work_Nature_Code.text = selectedItem['key'] ?? '';
+  //           emp_Work_Nature.text = selectedItem['value'] ?? '';
+  //           _empWorkNaturePrefilled =
+  //               (selectedItem['value'] ?? '').isNotEmpty; //ADDED in 3/8/2026
+  //         });
+
+  //         if (emp_Work_Nature_Code.text.isNotEmpty) {
+  //           await _initializeEmpPositionList();
+  //         }
+  //       }
+  //     }
+
+  //     // EMPLOYEE TYPE
+  //     String code3 = widget.empStatus ?? "";
+  //     final selectedItem3 = empList.firstWhere(
+  //       (item) => item['key'] == code3,
+  //       orElse: () => {},
+  //     );
+  //     setState(() {
+  //       emp_Type_Code.text = code3;
+  //       emp_Type.text = selectedItem3['value'] ?? '';
+  //       _empTypePrefilled = (selectedItem3['value'] ?? '').isNotEmpty;
+  //     });
+  //   } catch (e) {
+  //     print("Error in setEtbFreshCandidate: $e");
+  //     if (mounted) {
+  //       setState(() {
+  //         _isLoading = false;
+  //       });
+  //     }
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -2221,7 +2686,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
         children: [
           RefreshIndicator(
             onRefresh: () async {
-              await initAll();
+              await initAll(isRefresh: true);
             },
             color: Color(0xFF640D78),
             child: Container(
@@ -2532,6 +2997,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                         ? true
                                         : false),
                                 SizedBox(height: 6),
+
                                 _buildEmpWorkNatureDropdown(
                                     controller: emp_Work_Nature,
                                     label: "Select Emp Work Nature",
@@ -2539,8 +3005,9 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                                     "fromHYPERVERSER" ||
                                                 widget.pagemode ==
                                                     "fromETBStartFresh") &&
-                                            emp_Work_Nature_Code
-                                                .text.isNotEmpty)
+                                            emp_Work_Nature.text.isNotEmpty
+                                        //emp_Work_Nature_Code.text.isNotEmpty
+                                        )
                                         ? true
                                         : false),
                                 SizedBox(height: 6),
@@ -2743,13 +3210,15 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                 _buildEmpTypeDropdown(
                                     controller: emp_Type,
                                     label: "   Employee Type",
-                                    isReadOnly: ((widget.pagemode ==
-                                                    "fromHYPERVERSER" ||
-                                                widget.pagemode ==
-                                                    "fromETBStartFresh") &&
-                                            emp_Type_Code.text.isNotEmpty)
-                                        ? true
-                                        : false),
+                                    isReadOnly: _empTypePrefilled
+                                    //((widget.pagemode ==
+                                    //                 "fromHYPERVERSER" ||
+                                    //             widget.pagemode ==
+                                    //                 "fromETBStartFresh") &&
+                                    //         emp_Type_Code.text.isNotEmpty)
+                                    //     ? true
+                                    //     : false
+                                    ),
                                 SizedBox(height: 6),
                                 _buildTextField(
                                   emp_email,
@@ -4192,8 +4661,14 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                 setState(() {
                   controller.text = selectedItem['value'] ?? '';
                   emp_Work_Nature_Code.text = selectedItem['key'] ?? '';
-                  _initializeSourceFundList();
+                  // clear stale Position selection + old list before refetch  done in 3/8/2026
+                  emp_position.clear();
+                  fin_Src_Of_Funds.clear();
+                  fin_Src_Of_Funds_Code.clear();
+                  // position = [];
+                  //_initializeSourceFundList();
                 });
+                _initializeEmpPositionList();
               }
             },
       icon: const SizedBox.shrink(),
@@ -4234,7 +4709,11 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
     return DropdownButtonFormField<String>(
       isExpanded: true,
       focusNode: genderFocusNode,
-      value: controller.text.isNotEmpty ? controller.text : null,
+      //value: controller.text.isNotEmpty ? controller.text : null,
+      value: position.any((item) =>
+              item['key'] == controller.text.trim()) // change be today 3/8/2026
+          ? controller.text.trim()
+          : null,
       items: position.map<DropdownMenuItem<String>>((item) {
         return DropdownMenuItem<String>(
           value: item['key']?.toString() ?? '',
@@ -4259,7 +4738,13 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
       },
       onChanged: (String? newValue) {
         if (newValue != null) {
-          controller.text = newValue;
+          //controller.text = newValue;
+          setState(() {
+            controller.text = newValue;
+            fin_Src_Of_Funds.clear();
+            fin_Src_Of_Funds_Code.clear();
+          });
+
           _initializeSourceFundList();
         }
       },
@@ -4331,7 +4816,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                 setState(() {
                   controller.text = selectedItem['value'] ?? '';
                   emp_Status_Code.text = selectedItem['key'] ?? '';
-                  _initializeSourceFundList();
+                  //_initializeSourceFundList();
+                  _initializeEmpWorkNatureList();
                 });
               }
             },

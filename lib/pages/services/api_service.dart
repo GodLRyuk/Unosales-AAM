@@ -180,9 +180,7 @@ class ApiService {
     String endpoint,
     Map<String, dynamic> body,
   ) async {
-    print(
-        '🌐 URL: ${DioClient.dynamic.options.baseUrl}$endpoint | HEADERS: ${DioClient.dynamic.options.headers} | BODY: $body');
-    try {
+      try {
       return await DioClient.dynamic.post(
         endpoint,
         data: body,
@@ -395,7 +393,11 @@ class ApiService {
         ),
       );
     } on DioException catch (e) {
-      if (e.response?.statusCode == 400) {
+      // if (e.response?.statusCode == 400) {
+      //   return e.response;
+      // }
+
+       if (e.response != null) {
         return e.response;
       }
       _handleError(e);

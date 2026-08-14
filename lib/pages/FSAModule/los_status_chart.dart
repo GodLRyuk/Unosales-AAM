@@ -215,36 +215,77 @@ class _LosStatusChartState extends State<LosStatusChart>
           'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
     };
 
+    // for (String status in statusList) {
+    //   // Append page parameter to URL
+    //   String endPointUrl = "los_status__offerStatus=$status&page=$_currentPage";
+    //   if (status == "UNDERWRITING STATUS") {
+    //     endPointUrl = "workflow_status=SW_PW&page=$_currentPage";
+    //   }
+    //   String url = "/api/leads/los-details/?$endPointUrl";
+
+    //   final response = await ApiService.getWithHeaders(url, headers);
+    //   if (response != null && response.statusCode == 200) {
+    //     final appJson = response.data;
+    //     final List results = appJson['results'];
+
+    //     for (var item in results) {
+    //       final clientDetails = item['clientDetails'];
+
+    //       final losStatus = item['los_status'];
+
+    //       newMergedLeads.add({
+    //         'id': item['id']?.toString() ?? '',
+    //         'firstName': clientDetails?['firstName']?.toString() ?? '',
+    //         'middleName': clientDetails?['middleName']?.toString() ?? '',
+    //         'lastName': clientDetails?['lastName']?.toString() ?? '',
+    //         'mobilePhone': clientDetails?['mobilePhone']?.toString() ?? '',
+    //         'CWTransactionID': item['CWTransactionID']?.toString() ?? '',
+    //         'applicationNo': losStatus?['applicationNo']?.toString() ?? '',
+    //         'offerStatus': losStatus?['offerStatus']?.toString() ?? '',
+    //         'uwStatus': losStatus?['uwStatus']?.toString() ?? '',
+    //         'workflow_status': item['workflow_status']?.toString() ?? '',
+    //       });
+    //     }
+    //   }
+    // }
+
     for (String status in statusList) {
-      // Append page parameter to URL
       String endPointUrl = "los_status__offerStatus=$status&page=$_currentPage";
+
+      List<String> endPointUrls = [];
       if (status == "UNDERWRITING STATUS") {
-        endPointUrl = "workflow_status=SW_PW&page=$_currentPage";
+        endPointUrls.add("workflow_status=SW_PW&page=$_currentPage");
+        endPointUrls.add("workflow_status=submit&page=$_currentPage");
+      } else {
+        endPointUrls.add(endPointUrl);
       }
-      String url = "/api/leads/los-details/?$endPointUrl";
 
-      final response = await ApiService.getWithHeaders(url, headers);
-      if (response != null && response.statusCode == 200) {
-        final appJson = response.data;
-        final List results = appJson['results'];
+      for (String ep in endPointUrls) {
+        String url = "/api/leads/los-details/?$ep";
+        print("url is $url");
 
-        for (var item in results) {
-          final clientDetails = item['clientDetails'];
+        final response = await ApiService.getWithHeaders(url, headers);
+        if (response != null && response.statusCode == 200) {
+          final appJson = response.data;
+          final List results = appJson['results'];
 
-          final losStatus = item['los_status'];
+          for (var item in results) {
+            final clientDetails = item['clientDetails'];
+            final losStatus = item['los_status'];
 
-          newMergedLeads.add({
-            'id': item['id']?.toString() ?? '',
-            'firstName': clientDetails?['firstName']?.toString() ?? '',
-            'middleName': clientDetails?['middleName']?.toString() ?? '',
-            'lastName': clientDetails?['lastName']?.toString() ?? '',
-            'mobilePhone': clientDetails?['mobilePhone']?.toString() ?? '',
-            'CWTransactionID': item['CWTransactionID']?.toString() ?? '',
-            'applicationNo': losStatus?['applicationNo']?.toString() ?? '',
-            'offerStatus': losStatus?['offerStatus']?.toString() ?? '',
-            'uwStatus': losStatus?['uwStatus']?.toString() ?? '',
-            'workflow_status': item['workflow_status']?.toString() ?? '',
-          });
+            newMergedLeads.add({
+              'id': item['id']?.toString() ?? '',
+              'firstName': clientDetails?['firstName']?.toString() ?? '',
+              'middleName': clientDetails?['middleName']?.toString() ?? '',
+              'lastName': clientDetails?['lastName']?.toString() ?? '',
+              'mobilePhone': clientDetails?['mobilePhone']?.toString() ?? '',
+              'CWTransactionID': item['CWTransactionID']?.toString() ?? '',
+              'applicationNo': losStatus?['applicationNo']?.toString() ?? '',
+              'offerStatus': losStatus?['offerStatus']?.toString() ?? '',
+              'uwStatus': losStatus?['uwStatus']?.toString() ?? '',
+              'workflow_status': item['workflow_status']?.toString() ?? '',
+            });
+          }
         }
       }
     }
@@ -402,7 +443,7 @@ class _LosStatusChartState extends State<LosStatusChart>
     categorizedData['UNDERWRITING STATUS'] = _mergedLeads.where((lead) {
       final status = (lead['workflow_status'] ?? '').toString().toUpperCase();
       // print("status is ${lead['workflow_status']}");
-      return status == 'SW_PW';
+      return status == 'SW_PW' || status == 'SUBMIT';
     }).toList();
   }
 
@@ -434,6 +475,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         return 'DISBURSED';
 
       case 'SW_PW':
+      case 'SUBMIT':
         return 'UNDERWRITING STATUS';
 
       default:

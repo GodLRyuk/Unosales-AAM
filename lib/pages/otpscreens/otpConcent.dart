@@ -58,6 +58,7 @@ class OtpconcentState extends State<Otpconcent> {
   @override
   void initState() {
     super.initState();
+    print("check page mode ${widget.pagemode}");
     String jsonString = jsonEncode(widget.losData.toJson());
     // print("phone number1 ${widget.phoneNumber}");
 
@@ -621,8 +622,33 @@ class OtpconcentState extends State<Otpconcent> {
 
           final uri = Uri.parse(redirectUrl);
           if (await canLaunchUrl(uri)) {
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            // await launchUrl(uri, mode: LaunchMode.externalApplication);
+            final launched =
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
 
+            // --- log the launch action ---
+            final aamlogUrl =
+                Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+            final aamheader = {
+              "Content-Type": "application/json",
+              "Accept": "application/json",
+              "Authorization": "Bearer $token",
+              'User-Agent':
+                  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+            };
+
+            final aamlogResponse = await http.post(
+              aamlogUrl,
+              headers: aamheader,
+              body: json.encode({
+                "url": redirectUrl,
+                "request_body": cwId,
+                "status_code": launched ? 200 : 0,
+                "response_body": launched,
+              }),
+            );
+
+            // ***************** Done *******************************
             String? offerStatusValue = await updateOfferStatus(cwId);
             updateWorkflowStatus(
               losId,
@@ -981,6 +1007,11 @@ class OtpconcentState extends State<Otpconcent> {
           };
 
           var finalRequestData;
+          finalRequestData = Map<String, dynamic>.from(requestData)
+            ..["lead_type"] = "fresh_lead"
+            ..["declaration"] = true
+            ..["dsr"] = dsrIdValue
+            ..["workflow_status"] = "submit";
           if (widget.pagemode == 'edit') {
             finalRequestData = Map<String, dynamic>.from(requestData)
               ..["lead_type"] = "campaign_lead"
@@ -991,7 +1022,6 @@ class OtpconcentState extends State<Otpconcent> {
             finalRequestData = Map<String, dynamic>.from(requestData)
               ..["lead_type"] = "fresh_lead"
               ..["declaration"] = true
-              // ..["dsr"] = "${widget.dsrId}";
               ..["dsr"] = dsrIdValue
               ..["workflow_status"] = "submit";
           }
@@ -1002,10 +1032,31 @@ class OtpconcentState extends State<Otpconcent> {
             headers3,
           );
 
+          Map<String, dynamic> logmappedData = {
+            "url": "${AppConfig.dynamicBaseUrl}/api/leads/los-details/",
+            "request_body": json.encode(finalRequestData),
+            "status_code": backendresponseLOS!.statusCode,
+            "response_body": backendresponseLOS.data,
+          };
+
+          final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+          final headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": "Bearer $token",
+            'User-Agent':
+                'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+          };
+          // ignore: unused_local_variable
+          final LogResponse = await http.post(
+            logUrl,
+            headers: headers,
+            body: json.encode(logmappedData),
+          );
+
           String losId = "";
 
-          if (backendresponseLOS != null &&
-              backendresponseLOS.statusCode == 201) {
+          if (backendresponseLOS.statusCode == 201) {
             final data = backendresponseLOS.data;
             losId = data['id'].toString();
 
@@ -1037,28 +1088,28 @@ class OtpconcentState extends State<Otpconcent> {
               mappedResponseLOsData,
             );
 
-            Map<String, dynamic> logmappedData = {
-              "url":
-                  "${AppConfig.dynamicBaseUrl}/api/leads/los-details/${data['id']}/",
-              "request_body": json.encode(mappedResponseLOsData),
-              "status_code": responseLOS!.statusCode,
-              "response_body": responseLOS.data,
-            };
+            // Map<String, dynamic> logmappedData = {
+            //   "url":
+            //       "${AppConfig.dynamicBaseUrl}/api/leads/los-details/${data['id']}/",
+            //   "request_body": json.encode(mappedResponseLOsData),
+            //   "status_code": responseLOS!.statusCode,
+            //   "response_body": responseLOS.data,
+            // };
 
-            final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
-            final headers = {
-              "Content-Type": "application/json",
-              "Accept": "application/json",
-              "Authorization": "Bearer $token",
-              'User-Agent':
-                  'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
-            };
-            // ignore: unused_local_variable
-            final LogResponse = await http.post(
-              logUrl,
-              headers: headers,
-              body: json.encode(logmappedData),
-            );
+            // final logUrl = Uri.parse("${AppConfig.dynamicBaseUrl}/api/logs/");
+            // final headers = {
+            //   "Content-Type": "application/json",
+            //   "Accept": "application/json",
+            //   "Authorization": "Bearer $token",
+            //   'User-Agent':
+            //       'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
+            // };
+            // // ignore: unused_local_variable
+            // final LogResponse = await http.post(
+            //   logUrl,
+            //   headers: headers,
+            //   body: json.encode(logmappedData),
+            // );
 
             await waybookImplement(
                 requestData['CWTransactionID'], losId); // Updated 1/7/2026
@@ -1148,6 +1199,24 @@ class OtpconcentState extends State<Otpconcent> {
 
       setState(() {});
     }
+  }
+
+  void _showBackBlockedMessage() {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Alert!"),
+        content: const Text(
+           "You cannot go back at this step. Please finish submitting your application first."
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("OK"),
+          ),
+        ],
+      ),
+    );
   }
 
   // Future<void> _sendOtp() async {
@@ -1321,286 +1390,295 @@ class OtpconcentState extends State<Otpconcent> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(60.0),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFFc433e0), Color(0xFF9a37ae)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) {
+        if (didPop) return;
+        _showBackBlockedMessage();
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(60.0),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFFc433e0), Color(0xFF9a37ae)],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+              ),
             ),
-          ),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset('images/logo.PNG', height: 30),
-                SizedBox(width: 50),
-              ],
-            ),
-            centerTitle: true,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => NavigationPage()),
-                );
-              },
+            child: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset('images/logo.PNG', height: 30),
+                  SizedBox(width: 50),
+                ],
+              ),
+              centerTitle: true,
+              leading: IconButton(
+                icon: Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () {
+                  _showBackBlockedMessage();
+                  // Navigator.pushReplacement(
+                  //   context,
+                  //   MaterialPageRoute(builder: (context) => NavigationPage()),
+                  // );
+                },
+              ),
             ),
           ),
         ),
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                _buildTextbox(),
-                SizedBox(height: MediaQuery.of(context).size.height * 0.05),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0.0),
-                  child: Column(
-                    children: [
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: checkBox1,
-                            onChanged: (value) {
-                              _showInfoDialog(
-                                title: "Terms & Conditions",
-                                content: consentTermsDesc,
-                                onAgree: () {
-                                  setState(() => checkBox1 = true);
-                                },
-                              );
-                            },
-                          ),
-                          const Expanded(
-                            child: Text(
-                              "I have read, understood and agreed to UNO Digital Bank's Terms & Conditions",
-                              style: TextStyle(fontSize: 14),
+        body: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+                  _buildTextbox(),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 0.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: checkBox1,
+                              onChanged: (value) {
+                                _showInfoDialog(
+                                  title: "Terms & Conditions",
+                                  content: consentTermsDesc,
+                                  onAgree: () {
+                                    setState(() => checkBox1 = true);
+                                  },
+                                );
+                              },
                             ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: checkBox2,
-                            onChanged: (value) {
-                              _showInfoDialog(
-                                title: consentPrivacyTitle,
-                                content: consentPrivacyDesc,
-                                onAgree: () {
-                                  setState(() => checkBox2 = true);
-                                },
-                              );
-                            },
-                          ),
-                          const Expanded(
-                            child: Text(
-                              "I have read, understood and agreed to UNO Digital Bank's Data Privacy Statement",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Checkbox(
-                            value: checkBox3,
-                            onChanged: (value) {
-                              setState(() => checkBox3 = value ?? false);
-                            },
-                          ),
-                          const Expanded(
-                            child: Text(
-                              "I agree to recive promotional and marketing content from UNO Digital Bank and its affiliates.(Optional)",
-                              style: TextStyle(fontSize: 14),
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.05,
-                      ),
-
-                      // Visibility(
-                      //   visible:
-                      //       checkBox1 &&
-                      //       checkBox2 &&
-                      //       !showOtpSection, // Hide button when OTP section is visible
-                      //   child: GestureDetector(
-                      //     onTap: () {
-                      //       if (checkBox1 && checkBox2) {
-                      //         setState(() {
-                      //           showOtpSection = true; // Show OTP section
-                      //         });
-                      //         _sendOtp(); // Call your OTP sending method
-                      //       } else {
-                      //         showTopSnackBar(
-                      //           Overlay.of(context),
-                      //           CustomSnackBar.info(
-                      //             backgroundColor: const Color(0xFF640D78),
-                      //             message:
-                      //                 "Please agree to both the Terms & Conditions and the Data Privacy Statement before proceeding.",
-                      //             textStyle: const TextStyle(
-                      //               color: Colors.white,
-                      //               fontSize: 14,
-                      //               fontWeight: FontWeight.w500,
-                      //             ),
-                      //           ),
-                      //         );
-                      //       }
-                      //     },
-                      //     child: Container(
-                      //       width: double.infinity,
-                      //       padding: const EdgeInsets.symmetric(vertical: 14),
-                      //       child: Center(
-                      //         child: Text(
-                      //           "Get OTP",
-                      //           style: WidgetSupport.LoginButtonTextColor(),
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-
-                      Visibility(
-                        visible: checkBox1 && checkBox2,
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(20, 80, 20, 5),
-                          child: GestureDetector(
-                            onTap: () => submitLos(widget.losData),
-                            child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 11),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFFc433e0),
-                                    Color(0xFF9a37ae)
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                ),
-                                borderRadius: BorderRadius.circular(10),
+                            const Expanded(
+                              child: Text(
+                                "I have read, understood and agreed to UNO Digital Bank's Terms & Conditions",
+                                style: TextStyle(fontSize: 14),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.send_rounded,
-                                      color: Colors.white, size: 15),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    "Submit",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
-                                      letterSpacing: 0.4,
-                                    ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: checkBox2,
+                              onChanged: (value) {
+                                _showInfoDialog(
+                                  title: consentPrivacyTitle,
+                                  content: consentPrivacyDesc,
+                                  onAgree: () {
+                                    setState(() => checkBox2 = true);
+                                  },
+                                );
+                              },
+                            ),
+                            const Expanded(
+                              child: Text(
+                                "I have read, understood and agreed to UNO Digital Bank's Data Privacy Statement",
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: checkBox3,
+                              onChanged: (value) {
+                                setState(() => checkBox3 = value ?? false);
+                              },
+                            ),
+                            const Expanded(
+                              child: Text(
+                                "I agree to recive promotional and marketing content from UNO Digital Bank and its affiliates.(Optional)",
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.05,
+                        ),
+
+                        // Visibility(
+                        //   visible:
+                        //       checkBox1 &&
+                        //       checkBox2 &&
+                        //       !showOtpSection, // Hide button when OTP section is visible
+                        //   child: GestureDetector(
+                        //     onTap: () {
+                        //       if (checkBox1 && checkBox2) {
+                        //         setState(() {
+                        //           showOtpSection = true; // Show OTP section
+                        //         });
+                        //         _sendOtp(); // Call your OTP sending method
+                        //       } else {
+                        //         showTopSnackBar(
+                        //           Overlay.of(context),
+                        //           CustomSnackBar.info(
+                        //             backgroundColor: const Color(0xFF640D78),
+                        //             message:
+                        //                 "Please agree to both the Terms & Conditions and the Data Privacy Statement before proceeding.",
+                        //             textStyle: const TextStyle(
+                        //               color: Colors.white,
+                        //               fontSize: 14,
+                        //               fontWeight: FontWeight.w500,
+                        //             ),
+                        //           ),
+                        //         );
+                        //       }
+                        //     },
+                        //     child: Container(
+                        //       width: double.infinity,
+                        //       padding: const EdgeInsets.symmetric(vertical: 14),
+                        //       child: Center(
+                        //         child: Text(
+                        //           "Get OTP",
+                        //           style: WidgetSupport.LoginButtonTextColor(),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ),
+                        // ),
+
+                        Visibility(
+                          visible: checkBox1 && checkBox2,
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(20, 80, 20, 5),
+                            child: GestureDetector(
+                              onTap: () => submitLos(widget.losData),
+                              child: Container(
+                                width: double.infinity,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 11),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFFc433e0),
+                                      Color(0xFF9a37ae)
+                                    ],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
                                   ),
-                                ],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.send_rounded,
+                                        color: Colors.white, size: 15),
+                                    const SizedBox(width: 8),
+                                    const Text(
+                                      "Submit",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        letterSpacing: 0.4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
 
-                // Visibility(
-                //   visible: showOtpSection, // controls visibility
-                //   child: Column(
-                //     children: [
-                //       (AppConfig.flavour != 'prod')
-                //           ? Text(
-                //               'Enter OTP sent to your phone OTP [${recivedOtp}]',
-                //               style: const TextStyle(fontSize: 16),
-                //               textAlign: TextAlign.center,
-                //             )
-                //           : const Text(
-                //               'Enter OTP sent to your phone',
-                //               style: TextStyle(fontSize: 16),
-                //               textAlign: TextAlign.center,
-                //             ),
-                //       const SizedBox(height: 10),
-                //       Text(
-                //         _timerText,
-                //         style: const TextStyle(
-                //           fontSize: 18,
-                //           fontWeight: FontWeight.bold,
-                //         ),
-                //       ),
-                //       SizedBox(
-                //         height: MediaQuery.of(context).size.height * 0.05,
-                //       ),
-                //       Form(key: _formKey, child: _buildOtpBox()),
-                //       SizedBox(
-                //         height: MediaQuery.of(context).size.height * 0.02,
-                //       ),
-                //       Container(
-                //         width: MediaQuery.of(context).size.width * 0.60,
-                //         child: Row(
-                //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //           children: [
-                //             GestureDetector(
-                //               onTap: _verifyOtp,
-                //               child: Container(
-                //                 color: Colors.transparent,
-                //                 child: Center(
-                //                   child: Text(
-                //                     "Verify OTP",
-                //                     style: WidgetSupport.LoginButtonTextColor(),
-                //                   ),
-                //                 ),
-                //               ),
-                //             ),
-                //             GestureDetector(
-                //               onTap: () {
-                //                 if (resendTimer) {
-                //                   _resendOtp(); // Only call when allowed
-                //                 }
-                //               },
-                //               child: Container(
-                //                 color: Colors.transparent,
-                //                 child: Center(
-                //                   child: Text(
-                //                     "Resend OTP",
-                //                     style: WidgetSupport.LoginButtonTextColor()
-                //                         .copyWith(
-                //                           color: resendTimer
-                //                               ? Colors.purple
-                //                               : Colors.grey,
-                //                         ),
-                //                   ),
-                //                 ),
-                //               ),
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //     ],
-                //   ),
-                // ),
-              ],
+                  // Visibility(
+                  //   visible: showOtpSection, // controls visibility
+                  //   child: Column(
+                  //     children: [
+                  //       (AppConfig.flavour != 'prod')
+                  //           ? Text(
+                  //               'Enter OTP sent to your phone OTP [${recivedOtp}]',
+                  //               style: const TextStyle(fontSize: 16),
+                  //               textAlign: TextAlign.center,
+                  //             )
+                  //           : const Text(
+                  //               'Enter OTP sent to your phone',
+                  //               style: TextStyle(fontSize: 16),
+                  //               textAlign: TextAlign.center,
+                  //             ),
+                  //       const SizedBox(height: 10),
+                  //       Text(
+                  //         _timerText,
+                  //         style: const TextStyle(
+                  //           fontSize: 18,
+                  //           fontWeight: FontWeight.bold,
+                  //         ),
+                  //       ),
+                  //       SizedBox(
+                  //         height: MediaQuery.of(context).size.height * 0.05,
+                  //       ),
+                  //       Form(key: _formKey, child: _buildOtpBox()),
+                  //       SizedBox(
+                  //         height: MediaQuery.of(context).size.height * 0.02,
+                  //       ),
+                  //       Container(
+                  //         width: MediaQuery.of(context).size.width * 0.60,
+                  //         child: Row(
+                  //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //           children: [
+                  //             GestureDetector(
+                  //               onTap: _verifyOtp,
+                  //               child: Container(
+                  //                 color: Colors.transparent,
+                  //                 child: Center(
+                  //                   child: Text(
+                  //                     "Verify OTP",
+                  //                     style: WidgetSupport.LoginButtonTextColor(),
+                  //                   ),
+                  //                 ),
+                  //               ),
+                  //             ),
+                  //             GestureDetector(
+                  //               onTap: () {
+                  //                 if (resendTimer) {
+                  //                   _resendOtp(); // Only call when allowed
+                  //                 }
+                  //               },
+                  //               child: Container(
+                  //                 color: Colors.transparent,
+                  //                 child: Center(
+                  //                   child: Text(
+                  //                     "Resend OTP",
+                  //                     style: WidgetSupport.LoginButtonTextColor()
+                  //                         .copyWith(
+                  //                           color: resendTimer
+                  //                               ? Colors.purple
+                  //                               : Colors.grey,
+                  //                         ),
+                  //                   ),
+                  //                 ),
+                  //               ),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                ],
+              ),
             ),
-          ),
-          if (_isLoading)
-            Container(
-              color: Colors.transparent,
-              child: const Center(child: CircularProgressIndicator()),
-            ),
-        ],
+            if (_isLoading)
+              Container(
+                color: Colors.transparent,
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+          ],
+        ),
       ),
     );
   }

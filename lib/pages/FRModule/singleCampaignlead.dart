@@ -2233,7 +2233,7 @@ class _FRCampaignSingleLeadState extends State<FRCampaignSingleLead> {
             Navigator.of(context).pop();
             if (Statusresponse != null) {
               if (Statusresponse.statusCode == 200) {
-                final data = json.decode(Statusresponse.data);
+                final data = Statusresponse.data;
                 var result = data['result'];
 
                 if (result != null && result.isNotEmpty) {
