@@ -72,13 +72,23 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   // ════════════════════════════════════════════════════
-  //  STEP 1 — Check if security is enabled via remote key
+  //  STEP 1 — Check if security is enabled via build flavor
   // ════════════════════════════════════════════════════
   Future<void> _runAppLogic() async {
-    final String value = await enableSecurityChecks();
-    final bool ENABLE_SECURITY_CHECKS = value == 'true';
+    final String flavor =
+        const String.fromEnvironment('FLAVOR', defaultValue: 'dev');
 
-    if (ENABLE_SECURITY_CHECKS) {
+    final bool isProd = flavor == 'prod';
+    final bool isScreenshotDisabled = isProd;
+    final bool enableSecurityChecks = isProd;
+
+    // Screenshot blocking can be wired up here using isScreenshotDisabled
+    // (e.g. via FlutterWindowManager on Android) if/when that feature
+    // is implemented.
+    debugPrint(
+        "🏳️ Flavor: $flavor | Screenshot disabled: $isScreenshotDisabled");
+
+    if (enableSecurityChecks) {
       await _runSecurityChecks();
     } else {
       debugPrint("⚠️ Security checks disabled for development.");
@@ -180,9 +190,9 @@ class _SplashScreenState extends State<SplashScreen>
 
     showDialog(
       context: context,
-      barrierDismissible: false, 
-      builder: (_) => WillPopScope(
-        onWillPop: () async => false, 
+      barrierDismissible: false,
+      builder: (_) => PopScope(
+        canPop: false,
         child: AlertDialog(
           title: const Text("Security Alert"),
           content: Text(
@@ -205,6 +215,7 @@ class _SplashScreenState extends State<SplashScreen>
     _brandingcontroller.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

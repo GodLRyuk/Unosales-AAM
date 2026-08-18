@@ -9,12 +9,10 @@ import 'package:unosfa/pages/services/secret_key.dart';
 import 'package:unosfa/pages/splash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 final _noScreenshot = NoScreenshot.instance;
 
-/// 👮 Global override to reject invalid SSL certificates
 class SecureHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
@@ -27,16 +25,16 @@ class SecureHttpOverrides extends HttpOverrides {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-    const apiKey = String.fromEnvironment('GOOGLE_API_KEY');
-    await Firebase.initializeApp(
-  options: const FirebaseOptions(
+  const apiKey = String.fromEnvironment('GOOGLE_API_KEY');
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
       apiKey: apiKey,
       appId: '1:981376072634:android:60e1a67f6ad6375724bb83',
       messagingSenderId: '981376072634',
       projectId: 'unosales-1a493',
       storageBucket: 'unosales-1a493.firebasestorage.app',
     ),
-);
+  );
   await AppConfig.initSecurity();
   await enableSecurityChecks();
 
@@ -45,6 +43,7 @@ void main() async {
     print("Disabling screenshots...");
     await _noScreenshot.screenshotOff();
   } else {
+    print("Enabling screenshots...");
     await _noScreenshot.screenshotOn(); // Explicitly allow screenshots
   }
   runApp(

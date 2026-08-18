@@ -1,4 +1,3 @@
-
 import 'package:unosfa/pages/services/secret_key.dart';
 
 class AppConfig {
@@ -9,23 +8,22 @@ class AppConfig {
   /// Base URLs
   static const String unoApiurluat = "https://unoapi.uat.ph.unobank.asia";
   static const String unoApiurlprod = "https://unoapi.prod.ph.unobank.asia";
-  static const String unoApiurldev = "http://158.69.207.4:8080"; 
+  static const String unoApiurldev = "http://158.69.207.4:8080";
   // static const String unoApiurldev = "http://192.168.29.239";
 
   static const String baseUrlUat = "$unoApiurluat/unosales";
   static const String baseUrlProd = "$unoApiurlprod/unosales";
   static const String baseUrlDev = "$unoApiurldev";
-  static const String unoBaseUrlUat= "$unoApiurluat";
-  static const String unoBaseUrlProd= "$unoApiurlprod";
+  static const String unoBaseUrlUat = "$unoApiurluat";
+  static const String unoBaseUrlProd = "$unoApiurlprod";
 
-
- // Redirection base Url
- // SIT/UAT Redirect URL: https://partneragent.sit.ph.unobank.asia/fsa-aam-auth?token=<<token>>&sales_app=<<applicationId>>
- //PROD Redirect URL: https://partneragent.prod.ph.unobank.asia/fsa-aam-auth?token=<<token>>&sales_app=<<applicationId>>
-  static const String baseURlRedirectUat = "https://partneragent.sit.ph.unobank.asia";
-  static const String baseURlRedirectProd = "https://partneragent.prod.ph.unobank.asia";
-  
-
+  // Redirection base Url
+  // SIT/UAT Redirect URL: https://partneragent.sit.ph.unobank.asia/fsa-aam-auth?token=<<token>>&sales_app=<<applicationId>>
+  //PROD Redirect URL: https://partneragent.prod.ph.unobank.asia/fsa-aam-auth?token=<<token>>&sales_app=<<applicationId>>
+  static const String baseURlRedirectUat =
+      "https://partneragent.sit.ph.unobank.asia";
+  static const String baseURlRedirectProd =
+      "https://partneragent.prod.ph.unobank.asia";
 
   /// Dynamic base URL
   static String get dynamicBaseUrl {
@@ -53,12 +51,12 @@ class AppConfig {
         return "$unoApiurluat";
     }
   }
- static String certificateChecks = '';
 
+  static String certificateChecks = '';
 
- //  Redirect AAM Url
+  //  Redirect AAM Url
 
-   static String get aamredictUrl {
+  static String get aamredictUrl {
     switch (flavour) {
       case 'uat':
         return baseURlRedirectUat;
@@ -70,8 +68,7 @@ class AppConfig {
     }
   }
 
-
-   static String get unoBaseApiUrl {
+  static String get unoBaseApiUrl {
     switch (flavour) {
       case 'uat':
         return unoBaseUrlUat;
@@ -101,25 +98,17 @@ class AppConfig {
   //   }
   // }
 
-
   // ***************************
   static String securityValue = "";
   static Future<void> initSecurity() async {
-  securityValue = await enableSecurityChecks();
-  
-  
-}
-static bool get isScreenshotDisabled => securityValue == "true";
+    securityValue = await enableSecurityChecks();
+  }
 
+  static bool get isScreenshotDisabled => securityValue == "true";
 
-//**************************** 
-//static bool get isScreenshotDisabled => flavour == 'prods';
-
-//static bool get enableSecurityChecks => isProd;
+//****************************
 
   static bool get isUat => flavour == 'uat';
   static bool get isProd => flavour == 'prod';
   static bool get isDev => flavour == 'dev';
-
-
 }
