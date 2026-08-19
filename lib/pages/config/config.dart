@@ -104,11 +104,21 @@ class AppConfig {
     securityValue = await enableSecurityChecks();
   }
 
-  static bool get isScreenshotDisabled => securityValue == "true";
+ //static bool get isScreenshotDisabled => securityValue == "true";
+
+  // final String flavor =
+  //       const String.fromEnvironment('FLAVOR', defaultValue: 'dev');
+
+  //   final bool isProd = flavor == 'prod';
+  //   final bool isScreenshotDisabled = isProd;
+    
+ 
 
 //****************************
 
   static bool get isUat => flavour == 'uat';
   static bool get isProd => flavour == 'prod';
   static bool get isDev => flavour == 'dev';
+
+   static bool get isScreenshotDisabled => flavour == 'prod';
 }

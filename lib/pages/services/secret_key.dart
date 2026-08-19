@@ -46,6 +46,8 @@ Future<void> globalKeys() async {
       print("Pubic key is this ${ApiGlobalKeys.public_key}");
       ApiGlobalKeys.security_check =
           finalOutput['result']['security_check'][AppConfig.flavour];
+      
+      
       ApiGlobalKeys.openroute_apiKey =
           finalOutput['result']['openroute_apiKey'][AppConfig.flavour];
       ApiGlobalKeys.save_payload_cookie =
@@ -267,8 +269,8 @@ Future<String> enableSecurityChecks() async {
   //     : isProd
   //         ? securityCheck['prod_security_check']
   //         : securityCheck['uat_security_check'];
+  
   final String getSecurityCheck = ApiGlobalKeys.security_check;
-
   return getSecurityCheck;
 }
 
