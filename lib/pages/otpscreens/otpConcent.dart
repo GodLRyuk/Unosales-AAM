@@ -652,7 +652,7 @@ class OtpconcentState extends State<Otpconcent> {
             String? offerStatusValue = await updateOfferStatus(cwId);
             updateWorkflowStatus(
               losId,
-              "AAM Invoked",
+              "AAM_InProgress",
               offerStatusValue: offerStatusValue,
             );
 

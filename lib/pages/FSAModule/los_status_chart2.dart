@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:pointycastle/asymmetric/api.dart';
@@ -223,6 +224,7 @@ class _LosStatusChartState extends State<LosStatusChart>
         endPointUrls.add(endPointUrl); // offerStatus == IN-PROGRESS
         endPointUrls.add("workflow_status=SW_PW&page=$_currentPage");
         endPointUrls.add("workflow_status=submit&page=$_currentPage");
+        endPointUrls.add("workflow_status=AAM_InProgress&page=$_currentPage");
       } else {
         endPointUrls.add(endPointUrl);
       }
@@ -249,7 +251,8 @@ class _LosStatusChartState extends State<LosStatusChart>
               'CWTransactionID': item['CWTransactionID']?.toString() ?? '',
               'applicationNo': losStatus?['applicationNo']?.toString() ?? '',
               'offerStatus': losStatus?['offerStatus']?.toString() ?? '',
-              'applicationStatus': losStatus?['applicationStatus']?.toString() ?? '',
+              'applicationStatus':
+                  losStatus?['applicationStatus']?.toString() ?? '',
               'uwStatus': losStatus?['uwStatus']?.toString() ?? '',
               'workflow_status': item['workflow_status']?.toString() ?? '',
             });
@@ -331,7 +334,8 @@ class _LosStatusChartState extends State<LosStatusChart>
             'CWTransactionID': appLead['CWTransactionID'] ?? '',
             'applicationNo': appLead['CWTransactionID'] ?? '',
             'offerStatus': losStatus['offerStatus'] ?? '',
-            'applicationStatus': losStatus?['applicationStatus']?.toString() ?? '',
+            'applicationStatus':
+                losStatus?['applicationStatus']?.toString() ?? '',
             'workflow_status': appLead['workflow_status'] ?? '',
           };
         },
@@ -391,7 +395,8 @@ class _LosStatusChartState extends State<LosStatusChart>
           (lead['workflow_status'] ?? '').toString().toUpperCase();
       return offerStatus == 'IN-PROGRESS' ||
           workflowStatus == 'SW_PW' ||
-          workflowStatus == 'SUBMIT';
+          workflowStatus == 'SUBMIT' ||
+          workflowStatus == 'AAM_INPROGRESS';
     }).toList();
 
     categorizedData['IN-PRINCIPLE APPROVED'] = _mergedLeads
@@ -573,102 +578,172 @@ class _LosStatusChartState extends State<LosStatusChart>
                           .toUpperCase();
                       final isUnderwritingLead = selectedTab == 'IN-PROGRESS' &&
                           (leadWorkflowStatus == 'SW_PW' ||
-                              leadWorkflowStatus == 'SUBMIT');
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 10, horizontal: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border(
-                            top: BorderSide(
-                                color: Color(0xFF640D78), width: 1.0),
-                            bottom: BorderSide(
-                                color: Color(0xFF640D78), width: 1.0),
-                            left: BorderSide(
-                                color: Color(0xFF640D78), width: 5.0),
-                            right: BorderSide(
-                                color: Color(0xFF640D78), width: 1.0),
-                          ),
-                        ),
-                        child: ListTile(
-                          leading: Icon(Icons.person,
-                              color: Colors.purple, size: 30),
-                          title: Text(
-                            "${lead['firstName']} ${lead['middleName']} ${lead['lastName']}"
-                                .trim(),
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: isUnderwritingLead
-                              ? Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                              "Mobile: ${lead['mobilePhone']}"),
-                                          SizedBox(height: 5),
-                                          Text(
-                                              "ApplicationNo: ${lead['applicationNo']}"),
-                                          SizedBox(height: 5),
-                                          Text(
-                                            "OfferStatus: ${lead['offerStatus']}",
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          SizedBox(height: 5),
-                                          Text(
-                                            "Workflow Status: Application is in Underwriting",
-                                            
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
+                              leadWorkflowStatus ==
+                                  'SUBMIT'); // for underwriting leads.
 
-                                          Row(
-                                            //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      final isAamInProgressLead = selectedTab ==
+                              'IN-PROGRESS' &&
+                          leadWorkflowStatus ==
+                              'AAM_INPROGRESS'; // for AAM In-Progress leads.
+
+                      return Padding(
+                        padding:  const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                        child: _BlinkHighlight(
+                          enabled: isUnderwritingLead || isAamInProgressLead,
+                          child: Container(
+                            // margin: const EdgeInsets.symmetric(
+                            //     vertical: 10, horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border(
+                                top: BorderSide(
+                                    color: Color(0xFF640D78), width: 1.0),
+                                bottom: BorderSide(
+                                    color: Color(0xFF640D78), width: 1.0),
+                                left: BorderSide(
+                                    color: Color(0xFF640D78), width: 5.0),
+                                right: BorderSide(
+                                    color: Color(0xFF640D78), width: 1.0),
+                              ),
+                            ),
+                            child: ListTile(
+                              leading: Icon(Icons.person,
+                                  color: Colors.purple, size: 30),
+                              title: Text(
+                                "${lead['firstName']} ${lead['middleName']} ${lead['lastName']}"
+                                    .trim(),
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              subtitle: isUnderwritingLead
+                                  ? Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Expanded(
-                                                child: Text(
-                                                  "Application Status: ${lead['applicationStatus']}",
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
+                                              Text(
+                                                  "Mobile: ${lead['mobilePhone']}"),
+                                              SizedBox(height: 5),
+                                              Text(
+                                                  "ApplicationNo: ${lead['applicationNo']}"),
+                                              SizedBox(height: 5),
+                                              Text(
+                                                "OfferStatus: ${lead['offerStatus']}",
+                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  String cwTransactionID =
-                                                      lead['CWTransactionID']
-                                                          .toString();
-                                                  waybookImplement(
-                                                      cwTransactionID,
-                                                      lead['id'].toString());
-                                                },
-                                                child: Text(
-                                                  "CHECK STATUS",
-                                                  style: TextStyle(
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.purple,
+                                              SizedBox(height: 5),
+                                              Text(
+                                                "Workflow Status: Application is in Underwriting",
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                              Row(
+                                                //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                    child: Text(
+                                                      "Application Status: ${lead['applicationStatus']}",
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
                                                   ),
-                                                ),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      String cwTransactionID =
+                                                          lead['CWTransactionID']
+                                                              .toString();
+                                                      waybookImplement(
+                                                          cwTransactionID,
+                                                          lead['id'].toString());
+                                                    },
+                                                    child: Text(
+                                                      "CHECK UNDERWRITING",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight: FontWeight.w600,
+                                                        color: Colors.purple,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Text(
-                                  "Mobile: ${lead['mobilePhone']}\n"
-                                  "ApplicationNo: ${lead['applicationNo']}\n"
-                                  "OfferStatus: ${lead['offerStatus']}\n"
-                                   "Workflow Status: ${lead['workflow_status']}\n"
-                                  "Application Status: ${lead['applicationStatus']}",
-                                 
-
-                                ),
+                                        ),
+                                      ],
+                                    )
+                                  : isAamInProgressLead
+                                      ? Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                      "Mobile: ${lead['mobilePhone']}"),
+                                                  SizedBox(height: 5),
+                                                  Text(
+                                                      "ApplicationNo: ${lead['applicationNo']}"),
+                                                  SizedBox(height: 5),
+                                                  Text(
+                                                    "OfferStatus: ${lead['offerStatus']}",
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                  SizedBox(height: 5),
+                                                  Text(
+                                                    "Workflow Status: ${lead['workflow_status']}",
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                  Row(
+                                                    //mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Expanded(
+                                                        child: Text(
+                                                          "Application Status: ${lead['applicationStatus']}",
+                                                          overflow:
+                                                              TextOverflow.ellipsis,
+                                                        ),
+                                                      ),
+                                                      GestureDetector(
+                                                        onTap: () {
+                                                          String cwTransactionID =
+                                                              lead['CWTransactionID']
+                                                                  .toString();
+                          
+                                                          continueToAAM(
+                                                              cwTransactionID);
+                                                        },
+                                                        child: Text(
+                                                          "CONTINUE TO AAM",
+                                                          style: TextStyle(
+                                                            fontSize: 12,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: Colors.purple,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : Text(
+                                          "Mobile: ${lead['mobilePhone']}\n"
+                                          "ApplicationNo: ${lead['applicationNo']}\n"
+                                          "OfferStatus: ${lead['offerStatus']}\n"
+                                          "Workflow Status: ${lead['workflow_status']}\n"
+                                          "Application Status: ${lead['applicationStatus']}",
+                                        ),
+                            ),
+                          ),
                         ),
                       );
                     },
@@ -763,30 +838,85 @@ class _LosStatusChartState extends State<LosStatusChart>
 
       final response =
           await ApiService.postWithHeadersUnoApi(url, body, headers);
-
-      // final response = await http.post(
-      //   url,
-      //   headers: headers,
-      //   body: jsonEncode(payload),
-      // );
       if (response!.statusCode == 200) {
         final data = response.data;
         final sostoken = data["token"];
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString("ssoToken", sostoken);
-
-        //return sostoken;
       } else {
         print("Error happened → Status: ${response.statusCode}");
-        // return null;
       }
     } catch (e) {
       print("Error is this: $e");
-      //return null;
     }
   }
 
+  // Function to redirect to AAM
+  Future<void> continueToAAM(String cwId) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? ssotoken = prefs.getString('ssoToken');
+      if (ssotoken == null) {
+        print("ERROR: SSO token is missing. Run callSosLogoin() first.");
+        setState(() {
+          _isLoading = false;
+        });
+        return;
+      }
+
+      final encodedToken = Uri.encodeComponent(ssotoken);
+      final redirectUrl =
+          "${AppConfig.aamredictUrl}/fsa-aam-auth?token=$encodedToken&sales_app=$cwId";
+
+      final uri = Uri.parse(redirectUrl);
+
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        await Future.delayed(Duration(seconds: 5));
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+             // title: Text("Congratulations!"),
+              content: Text("Your Application has created Successfully."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NavigationPage(),
+                      ),
+                      (route) => false,
+                    );
+                  },
+                  child: Text("OK"),
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        print("Could not launch $redirectUrl");
+      }
+    } catch (e) {
+      print("ERROR redirecting to AAM: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  // Function to implement underwriting status check .
   Future<void> waybookImplement(String cwId, String losId) async {
     setState(() {
       _isLoading = true;
@@ -856,16 +986,7 @@ class _LosStatusChartState extends State<LosStatusChart>
 
         final uri = Uri.parse(redirectUrl);
         if (await canLaunchUrl(uri)) {
-          // 1️⃣ Navigate to Dashboard first
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => NavigationPage()),
-            (route) => false,
-          );
-
-          // 2️⃣ Then launch AAM URL in browser
           await launchUrl(uri, mode: LaunchMode.externalApplication);
-
           final losUrl = "/api/leads/los-details/$losId/";
           final headers = {
             'Authorization': 'Bearer $token',
@@ -873,15 +994,44 @@ class _LosStatusChartState extends State<LosStatusChart>
                 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
             'Content-Type': 'application/json',
           };
-          final body = {"workflow_status": "AAM Invoked"};
+          final body = {"workflow_status": "AAM_InProgress"};
 
           final responsefromLOS =
               await ApiService.patchWithHeaders(losUrl, headers, body);
           print("response code ${responsefromLOS!.statusCode}");
+
+          await Future.delayed(Duration(seconds: 5));
+          if (!mounted) return;
+
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                //title: Text("Congratulations!"),
+                content: Text("Your Application has created Successfully."),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NavigationPage(),
+                        ),
+                        (route) => false,
+                      );
+                    },
+                    child: Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
         } else {
           print("Could not launch $redirectUrl");
         }
-
+        setState(() {
+          _isLoading = false;
+        });
         return;
       } else if (offerStatus == "In-Progress" &&
           applicationStatus == "Failed") {
@@ -1007,6 +1157,83 @@ class _LosStatusChartState extends State<LosStatusChart>
       }
     } catch (e) {
       print("ERROR calling API: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
+  }
+}
+
+
+
+// For designing the UI of the application.
+class _BlinkHighlight extends StatefulWidget {
+  final Widget child;
+  final bool enabled;
+  final int blinkCount; // number of on/off blinks before settling
+
+  const _BlinkHighlight({
+    required this.child,
+    required this.enabled,
+    this.blinkCount = 2,
+  });
+
+  @override
+  State<_BlinkHighlight> createState() => _BlinkHighlightState();
+}
+
+class _BlinkHighlightState extends State<_BlinkHighlight> {
+  bool _isOn = true;
+  bool _isBlinking = true;
+  int _toggleCount = 0;
+  Timer? _blinkTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.enabled) {
+      final int maxToggles = widget.blinkCount * 2; // off+on = 1 blink
+
+      _blinkTimer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
+        if (!mounted) return;
+
+        setState(() {
+          _isOn = !_isOn;
+          _toggleCount++;
+        });
+
+        if (_toggleCount >= maxToggles) {
+          timer.cancel();
+          setState(() {
+            _isBlinking = false; // stop toggling
+            _isOn = true;        // lock color ON permanently
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _blinkTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool showColor = widget.enabled && (_isBlinking ? _isOn : true);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: showColor
+            ? const Color.fromARGB(255, 209, 150, 221).withOpacity(0.18)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: widget.child,
+    );
   }
 }

@@ -3,8 +3,8 @@ import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
- import 'package:unosfa/pages/FSAModule/los_status_chart.dart';
-//import 'package:unosfa/pages/FSAModule/los_status_chart2.dart';
+// import 'package:unosfa/pages/FSAModule/los_status_chart.dart';
+import 'package:unosfa/pages/FSAModule/los_status_chart2.dart';
 import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/generalscreens/customNavigation.dart';
 import 'package:unosfa/pages/services/api_service.dart';
@@ -224,7 +224,10 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
                                     Text(
                                         "Offer Status: ${losStatus['offerStatus'] ?? 'N/A'}"),
                                     Text(
+                                        "Application Status: ${losStatus['applicationStatus'] ?? 'N/A'}"),
+                                    Text(
                                         "UW Status: ${losStatus['uwStatus'] ?? 'N/A'}"),
+                                    
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
@@ -308,7 +311,9 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         }
 
         List filteredResults = allResults
-            .where((item) => item["workflow_status"] == "SW_PW" ||  item["workflow_status"] == "submit")
+            .where((item) =>
+                item["workflow_status"] == "SW_PW" ||
+                item["workflow_status"] == "submit")
             .toList();
 
         setState(() {
@@ -371,7 +376,9 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
         }
 
         List filteredResults = allResults
-            .where((item) => item["workflow_status"] == "SW_PW" || item["workflow_status"] == "submit")
+            .where((item) =>
+                item["workflow_status"] == "SW_PW" ||
+                item["workflow_status"] == "submit")
             .toList();
 
         setState(() {
@@ -459,23 +466,6 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       } catch (e) {
         print("HTTP Request Failed: $e");
       }
-
-      // Done
-      // final url = Uri.parse("${AppConfig.otpUrl}/auth/sso-login");
-      // final headers = {
-      //   "Authorization": 'Bearer $token',
-      //   "Content-Type": "application/json",
-      //   "Accept": "application/json",
-      //   "User-Agent":
-      //       "Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36",
-      // };
-
-      // final response = await http.post(
-      //   url,
-      //   headers: headers,
-      //   body: jsonEncode(payload),
-      // );
-      // if (response.statusCode == 200) {
 
       final endpoint = '/auth/sso-login';
 
@@ -586,16 +576,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
 
         final uri = Uri.parse(redirectUrl);
         if (await canLaunchUrl(uri)) {
-          // 1️⃣ Navigate to Dashboard first
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => NavigationPage()),
-            (route) => false,
-          );
-
-          // 2️⃣ Then launch AAM URL in browser
           await launchUrl(uri, mode: LaunchMode.externalApplication);
-
           final losUrl = "/api/leads/los-details/$losId/";
           final headers = {
             'Authorization': 'Bearer $token',
@@ -603,13 +584,40 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
             'User-Agent':
                 'Mozilla/5.0 (Linux; Android 11; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Mobile Safari/537.36',
           };
-          final body = {"workflow_status": "AAM Invoked"};
+          final body = {"workflow_status": "AAM_InProgress"};
 
           final responsefromLOS =
               await ApiService.patchWithHeaders(losUrl, headers, body);
+          await Future.delayed(Duration(seconds: 5));
+          if (!mounted) return;
+
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+               // title: Text("Congratulations!"),
+                content: Text("Your Application has created Successfully."),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NavigationPage(),
+                        ),
+                        (route) => false,
+                      );
+                    },
+                    child: Text("OK"),
+                  ),
+                ],
+              );
+            },
+          );
         } else {
           print("Could not launch $redirectUrl");
         }
+        
 
         return;
       } else if (offerStatus == "In-Progress" &&
@@ -736,6 +744,12 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
       }
     } catch (e) {
       print("ERROR calling API: $e");
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 }
