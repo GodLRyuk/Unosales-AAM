@@ -884,7 +884,7 @@ class _LosStatusChartState extends State<LosStatusChart>
           builder: (BuildContext context) {
             return AlertDialog(
              // title: Text("Congratulations!"),
-              content: Text("Your Application has created Successfully."),
+              content: Text("Your application successfully redirected to AAM"),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -1008,7 +1008,7 @@ class _LosStatusChartState extends State<LosStatusChart>
             builder: (BuildContext context) {
               return AlertDialog(
                 //title: Text("Congratulations!"),
-                content: Text("Your Application has created Successfully."),
+                content: Text("Your application successfully redirected to AAM"),
                 actions: [
                   TextButton(
                     onPressed: () {

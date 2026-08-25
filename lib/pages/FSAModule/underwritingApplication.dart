@@ -220,23 +220,23 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
                                     Text(
                                         "Mobile: ${client['mobilePhone'] ?? 'N/A'}"),
                                     Text(
-                                        "CWTransactionID: ${leadData['CWTransactionID'] ?? 'N/A'}"),
+                                        "Application No: ${losStatus['applicationNo'] ?? 'N/A'}"),
                                     Text(
                                         "Offer Status: ${losStatus['offerStatus'] ?? 'N/A'}"),
-                                    Text(
-                                        "Application Status: ${losStatus['applicationStatus'] ?? 'N/A'}"),
-                                    Text(
-                                        "UW Status: ${losStatus['uwStatus'] ?? 'N/A'}"),
+                                   
+                                    // Text(
+                                    //     "UW Status: ${losStatus['uwStatus'] ?? 'N/A'}"),
                                     
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
-                                          child: Text(
-                                            "Application No: ${losStatus['applicationNo'] ?? 'N/A'}",
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
+                                          child:  Text(
+                                        "Application Status: ${losStatus['applicationStatus'] ?? 'N/A'}",
+                                        overflow: TextOverflow.ellipsis,
+                                        ),
+                                        
                                         ),
                                         GestureDetector(
                                           onTap: () {
@@ -596,7 +596,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
             builder: (BuildContext context) {
               return AlertDialog(
                // title: Text("Congratulations!"),
-                content: Text("Your Application has created Successfully."),
+                content: Text("Your application successfully redirected to AAM"),
                 actions: [
                   TextButton(
                     onPressed: () {
