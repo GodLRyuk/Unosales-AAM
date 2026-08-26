@@ -3118,6 +3118,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                           elevation: 4,
                                           borderRadius:
                                               BorderRadius.circular(8.0),
+                                          clipBehavior: Clip.antiAlias, // add 25/8/2026
                                           child: Container(
                                             height: 200,
                                             decoration: BoxDecoration(

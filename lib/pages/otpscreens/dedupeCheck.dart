@@ -667,7 +667,9 @@ class _DedupeCheckState extends State<DedupeCheck> {
               }
             }
           }
-        } else {
+        } 
+        
+       else {
           //_showAlert("No response from server.");
           final responseBody = response.data;
           String errorMessage = "Something went wrong. Please try again.";
