@@ -667,7 +667,74 @@ class _DedupeCheckState extends State<DedupeCheck> {
               }
             }
           }
-        } else {
+        } 
+
+         else if (response.statusCode == 400) {
+          final responseBody = response.data;
+          String errorMessage =
+              "Client error occurred. Please check your input and try again.";
+
+          try {
+            final errorObj = responseBody.values.first;
+            final rawMessage = errorObj["message"]?.toString() ?? "";
+
+            // Extract only the inner message after the last "message="
+            final match = RegExp(r'message=([^)]+)\)?$').firstMatch(rawMessage);
+            if (match != null) {
+              errorMessage = match.group(1)!.trim();
+            } else if (rawMessage.isNotEmpty) {
+              errorMessage = rawMessage;
+            }
+          } catch (e) {
+            // keep default errorMessage if parsing fails
+          }
+
+          showDialog(
+            context: context,
+            barrierDismissible: false, // force user to tap OK
+            builder: (dialogContext) => AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+              content: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  errorMessage,
+                  style: const TextStyle(fontSize: 15, height: 1.4),
+                ),
+              ),
+              actionsPadding: const EdgeInsets.fromLTRB(16, 0, 19, 12),
+              actions: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF9a37ae),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 10),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(dialogContext); // close the dialog
+                    Navigator.pop(context); // go back to the previous page
+                  },
+                  child: const Text(
+                    "OK",
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        } 
+        
+        
+        else {
           //_showAlert("No response from server.");
           final responseBody = response.data;
           String errorMessage = "Something went wrong. Please try again.";

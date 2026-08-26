@@ -1114,13 +1114,14 @@ class _RQAApplicationState extends State<RQAApplication> {
                           Positioned(
                             child: Material(
                               elevation: 4,
+                               color: Colors.white,
                               borderRadius: BorderRadius.circular(8.0),
                               child: Container(
                                 height: 200,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(8.0),
-                                ),
+                                // decoration: BoxDecoration(
+                                //   // color: Colors.white,
+                                //   borderRadius: BorderRadius.circular(8.0),
+                                // ),
                                 child: ListView.builder(
                                   itemCount: _filteredCompanies.length,
                                   itemBuilder: (context, index) {
