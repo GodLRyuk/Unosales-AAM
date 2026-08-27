@@ -43,6 +43,7 @@ class LosApplicationModel {
   String? empIndustryTypeCode;
   String? empEmail;
   String? profession;
+  
 
   String? empStreet;
   String? empState;

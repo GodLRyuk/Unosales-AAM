@@ -286,6 +286,8 @@ class OtpconcentState extends State<Otpconcent> {
           "emp_email": data.empEmail,
           "companyCategorySegment": "",
           "profession": data.profession,
+          "emp_Position": data.empPosition, // Added emp_Position field 27-8-2026
+          
         },
         "_Emp_Address": {
           "emp_Street": data.empStreet,

@@ -2871,7 +2871,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                       ],
                     ),
                     child: Material(
-                       color: Colors.transparent,
+                      color: Colors.transparent,
                       child: Theme(
                         data: Theme.of(context)
                             .copyWith(dividerColor: Colors.transparent),
@@ -2976,7 +2976,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                       ],
                     ),
                     child: Material(
-                       color: Colors.transparent,
+                      color: Colors.transparent,
                       child: Theme(
                         data: Theme.of(context)
                             .copyWith(dividerColor: Colors.transparent),
@@ -3005,7 +3005,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                           ? true
                                           : false),
                                   SizedBox(height: 6),
-                      
+
                                   _buildEmpWorkNatureDropdown(
                                       controller: emp_Work_Nature,
                                       label: "Select Emp Work Nature",
@@ -3054,12 +3054,12 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                           },
                                           child: TextField(
                                             controller: _searchController,
-                                            enabled:
-                                                (widget.pagemode != "fromDSR") &&
-                                                    (widget.pagemode !=
-                                                        "fromHYPERVERSER") &&
-                                                    (widget.pagemode !=
-                                                        "fromETBStartFresh"),
+                                            enabled: (widget.pagemode !=
+                                                    "fromDSR") &&
+                                                (widget.pagemode !=
+                                                    "fromHYPERVERSER") &&
+                                                (widget.pagemode !=
+                                                    "fromETBStartFresh"),
                                             decoration: InputDecoration(
                                               contentPadding:
                                                   EdgeInsets.only(left: 5),
@@ -3140,7 +3140,8 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                                 itemBuilder: (context, index) {
                                                   return ListTile(
                                                     title: Text(
-                                                        _filteredCompanies[index]
+                                                        _filteredCompanies[
+                                                                index]
                                                             ['company_name']!),
                                                     onTap: () {
                                                       // Set the selected company
@@ -3150,16 +3151,16 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                                                 index]['id'];
                                                         _searchController.text =
                                                             _filteredCompanies[
-                                                                    index]
-                                                                ['company_name']!;
+                                                                    index][
+                                                                'company_name']!;
                                                         _isFieldFocused = false;
                                                         _showOtherCompanyField =
                                                             _selectedCompany ==
                                                                 'others';
                                                         emp_Employer_Name.text =
                                                             _filteredCompanies[
-                                                                    index]
-                                                                ['company_name']!;
+                                                                    index][
+                                                                'company_name']!;
                                                       });
                                                     },
                                                   );
@@ -3170,17 +3171,18 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                         ),
                                       ],
                                     ),
-                      
+
                                   if (_showOtherCompanyField) ...[
                                     Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 0.9),
                                       child: TextFormField(
-                                        enabled: (widget.pagemode != "fromDSR") &&
-                                            (widget.pagemode !=
-                                                "fromHYPERVERSER") &&
-                                            (widget.pagemode !=
-                                                "fromETBStartFresh"),
+                                        enabled:
+                                            (widget.pagemode != "fromDSR") &&
+                                                (widget.pagemode !=
+                                                    "fromHYPERVERSER") &&
+                                                (widget.pagemode !=
+                                                    "fromETBStartFresh"),
                                         controller: _otherCompanyController,
                                         decoration: InputDecoration(
                                           filled: true,
@@ -3259,7 +3261,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                       ],
                     ),
                     child: Material(
-                       color: Colors.transparent,
+                      color: Colors.transparent,
                       child: Theme(
                         data: Theme.of(context)
                             .copyWith(dividerColor: Colors.transparent),
@@ -3320,7 +3322,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                       ],
                     ),
                     child: Material(
-                       color: Colors.transparent,
+                      color: Colors.transparent,
                       child: Theme(
                         data: Theme.of(context)
                             .copyWith(dividerColor: Colors.transparent),
@@ -3344,9 +3346,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                     children: [
                                       Expanded(
                                         child: AbsorbPointer(
-                                          absorbing: widget.pagemode == "fromDSR"
-                                              ? true
-                                              : false,
+                                          absorbing:
+                                              widget.pagemode == "fromDSR"
+                                                  ? true
+                                                  : false,
                                           child: _buildRadioField<IdType>(
                                             value: IdType.tin,
                                             groupValue: _selectedIdType,
@@ -3359,9 +3362,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                       ),
                                       Expanded(
                                         child: AbsorbPointer(
-                                          absorbing: widget.pagemode == "fromDSR"
-                                              ? true
-                                              : false,
+                                          absorbing:
+                                              widget.pagemode == "fromDSR"
+                                                  ? true
+                                                  : false,
                                           child: _buildRadioField<IdType>(
                                             value: IdType.sss,
                                             groupValue: _selectedIdType,
@@ -3373,9 +3377,10 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                                       ),
                                       Expanded(
                                         child: AbsorbPointer(
-                                          absorbing: widget.pagemode == "fromDSR"
-                                              ? true
-                                              : false,
+                                          absorbing:
+                                              widget.pagemode == "fromDSR"
+                                                  ? true
+                                                  : false,
                                           child: _buildRadioField<IdType>(
                                             value: IdType.gsis,
                                             groupValue: _selectedIdType,
@@ -3435,7 +3440,7 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                       ],
                     ),
                     child: Material(
-                       color: Colors.transparent,
+                      color: Colors.transparent,
                       child: Theme(
                         data: Theme.of(context)
                             .copyWith(dividerColor: Colors.transparent),
