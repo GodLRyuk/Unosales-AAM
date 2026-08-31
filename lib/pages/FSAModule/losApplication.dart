@@ -2716,693 +2716,534 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                         ),
                       ],
                     ),
-                    child: Theme(
-                      data: Theme.of(context)
-                          .copyWith(dividerColor: Colors.transparent),
-                      child: ExpansionTile(
-                        initiallyExpanded: true,
-                        trailing: Icon(Icons.keyboard_arrow_down,
-                            color: Colors.white, size: 30),
-                        title: Text("Client Details",
-                            style: WidgetSupport.normalTextTab()),
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0, vertical: 8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildTextField(
-                                  firstName,
-                                  "First Name",
-                                  "Please Enter First Name",
-                                  "firstName",
-                                  isRequired: true,
-                                  readOnly: ((widget.pagemode == "fromDSR" ||
-                                              widget.pagemode ==
-                                                  "fromHYPERVERSER" ||
-                                              widget.pagemode ==
-                                                  "fromETBStartFresh") &&
-                                          firstName.text.isNotEmpty)
-                                      ? true
-                                      : false,
-                                ),
-                                SizedBox(height: 6),
-                                _buildTextField(
-                                  middlename,
-                                  "Middle name",
-                                  "Please Enter Middle Name",
-                                  "middlename",
-                                  isRequired: false,
-                                  readOnly: ((widget.pagemode == "fromDSR" ||
-                                              widget.pagemode ==
-                                                  "fromHYPERVERSER" ||
-                                              widget.pagemode ==
-                                                  "fromETBStartFresh") &&
-                                          middlename.text.isNotEmpty)
-                                      ? true
-                                      : false,
-                                ),
-                                SizedBox(height: 6),
-                                _buildTextField(
-                                  lastName,
-                                  "Last Name",
-                                  "Please Enter Last Name",
-                                  "lastName",
-                                  isRequired: true,
-                                  readOnly: ((widget.pagemode == "fromDSR" ||
-                                              widget.pagemode ==
-                                                  "fromHYPERVERSER" ||
-                                              widget.pagemode ==
-                                                  "fromETBStartFresh") &&
-                                          lastName.text.isNotEmpty)
-                                      ? true
-                                      : false,
-                                ),
-                                SizedBox(height: 6),
-                                _buildMobileTextField(
-                                  controller: mobilePhone,
-                                  isPhoneNumber: true,
-                                  readOnly: ((widget.pagemode == "fromDSR" ||
-                                              widget.pagemode ==
-                                                  "fromHYPERVERSER" ||
-                                              widget.pagemode ==
-                                                  "fromETBStartFresh") &&
-                                          mobilePhone.text.isNotEmpty)
-                                      ? true
-                                      : false,
-                                ),
-                                SizedBox(height: 6),
-                                _buildDateField(
-                                    controller: birthDate,
-                                    label: "Birth Date",
-                                    readOnly: ((widget.pagemode ==
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Theme(
+                        data: Theme.of(context)
+                            .copyWith(dividerColor: Colors.transparent),
+                        child: ExpansionTile(
+                          initiallyExpanded: true,
+                          trailing: Icon(Icons.keyboard_arrow_down,
+                              color: Colors.white, size: 30),
+                          title: Text("Client Details",
+                              style: WidgetSupport.normalTextTab()),
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildTextField(
+                                    firstName,
+                                    "First Name",
+                                    "Please Enter First Name",
+                                    "firstName",
+                                    isRequired: true,
+                                    readOnly: ((widget.pagemode == "fromDSR" ||
+                                                widget.pagemode ==
                                                     "fromHYPERVERSER" ||
                                                 widget.pagemode ==
                                                     "fromETBStartFresh") &&
-                                            birthDate.text.isNotEmpty)
+                                            firstName.text.isNotEmpty)
                                         ? true
-                                        : false),
-                                SizedBox(height: 6),
-                                _buildGenderDropdown(
-                                    controller: gender,
-                                    label: "   Select Gender",
-                                    readOnly: gender.text.isNotEmpty &&
-                                            (widget.pagemode ==
-                                                    "fromHYPERVERSER" ||
-                                                widget.pagemode ==
-                                                    "fromETBStartFresh")
-                                        ? true
-                                        : false),
-                                SizedBox(height: 6),
-                                _buildTextField(
-                                  email,
-                                  "Email Address",
-                                  "Please Enter Email Address",
-                                  "email",
-                                  isRequired: true,
-                                  readOnly: ((widget.pagemode == "fromDSR" ||
-                                              widget.pagemode ==
-                                                  "fromETBStartFresh") &&
-                                          email.text.isNotEmpty)
-                                      ? true
-                                      : false,
-                                ),
-                                SizedBox(height: 6),
-                                _buildCivilStatusDropdown(
-                                  controller: civil_Status,
-                                  label: "   Select Civil Status",
-                                ),
-                                SizedBox(height: 6),
-                                _buildNationalityDropdown(
-                                  controller: nationality,
-                                  label: "   Select Nationality",
-                                ),
-                                SizedBox(height: 6),
-                                _buildTextField(
-                                    place_Of_Birth,
-                                    "Place Of Birth",
-                                    "Please Enter Place Of Birth",
-                                    "place_Of_Birth",
-                                    isRequired: true),
-                                SizedBox(height: 20),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 15),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xFF640D78),
-                      borderRadius: BorderRadius.circular(3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 6,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Theme(
-                      data: Theme.of(context)
-                          .copyWith(dividerColor: Colors.transparent),
-                      child: ExpansionTile(
-                        initiallyExpanded: true,
-                        trailing: Icon(Icons.keyboard_arrow_down,
-                            color: Colors.white, size: 30),
-                        title: Text("Current Residential Address",
-                            style: WidgetSupport.normalTextTab()),
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0, vertical: 8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildZipTextField(
-                                  perm_ZipCode,
-                                  "Zip Code",
-                                  "Please Enter Zip Code",
-                                  "perm_ZipCode",
-                                  isRequired: true,
-                                  isZip: true,
-                                  readOnly: ((widget.pagemode == "fromDSR" ||
-                                              widget.pagemode ==
-                                                  "fromETBStartFresh" ||
-                                              widget.pagemode ==
-                                                  "fromHYPERVERSER") &&
-                                          perm_ZipCode.text.isNotEmpty)
-                                      ? true
-                                      : false,
-                                  onChanged: (value) async {
-                                    if (value.length == 4) {
-                                      onZipCodeEntered(value);
-                                    }
-                                  },
-                                ),
-                                SizedBox(height: 6),
-                                _buildTextField(perm_Region, "Region",
-                                    "Please Enter Region", "perm_Region",
-                                    isRequired: true, readOnly: true),
-                                SizedBox(height: 6),
-                                _buildTextField(
-                                  perm_State,
-                                  "Province",
-                                  "Please Enter Province",
-                                  "perm_State",
-                                  isRequired: true,
-                                  readOnly: true,
-                                ),
-                                SizedBox(height: 6),
-                                _buildTextField(
-                                  perm_City,
-                                  "City",
-                                  "Please Enter City",
-                                  "perm_City",
-                                  isRequired: true,
-                                  readOnly: true,
-                                ),
-                                SizedBox(height: 6),
-                                _buildPermBarangayDropdown(
-                                  controller: perm_Barangay,
-                                  label: "Select Barangay",
-                                  readOnly: widget.pagemode == "fromDSR"
-                                      ? true
-                                      : false,
-                                ),
-                                SizedBox(
-                                  height: 6,
-                                ),
-                                _buildTextField(
-                                  perm_Street,
-                                  "House no. & Street",
-                                  "Please Enter House no. & Street",
-                                  "perm_Street",
-                                  isRequired: true,
-                                  readOnly: (widget.pagemode == "fromDSR")
-                                      ? true
-                                      : false,
-                                ),
-                                SizedBox(height: 20),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 15),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xFF640D78),
-                      borderRadius: BorderRadius.circular(3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 6,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Theme(
-                      data: Theme.of(context)
-                          .copyWith(dividerColor: Colors.transparent),
-                      child: ExpansionTile(
-                        initiallyExpanded: true,
-                        trailing: Icon(Icons.keyboard_arrow_down,
-                            color: Colors.white, size: 30),
-                        title: Text("Employer Details",
-                            style: WidgetSupport.normalTextTab()),
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0, vertical: 8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildEmpStatusDropdown(
-                                    controller: emp_Status,
-                                    label: "Select Status",
-                                    isReadOnly: ((widget.pagemode ==
-                                                    "fromHYPERVERSER" ||
-                                                widget.pagemode ==
-                                                    "fromETBStartFresh") &&
-                                            emp_Status_Code.text.isNotEmpty)
-                                        ? true
-                                        : false),
-                                SizedBox(height: 6),
-
-                                _buildEmpWorkNatureDropdown(
-                                    controller: emp_Work_Nature,
-                                    label: "Select Emp Work Nature",
-                                    isReadOnly: ((widget.pagemode ==
-                                                    "fromHYPERVERSER" ||
-                                                widget.pagemode ==
-                                                    "fromETBStartFresh") &&
-                                            emp_Work_Nature.text.isNotEmpty
-                                        //emp_Work_Nature_Code.text.isNotEmpty
-                                        )
-                                        ? true
-                                        : false),
-                                SizedBox(height: 6),
-                                _buildPositionDropdown(
-                                  controller: emp_position,
-                                  label: "Select Emp Position",
-                                ),
-                                SizedBox(height: 6),
-                                _buildWorkExpDropdown(
-                                  controller: emp_Mths_In_Cur_Comp,
-                                  label: "Work Experience",
-                                ),
-                                if (EmpStatus == true)
-                                  _buildEmpPrefessionDropdown(
-                                    controller: profession,
-                                    label: "Select Emp Profession",
+                                        : false,
                                   ),
-                                SizedBox(height: 6),
-                                // _buildTextField(
-                                //   emp_Employer_Name,
-                                //   "Employers Name",
-                                //   "Please Enter Employers Name",
-                                //   "emp_Employer_Name",
-                                //   isRequired: true,
-                                // ),
-                                Padding(
-                                  padding: EdgeInsets.all(0.0),
-                                  child: Column(
-                                    children: [
-                                      // TextField for searching companies
-                                      Focus(
-                                        onFocusChange: (hasFocus) {
-                                          setState(() {
-                                            _isFieldFocused = hasFocus;
-                                          });
-                                        },
-                                        child: TextField(
-                                          controller: _searchController,
-                                          enabled:
-                                              (widget.pagemode != "fromDSR") &&
-                                                  (widget.pagemode !=
-                                                      "fromHYPERVERSER") &&
-                                                  (widget.pagemode !=
-                                                      "fromETBStartFresh"),
-                                          decoration: InputDecoration(
-                                            contentPadding:
-                                                EdgeInsets.only(left: 5),
-                                            filled: true,
-                                            fillColor: (widget.pagemode ==
-                                                        "fromDSR") ||
-                                                    (widget.pagemode ==
-                                                        "fromHYPERVERSER") ||
-                                                    (widget.pagemode ==
-                                                        "fromETBStartFresh")
-                                                ? Colors.grey.shade200
-                                                : Colors.white,
-                                            label: RichText(
-                                              text: const TextSpan(
-                                                text: 'Company',
-                                                style: TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 15,
-                                                ),
-                                                children: [
-                                                  TextSpan(
-                                                    text: ' *',
-                                                    style: TextStyle(
-                                                        color: Colors.red,
-                                                        fontSize: 20),
+                                  SizedBox(height: 6),
+                                  _buildTextField(
+                                    middlename,
+                                    "Middle name",
+                                    "Please Enter Middle Name",
+                                    "middlename",
+                                    isRequired: false,
+                                    readOnly: ((widget.pagemode == "fromDSR" ||
+                                                widget.pagemode ==
+                                                    "fromHYPERVERSER" ||
+                                                widget.pagemode ==
+                                                    "fromETBStartFresh") &&
+                                            middlename.text.isNotEmpty)
+                                        ? true
+                                        : false,
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildTextField(
+                                    lastName,
+                                    "Last Name",
+                                    "Please Enter Last Name",
+                                    "lastName",
+                                    isRequired: true,
+                                    readOnly: ((widget.pagemode == "fromDSR" ||
+                                                widget.pagemode ==
+                                                    "fromHYPERVERSER" ||
+                                                widget.pagemode ==
+                                                    "fromETBStartFresh") &&
+                                            lastName.text.isNotEmpty)
+                                        ? true
+                                        : false,
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildMobileTextField(
+                                    controller: mobilePhone,
+                                    isPhoneNumber: true,
+                                    readOnly: ((widget.pagemode == "fromDSR" ||
+                                                widget.pagemode ==
+                                                    "fromHYPERVERSER" ||
+                                                widget.pagemode ==
+                                                    "fromETBStartFresh") &&
+                                            mobilePhone.text.isNotEmpty)
+                                        ? true
+                                        : false,
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildDateField(
+                                      controller: birthDate,
+                                      label: "Birth Date",
+                                      readOnly: ((widget.pagemode ==
+                                                      "fromHYPERVERSER" ||
+                                                  widget.pagemode ==
+                                                      "fromETBStartFresh") &&
+                                              birthDate.text.isNotEmpty)
+                                          ? true
+                                          : false),
+                                  SizedBox(height: 6),
+                                  _buildGenderDropdown(
+                                      controller: gender,
+                                      label: "   Select Gender",
+                                      readOnly: gender.text.isNotEmpty &&
+                                              (widget.pagemode ==
+                                                      "fromHYPERVERSER" ||
+                                                  widget.pagemode ==
+                                                      "fromETBStartFresh")
+                                          ? true
+                                          : false),
+                                  SizedBox(height: 6),
+                                  _buildTextField(
+                                    email,
+                                    "Email Address",
+                                    "Please Enter Email Address",
+                                    "email",
+                                    isRequired: true,
+                                    readOnly: ((widget.pagemode == "fromDSR" ||
+                                                widget.pagemode ==
+                                                    "fromETBStartFresh") &&
+                                            email.text.isNotEmpty)
+                                        ? true
+                                        : false,
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildCivilStatusDropdown(
+                                    controller: civil_Status,
+                                    label: "   Select Civil Status",
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildNationalityDropdown(
+                                    controller: nationality,
+                                    label: "   Select Nationality",
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildTextField(
+                                      place_Of_Birth,
+                                      "Place Of Birth",
+                                      "Please Enter Place Of Birth",
+                                      "place_Of_Birth",
+                                      isRequired: true),
+                                  SizedBox(height: 20),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF640D78),
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Theme(
+                        data: Theme.of(context)
+                            .copyWith(dividerColor: Colors.transparent),
+                        child: ExpansionTile(
+                          initiallyExpanded: true,
+                          trailing: Icon(Icons.keyboard_arrow_down,
+                              color: Colors.white, size: 30),
+                          title: Text("Current Residential Address",
+                              style: WidgetSupport.normalTextTab()),
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildZipTextField(
+                                    perm_ZipCode,
+                                    "Zip Code",
+                                    "Please Enter Zip Code",
+                                    "perm_ZipCode",
+                                    isRequired: true,
+                                    isZip: true,
+                                    readOnly: ((widget.pagemode == "fromDSR" ||
+                                                widget.pagemode ==
+                                                    "fromETBStartFresh" ||
+                                                widget.pagemode ==
+                                                    "fromHYPERVERSER") &&
+                                            perm_ZipCode.text.isNotEmpty)
+                                        ? true
+                                        : false,
+                                    onChanged: (value) async {
+                                      if (value.length == 4) {
+                                        onZipCodeEntered(value);
+                                      }
+                                    },
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildTextField(perm_Region, "Region",
+                                      "Please Enter Region", "perm_Region",
+                                      isRequired: true, readOnly: true),
+                                  SizedBox(height: 6),
+                                  _buildTextField(
+                                    perm_State,
+                                    "Province",
+                                    "Please Enter Province",
+                                    "perm_State",
+                                    isRequired: true,
+                                    readOnly: true,
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildTextField(
+                                    perm_City,
+                                    "City",
+                                    "Please Enter City",
+                                    "perm_City",
+                                    isRequired: true,
+                                    readOnly: true,
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildPermBarangayDropdown(
+                                    controller: perm_Barangay,
+                                    label: "Select Barangay",
+                                    readOnly: widget.pagemode == "fromDSR"
+                                        ? true
+                                        : false,
+                                  ),
+                                  SizedBox(
+                                    height: 6,
+                                  ),
+                                  _buildTextField(
+                                    perm_Street,
+                                    "House no. & Street",
+                                    "Please Enter House no. & Street",
+                                    "perm_Street",
+                                    isRequired: true,
+                                    readOnly: (widget.pagemode == "fromDSR")
+                                        ? true
+                                        : false,
+                                  ),
+                                  SizedBox(height: 20),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF640D78),
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Theme(
+                        data: Theme.of(context)
+                            .copyWith(dividerColor: Colors.transparent),
+                        child: ExpansionTile(
+                          initiallyExpanded: true,
+                          trailing: Icon(Icons.keyboard_arrow_down,
+                              color: Colors.white, size: 30),
+                          title: Text("Employer Details",
+                              style: WidgetSupport.normalTextTab()),
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildEmpStatusDropdown(
+                                      controller: emp_Status,
+                                      label: "Select Status",
+                                      isReadOnly: ((widget.pagemode ==
+                                                      "fromHYPERVERSER" ||
+                                                  widget.pagemode ==
+                                                      "fromETBStartFresh") &&
+                                              emp_Status_Code.text.isNotEmpty)
+                                          ? true
+                                          : false),
+                                  SizedBox(height: 6),
+
+                                  _buildEmpWorkNatureDropdown(
+                                      controller: emp_Work_Nature,
+                                      label: "Select Emp Work Nature",
+                                      isReadOnly: ((widget.pagemode ==
+                                                      "fromHYPERVERSER" ||
+                                                  widget.pagemode ==
+                                                      "fromETBStartFresh") &&
+                                              emp_Work_Nature.text.isNotEmpty
+                                          //emp_Work_Nature_Code.text.isNotEmpty
+                                          )
+                                          ? true
+                                          : false),
+                                  SizedBox(height: 6),
+                                  _buildPositionDropdown(
+                                    controller: emp_position,
+                                    label: "Select Emp Position",
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildWorkExpDropdown(
+                                    controller: emp_Mths_In_Cur_Comp,
+                                    label: "Work Experience",
+                                  ),
+                                  if (EmpStatus == true)
+                                    _buildEmpPrefessionDropdown(
+                                      controller: profession,
+                                      label: "Select Emp Profession",
+                                    ),
+                                  SizedBox(height: 6),
+                                  // _buildTextField(
+                                  //   emp_Employer_Name,
+                                  //   "Employers Name",
+                                  //   "Please Enter Employers Name",
+                                  //   "emp_Employer_Name",
+                                  //   isRequired: true,
+                                  // ),
+                                  Padding(
+                                    padding: EdgeInsets.all(0.0),
+                                    child: Column(
+                                      children: [
+                                        // TextField for searching companies
+                                        Focus(
+                                          onFocusChange: (hasFocus) {
+                                            setState(() {
+                                              _isFieldFocused = hasFocus;
+                                            });
+                                          },
+                                          child: TextField(
+                                            controller: _searchController,
+                                            enabled: (widget.pagemode !=
+                                                    "fromDSR") &&
+                                                (widget.pagemode !=
+                                                    "fromHYPERVERSER") &&
+                                                (widget.pagemode !=
+                                                    "fromETBStartFresh"),
+                                            decoration: InputDecoration(
+                                              contentPadding:
+                                                  EdgeInsets.only(left: 5),
+                                              filled: true,
+                                              fillColor: (widget.pagemode ==
+                                                          "fromDSR") ||
+                                                      (widget.pagemode ==
+                                                          "fromHYPERVERSER") ||
+                                                      (widget.pagemode ==
+                                                          "fromETBStartFresh")
+                                                  ? Colors.grey.shade200
+                                                  : Colors.white,
+                                              label: RichText(
+                                                text: const TextSpan(
+                                                  text: 'Company',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 15,
                                                   ),
-                                                ],
+                                                  children: [
+                                                    TextSpan(
+                                                      text: ' *',
+                                                      style: TextStyle(
+                                                          color: Colors.red,
+                                                          fontSize: 20),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              suffixIcon: IconButton(
+                                                icon: const Icon(Icons.search),
+                                                onPressed: () {
+                                                  // _searchCompanyGetDSR(
+                                                  //     _searchController.text);
+                                                  _searchCompany(
+                                                      _searchController.text);
+                                                },
                                               ),
                                             ),
-                                            suffixIcon: IconButton(
-                                              icon: const Icon(Icons.search),
-                                              onPressed: () {
-                                                // _searchCompanyGetDSR(
-                                                //     _searchController.text);
-                                                _searchCompany(
-                                                    _searchController.text);
-                                              },
-                                            ),
+                                            onChanged: (query) {
+                                              if (query.isEmpty) {
+                                                setState(() {
+                                                  _filteredCompanies =
+                                                      _ComIdOptions.entries
+                                                          .map((e) => {
+                                                                'id': e.key,
+                                                                'company_name':
+                                                                    e.value,
+                                                              })
+                                                          .toList();
+                                                });
+                                              }
+                                            },
                                           ),
-                                          onChanged: (query) {
-                                            if (query.isEmpty) {
-                                              setState(() {
-                                                _filteredCompanies =
-                                                    _ComIdOptions.entries
-                                                        .map((e) => {
-                                                              'id': e.key,
-                                                              'company_name':
-                                                                  e.value,
-                                                            })
-                                                        .toList();
-                                              });
-                                            }
-                                          },
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                if (_isFieldFocused)
-                                  Stack(
-                                    children: [
-                                      Positioned(
-                                        child: Material(
-                                          elevation: 4,
-                                          borderRadius:
-                                              BorderRadius.circular(8.0),
-                                          clipBehavior: Clip.antiAlias, // add 25/8/2026
-                                          child: Container(
-                                            height: 200,
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                            ),
-                                            child: ListView.builder(
-                                              itemCount:
-                                                  _filteredCompanies.length,
-                                              itemBuilder: (context, index) {
-                                                return ListTile(
-                                                  title: Text(
-                                                      _filteredCompanies[index]
-                                                          ['company_name']!),
-                                                  onTap: () {
-                                                    // Set the selected company
-                                                    setState(() {
-                                                      _selectedCompany =
-                                                          _filteredCompanies[
-                                                              index]['id'];
-                                                      _searchController.text =
-                                                          _filteredCompanies[
-                                                                  index]
-                                                              ['company_name']!;
-                                                      _isFieldFocused = false;
-                                                      _showOtherCompanyField =
-                                                          _selectedCompany ==
-                                                              'others';
-                                                      emp_Employer_Name.text =
-                                                          _filteredCompanies[
-                                                                  index]
-                                                              ['company_name']!;
-                                                    });
-                                                  },
-                                                );
-                                              },
+                                  if (_isFieldFocused)
+                                    Stack(
+                                      children: [
+                                        Positioned(
+                                          child: Material(
+                                            elevation: 4,
+                                            color: Colors.white, // added
+                                            borderRadius:
+                                                BorderRadius.circular(8.0),
+                                            child: Container(
+                                              height: 200,
+                                              // decoration: BoxDecoration(
+                                              //   color: Colors.white,
+                                              //   borderRadius:
+                                              //       BorderRadius.circular(8.0),
+                                              // ),
+                                              child: ListView.builder(
+                                                itemCount:
+                                                    _filteredCompanies.length,
+                                                itemBuilder: (context, index) {
+                                                  return ListTile(
+                                                    title: Text(
+                                                        _filteredCompanies[
+                                                                index]
+                                                            ['company_name']!),
+                                                    onTap: () {
+                                                      // Set the selected company
+                                                      setState(() {
+                                                        _selectedCompany =
+                                                            _filteredCompanies[
+                                                                index]['id'];
+                                                        _searchController.text =
+                                                            _filteredCompanies[
+                                                                    index][
+                                                                'company_name']!;
+                                                        _isFieldFocused = false;
+                                                        _showOtherCompanyField =
+                                                            _selectedCompany ==
+                                                                'others';
+                                                        emp_Employer_Name.text =
+                                                            _filteredCompanies[
+                                                                    index][
+                                                                'company_name']!;
+                                                      });
+                                                    },
+                                                  );
+                                                },
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
+                                      ],
+                                    ),
 
-                                if (_showOtherCompanyField) ...[
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 0.9),
-                                    child: TextFormField(
-                                      enabled: (widget.pagemode != "fromDSR") &&
-                                          (widget.pagemode !=
-                                              "fromHYPERVERSER") &&
-                                          (widget.pagemode !=
-                                              "fromETBStartFresh"),
-                                      controller: _otherCompanyController,
-                                      decoration: InputDecoration(
-                                        filled: true,
-                                        fillColor:
-                                            (widget.pagemode == "fromDSR") ||
-                                                    (widget.pagemode ==
-                                                        "fromHYPERVERSER") ||
-                                                    (widget.pagemode ==
-                                                        "fromETBStartFresh")
-                                                ? Colors.grey.shade200
-                                                : Colors.white,
-                                        contentPadding:
-                                            EdgeInsets.only(left: 10),
-                                        hintText: "Enter company name",
-                                      ),
-                                      validator: (value) {
-                                        if (value == null ||
-                                            value.isEmpty ||
-                                            _selectedCompany == 'others') {
-                                          return 'Company name is required';
-                                        }
-                                        return null;
-                                      },
-                                      onChanged: (value) {},
-                                    ),
-                                  ),
-                                ],
-                                _buildEmpIndusTypeDropdown(
-                                  controller: emp_Indus_Type,
-                                  label: "Industry Type",
-                                  readOnly: widget.pagemode == "fromDSR"
-                                      ? true
-                                      : false,
-                                ),
-                                SizedBox(height: 6),
-                                _buildEmpTypeDropdown(
-                                    controller: emp_Type,
-                                    label: "   Employee Type",
-                                    isReadOnly: _empTypePrefilled
-                                    //((widget.pagemode ==
-                                    //                 "fromHYPERVERSER" ||
-                                    //             widget.pagemode ==
-                                    //                 "fromETBStartFresh") &&
-                                    //         emp_Type_Code.text.isNotEmpty)
-                                    //     ? true
-                                    //     : false
-                                    ),
-                                SizedBox(height: 6),
-                                _buildTextField(
-                                  emp_email,
-                                  "Employee Email Address",
-                                  "Please Enter Email Address",
-                                  "emp_email",
-                                  isEmail: true,
-                                ),
-                                SizedBox(height: 20),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 15),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xFF640D78),
-                      borderRadius: BorderRadius.circular(3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 6,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Theme(
-                      data: Theme.of(context)
-                          .copyWith(dividerColor: Colors.transparent),
-                      child: ExpansionTile(
-                        initiallyExpanded: true,
-                        trailing: Icon(Icons.keyboard_arrow_down,
-                            color: Colors.white, size: 30),
-                        title: Text("Financial Details",
-                            style: WidgetSupport.normalTextTab()),
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0, vertical: 8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildTextField(
-                                  fin_Mthly_Income,
-                                  "Montly Income",
-                                  "Please Enter Montly Income",
-                                  "fin_Mthly_Income",
-                                  isRequired: true,
-                                  readOnly: ((widget.pagemode == "fromDSR" ||
-                                              widget.pagemode ==
-                                                  "fromETBStartFresh" ||
-                                              widget.pagemode ==
-                                                  "fromHYPERVERSER") &&
-                                          fin_Mthly_Income.text.isNotEmpty)
-                                      ? true
-                                      : false,
-                                ),
-                                SizedBox(height: 6),
-                                _buildSourceFundDropdown(
-                                  controller: fin_Src_Of_Funds,
-                                  label: "   Select Source Of Funds",
-                                ),
-                                SizedBox(height: 20),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 15),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Color(0xFF640D78),
-                      borderRadius: BorderRadius.circular(3),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 6,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: Theme(
-                      data: Theme.of(context)
-                          .copyWith(dividerColor: Colors.transparent),
-                      child: ExpansionTile(
-                        initiallyExpanded: true,
-                        trailing: Icon(Icons.keyboard_arrow_down,
-                            color: Colors.white, size: 30),
-                        title: Text("Identification Details",
-                            style: WidgetSupport.normalTextTab()),
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0, vertical: 8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: AbsorbPointer(
-                                        absorbing: widget.pagemode == "fromDSR"
-                                            ? true
-                                            : false,
-                                        child: _buildRadioField<IdType>(
-                                          value: IdType.tin,
-                                          groupValue: _selectedIdType,
-                                          onChanged: (val) => setState(
-                                              () => _selectedIdType = val),
-                                          label: "TIN ID",
-                                          isRequired: false,
+                                  if (_showOtherCompanyField) ...[
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 0.9),
+                                      child: TextFormField(
+                                        enabled:
+                                            (widget.pagemode != "fromDSR") &&
+                                                (widget.pagemode !=
+                                                    "fromHYPERVERSER") &&
+                                                (widget.pagemode !=
+                                                    "fromETBStartFresh"),
+                                        controller: _otherCompanyController,
+                                        decoration: InputDecoration(
+                                          filled: true,
+                                          fillColor:
+                                              (widget.pagemode == "fromDSR") ||
+                                                      (widget.pagemode ==
+                                                          "fromHYPERVERSER") ||
+                                                      (widget.pagemode ==
+                                                          "fromETBStartFresh")
+                                                  ? Colors.grey.shade200
+                                                  : Colors.white,
+                                          contentPadding:
+                                              EdgeInsets.only(left: 10),
+                                          hintText: "Enter company name",
                                         ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: AbsorbPointer(
-                                        absorbing: widget.pagemode == "fromDSR"
-                                            ? true
-                                            : false,
-                                        child: _buildRadioField<IdType>(
-                                          value: IdType.sss,
-                                          groupValue: _selectedIdType,
-                                          onChanged: (val) => setState(
-                                              () => _selectedIdType = val),
-                                          label: "SSS ID",
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: AbsorbPointer(
-                                        absorbing: widget.pagemode == "fromDSR"
-                                            ? true
-                                            : false,
-                                        child: _buildRadioField<IdType>(
-                                          value: IdType.gsis,
-                                          groupValue: _selectedIdType,
-                                          onChanged: (val) => setState(
-                                              () => _selectedIdType = val),
-                                          label: "GSIS ID",
-                                        ),
+                                        validator: (value) {
+                                          if (value == null ||
+                                              value.isEmpty ||
+                                              _selectedCompany == 'others') {
+                                            return 'Company name is required';
+                                          }
+                                          return null;
+                                        },
+                                        onChanged: (value) {},
                                       ),
                                     ),
                                   ],
-                                ),
-                                SizedBox(height: 6),
-                                if (_selectedIdType == IdType.tin)
-                                  _buildTextField2(identity_TinId, "TIN Id",
-                                      "identity_TinId",
-                                      maxDigits: 9,
-                                      isRequired: false,
-                                      readOnly: widget.pagemode == "fromDSR"
-                                          ? true
-                                          : false),
-                                if (_selectedIdType == IdType.sss)
-                                  _buildTextField2(identity_SssID, "SSS ID",
-                                      "identity_SssID",
-                                      maxDigits: 10,
-                                      isRequired: false,
-                                      readOnly: widget.pagemode == "fromDSR"
-                                          ? true
-                                          : false),
-                                if (_selectedIdType == IdType.gsis)
-                                  _buildTextField2(identity_GsisID, "GSIS ID",
-                                      "identity_GsisID",
-                                      maxDigits: 11,
-                                      isRequired: false,
-                                      readOnly: widget.pagemode == "fromDSR"
-                                          ? true
-                                          : false),
-                                SizedBox(height: 20),
-                              ],
+                                  _buildEmpIndusTypeDropdown(
+                                    controller: emp_Indus_Type,
+                                    label: "Industry Type",
+                                    readOnly: widget.pagemode == "fromDSR"
+                                        ? true
+                                        : false,
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildEmpTypeDropdown(
+                                      controller: emp_Type,
+                                      label: "   Employee Type",
+                                      isReadOnly: _empTypePrefilled
+                                      //((widget.pagemode ==
+                                      //                 "fromHYPERVERSER" ||
+                                      //             widget.pagemode ==
+                                      //                 "fromETBStartFresh") &&
+                                      //         emp_Type_Code.text.isNotEmpty)
+                                      //     ? true
+                                      //     : false
+                                      ),
+                                  SizedBox(height: 6),
+                                  _buildTextField(
+                                    emp_email,
+                                    "Employee Email Address",
+                                    "Please Enter Email Address",
+                                    "emp_email",
+                                    isEmail: true,
+                                  ),
+                                  SizedBox(height: 20),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -3419,82 +3260,264 @@ class _LosApplicationPageState extends State<LosApplicationPage> {
                         ),
                       ],
                     ),
-                    child: Theme(
-                      data: Theme.of(context)
-                          .copyWith(dividerColor: Colors.transparent),
-                      child: ExpansionTile(
-                        initiallyExpanded: true,
-                        trailing: Icon(Icons.keyboard_arrow_down,
-                            color: Colors.white, size: 30),
-                        title: Text("Employer Address",
-                            style: WidgetSupport.normalTextTab()),
-                        children: [
-                          Container(
-                            color: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0, vertical: 8),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildZipTextField(
-                                  emp_ZipCode,
-                                  "Zip Code",
-                                  "Please Enter Zip Code",
-                                  "emp_ZipCode",
-                                  isRequired: true,
-                                  // readOnly: (emp_ZipCode.text.isNotEmpty && (widget.pagemode ==
-                                  //                   "fromETBStartFresh")),
-                                  isZip: true,
-                                  onChanged: (value) async {
-                                    if (value.length == 4) {
-                                      onEmpZipCodeEntered(value);
-                                    }
-                                  },
-                                ),
-                                SizedBox(height: 6),
-                                _buildTextField(
-                                  emp_Region,
-                                  "Region",
-                                  "Please Enter Region",
-                                  "emp_Region",
-                                  isRequired: true,
-                                  readOnly: true,
-                                ),
-                                SizedBox(height: 6),
-                                _buildTextField(
-                                  emp_State,
-                                  "Province",
-                                  "Please Enter Province",
-                                  "perm_State",
-                                  isRequired: true,
-                                  readOnly: true,
-                                ),
-                                SizedBox(height: 6),
-                                _buildTextField(
-                                  emp_City,
-                                  "City",
-                                  "Please Enter City",
-                                  "emp_City",
-                                  isRequired: true,
-                                  readOnly: true,
-                                ),
-                                SizedBox(height: 6),
-                                _buildEmpBarangayDropdown(
-                                  controller: emp_Barangay,
-                                  label: "Select Barangay",
-                                ),
-                                SizedBox(height: 6),
-                                _buildTextField(
-                                    emp_Street,
-                                    "Building No./Street",
-                                    "Please Enter Building No./Street",
-                                    "emp_Street",
-                                    isRequired: true),
-                                SizedBox(height: 20),
-                              ],
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Theme(
+                        data: Theme.of(context)
+                            .copyWith(dividerColor: Colors.transparent),
+                        child: ExpansionTile(
+                          initiallyExpanded: true,
+                          trailing: Icon(Icons.keyboard_arrow_down,
+                              color: Colors.white, size: 30),
+                          title: Text("Financial Details",
+                              style: WidgetSupport.normalTextTab()),
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildTextField(
+                                    fin_Mthly_Income,
+                                    "Montly Income",
+                                    "Please Enter Montly Income",
+                                    "fin_Mthly_Income",
+                                    isRequired: true,
+                                    readOnly: ((widget.pagemode == "fromDSR" ||
+                                                widget.pagemode ==
+                                                    "fromETBStartFresh" ||
+                                                widget.pagemode ==
+                                                    "fromHYPERVERSER") &&
+                                            fin_Mthly_Income.text.isNotEmpty)
+                                        ? true
+                                        : false,
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildSourceFundDropdown(
+                                    controller: fin_Src_Of_Funds,
+                                    label: "   Select Source Of Funds",
+                                  ),
+                                  SizedBox(height: 20),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF640D78),
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Theme(
+                        data: Theme.of(context)
+                            .copyWith(dividerColor: Colors.transparent),
+                        child: ExpansionTile(
+                          initiallyExpanded: true,
+                          trailing: Icon(Icons.keyboard_arrow_down,
+                              color: Colors.white, size: 30),
+                          title: Text("Identification Details",
+                              style: WidgetSupport.normalTextTab()),
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: AbsorbPointer(
+                                          absorbing:
+                                              widget.pagemode == "fromDSR"
+                                                  ? true
+                                                  : false,
+                                          child: _buildRadioField<IdType>(
+                                            value: IdType.tin,
+                                            groupValue: _selectedIdType,
+                                            onChanged: (val) => setState(
+                                                () => _selectedIdType = val),
+                                            label: "TIN ID",
+                                            isRequired: false,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: AbsorbPointer(
+                                          absorbing:
+                                              widget.pagemode == "fromDSR"
+                                                  ? true
+                                                  : false,
+                                          child: _buildRadioField<IdType>(
+                                            value: IdType.sss,
+                                            groupValue: _selectedIdType,
+                                            onChanged: (val) => setState(
+                                                () => _selectedIdType = val),
+                                            label: "SSS ID",
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: AbsorbPointer(
+                                          absorbing:
+                                              widget.pagemode == "fromDSR"
+                                                  ? true
+                                                  : false,
+                                          child: _buildRadioField<IdType>(
+                                            value: IdType.gsis,
+                                            groupValue: _selectedIdType,
+                                            onChanged: (val) => setState(
+                                                () => _selectedIdType = val),
+                                            label: "GSIS ID",
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 6),
+                                  if (_selectedIdType == IdType.tin)
+                                    _buildTextField2(identity_TinId, "TIN Id",
+                                        "identity_TinId",
+                                        maxDigits: 9,
+                                        isRequired: false,
+                                        readOnly: widget.pagemode == "fromDSR"
+                                            ? true
+                                            : false),
+                                  if (_selectedIdType == IdType.sss)
+                                    _buildTextField2(identity_SssID, "SSS ID",
+                                        "identity_SssID",
+                                        maxDigits: 10,
+                                        isRequired: false,
+                                        readOnly: widget.pagemode == "fromDSR"
+                                            ? true
+                                            : false),
+                                  if (_selectedIdType == IdType.gsis)
+                                    _buildTextField2(identity_GsisID, "GSIS ID",
+                                        "identity_GsisID",
+                                        maxDigits: 11,
+                                        isRequired: false,
+                                        readOnly: widget.pagemode == "fromDSR"
+                                            ? true
+                                            : false),
+                                  SizedBox(height: 20),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color(0xFF640D78),
+                      borderRadius: BorderRadius.circular(3),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 6,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: Theme(
+                        data: Theme.of(context)
+                            .copyWith(dividerColor: Colors.transparent),
+                        child: ExpansionTile(
+                          initiallyExpanded: true,
+                          trailing: Icon(Icons.keyboard_arrow_down,
+                              color: Colors.white, size: 30),
+                          title: Text("Employer Address",
+                              style: WidgetSupport.normalTextTab()),
+                          children: [
+                            Container(
+                              color: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 16.0, vertical: 8),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildZipTextField(
+                                    emp_ZipCode,
+                                    "Zip Code",
+                                    "Please Enter Zip Code",
+                                    "emp_ZipCode",
+                                    isRequired: true,
+                                    // readOnly: (emp_ZipCode.text.isNotEmpty && (widget.pagemode ==
+                                    //                   "fromETBStartFresh")),
+                                    isZip: true,
+                                    onChanged: (value) async {
+                                      if (value.length == 4) {
+                                        onEmpZipCodeEntered(value);
+                                      }
+                                    },
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildTextField(
+                                    emp_Region,
+                                    "Region",
+                                    "Please Enter Region",
+                                    "emp_Region",
+                                    isRequired: true,
+                                    readOnly: true,
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildTextField(
+                                    emp_State,
+                                    "Province",
+                                    "Please Enter Province",
+                                    "perm_State",
+                                    isRequired: true,
+                                    readOnly: true,
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildTextField(
+                                    emp_City,
+                                    "City",
+                                    "Please Enter City",
+                                    "emp_City",
+                                    isRequired: true,
+                                    readOnly: true,
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildEmpBarangayDropdown(
+                                    controller: emp_Barangay,
+                                    label: "Select Barangay",
+                                  ),
+                                  SizedBox(height: 6),
+                                  _buildTextField(
+                                      emp_Street,
+                                      "Building No./Street",
+                                      "Please Enter Building No./Street",
+                                      "emp_Street",
+                                      isRequired: true),
+                                  SizedBox(height: 20),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

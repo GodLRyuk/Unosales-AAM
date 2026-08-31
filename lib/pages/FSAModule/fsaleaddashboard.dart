@@ -242,89 +242,93 @@ class _FsaLeadDashBoardState extends State<FsaLeadDashBoard>
           right: BorderSide(color: Color(0xFF640D78), width: 1.0),
         ),
       ),
-      child: ListTile(
-        key: index == 0
-            ? (isCustomerLead ? displayCustomerLeadKey : displayCompanyLeadKey)
-            : null,
-        onTap: () {
-          if (!isCustomerLead) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    FsaCompanySingleLead(leadId: lead['id'] ?? ''),
-              ),
-            );
-          }
-        },
-        contentPadding: const EdgeInsets.symmetric(horizontal: 15),
-        leading: SizedBox(
-          //Sized Box is added  because of white screen ISSUE .
-          width: MediaQuery.of(context).size.width * 0.8,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Flexible(
-                child: Text(
-                  lead['name']?.toUpperCase() ?? 'NO NAME',
-                  style: WidgetSupport.label(),
-                  softWrap: true,
-                  textAlign: TextAlign.start,
+      clipBehavior: Clip.antiAlias,
+      child: Material(
+        color: Colors.transparent,
+        child: ListTile(
+          key: index == 0
+              ? (isCustomerLead ? displayCustomerLeadKey : displayCompanyLeadKey)
+              : null,
+          onTap: () {
+            if (!isCustomerLead) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      FsaCompanySingleLead(leadId: lead['id'] ?? ''),
                 ),
+              );
+            }
+          },
+          contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+          leading: SizedBox(
+            //Sized Box is added  because of white screen ISSUE .
+            width: MediaQuery.of(context).size.width * 0.8,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: Text(
+                    lead['name']?.toUpperCase() ?? 'NO NAME',
+                    style: WidgetSupport.label(),
+                    softWrap: true,
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  lead['phone'] ?? 'NO PHONE',
+                  style: WidgetSupport.inputLabel(),
+                ),
+              ],
+            ),
+          ),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                key: index == 0
+                    ? (isCustomerLead
+                        ? descriptionCustomerLeadKey
+                        : descriptionCompanyLeadKey)
+                    : null,
+                margin: const EdgeInsets.only(top: 20, right: 10),
+                width: 100,
+                height: 25,
+                // decoration: BoxDecoration(
+                //   color: isCustomerLead
+                //       ? const Color(0xFFc433e0)
+                //       : const Color(0xFF640D78),
+                //   borderRadius: BorderRadius.circular(10),
+                // ),
+                // child: Center(
+                //   child: Text(
+                //     lead['type'] ?? '',
+                //     style: const TextStyle(color: Colors.white),
+                //   ),
+                // ),
               ),
-              const SizedBox(height: 4),
-              Text(
-                lead['phone'] ?? 'NO PHONE',
-                style: WidgetSupport.inputLabel(),
-              ),
+              if (!isCustomerLead)
+                // GestureDetector(
+                //   onTap: () {
+                //     Navigator.push(
+                //       context,
+                //       MaterialPageRoute(
+                //         builder: (context) =>
+                //             FsaCompanyLeadGenerate(edit: lead['id'] ?? ''),
+                //       ),
+                //     );
+                //   },
+                //   child: Icon(Icons.edit,
+                //       color: const Color(0xFF640D78),
+                //       key: index == 0 ? editCompanyLeadKey : null),
+                // ),
+                const SizedBox(width: 10),
+              if (!isCustomerLead)
+                const Icon(Icons.chevron_right, color: Color(0xFF640D78)),
             ],
           ),
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              key: index == 0
-                  ? (isCustomerLead
-                      ? descriptionCustomerLeadKey
-                      : descriptionCompanyLeadKey)
-                  : null,
-              margin: const EdgeInsets.only(top: 20, right: 10),
-              width: 100,
-              height: 25,
-              // decoration: BoxDecoration(
-              //   color: isCustomerLead
-              //       ? const Color(0xFFc433e0)
-              //       : const Color(0xFF640D78),
-              //   borderRadius: BorderRadius.circular(10),
-              // ),
-              // child: Center(
-              //   child: Text(
-              //     lead['type'] ?? '',
-              //     style: const TextStyle(color: Colors.white),
-              //   ),
-              // ),
-            ),
-            if (!isCustomerLead)
-              // GestureDetector(
-              //   onTap: () {
-              //     Navigator.push(
-              //       context,
-              //       MaterialPageRoute(
-              //         builder: (context) =>
-              //             FsaCompanyLeadGenerate(edit: lead['id'] ?? ''),
-              //       ),
-              //     );
-              //   },
-              //   child: Icon(Icons.edit,
-              //       color: const Color(0xFF640D78),
-              //       key: index == 0 ? editCompanyLeadKey : null),
-              // ),
-              const SizedBox(width: 10),
-            if (!isCustomerLead)
-              const Icon(Icons.chevron_right, color: Color(0xFF640D78)),
-          ],
         ),
       ),
     );
