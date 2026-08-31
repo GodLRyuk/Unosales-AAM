@@ -3,8 +3,7 @@ import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:pointycastle/asymmetric/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'package:unosfa/pages/FSAModule/los_status_chart.dart';
-import 'package:unosfa/pages/FSAModule/los_status_chart2.dart';
+import 'package:unosfa/pages/FSAModule/los_status_chart.dart';
 import 'package:unosfa/pages/config/config.dart';
 import 'package:unosfa/pages/generalscreens/customNavigation.dart';
 import 'package:unosfa/pages/services/api_service.dart';
@@ -645,7 +644,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
           barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("Application Status $offerStatus"),
+              title: Text("Application Status\n $offerStatus"),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -719,7 +718,7 @@ class _UnderwritingapplicationState extends State<Underwritingapplication> {
           barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: Text("Application Status $offerStatus"),
+              title: Text("Application Status\n $offerStatus"),
               actions: [
                 TextButton(
                   onPressed: () {

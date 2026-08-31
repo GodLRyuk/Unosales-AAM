@@ -15,8 +15,7 @@ import 'package:unosfa/pages/Form/FormList/suppervisor_team_huddle_list.dart';
 import 'package:unosfa/pages/Report/form_report.dart';
 import 'package:unosfa/pages/services/api_service.dart';
 import 'package:unosfa/pages/services/checkin.dart';
-//import 'package:unosfa/pages/FSAModule/los_status_chart.dart';
-import 'package:unosfa/pages/FSAModule/los_status_chart2.dart';
+import 'package:unosfa/pages/FSAModule/los_status_chart.dart';
 import 'package:unosfa/widgetSupport/widgetstyle.dart';
 import 'package:flutter/services.dart';
 

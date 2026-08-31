@@ -664,7 +664,9 @@ class OtpconcentState extends State<Otpconcent> {
               builder: (BuildContext context) {
                 return AlertDialog(
                   //title: Text("Success!"),
-                  content: Text("Your Application has created Successfully."),
+                  content: Container(
+                    padding: EdgeInsets.only(top: 36.0),
+                    child: Text("Your Application has created Successfully.")),
                   actions: [
                     TextButton(
                       onPressed: () {
