@@ -701,7 +701,8 @@ class _LosStatusChartState extends State<LosStatusChart>
                                                   ),
                                                   SizedBox(height: 5),
                                                   Text(
-                                                    "Workflow Status: ${lead['workflow_status']}",
+                                                    // "Workflow Status: ${lead['workflow_status']}",
+                                                     "Workflow Status: AAM InProgress",
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                   ),
@@ -747,7 +748,8 @@ class _LosStatusChartState extends State<LosStatusChart>
                                           "Mobile: ${lead['mobilePhone']}\n"
                                           "ApplicationNo: ${lead['applicationNo']}\n"
                                           "OfferStatus: ${lead['offerStatus']}\n"
-                                          "Workflow Status: ${lead['workflow_status']}\n"
+                                          ///"Workflow Status: ${lead['workflow_status']}\n"
+                                          "Workflow Status: ${(lead['workflow_status'] ?? '').toString().toUpperCase() == 'AAM_COMPLETED' ? 'AAM Completed' : lead['workflow_status']}\n"
                                           "Application Status: ${lead['applicationStatus']}",
                                         ),
                             ),

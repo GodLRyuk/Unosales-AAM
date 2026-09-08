@@ -25,6 +25,8 @@ CertificateState parseCertificateState(String value) {
 
 final certificate = AppConfig.certificateChecks;
 
+
+
 // ─── SSL Pinning Interceptor ──────────────────────
 class SSLPinningInterceptor extends Interceptor {
   final String baseUrl;
@@ -36,6 +38,7 @@ class SSLPinningInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
+    // print("Certificate: $certificate");    add this line to print the certificate value 7/9/2025 
     final baseUri = Uri.parse(baseUrl);
     final isHttps = baseUri.scheme == 'https';
 

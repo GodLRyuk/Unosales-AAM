@@ -74,12 +74,15 @@ Future<String> setupSslKeys() async {
 
   await remoteConfig.fetchAndActivate();
 
-  final jsonString = remoteConfig.getString('ssl_certificate');
+   final jsonString = remoteConfig.getString('ssl_certificate'); 
+  // final jsonString = remoteConfig.getString('ssl_key_certificate'); // commenting this line just for testing purpose 7/9/2026
   if (jsonString.isEmpty) {
     throw Exception("No SSL keys found in Remote Config");
   }
 
   final Map<String, dynamic> sslKeys = json.decode(jsonString);
+
+ // print("SSL Keys: $sslKeys");   commenting this line just for testing purpose 7/9/2026
 
   // // Choose SSL hash based on environment
   String certHash;
